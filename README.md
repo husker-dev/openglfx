@@ -8,7 +8,7 @@ OpenGL implementation for JavaFX, based on JOGL
   - Smooth resizing without slowing down the program
   
 ## Flaws
-  - Draws on top layer of the window
+  - Prints on top layer of the window
   
 ## Dependencies
   - JOGL ([2.4.0](https://jogamp.org/deployment/v2.4.0-rc-20200115/fat/jogamp-fat.jar) or later)
