@@ -1,4 +1,4 @@
-# opengl-javafx
+# OpenGLFX
 
 OpenGL implementation for JavaFX, based on JOGL
 
@@ -6,19 +6,39 @@ OpenGL implementation for JavaFX, based on JOGL
   - HiDPI support
   - One-line Node creation
   - Smooth resizing without slowing down the program
+  - Just a simple Pane node
   
 ## Flaws
-  - Prints on top layer of the window
+  - Flickers at window borders when resized
+  - Can't process pixel's alpha channel
+  - Creates ghost window
   
-## Dependencies
-  - JOGL ([2.4.0](https://jogamp.org/deployment/v2.4.0-rc-20200115/fat/jogamp-fat.jar) or later)
+## Requirements
+  - Kotlin
+  - [jogl-all-main](https://mvnrepository.com/artifact/org.jogamp.jogl/jogl-all-main)
+  - [gluegen-rt-main](https://mvnrepository.com/artifact/org.jogamp.gluegen/gluegen-rt-main)
   
 ## Usage
+
+  - Add dependency 
   
-  ```java
-  Node glNode = new OpenGLCanvas(/* GLEventListener */);
-  ```
-  or
-  ```java
-  Node glNode = new OpenGLCanvas(/* GLCapabilities */, /* GLEventListener */);
-  ```
+    ```gradle
+    repositories {
+        // ...
+        maven { url 'https://jitpack.io' }
+    }
+    
+    dependencies {
+        implementation 'com.github.husker-dev:openglfx:0.1'
+    }
+    ```
+  - Create node
+    ```java
+    Node glNode0 = new OpenGLCanvas(/* GLEventListener */);
+    ```
+    ```java
+    Node glNode1 = new OpenGLCanvas(/* GLCapabilities */, /* GLEventListener */);
+    ```
+    ```java
+    Node glNode2 = new OpenGLCanvas(/* GLCapabilities */, /* GLEventListener */, /* FPS */);
+    ```
