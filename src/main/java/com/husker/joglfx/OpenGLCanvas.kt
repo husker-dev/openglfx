@@ -1,23 +1,16 @@
 package com.husker.joglfx
 
 import com.jogamp.newt.NewtFactory
-import com.jogamp.newt.javafx.NewtCanvasJFX
 import com.jogamp.newt.opengl.GLWindow
 import com.jogamp.opengl.*
 import com.jogamp.opengl.GL.*
-import com.jogamp.opengl.util.FPSAnimator
 import javafx.animation.AnimationTimer
-import javafx.application.Platform
 import javafx.scene.image.ImageView
 import javafx.scene.image.PixelFormat
 import javafx.scene.image.WritableImage
 import javafx.scene.layout.Pane
 import java.nio.ByteBuffer
-import java.nio.IntBuffer
-import java.util.stream.Collectors
-import java.util.stream.IntStream
 import kotlin.math.max
-import kotlin.math.min
 import kotlin.math.roundToInt
 
 
