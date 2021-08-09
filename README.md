@@ -13,7 +13,7 @@ OpenGL implementation for JavaFX, based on JOGL
   - Can't process pixel's alpha channel
   - Creates ghost window
   
-## Dependencies
+## Requirements
   - Kotlin
   - [jogl-all-main](https://mvnrepository.com/artifact/org.jogamp.jogl/jogl-all-main)
   - [gluegen-rt-main](https://mvnrepository.com/artifact/org.jogamp.gluegen/gluegen-rt-main)
