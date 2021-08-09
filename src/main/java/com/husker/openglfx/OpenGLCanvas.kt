@@ -1,3 +1,5 @@
+package com.husker.openglfx
+
 import com.husker.openglfx.utils.NativeWindowUtils
 import com.husker.openglfx.utils.NodeUtils
 import com.husker.openglfx.utils.ScreenUtils
