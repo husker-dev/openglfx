@@ -6,7 +6,7 @@ OpenGL implementation for JavaFX, based on JOGL
   - HiDPI support
   - One-line Node creation
   - Smooth resizing without slowing down the program
-  - Just a simple Panel node
+  - Just a simple Pane node
   
 ## Flaws
   - Flickers at window borders when resized
