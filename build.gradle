@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'com.husker'
-version '0.2'
+version '0.3'
 
 
 repositories {
@@ -29,6 +29,4 @@ dependencies {
 
     implementation 'org.jogamp.jogl:jogl-all-main:2.3.2'
     implementation 'org.jogamp.gluegen:gluegen-rt-main:2.3.2'
-
-    //implementation fileTree("./libs")
 }
