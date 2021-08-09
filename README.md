@@ -11,7 +11,7 @@ OpenGL implementation for JavaFX, based on JOGL
 ## Flaws
   - Flickers at window borders when resized
   - Can't process pixel's alpha channel
-  - Creates ghost window
+  - Creates ghost window (only Linux, MacOS)
   
 ## Requirements
   - Kotlin
