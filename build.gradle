@@ -27,8 +27,8 @@ dependencies {
     implementation "org.openjfx:javafx-graphics:16:win"
     implementation "org.openjfx:javafx-swing:16:win"
 
-    //implementation 'org.jogamp.jogl:jogl-all-main:2.3.2'
-    //implementation 'org.jogamp.gluegen:gluegen-rt-main:2.3.2'
+    implementation 'org.jogamp.jogl:jogl-all-main:2.3.2'
+    implementation 'org.jogamp.gluegen:gluegen-rt-main:2.3.2'
 
-    implementation fileTree("./libs")
+    //implementation fileTree("./libs")
 }

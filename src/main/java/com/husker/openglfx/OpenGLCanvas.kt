@@ -1,8 +1,6 @@
 package com.husker.openglfx
 
-import com.husker.openglfx.utils.NativeWindowUtils
 import com.husker.openglfx.utils.NodeUtils
-import com.husker.openglfx.utils.ScreenUtils
 import com.jogamp.newt.opengl.GLWindow
 import com.jogamp.opengl.*
 import com.jogamp.opengl.GL.*
@@ -11,6 +9,8 @@ import javafx.scene.image.ImageView
 import javafx.scene.image.PixelFormat
 import javafx.scene.image.WritableImage
 import javafx.scene.layout.Pane
+import jogamp.newt.OffscreenWindow
+import jogamp.opengl.util.glsl.GLSLTextureRaster
 import java.nio.ByteBuffer
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -20,7 +20,7 @@ class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener, val 
 
     constructor(listener: GLEventListener): this(GLCapabilities(GLProfile.getDefault()), listener)
 
-    private val glWindow: GLWindow = GLWindow.create(capabilities)
+    private val glWindow: GLWindow
     private var canvas = ImageView()
 
     private val rgbaBuffers = arrayListOf<ByteBuffer>()
@@ -43,29 +43,25 @@ class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener, val 
     private var renderingState = RenderState.GRAB_GL
 
     init{
+        capabilities.isOnscreen = false
+        glWindow = GLWindow.create(capabilities)
+
         canvas.isPreserveRatio = true
         children.add(canvas)
 
+        glWindow.addGLEventListener(listener)
         glWindow.addGLEventListener(object: GLEventListener{
-            var reshaped = false
             override fun init(drawable: GLAutoDrawable?) {}
             override fun dispose(drawable: GLAutoDrawable?) {}
-            override fun reshape(drawable: GLAutoDrawable?, x: Int, y: Int, width: Int, height: Int) {
-                reshaped = true
-            }
+            override fun reshape(drawable: GLAutoDrawable?, x: Int, y: Int, width: Int, height: Int) {}
 
             override fun display(drawable: GLAutoDrawable?) {
-                if(reshaped){
-                    reshaped = false
-                    return
-                }
-                updateGL(drawable!!.gl as GL2)
+                drawable!!.swapBuffers()
+                updateGL(drawable.gl as GL2)
             }
         })
-        glWindow.addGLEventListener(listener)
-        glWindow.setPosition(ScreenUtils.maxScreenPoint.value.x.toInt() + 100, ScreenUtils.maxScreenPoint.value.y.toInt() + 100)
+
         glWindow.isVisible = true
-        NativeWindowUtils.hideWindow(glWindow)
 
         object: AnimationTimer(){
             override fun handle(now: Long) {
@@ -155,8 +151,7 @@ class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener, val 
 
         fitArrayListToSize(rgbaBuffers, chunksW * chunksH) { ByteBuffer.allocate(3 * chunkSize * chunkSize) }
 
-        gl.glReadBuffer(GL_FRONT_AND_BACK)
-
+        gl.glReadBuffer(gl.defaultReadBuffer)
         for (i in 0 until chunksW)
             for (r in 0 until chunksH)
                 gl.glReadPixels(i * chunkSize, r * chunkSize, chunkSize, chunkSize, GL_RGB, GL_UNSIGNED_BYTE, rgbaBuffers[r * chunksW + i])
