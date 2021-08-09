@@ -1,0 +1,3 @@
+C:/Users/redfa/Documents/Java_projects/JavaFX3D_Test/native/cmake-build-debug/CMakeFiles/openglfx.dir
+C:/Users/redfa/Documents/Java_projects/JavaFX3D_Test/native/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/redfa/Documents/Java_projects/JavaFX3D_Test/native/cmake-build-debug/CMakeFiles/rebuild_cache.dir

@@ -1,6 +1,6 @@
-package com.husker.joglfx
-
-import com.jogamp.newt.NewtFactory
+import com.husker.openglfx.utils.NativeWindowUtils
+import com.husker.openglfx.utils.NodeUtils
+import com.husker.openglfx.utils.ScreenUtils
 import com.jogamp.newt.opengl.GLWindow
 import com.jogamp.opengl.*
 import com.jogamp.opengl.GL.*
@@ -16,16 +16,9 @@ import kotlin.math.roundToInt
 
 class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener, val fps: Int = 1000): Pane() {
 
-    companion object{
-        fun createGLWindow(capabilities: GLCapabilities): GLWindow {
-            val screen = NewtFactory.createScreen(NewtFactory.createDisplay(null, true), 0)
-            return GLWindow.create(screen, capabilities)
-        }
-    }
-
     constructor(listener: GLEventListener): this(GLCapabilities(GLProfile.getDefault()), listener)
 
-    private val glWindow: GLWindow = createGLWindow(capabilities)
+    private val glWindow: GLWindow = GLWindow.create(capabilities)
     private var canvas = ImageView()
 
     private val rgbaBuffers = arrayListOf<ByteBuffer>()
@@ -70,6 +63,7 @@ class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener, val 
         glWindow.addGLEventListener(listener)
         glWindow.setPosition(ScreenUtils.maxScreenPoint.value.x.toInt() + 100, ScreenUtils.maxScreenPoint.value.y.toInt() + 100)
         glWindow.isVisible = true
+        NativeWindowUtils.hideWindow(glWindow)
 
         object: AnimationTimer(){
             override fun handle(now: Long) {

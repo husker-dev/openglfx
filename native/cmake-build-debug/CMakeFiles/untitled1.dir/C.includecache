@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Users/redfa/.jdks/corretto-11.0.12/include/jni.h
+stdio.h
+-
+stdarg.h
+-
+jni_md.h
+C:/Users/redfa/.jdks/corretto-11.0.12/include/jni_md.h
+
+C:/Users/redfa/.jdks/corretto-11.0.12/include/win32/jni_md.h
+
+C:/Users/redfa/Documents/Java_projects/JavaFX3D_Test/native/com_husker_openglfx_NativeWindowUtils.c
+com_husker_openglfx_NativeWindowUtils.h
+C:/Users/redfa/Documents/Java_projects/JavaFX3D_Test/native/com_husker_openglfx_NativeWindowUtils.h
+stdlib.h
+C:/Users/redfa/Documents/Java_projects/JavaFX3D_Test/native/stdlib.h
+stdio.h
+C:/Users/redfa/Documents/Java_projects/JavaFX3D_Test/native/stdio.h
+windows.h
+C:/Users/redfa/Documents/Java_projects/JavaFX3D_Test/native/windows.h
+
+C:/Users/redfa/Documents/Java_projects/JavaFX3D_Test/native/com_husker_openglfx_NativeWindowUtils.h
+jni.h
+-
+

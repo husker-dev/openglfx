@@ -1,4 +1,4 @@
-package com.husker.joglfx
+package com.husker.openglfx.utils
 
 import javafx.geometry.Point2D
 import javafx.stage.Screen

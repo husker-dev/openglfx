@@ -1,0 +1,16 @@
+"C:\Program Files\JetBrains\CLion 2021.2\bin\cmake\win\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_DEPENDS_USE_COMPILER=FALSE -G "CodeBlocks - NMake Makefiles" C:\Users\redfa\Documents\Java_projects\JavaFX3D_Test\native
+-- Configuring done
+CMake Error at CMakeLists.txt:10 (add_library):
+  Cannot find source file:
+
+    com_husker_openglfx_utils_NativeWindowUtils.h
+
+  Tried extensions .c .C .c++ .cc .cpp .cxx .cu .mpp .m .M .mm .h .hh .h++
+  .hm .hpp .hxx .in .txx .f .F .for .f77 .f90 .f95 .f03 .ispc
+
+
+CMake Error at CMakeLists.txt:10 (add_library):
+  No SOURCES given to target: openglfx
+
+
+CMake Generate step failed.  Build files cannot be regenerated correctly.
