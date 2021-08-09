@@ -1,4 +1,4 @@
-# opengl-javafx
+# OpenGLFX
 
 OpenGL implementation for JavaFX, based on JOGL
 
@@ -29,7 +29,7 @@ OpenGL implementation for JavaFX, based on JOGL
     }
     
     dependencies {
-        implementation 'com.github.husker-dev:opengl-javafx:0.1'
+        implementation 'com.github.husker-dev:openglfx:0.1'
     }
     ```
   - Create node
