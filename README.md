@@ -8,11 +8,6 @@ OpenGL implementation for JavaFX, based on JOGL
   - Smooth resizing without slowing down the program
   - Just a simple Pane node
   
-## Flaws
-  - Flickers at window borders when resized
-  - Can't process pixel's alpha channel
-  - Creates ghost window (only Linux, MacOS)
-  
 ## Requirements
   - Kotlin
   - [jogl-all-main](https://mvnrepository.com/artifact/org.jogamp.jogl/jogl-all-main)
@@ -29,7 +24,7 @@ OpenGL implementation for JavaFX, based on JOGL
     }
     
     dependencies {
-        implementation 'com.github.husker-dev:openglfx:0.2'
+        implementation 'com.github.husker-dev:openglfx:0.3'
     }
     ```
   - Create node
