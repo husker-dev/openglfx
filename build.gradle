@@ -16,6 +16,9 @@ dependencies {
     implementation "org.openjfx:javafx-base:16:win"
     implementation "org.openjfx:javafx-controls:16:win"
     implementation "org.openjfx:javafx-graphics:16:win"
+    implementation "org.openjfx:javafx-swing:16:win"
+
+    //implementation 'org.jogamp.jogl:jogl-all:2.3.2'
 
     implementation fileTree("./libs")
 }
