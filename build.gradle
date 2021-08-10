@@ -6,11 +6,6 @@ plugins {
 group 'com.husker'
 version '0.4'
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
-}
-
 repositories {
     mavenCentral()
 }
