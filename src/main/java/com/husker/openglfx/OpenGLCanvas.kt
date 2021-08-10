@@ -3,15 +3,13 @@ package com.husker.openglfx
 import com.husker.openglfx.utils.NodeUtils
 import com.jogamp.newt.opengl.GLWindow
 import com.jogamp.opengl.*
-import com.jogamp.opengl.GL.*
+import com.jogamp.opengl.GL2GL3.*
 import javafx.animation.AnimationTimer
 import javafx.scene.image.ImageView
 import javafx.scene.image.PixelFormat
 import javafx.scene.image.WritableImage
 import javafx.scene.layout.Pane
-import jogamp.newt.OffscreenWindow
-import jogamp.opengl.util.glsl.GLSLTextureRaster
-import java.nio.ByteBuffer
+import java.nio.IntBuffer
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -23,7 +21,7 @@ class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener, val 
     private val glWindow: GLWindow
     private var canvas = ImageView()
 
-    private val rgbaBuffers = arrayListOf<ByteBuffer>()
+    private val rgbaBuffers = arrayListOf<IntBuffer>()
 
     private var oldGLWidth = 0.0
     private var oldGLHeight = 0.0
@@ -84,7 +82,7 @@ class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener, val 
 
                     for (i in 0 until chunksW)
                         for (r in 0 until chunksH)
-                            writer.setPixels(i * chunkSize, r * chunkSize, chunkSize, chunkSize, PixelFormat.getByteRgbInstance(), rgbaBuffers[r * chunksW + i].array(), 0, chunkSize * 3)
+                            writer.setPixels(i * chunkSize, r * chunkSize, chunkSize, chunkSize, PixelFormat.getIntArgbInstance(), rgbaBuffers[r * chunksW + i].array(), 0, chunkSize)
 
                     renderingState = RenderState.GRAB_GL
                 }
@@ -119,12 +117,10 @@ class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener, val 
                     oldGLWidth = width
                     oldGLHeight = height
                     updateGLSize()
-                    glWindow.display()
                 }
                 if(scene != null && scene.window != null && oldDPI != scene.window.outputScaleX){
                     oldDPI = scene.window.outputScaleX
                     updateGLSize()
-                    glWindow.display()
                 }
             }
         }.start()
@@ -149,12 +145,12 @@ class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener, val 
         chunksW = (renderWidth.toDouble() / chunkSize.toDouble() + 0.5).roundToInt()
         chunksH = (renderHeight.toDouble() / chunkSize.toDouble() + 0.5).roundToInt()
 
-        fitArrayListToSize(rgbaBuffers, chunksW * chunksH) { ByteBuffer.allocate(3 * chunkSize * chunkSize) }
+        fitArrayListToSize(rgbaBuffers, chunksW * chunksH) { IntBuffer.allocate(chunkSize * chunkSize) }
 
         gl.glReadBuffer(gl.defaultReadBuffer)
         for (i in 0 until chunksW)
             for (r in 0 until chunksH)
-                gl.glReadPixels(i * chunkSize, r * chunkSize, chunkSize, chunkSize, GL_RGB, GL_UNSIGNED_BYTE, rgbaBuffers[r * chunksW + i])
+                gl.glReadPixels(i * chunkSize, r * chunkSize, chunkSize, chunkSize, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, rgbaBuffers[r * chunksW + i])
 
         renderingState = RenderState.DRAW_FX
     }
@@ -174,5 +170,6 @@ class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener, val 
         val height = if(height > 0) (height * dpi) else 300.0
 
         glWindow.setSize(width.toInt(), height.toInt())
+        glWindow.display()
     }
 }
