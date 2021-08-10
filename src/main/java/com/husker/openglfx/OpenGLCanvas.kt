@@ -4,6 +4,7 @@ import com.husker.openglfx.utils.NodeUtils
 import com.jogamp.newt.opengl.GLWindow
 import com.jogamp.opengl.*
 import com.jogamp.opengl.GL2GL3.*
+import javafx.animation.AnimationTimer
 import javafx.scene.image.ImageView
 import javafx.scene.image.PixelBuffer
 import javafx.scene.image.PixelFormat
@@ -38,8 +39,8 @@ class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener, val 
     private var disposed = false
 
     init{
-        //imageView.fitWidthProperty().bind(widthProperty())
-        //imageView.fitHeightProperty().bind(heightProperty())
+        imageView.fitWidthProperty().bind(widthProperty())
+        imageView.fitHeightProperty().bind(heightProperty())
 
         imageView.isPreserveRatio = true
         children.add(imageView)
@@ -70,6 +71,13 @@ class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener, val 
             }
         })
         glWindow.isVisible = true
+
+        object: AnimationTimer(){
+            override fun handle(now: Long) {
+                if(width > 0 && height > 0)
+                    imageView.image = WritableImage(pixelBuffer)
+            }
+        }.start()
 
         NodeUtils.onWindowReady(this){ init() }
     }
@@ -123,9 +131,6 @@ class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener, val 
         pixelIntBuffer = IntBuffer.allocate(renderWidth * renderHeight)
         gl.glReadPixels(0, 0, renderWidth, renderHeight, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, pixelIntBuffer)
         pixelBuffer = PixelBuffer(renderWidth, renderHeight, pixelIntBuffer, PixelFormat.getIntArgbPreInstance())
-        imageView.image = WritableImage(pixelBuffer)
-        imageView.fitWidth = width
-        imageView.fitHeight = height
     }
 
     private fun updateGLSize(){
