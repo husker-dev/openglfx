@@ -43,8 +43,6 @@ open class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener,
     init{
         imageView.fitWidthProperty().bind(widthProperty())
         imageView.fitHeightProperty().bind(heightProperty())
-
-        imageView.isPreserveRatio = true
         children.add(imageView)
 
         capabilities.isFBO = true
