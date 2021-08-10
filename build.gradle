@@ -15,6 +15,9 @@ sourceSets {
         resources {
             srcDirs "src/main/resources"
         }
+        java {
+            exclude 'com/husker/test/**'
+        }
     }
 }
 
