@@ -3,10 +3,9 @@ package com.husker.openglfx
 import com.husker.openglfx.utils.NodeUtils
 import com.jogamp.newt.opengl.GLWindow
 import com.jogamp.opengl.*
-import com.jogamp.opengl.GL2GL3.GL_BGRA
-import com.jogamp.opengl.GL2GL3.GL_UNSIGNED_INT_8_8_8_8_REV
-import javafx.animation.AnimationTimer
+import com.jogamp.opengl.GL2GL3.*
 import javafx.scene.image.ImageView
+import javafx.scene.image.PixelBuffer
 import javafx.scene.image.PixelFormat
 import javafx.scene.image.WritableImage
 import javafx.scene.layout.Pane
@@ -20,14 +19,17 @@ class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener, val 
     constructor(listener: GLEventListener): this(GLCapabilities(GLProfile.getDefault()), listener)
 
     private val glWindow: GLWindow
-    private var canvas = ImageView()
-    private var image = WritableImage(1, 1)
+    private var imageView = ImageView()
 
     private var oldGLWidth = 0.0
     private var oldGLHeight = 0.0
     private var oldDPI = 0.0
 
+    private val dpi: Double
+        get() = scene.window.outputScaleX
+
     private lateinit var pixelIntBuffer: IntBuffer
+    private lateinit var pixelBuffer: PixelBuffer<IntBuffer>
     private var renderWidth: Int = 0
     private var renderHeight: Int = 0
 
@@ -35,19 +37,15 @@ class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener, val 
 
     private var disposed = false
 
-    private enum class RenderState{
-        GRAB_GL,
-        DRAW_FX
-    }
-    private var renderingState = RenderState.GRAB_GL
-
     init{
+        //imageView.fitWidthProperty().bind(widthProperty())
+        //imageView.fitHeightProperty().bind(heightProperty())
+
+        imageView.isPreserveRatio = true
+        children.add(imageView)
+
         capabilities.isFBO = true
         glWindow = GLWindow.create(capabilities)
-
-        canvas.isPreserveRatio = true
-        children.add(canvas)
-
         glWindow.addGLEventListener(object: GLEventListener{
             override fun init(drawable: GLAutoDrawable?) {
                 val gl = drawable!!.gl
@@ -71,29 +69,7 @@ class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener, val 
                 readGLPixels(drawable.gl as GL2)
             }
         })
-
         glWindow.isVisible = true
-
-        object: AnimationTimer(){
-            override fun handle(now: Long) {
-                if(renderingState == RenderState.GRAB_GL)
-                    return
-
-                if(renderingState == RenderState.DRAW_FX){
-                    try {
-                        if(image.width.toInt() != renderWidth || image.height.toInt() != renderHeight) {
-                            image = WritableImage(renderWidth, renderHeight)
-                            canvas.image = image
-                            canvas.fitWidth = width
-                            canvas.fitHeight = height
-                        }
-                        image.pixelWriter.setPixels(0, 0, renderWidth, renderHeight, PixelFormat.getIntArgbInstance(), pixelIntBuffer.array(), 0, renderWidth)
-                    }finally {
-                        renderingState = RenderState.GRAB_GL
-                    }
-                }
-            }
-        }.start()
 
         NodeUtils.onWindowReady(this){ init() }
     }
@@ -138,28 +114,22 @@ class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener, val 
     }
 
     private fun readGLPixels(gl: GL2){
-        if (renderingState != RenderState.GRAB_GL || scene == null || scene.window == null)
+        if (scene == null || scene.window == null || width <= 0 || height <= 0)
             return
 
-        if (width <= 0 || height <= 0)
-            return
-
-        val dpi = scene.window.outputScaleX
         renderWidth = (width * dpi).toInt()
         renderHeight = (height * dpi).toInt()
 
         pixelIntBuffer = IntBuffer.allocate(renderWidth * renderHeight)
         gl.glReadPixels(0, 0, renderWidth, renderHeight, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, pixelIntBuffer)
-
-        renderingState = RenderState.DRAW_FX
+        pixelBuffer = PixelBuffer(renderWidth, renderHeight, pixelIntBuffer, PixelFormat.getIntArgbPreInstance())
+        imageView.image = WritableImage(pixelBuffer)
+        imageView.fitWidth = width
+        imageView.fitHeight = height
     }
 
     private fun updateGLSize(){
-        val dpi = scene.window.outputScaleX
-        val width = if(width > 0) (width * dpi) else 300.0
-        val height = if(height > 0) (height * dpi) else 300.0
-
-        glWindow.setSize(width.toInt(), height.toInt())
+        glWindow.setSize(max(width * dpi, 100.0).toInt(), max(height * dpi, 100.0).toInt())
         glWindow.display()
     }
 }
