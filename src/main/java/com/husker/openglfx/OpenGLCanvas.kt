@@ -10,6 +10,7 @@ import javafx.scene.image.ImageView
 import javafx.scene.image.PixelFormat
 import javafx.scene.image.WritableImage
 import javafx.scene.layout.Pane
+import jogamp.opengl.util.glsl.GLSLTextureRaster
 import java.nio.IntBuffer
 import kotlin.math.max
 
@@ -30,6 +31,8 @@ class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener, val 
     private var renderWidth: Int = 0
     private var renderHeight: Int = 0
 
+    private lateinit var glslTextureRaster: GLSLTextureRaster
+
     private var disposed = false
 
     private enum class RenderState{
@@ -47,6 +50,11 @@ class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener, val 
 
         glWindow.addGLEventListener(object: GLEventListener{
             override fun init(drawable: GLAutoDrawable?) {
+                val gl = drawable!!.gl
+                glslTextureRaster = GLSLTextureRaster(0, true)
+                glslTextureRaster.init(gl.gL2ES2)
+                glslTextureRaster.reshape(gl.gL2ES2, 0, 0, width.toInt(), height.toInt())
+
                 listener.init(drawable)
             }
             override fun dispose(drawable: GLAutoDrawable?) {
@@ -56,9 +64,10 @@ class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener, val 
                 listener.reshape(drawable, x, y, width, height)
             }
             override fun display(drawable: GLAutoDrawable?) {
-                listener.display(drawable)
+                listener.display(drawable!!)
 
-                drawable!!.swapBuffers()
+                drawable.swapBuffers()
+                glslTextureRaster.display(drawable.gl.gL2ES2)
                 readGLPixels(drawable.gl as GL2)
             }
         })
