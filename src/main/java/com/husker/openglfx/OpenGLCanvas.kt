@@ -15,7 +15,7 @@ import java.nio.IntBuffer
 import kotlin.math.max
 
 
-class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener, val fps: Int = 1000): Pane() {
+open class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener, val fps: Int = 1000): Pane() {
 
     constructor(listener: GLEventListener): this(GLCapabilities(GLProfile.getDefault()), listener)
 
