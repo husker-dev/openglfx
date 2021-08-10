@@ -3,7 +3,8 @@ package com.husker.openglfx
 import com.husker.openglfx.utils.NodeUtils
 import com.jogamp.newt.opengl.GLWindow
 import com.jogamp.opengl.*
-import com.jogamp.opengl.GL2GL3.*
+import com.jogamp.opengl.GL2GL3.GL_BGRA
+import com.jogamp.opengl.GL2GL3.GL_UNSIGNED_INT_8_8_8_8_REV
 import javafx.animation.AnimationTimer
 import javafx.scene.image.ImageView
 import javafx.scene.image.PixelFormat
@@ -11,7 +12,6 @@ import javafx.scene.image.WritableImage
 import javafx.scene.layout.Pane
 import java.nio.IntBuffer
 import kotlin.math.max
-import kotlin.math.roundToInt
 
 
 class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener, val fps: Int = 1000): Pane() {
@@ -20,17 +20,15 @@ class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener, val 
 
     private val glWindow: GLWindow
     private var canvas = ImageView()
-
-    private val rgbaBuffers = arrayListOf<IntBuffer>()
+    private var image = WritableImage(1, 1)
 
     private var oldGLWidth = 0.0
     private var oldGLHeight = 0.0
     private var oldDPI = 0.0
 
-    private val chunkSize = 512  // px
-    private var chunksW = 0
-    private var chunksH = 0
-    private var image = WritableImage(1, 1)
+    private lateinit var pixelIntBuffer: IntBuffer
+    private var renderWidth: Int = 0
+    private var renderHeight: Int = 0
 
     private var disposed = false
 
@@ -41,21 +39,27 @@ class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener, val 
     private var renderingState = RenderState.GRAB_GL
 
     init{
-        capabilities.isOnscreen = false
+        capabilities.isFBO = true
         glWindow = GLWindow.create(capabilities)
 
         canvas.isPreserveRatio = true
         children.add(canvas)
 
-        glWindow.addGLEventListener(listener)
         glWindow.addGLEventListener(object: GLEventListener{
-            override fun init(drawable: GLAutoDrawable?) {}
-            override fun dispose(drawable: GLAutoDrawable?) {}
-            override fun reshape(drawable: GLAutoDrawable?, x: Int, y: Int, width: Int, height: Int) {}
-
+            override fun init(drawable: GLAutoDrawable?) {
+                listener.init(drawable)
+            }
+            override fun dispose(drawable: GLAutoDrawable?) {
+                listener.dispose(drawable)
+            }
+            override fun reshape(drawable: GLAutoDrawable?, x: Int, y: Int, width: Int, height: Int) {
+                listener.reshape(drawable, x, y, width, height)
+            }
             override fun display(drawable: GLAutoDrawable?) {
+                listener.display(drawable)
+
                 drawable!!.swapBuffers()
-                updateGL(drawable.gl as GL2)
+                readGLPixels(drawable.gl as GL2)
             }
         })
 
@@ -67,24 +71,17 @@ class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener, val 
                     return
 
                 if(renderingState == RenderState.DRAW_FX){
-                    val imageWidth = chunksW * chunkSize
-                    val imageHeight = chunksH * chunkSize
-
-                    if (image.width.toInt() != imageWidth || image.height.toInt() != imageHeight) {
-                        image = WritableImage(imageWidth, imageHeight)
-                        canvas.image = image
+                    try {
+                        if(image.width.toInt() != renderWidth || image.height.toInt() != renderHeight) {
+                            image = WritableImage(renderWidth, renderHeight)
+                            canvas.image = image
+                            canvas.fitWidth = width
+                            canvas.fitHeight = height
+                        }
+                        image.pixelWriter.setPixels(0, 0, renderWidth, renderHeight, PixelFormat.getIntArgbInstance(), pixelIntBuffer.array(), 0, renderWidth)
+                    }finally {
+                        renderingState = RenderState.GRAB_GL
                     }
-
-                    canvas.fitWidth = image.width / scene.window.outputScaleX
-                    canvas.fitHeight = image.height / scene.window.outputScaleX
-
-                    val writer = image.pixelWriter
-
-                    for (i in 0 until chunksW)
-                        for (r in 0 until chunksH)
-                            writer.setPixels(i * chunkSize, r * chunkSize, chunkSize, chunkSize, PixelFormat.getIntArgbInstance(), rgbaBuffers[r * chunksW + i].array(), 0, chunkSize)
-
-                    renderingState = RenderState.GRAB_GL
                 }
             }
         }.start()
@@ -131,37 +128,21 @@ class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener, val 
         glWindow.destroy()
     }
 
-    private fun updateGL(gl: GL2){
+    private fun readGLPixels(gl: GL2){
         if (renderingState != RenderState.GRAB_GL || scene == null || scene.window == null)
             return
-
-        val dpi = scene.window.outputScaleX
-        val renderWidth = (width * dpi).toInt()
-        val renderHeight = (height * dpi).toInt()
 
         if (width <= 0 || height <= 0)
             return
 
-        chunksW = (renderWidth.toDouble() / chunkSize.toDouble() + 0.5).roundToInt()
-        chunksH = (renderHeight.toDouble() / chunkSize.toDouble() + 0.5).roundToInt()
+        val dpi = scene.window.outputScaleX
+        renderWidth = (width * dpi).toInt()
+        renderHeight = (height * dpi).toInt()
 
-        fitArrayListToSize(rgbaBuffers, chunksW * chunksH) { IntBuffer.allocate(chunkSize * chunkSize) }
-
-        gl.glReadBuffer(gl.defaultReadBuffer)
-        for (i in 0 until chunksW)
-            for (r in 0 until chunksH)
-                gl.glReadPixels(i * chunkSize, r * chunkSize, chunkSize, chunkSize, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, rgbaBuffers[r * chunksW + i])
+        pixelIntBuffer = IntBuffer.allocate(renderWidth * renderHeight)
+        gl.glReadPixels(0, 0, renderWidth, renderHeight, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, pixelIntBuffer)
 
         renderingState = RenderState.DRAW_FX
-    }
-
-    private fun <T> fitArrayListToSize(list: ArrayList<T>, size: Int, instanceCreator: () -> T){
-        while(list.size != size) {
-            if(list.size > size)
-                list.removeLast()
-            if(list.size < size)
-                list.add(instanceCreator.invoke())
-        }
     }
 
     private fun updateGLSize(){
