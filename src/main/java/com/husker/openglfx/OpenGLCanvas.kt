@@ -69,7 +69,8 @@ open class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener,
 
         object: AnimationTimer(){
             override fun handle(now: Long) {
-                pixelBuffer.updateBuffer { null }
+                if(this@OpenGLCanvas::pixelBuffer.isInitialized)
+                    pixelBuffer.updateBuffer { null }
             }
         }.start()
 
