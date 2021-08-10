@@ -5,6 +5,7 @@ import com.jogamp.newt.opengl.GLWindow
 import com.jogamp.opengl.*
 import com.jogamp.opengl.GL2GL3.*
 import javafx.animation.AnimationTimer
+import javafx.application.Platform
 import javafx.scene.image.ImageView
 import javafx.scene.image.PixelBuffer
 import javafx.scene.image.PixelFormat
@@ -15,12 +16,13 @@ import java.nio.IntBuffer
 import kotlin.math.max
 
 
-open class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener, val fps: Int = 1000): Pane() {
+open class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener, val fps: Int = 60): Pane() {
 
     constructor(listener: GLEventListener): this(GLCapabilities(GLProfile.getDefault()), listener)
 
     private val glWindow: GLWindow
     private var imageView = ImageView()
+    private var image = WritableImage(1, 1)
 
     private var oldGLWidth = 0.0
     private var oldGLHeight = 0.0
@@ -47,25 +49,18 @@ open class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener,
 
         capabilities.isFBO = true
         glWindow = GLWindow.create(capabilities)
+        glWindow.addGLEventListener(listener)
         glWindow.addGLEventListener(object: GLEventListener{
             override fun init(drawable: GLAutoDrawable?) {
                 val gl = drawable!!.gl
                 glslTextureRaster = GLSLTextureRaster(0, true)
                 glslTextureRaster.init(gl.gL2ES2)
                 glslTextureRaster.reshape(gl.gL2ES2, 0, 0, width.toInt(), height.toInt())
-
-                listener.init(drawable)
             }
-            override fun dispose(drawable: GLAutoDrawable?) {
-                listener.dispose(drawable)
-            }
-            override fun reshape(drawable: GLAutoDrawable?, x: Int, y: Int, width: Int, height: Int) {
-                listener.reshape(drawable, x, y, width, height)
-            }
+            override fun dispose(drawable: GLAutoDrawable?) {}
+            override fun reshape(drawable: GLAutoDrawable?, x: Int, y: Int, width: Int, height: Int) {}
             override fun display(drawable: GLAutoDrawable?) {
-                listener.display(drawable!!)
-
-                drawable.swapBuffers()
+                drawable!!.swapBuffers()
                 glslTextureRaster.display(drawable.gl.gL2ES2)
                 readGLPixels(drawable.gl as GL2)
             }
@@ -74,8 +69,7 @@ open class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener,
 
         object: AnimationTimer(){
             override fun handle(now: Long) {
-                if(width > 0 && height > 0)
-                    imageView.image = WritableImage(pixelBuffer)
+                pixelBuffer.updateBuffer { null }
             }
         }.start()
 
@@ -128,9 +122,14 @@ open class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener,
         renderWidth = (width * dpi).toInt()
         renderHeight = (height * dpi).toInt()
 
-        pixelIntBuffer = IntBuffer.allocate(renderWidth * renderHeight)
+        if(image.width.toInt() != renderWidth || image.height.toInt() != renderHeight){
+            pixelIntBuffer = IntBuffer.allocate(renderWidth * renderHeight)
+            pixelBuffer = PixelBuffer(renderWidth, renderHeight, pixelIntBuffer, PixelFormat.getIntArgbPreInstance())
+            image = WritableImage(pixelBuffer)
+            Platform.runLater { imageView.image = image }
+        }
+
         gl.glReadPixels(0, 0, renderWidth, renderHeight, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, pixelIntBuffer)
-        pixelBuffer = PixelBuffer(renderWidth, renderHeight, pixelIntBuffer, PixelFormat.getIntArgbPreInstance())
     }
 
     private fun updateGLSize(){
