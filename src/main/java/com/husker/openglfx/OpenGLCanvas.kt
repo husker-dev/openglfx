@@ -4,29 +4,29 @@ import com.husker.openglfx.utils.NodeUtils
 import com.jogamp.newt.opengl.GLWindow
 import com.jogamp.opengl.*
 import com.jogamp.opengl.GL2GL3.*
-import javafx.animation.AnimationTimer
+import com.jogamp.opengl.util.FPSAnimator
+import com.sun.javafx.geom.Rectangle
 import javafx.application.Platform
-import javafx.scene.image.ImageView
-import javafx.scene.image.PixelBuffer
-import javafx.scene.image.PixelFormat
-import javafx.scene.image.WritableImage
+import javafx.scene.image.*
 import javafx.scene.layout.Pane
 import jogamp.opengl.util.glsl.GLSLTextureRaster
 import java.nio.IntBuffer
 import kotlin.math.max
 
 
-open class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener, val fps: Int = 60): Pane() {
+open class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener, val targetFPS: Int = 60): Pane() {
 
     constructor(listener: GLEventListener): this(GLCapabilities(GLProfile.getDefault()), listener)
 
-    private val glWindow: GLWindow
+    val glWindow: GLWindow
+    private lateinit var glslTextureRaster: GLSLTextureRaster
+
     private var imageView = ImageView()
     private var image = WritableImage(1, 1)
 
-    private var oldGLWidth = 0.0
-    private var oldGLHeight = 0.0
-    private var oldDPI = 0.0
+    /** Uses instead of [PixelBuffer.updateBuffer], because it requires JavaFX thread.
+     *  Despite the fact that this is Reflection, the performance is noticeably improved.   */
+    private var bufferDirtyMethod = WritableImage::class.java.getDeclaredMethod("bufferDirty", Rectangle::class.java)
 
     private val dpi: Double
         get() = scene.window.outputScaleX
@@ -36,14 +36,15 @@ open class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener,
     private var renderWidth: Int = 0
     private var renderHeight: Int = 0
 
-    private lateinit var glslTextureRaster: GLSLTextureRaster
-
-    private var disposed = false
-
     init{
+        bufferDirtyMethod.isAccessible = true
+
         imageView.fitWidthProperty().bind(widthProperty())
         imageView.fitHeightProperty().bind(heightProperty())
         children.add(imageView)
+
+        widthProperty().addListener{_, _, _ -> updateGLSize() }
+        heightProperty().addListener{_, _, _ -> updateGLSize() }
 
         capabilities.isFBO = true
         glWindow = GLWindow.create(capabilities)
@@ -65,53 +66,21 @@ open class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener,
         })
         glWindow.isVisible = true
 
-        object: AnimationTimer(){
-            override fun handle(now: Long) {
-                if(this@OpenGLCanvas::pixelBuffer.isInitialized)
-                    pixelBuffer.updateBuffer { null }
-            }
-        }.start()
-
-        NodeUtils.onWindowReady(this){ init() }
+        NodeUtils.onWindowReady(this){ onWindowReady() }
     }
 
-    private fun init(){
-        // Dispose listener
-        scene.window.setOnCloseRequest { e ->
-            dispose()
+    private fun onWindowReady(){
+        val oldOnCloseRequest = scene.window.onCloseRequest
+        scene.window.setOnCloseRequest {
+            glWindow.animator.stop()
+            glWindow.destroy()
+            oldOnCloseRequest?.handle(it)
         }
 
-        // FPS
-        if(fps > 0){
-            val sleep = (1000 / max(fps, 1000)).toLong()
-            Thread{
-                while(!disposed) {
-                    Thread.sleep(sleep)
-                    glWindow.display()
-                }
-            }.start()
+        if(targetFPS > 0) {
+            glWindow.animator = FPSAnimator(glWindow, targetFPS)
+            glWindow.animator.start()
         }
-
-        // Resizing
-        Thread{
-            while(!disposed){
-                Thread.sleep(1)
-                if(oldGLWidth != width || oldGLHeight != height){
-                    oldGLWidth = width
-                    oldGLHeight = height
-                    updateGLSize()
-                }
-                if(scene != null && scene.window != null && oldDPI != scene.window.outputScaleX){
-                    oldDPI = scene.window.outputScaleX
-                    updateGLSize()
-                }
-            }
-        }.start()
-    }
-
-    fun dispose(){
-        disposed = true
-        glWindow.destroy()
     }
 
     private fun readGLPixels(gl: GL2){
@@ -129,10 +98,10 @@ open class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener,
         }
 
         gl.glReadPixels(0, 0, renderWidth, renderHeight, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, pixelIntBuffer)
+        bufferDirtyMethod.invoke(image, null)
     }
 
     private fun updateGLSize(){
-        glWindow.setSize(max(width * dpi, 100.0).toInt(), max(height * dpi, 100.0).toInt())
-        glWindow.display()
+        glWindow.setSize(max(width * dpi, 10.0).toInt(), max(height * dpi, 10.0).toInt())
     }
 }
