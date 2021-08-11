@@ -75,6 +75,16 @@ open class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener,
             oldOnCloseRequest?.handle(it)
         }
 
+        var lastDPI = 1.0
+        val windowMovingListener = {
+            if(dpi != lastDPI) {
+                lastDPI = dpi
+                updateGLSize()
+            }
+        }
+        scene.xProperty().addListener{_, _, _ -> windowMovingListener()}
+        scene.yProperty().addListener{_, _, _ -> windowMovingListener()}
+
         if(targetFPS > 0) {
             glWindow.animator = FPSAnimator(glWindow, targetFPS, true)
             glWindow.animator.start()
