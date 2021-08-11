@@ -25,7 +25,7 @@ open class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener,
     private var image = WritableImage(1, 1)
 
     /**
-     * Uses instead of [PixelBuffer.updateBuffer], because it requires JavaFX thread.
+     * Used instead of [PixelBuffer.updateBuffer], because it requires JavaFX thread.
      * Despite the fact that this is Reflection, the performance is noticeably improved.
      **/
     private var bufferDirtyMethod = WritableImage::class.java.getDeclaredMethod("bufferDirty", Rectangle::class.java)
@@ -59,9 +59,7 @@ open class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener,
             override fun dispose(drawable: GLAutoDrawable?) {}
             override fun reshape(drawable: GLAutoDrawable?, x: Int, y: Int, width: Int, height: Int) {}
             override fun display(drawable: GLAutoDrawable?) {
-                drawable!!.swapBuffers()
-                glslTextureRaster.display(drawable.gl.gL2ES2)
-                readGLPixels(drawable.gl as GL2)
+                readGLPixels(drawable!!, drawable.gl as GL2)
             }
         })
         glWindow.isVisible = true
@@ -78,14 +76,17 @@ open class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener,
         }
 
         if(targetFPS > 0) {
-            glWindow.animator = FPSAnimator(glWindow, targetFPS)
+            glWindow.animator = FPSAnimator(glWindow, targetFPS, true)
             glWindow.animator.start()
         }
     }
 
-    private fun readGLPixels(gl: GL2){
+    private fun readGLPixels(drawable: GLAutoDrawable, gl: GL2){
         if (scene == null || scene.window == null || width <= 0 || height <= 0)
             return
+
+        drawable.swapBuffers()
+        glslTextureRaster.display(gl.gL2ES2)
 
         val renderWidth = (width * dpi).toInt()
         val renderHeight = (height * dpi).toInt()
@@ -101,6 +102,6 @@ open class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener,
         bufferDirtyMethod.invoke(image, null)
     }
 
-    private fun updateGLSize() = glWindow.setSize(max(width * dpi, 10.0).toInt(), max(height * dpi, 10.0).toInt())
+    private fun updateGLSize() = glWindow.setSize(max(width * dpi, 1.0).toInt(), max(height * dpi, 1.0).toInt())
 
 }
