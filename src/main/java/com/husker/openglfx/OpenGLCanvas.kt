@@ -24,8 +24,10 @@ open class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener,
     private var imageView = ImageView()
     private var image = WritableImage(1, 1)
 
-    /** Uses instead of [PixelBuffer.updateBuffer], because it requires JavaFX thread.
-     *  Despite the fact that this is Reflection, the performance is noticeably improved.   */
+    /**
+     * Uses instead of [PixelBuffer.updateBuffer], because it requires JavaFX thread.
+     * Despite the fact that this is Reflection, the performance is noticeably improved.
+     **/
     private var bufferDirtyMethod = WritableImage::class.java.getDeclaredMethod("bufferDirty", Rectangle::class.java)
 
     private val dpi: Double
@@ -33,8 +35,6 @@ open class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener,
 
     private lateinit var pixelIntBuffer: IntBuffer
     private lateinit var pixelBuffer: PixelBuffer<IntBuffer>
-    private var renderWidth: Int = 0
-    private var renderHeight: Int = 0
 
     init{
         bufferDirtyMethod.isAccessible = true
@@ -87,8 +87,8 @@ open class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener,
         if (scene == null || scene.window == null || width <= 0 || height <= 0)
             return
 
-        renderWidth = (width * dpi).toInt()
-        renderHeight = (height * dpi).toInt()
+        val renderWidth = (width * dpi).toInt()
+        val renderHeight = (height * dpi).toInt()
 
         if(image.width.toInt() != renderWidth || image.height.toInt() != renderHeight){
             pixelIntBuffer = IntBuffer.allocate(renderWidth * renderHeight)
@@ -101,7 +101,6 @@ open class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener,
         bufferDirtyMethod.invoke(image, null)
     }
 
-    private fun updateGLSize(){
-        glWindow.setSize(max(width * dpi, 10.0).toInt(), max(height * dpi, 10.0).toInt())
-    }
+    private fun updateGLSize() = glWindow.setSize(max(width * dpi, 10.0).toInt(), max(height * dpi, 10.0).toInt())
+
 }
