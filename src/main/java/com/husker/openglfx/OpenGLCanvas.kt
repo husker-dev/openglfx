@@ -14,11 +14,13 @@ import java.nio.IntBuffer
 import kotlin.math.max
 
 
-open class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener, val targetFPS: Int = 60): Pane() {
+open class OpenGLCanvas @JvmOverloads constructor(
+        private var listener: GLEventListener,
+        private var capabilities: GLCapabilities,
+        var targetFPS: Int = 60
+    ): Pane() {
 
-    constructor(listener: GLEventListener): this(GLCapabilities(GLProfile.getDefault()), listener)
-
-    val glWindow: GLWindow
+    private lateinit var glWindow: GLWindow
     private lateinit var glslTextureRaster: GLSLTextureRaster
 
     private var imageView = ImageView()
@@ -36,7 +38,17 @@ open class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener,
     private lateinit var pixelIntBuffer: IntBuffer
     private lateinit var pixelBuffer: PixelBuffer<IntBuffer>
 
-    init{
+    @JvmOverloads constructor(targetFPS: Int = 60): this(EmptyGLEventListener, GLCapabilities(GLProfile.getDefault()), targetFPS) {
+        init()
+    }
+    @JvmOverloads constructor(listener: GLEventListener, targetFPS: Int = 60): this(listener, GLCapabilities(GLProfile.getDefault()), targetFPS) {
+        init()
+    }
+    @JvmOverloads constructor(capabilities: GLCapabilities, targetFPS: Int = 60): this(EmptyGLEventListener, capabilities, targetFPS) {
+        init()
+    }
+
+    private fun init(){
         bufferDirtyMethod.isAccessible = true
 
         imageView.fitWidthProperty().bind(widthProperty())
@@ -46,25 +58,32 @@ open class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener,
         widthProperty().addListener{_, _, _ -> updateGLSize() }
         heightProperty().addListener{_, _, _ -> updateGLSize() }
 
-        capabilities.isFBO = true
-        glWindow = GLWindow.create(capabilities)
-        glWindow.addGLEventListener(listener)
-        glWindow.addGLEventListener(object: GLEventListener{
-            override fun init(drawable: GLAutoDrawable?) {
-                val gl = drawable!!.gl
-                glslTextureRaster = GLSLTextureRaster(0, true)
-                glslTextureRaster.init(gl.gL2ES2)
-                glslTextureRaster.reshape(gl.gL2ES2, 0, 0, width.toInt(), height.toInt())
-            }
-            override fun dispose(drawable: GLAutoDrawable?) {}
-            override fun reshape(drawable: GLAutoDrawable?, x: Int, y: Int, width: Int, height: Int) {}
-            override fun display(drawable: GLAutoDrawable?) {
-                readGLPixels(drawable!!, drawable.gl as GL2)
-            }
-        })
-        glWindow.isVisible = true
+        Thread{
+            capabilities.isFBO = true
+            glWindow = GLWindow.create(capabilities)
+            glWindow.addGLEventListener(object: GLEventListener{
+                override fun init(drawable: GLAutoDrawable?) {
+                    listener.init(drawable)
+                    val gl = drawable!!.gl
+                    glslTextureRaster = GLSLTextureRaster(0, true)
+                    glslTextureRaster.init(gl.gL2ES2)
+                    glslTextureRaster.reshape(gl.gL2ES2, 0, 0, width.toInt(), height.toInt())
+                }
+                override fun dispose(drawable: GLAutoDrawable?) {
+                    listener.dispose(drawable)
+                }
+                override fun reshape(drawable: GLAutoDrawable?, x: Int, y: Int, width: Int, height: Int) {
+                    listener.reshape(drawable, x, y, width, height)
+                }
+                override fun display(drawable: GLAutoDrawable?) {
+                    listener.display(drawable)
+                    readGLPixels(drawable!!, drawable.gl as GL2)
+                }
+            })
+            glWindow.isVisible = true
 
-        NodeUtils.onWindowReady(this){ onWindowReady() }
+            NodeUtils.onWindowReady(this){ onWindowReady() }
+        }.start()
     }
 
     private fun onWindowReady(){
@@ -114,4 +133,10 @@ open class OpenGLCanvas(capabilities: GLCapabilities, listener: GLEventListener,
 
     private fun updateGLSize() = glWindow.setSize(max(width * dpi, 1.0).toInt(), max(height * dpi, 1.0).toInt())
 
+    private object EmptyGLEventListener: GLEventListener{
+        override fun init(drawable: GLAutoDrawable?) {}
+        override fun dispose(drawable: GLAutoDrawable?) {}
+        override fun display(drawable: GLAutoDrawable?) {}
+        override fun reshape(drawable: GLAutoDrawable?, x: Int, y: Int, width: Int, height: Int) {}
+    }
 }
