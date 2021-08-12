@@ -15,9 +15,9 @@ import kotlin.math.max
 
 
 open class OpenGLCanvas @JvmOverloads constructor(
-        private var listener: GLEventListener,
+        var listener: GLEventListener,
         private var capabilities: GLCapabilities,
-        var targetFPS: Int = 60
+        val targetFPS: Int = 60
     ): Pane() {
 
     private lateinit var glWindow: GLWindow
