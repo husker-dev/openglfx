@@ -1,11 +1,13 @@
 package com.husker.openglfx
 
+import com.husker.openglfx.utils.LifetimeLoopThread
 import com.husker.openglfx.utils.NodeUtils
 import com.jogamp.newt.opengl.GLWindow
 import com.jogamp.opengl.*
 import com.jogamp.opengl.GL2GL3.*
 import com.jogamp.opengl.util.FPSAnimator
 import com.sun.javafx.geom.Rectangle
+import javafx.animation.AnimationTimer
 import javafx.application.Platform
 import javafx.scene.image.*
 import javafx.scene.layout.Pane
@@ -22,6 +24,8 @@ open class OpenGLCanvas @JvmOverloads constructor(
 
     private lateinit var glWindow: GLWindow
     private lateinit var glslTextureRaster: GLSLTextureRaster
+
+    private val resizeUpdating = LifetimeLoopThread(200){ updateGLSize() }
 
     private var imageView = ImageView()
     private var image = WritableImage(1, 1)
@@ -55,8 +59,8 @@ open class OpenGLCanvas @JvmOverloads constructor(
         imageView.fitHeightProperty().bind(heightProperty())
         children.add(imageView)
 
-        widthProperty().addListener{_, _, _ -> updateGLSize() }
-        heightProperty().addListener{_, _, _ -> updateGLSize() }
+        widthProperty().addListener{_, _, _ -> resizeUpdating.startRequest() }
+        heightProperty().addListener{_, _, _ -> resizeUpdating.startRequest() }
 
         Thread{
             capabilities.isFBO = true
@@ -83,6 +87,12 @@ open class OpenGLCanvas @JvmOverloads constructor(
             glWindow.isVisible = true
 
             NodeUtils.onWindowReady(this){ onWindowReady() }
+        }.start()
+
+        object: AnimationTimer(){
+            override fun handle(now: Long) {
+                bufferDirtyMethod.invoke(image, null)
+            }
         }.start()
     }
 
@@ -128,7 +138,6 @@ open class OpenGLCanvas @JvmOverloads constructor(
         }
 
         gl.glReadPixels(0, 0, renderWidth, renderHeight, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, pixelIntBuffer)
-        bufferDirtyMethod.invoke(image, null)
     }
 
     private fun updateGLSize() = glWindow.setSize(max(width * dpi, 1.0).toInt(), max(height * dpi, 1.0).toInt())
