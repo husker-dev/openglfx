@@ -16,7 +16,7 @@ OpenGL implementation for JavaFX, based on JOGL
 <details><summary>Show</summary>
 <p>
 
-<img src="https://user-images.githubusercontent.com/31825139/129398976-f1317b23-5583-47e9-ab1c-d12eea54d4ab.gif" width="280" height="280"/>
+<img src="https://user-images.githubusercontent.com/31825139/129398976-f1317b23-5583-47e9-ab1c-d12eea54d4ab.gif" height="280"/>
 
 </p>
 </details>
