@@ -6,7 +6,6 @@ import com.jogamp.newt.opengl.GLWindow
 import com.jogamp.opengl.*
 import com.jogamp.opengl.GL2GL3.*
 import com.jogamp.opengl.util.FPSAnimator
-import com.sun.javafx.geom.Rectangle
 import javafx.animation.AnimationTimer
 import javafx.application.Platform
 import javafx.scene.image.*
@@ -17,24 +16,33 @@ import kotlin.math.max
 
 
 open class OpenGLCanvas @JvmOverloads constructor(
-        var listener: GLEventListener,
+        private var initGLEventListener: GLEventListener,
         private var capabilities: GLCapabilities,
         val targetFPS: Int = 60
     ): Pane() {
 
     private lateinit var glWindow: GLWindow
     private lateinit var glslTextureRaster: GLSLTextureRaster
+    var glEventListener: GLEventListener
+        set(value) {
+            if(this::glWindow.isInitialized) {
+                glWindow.removeGLEventListener(glWindow.getGLEventListener(0))
+                glWindow.addGLEventListener(0, value)
+            }else
+                initGLEventListener = value
+        }
+        get() {
+            return if(this::glWindow.isInitialized)
+                glWindow.getGLEventListener(0)
+            else
+                initGLEventListener
+        }
 
     private val resizeUpdating = LifetimeLoopThread(200){ updateGLSize() }
+    private var bufferUpdateRequired = false
 
     private var imageView = ImageView()
     private var image = WritableImage(1, 1)
-
-    /**
-     * Used instead of [PixelBuffer.updateBuffer], because it requires JavaFX thread.
-     * Despite the fact that this is Reflection, the performance is noticeably improved.
-     **/
-    private var bufferDirtyMethod = WritableImage::class.java.getDeclaredMethod("bufferDirty", Rectangle::class.java)
 
     private val dpi: Double
         get() = scene.window.outputScaleX
@@ -42,19 +50,11 @@ open class OpenGLCanvas @JvmOverloads constructor(
     private lateinit var pixelIntBuffer: IntBuffer
     private lateinit var pixelBuffer: PixelBuffer<IntBuffer>
 
-    @JvmOverloads constructor(targetFPS: Int = 60): this(EmptyGLEventListener, GLCapabilities(GLProfile.getDefault()), targetFPS) {
-        init()
-    }
-    @JvmOverloads constructor(listener: GLEventListener, targetFPS: Int = 60): this(listener, GLCapabilities(GLProfile.getDefault()), targetFPS) {
-        init()
-    }
-    @JvmOverloads constructor(capabilities: GLCapabilities, targetFPS: Int = 60): this(EmptyGLEventListener, capabilities, targetFPS) {
-        init()
-    }
+    @JvmOverloads constructor(targetFPS: Int = 60): this(EmptyGLEventListener, GLCapabilities(GLProfile.getDefault()), targetFPS)
+    @JvmOverloads constructor(listener: GLEventListener, targetFPS: Int = 60): this(listener, GLCapabilities(GLProfile.getDefault()), targetFPS)
+    @JvmOverloads constructor(capabilities: GLCapabilities, targetFPS: Int = 60): this(EmptyGLEventListener, capabilities, targetFPS)
 
-    private fun init(){
-        bufferDirtyMethod.isAccessible = true
-
+    init{
         imageView.fitWidthProperty().bind(widthProperty())
         imageView.fitHeightProperty().bind(heightProperty())
         children.add(imageView)
@@ -65,22 +65,17 @@ open class OpenGLCanvas @JvmOverloads constructor(
         Thread{
             capabilities.isFBO = true
             glWindow = GLWindow.create(capabilities)
+            glWindow.addGLEventListener(initGLEventListener)
             glWindow.addGLEventListener(object: GLEventListener{
                 override fun init(drawable: GLAutoDrawable?) {
-                    listener.init(drawable)
                     val gl = drawable!!.gl
                     glslTextureRaster = GLSLTextureRaster(0, true)
                     glslTextureRaster.init(gl.gL2ES2)
                     glslTextureRaster.reshape(gl.gL2ES2, 0, 0, width.toInt(), height.toInt())
                 }
-                override fun dispose(drawable: GLAutoDrawable?) {
-                    listener.dispose(drawable)
-                }
-                override fun reshape(drawable: GLAutoDrawable?, x: Int, y: Int, width: Int, height: Int) {
-                    listener.reshape(drawable, x, y, width, height)
-                }
+                override fun dispose(drawable: GLAutoDrawable?) {}
+                override fun reshape(drawable: GLAutoDrawable?, x: Int, y: Int, width: Int, height: Int) {}
                 override fun display(drawable: GLAutoDrawable?) {
-                    listener.display(drawable)
                     readGLPixels(drawable!!, drawable.gl as GL2)
                 }
             })
@@ -91,7 +86,10 @@ open class OpenGLCanvas @JvmOverloads constructor(
 
         object: AnimationTimer(){
             override fun handle(now: Long) {
-                bufferDirtyMethod.invoke(image, null)
+                if(bufferUpdateRequired) {
+                    pixelBuffer.updateBuffer { null }
+                    bufferUpdateRequired = false
+                }
             }
         }.start()
     }
@@ -129,6 +127,8 @@ open class OpenGLCanvas @JvmOverloads constructor(
 
         val renderWidth = (width * dpi).toInt()
         val renderHeight = (height * dpi).toInt()
+        if(renderWidth <= 0 || renderHeight <= 0)
+            return
 
         if(image.width.toInt() != renderWidth || image.height.toInt() != renderHeight){
             pixelIntBuffer = IntBuffer.allocate(renderWidth * renderHeight)
@@ -137,7 +137,9 @@ open class OpenGLCanvas @JvmOverloads constructor(
             Platform.runLater { imageView.image = image }
         }
 
+        gl.glReadBuffer(gl.defaultReadBuffer)
         gl.glReadPixels(0, 0, renderWidth, renderHeight, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, pixelIntBuffer)
+        bufferUpdateRequired = true
     }
 
     private fun updateGLSize() = glWindow.setSize(max(width * dpi, 1.0).toInt(), max(height * dpi, 1.0).toInt())

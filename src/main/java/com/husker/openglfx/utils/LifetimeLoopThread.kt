@@ -1,6 +1,6 @@
 package com.husker.openglfx.utils
 
-class LifetimeLoopThread(val lifetime: Long, private var runnable: Runnable) {
+class LifetimeLoopThread(private val lifetime: Long, private var runnable: Runnable) {
 
     private var threadInstance = Thread()
     private var startTime = System.currentTimeMillis()
