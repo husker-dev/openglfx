@@ -1,7 +1,7 @@
 # OpenGLFX
-![GitHub](https://img.shields.io/github/license/husker-dev/openglfx?style=flat-square)
-![JitPack](https://img.shields.io/jitpack/v/github/husker-dev/openglfx?style=flat-square)
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/husker-dev/openglfx?style=flat-square)
+<a href="LICENSE"><img src="https://img.shields.io/github/license/husker-dev/openglfx?style=flat-square"></a>
+<a href="https://jitpack.io/#husker-dev/openglfx"><img src="https://img.shields.io/jitpack/v/github/husker-dev/openglfx?style=flat-square"></a>
+<a href="https://github.com/husker-dev/openglfx/releases/latest"><img src="https://img.shields.io/github/v/release/husker-dev/openglfx?style=flat-square"></a>
 
 OpenGL implementation for JavaFX, based on JOGL
 
@@ -39,7 +39,7 @@ OpenGL implementation for JavaFX, based on JOGL
     }
     
     dependencies {
-        implementation 'com.github.husker-dev:openglfx:0.6.3'
+        implementation 'com.github.husker-dev:openglfx:0.6.4'
     }
     ```
   - Create node
