@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'com.husker'
-version '0.6.4'
+version '1.0'
 
 repositories {
     mavenCentral()
@@ -17,6 +17,7 @@ sourceSets {
         }
     }
 }
+
 jar{
     java {
         exclude 'com/husker/test/**'
@@ -24,6 +25,8 @@ jar{
 }
 
 dependencies {
+    implementation fileTree("libs")
+
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
 
     implementation "org.openjfx:javafx-base:16:win"

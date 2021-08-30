@@ -1,153 +1,117 @@
 package com.husker.openglfx
 
-import com.husker.openglfx.utils.LifetimeLoopThread
+import com.husker.openglfx.gl.DirectGLRenderer
+import com.husker.openglfx.universal.UniversalRenderer
+import com.husker.openglfx.utils.FXUtils
 import com.husker.openglfx.utils.NodeUtils
-import com.jogamp.newt.opengl.GLWindow
-import com.jogamp.opengl.*
-import com.jogamp.opengl.GL2GL3.*
-import com.jogamp.opengl.util.FPSAnimator
+import com.husker.openglfx.utils.RegionAccessorRewriter
+import com.jogamp.opengl.GL
+import com.jogamp.opengl.GLCapabilities
+import com.jogamp.opengl.GLProfile
+import com.sun.javafx.scene.DirtyBits
+import com.sun.javafx.scene.NodeHelper
+import com.sun.javafx.sg.prism.NGRegion
+import com.sun.prism.Graphics
 import javafx.animation.AnimationTimer
-import javafx.application.Platform
-import javafx.scene.image.*
 import javafx.scene.layout.Pane
-import jogamp.opengl.util.glsl.GLSLTextureRaster
-import java.nio.IntBuffer
-import kotlin.math.max
 
 
-open class OpenGLCanvas @JvmOverloads constructor(
-        private var initGLEventListener: GLEventListener,
-        private var capabilities: GLCapabilities,
-        val targetFPS: Int = 60
-    ): Pane() {
+abstract class OpenGLCanvas protected constructor(
+    val capabilities: GLCapabilities
+): Pane() {
 
-    private lateinit var glWindow: GLWindow
-    private lateinit var glslTextureRaster: GLSLTextureRaster
-    var glEventListener: GLEventListener
-        set(value) {
-            if(this::glWindow.isInitialized) {
-                glWindow.removeGLEventListener(glWindow.getGLEventListener(0))
-                glWindow.addGLEventListener(0, value)
-            }else
-                initGLEventListener = value
-        }
-        get() {
-            return if(this::glWindow.isInitialized)
-                glWindow.getGLEventListener(0)
-            else
-                initGLEventListener
+    companion object{
+        init{
+            RegionAccessorRewriter.rewrite<OpenGLCanvas> { NGGLCanvas(it) }
         }
 
-    private val resizeUpdating = LifetimeLoopThread(200){ updateGLSize() }
-    private var bufferUpdateRequired = false
+        @JvmOverloads
+        @JvmStatic
+        fun create(capabilities: GLCapabilities = GLCapabilities(GLProfile.getDefault()), targetFPS: Int = 60, requireDirectDraw: Boolean = true): OpenGLCanvas{
+            return if(requireDirectDraw && FXUtils.pipelineName == "es2")
+                DirectGLRenderer(capabilities)
+            else UniversalRenderer(capabilities, targetFPS)
+        }
+    }
 
-    private var imageView = ImageView()
-    private var image = WritableImage(1, 1)
+    private val eventListeners = arrayListOf<FXGLEventListener>()
+    private val initializedListener = arrayListOf<FXGLEventListener>()
 
-    private val dpi: Double
+    protected val dpi: Double
         get() = scene.window.outputScaleX
 
-    private lateinit var pixelIntBuffer: IntBuffer
-    private lateinit var pixelBuffer: PixelBuffer<IntBuffer>
+    protected val scaledWidth: Double
+        get() = width * dpi
 
-    @JvmOverloads constructor(targetFPS: Int = 60): this(EmptyGLEventListener, GLCapabilities(GLProfile.getDefault()), targetFPS)
-    @JvmOverloads constructor(listener: GLEventListener, targetFPS: Int = 60): this(listener, GLCapabilities(GLProfile.getDefault()), targetFPS)
-    @JvmOverloads constructor(capabilities: GLCapabilities, targetFPS: Int = 60): this(EmptyGLEventListener, capabilities, targetFPS)
+    protected val scaledHeight: Double
+        get() = height * dpi
 
-    init{
-        imageView.fitWidthProperty().bind(widthProperty())
-        imageView.fitHeightProperty().bind(heightProperty())
-        children.add(imageView)
+    fun addFXGLEventListener(listener: FXGLEventListener){
+        eventListeners.add(listener)
+    }
 
-        widthProperty().addListener{_, _, _ -> resizeUpdating.startRequest() }
-        heightProperty().addListener{_, _, _ -> resizeUpdating.startRequest() }
+    fun addFXGLEventListener(index: Int, listener: FXGLEventListener){
+        eventListeners.add(index, listener)
+    }
 
-        Thread{
-            capabilities.isFBO = true
-            glWindow = GLWindow.create(capabilities)
-            glWindow.addGLEventListener(initGLEventListener)
-            glWindow.addGLEventListener(object: GLEventListener{
-                override fun init(drawable: GLAutoDrawable?) {
-                    val gl = drawable!!.gl
-                    glslTextureRaster = GLSLTextureRaster(0, true)
-                    glslTextureRaster.init(gl.gL2ES2)
-                    glslTextureRaster.reshape(gl.gL2ES2, 0, 0, width.toInt(), height.toInt())
-                }
-                override fun dispose(drawable: GLAutoDrawable?) {}
-                override fun reshape(drawable: GLAutoDrawable?, x: Int, y: Int, width: Int, height: Int) {}
-                override fun display(drawable: GLAutoDrawable?) {
-                    readGLPixels(drawable!!, drawable.gl as GL2)
-                }
-            })
-            glWindow.isVisible = true
+    fun removeFXGLEventListener(listener: FXGLEventListener){
+        initializedListener.remove(listener)
+    }
 
-            NodeUtils.onWindowReady(this){ onWindowReady() }
-        }.start()
+    abstract fun onRender(g: Graphics)
 
-        object: AnimationTimer(){
-            override fun handle(now: Long) {
-                if(bufferUpdateRequired) {
-                    pixelBuffer.updateBuffer { null }
-                    bufferUpdateRequired = false
-                }
+    protected fun fireDisplayEvent(gl: GL) = eventListeners.forEach {
+        checkListenerInitialization(gl, it)
+        it.display(gl)
+    }
+
+    protected fun fireReshapeEvent(gl: GL) = eventListeners.forEach {
+        checkListenerInitialization(gl, it)
+        it.reshape(gl, scaledWidth.toFloat(), scaledHeight.toFloat())
+    }
+
+    protected fun fireInitEvent(gl: GL) = eventListeners.forEach {
+        checkListenerInitialization(gl, it)
+        it.init(gl)
+    }
+
+    protected fun fireDisposeEvent(gl: GL) = eventListeners.forEach {
+        checkListenerInitialization(gl, it)
+        it.dispose(gl)
+    }
+
+    private fun checkListenerInitialization(gl: GL, listener: FXGLEventListener){
+        if(listener !in initializedListener){
+            initializedListener.add(listener)
+            listener.init(gl)
+        }
+    }
+
+    private class NGGLCanvas(val canvas: OpenGLCanvas): NGRegion() {
+        var needsUpdate = false
+
+        init{
+            NodeUtils.onWindowReady(canvas){
+                Thread {
+                    while (canvas.scene.window.isShowing) {
+                        if(needsUpdate){
+                            needsUpdate = false
+                            NodeHelper.markDirty(canvas, DirtyBits.SHAPE_FILL)
+                        } else
+                            Thread.sleep(1)
+                    }
+                }.start()
+                object: AnimationTimer(){
+                    override fun handle(p: Long) {
+                        needsUpdate = true
+                    }
+                }.start()
             }
-        }.start()
-    }
-
-    private fun onWindowReady(){
-        val oldOnCloseRequest = scene.window.onCloseRequest
-        scene.window.setOnCloseRequest {
-            glWindow.animator.stop()
-            glWindow.destroy()
-            oldOnCloseRequest?.handle(it)
         }
 
-        var lastDPI = 1.0
-        val windowMovingListener = {
-            if(dpi != lastDPI) {
-                lastDPI = dpi
-                updateGLSize()
-            }
+        override fun renderContent(g: Graphics) {
+            canvas.onRender(g)
+            super.renderContent(g)
         }
-        scene.xProperty().addListener{_, _, _ -> windowMovingListener()}
-        scene.yProperty().addListener{_, _, _ -> windowMovingListener()}
-
-        if(targetFPS > 0) {
-            glWindow.animator = FPSAnimator(glWindow, targetFPS, true)
-            glWindow.animator.start()
-        }
-    }
-
-    private fun readGLPixels(drawable: GLAutoDrawable, gl: GL2){
-        if (scene == null || scene.window == null || width <= 0 || height <= 0)
-            return
-
-        drawable.swapBuffers()
-        glslTextureRaster.display(gl.gL2ES2)
-
-        val renderWidth = (width * dpi).toInt()
-        val renderHeight = (height * dpi).toInt()
-        if(renderWidth <= 0 || renderHeight <= 0)
-            return
-
-        if(image.width.toInt() != renderWidth || image.height.toInt() != renderHeight){
-            pixelIntBuffer = IntBuffer.allocate(renderWidth * renderHeight)
-            pixelBuffer = PixelBuffer(renderWidth, renderHeight, pixelIntBuffer, PixelFormat.getIntArgbPreInstance())
-            image = WritableImage(pixelBuffer)
-            Platform.runLater { imageView.image = image }
-        }
-
-        gl.glReadBuffer(gl.defaultReadBuffer)
-        gl.glReadPixels(0, 0, renderWidth, renderHeight, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, pixelIntBuffer)
-        bufferUpdateRequired = true
-    }
-
-    private fun updateGLSize() = glWindow.setSize(max(width * dpi, 1.0).toInt(), max(height * dpi, 1.0).toInt())
-
-    private object EmptyGLEventListener: GLEventListener{
-        override fun init(drawable: GLAutoDrawable?) {}
-        override fun dispose(drawable: GLAutoDrawable?) {}
-        override fun display(drawable: GLAutoDrawable?) {}
-        override fun reshape(drawable: GLAutoDrawable?, x: Int, y: Int, width: Int, height: Int) {}
     }
 }
