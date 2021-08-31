@@ -88,22 +88,12 @@ abstract class OpenGLCanvas protected constructor(
     }
 
     private class NGGLCanvas(val canvas: OpenGLCanvas): NGRegion() {
-        var needsUpdate = false
 
         init{
             NodeUtils.onWindowReady(canvas){
-                Thread {
-                    while (canvas.scene.window.isShowing) {
-                        if(needsUpdate){
-                            needsUpdate = false
-                            NodeHelper.markDirty(canvas, DirtyBits.SHAPE_FILL)
-                        } else
-                            Thread.sleep(1)
-                    }
-                }.start()
                 object: AnimationTimer(){
                     override fun handle(p: Long) {
-                        needsUpdate = true
+                        NodeHelper.markDirty(canvas, DirtyBits.NODE_GEOMETRY)
                     }
                 }.start()
             }
