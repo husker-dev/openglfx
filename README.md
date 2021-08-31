@@ -62,42 +62,5 @@ OpenGL implementation for JavaFX, based on JOGL
   
 To disable ```Direct GL``` mode, set ```requireDirectDraw``` variable to **false** when creating the node. 
 
-## About JavaFX pipelines
-
-You can specify JavaFX rendering pipeline by setting following property before initializing:
-```java
-System.setProperty("prism.order", "es2");
-// or
-System.setProperty("prism.order", "es2,d3d,sw");
-```
-It's good practice to set two or more pipelines - one of them may be not supported on device. Here is a support comparison:
-
-  |                       |    OpenGL (es2)     |    DirectX (d3d)   |    Software (sw)
-  | --------------------- | :-----------------: | :----------------: | :----------------:
-  | Windows               | :x:*                | :heavy_check_mark: | :heavy_check_mark:
-  | Linux (Unix)          | :heavy_check_mark:  | :x:                | :heavy_check_mark:
-  | MacOS                 | :heavy_check_mark:**| :x:                | :heavy_check_mark:
-
-```*``` - It may work (see instruction below)
-
-```**``` - Apple says that **OpenGL** will remove soon and proposes to use **Metal**
-
-## How to use OpenGL on Windows
-To use OpenGL rendering pipeline on Windows, you can use two ways:
-1. Use compiled Windows OpenGL extension library [[Download]](https://github.com/husker-dev/openglfx/raw/master/libs/javafx.graphics.win-es2.jar) 
-
-2. Compile OpenJFX sources by yourself
-   - Configure sources using [official instruction](https://wiki.openjdk.java.net/display/OpenJFX/Building+OpenJFX)
-   - Change line in ```build.gradle``` 
-
-      From this:
-      ```Groovy
-      defineProperty("INCLUDE_ES2", IS_WINDOWS ? "false" : "true")
-      ```
-      To this
-      ```Groovy
-      defineProperty("INCLUDE_ES2", "true")
-      ```
-    - Compile
-    - Add ```prism_es2.dll``` and ```javafx.graphics.jar``` to your project
-  
+## Wiki
+  Read [wiki articles](https://github.com/husker-dev/openglfx/wiki) for more information
