@@ -50,40 +50,37 @@ OpenGL implementation for JavaFX, based on JOGL
 
 ## Rendering types
 
-  ### Universal
-  
-  - <p>
-    :heavy_check_mark: Uses a separate OpenGL context. 
-
-    :heavy_check_mark: Updates WritableImage using NIO pixel buffer.
-
-    :x: Loads the processor at high output resolution.
-
-    :x: Artifacts when resizing.
-    </p>
-  ### Direct GL
-  
-  - <p>
-    :heavy_check_mark: Best available performance
-
-    :heavy_check_mark: Processor load is independent of frame size
-
-    :large_orange_diamond: Uses JavaFX GL context. 
-
-    :x: Calls ```init```, ```reshape```, ```display``` every frame
-
-    :x: Only on ```es2``` pipeline
-    </p>
+  |                       |      Universal     |      Direct GL 
+  | --------------------- | :----------------: | :----------------: |
+  | Performance           | :x:                | :heavy_check_mark:
+  | Smooth resizing       | :x:                | :heavy_check_mark:
+  | Separate GL context   | :heavy_check_mark: | :x:
+  | OpenGL pipeline       | :heavy_check_mark: | :heavy_check_mark:
+  | **DirectX** pipeline  | :heavy_check_mark: | :x:
+  | **Software** pipeline | :heavy_check_mark: | :x:
+  | Calls ```init``` once | :heavy_check_mark: | :x:
   
 To disable ```Direct GL``` mode, set ```requireDirectDraw``` variable to **false** when creating the node. 
 
-You can specify JavaFX rendering by setting following property before initializing:
+## About JavaFX pipelines
+
+You can specify JavaFX rendering pipeline by setting following property before initializing:
 ```java
-// es2 - OpenGL
-// d3d - DirectX
-// sw  - Software
 System.setProperty("prism.order", "es2");
+// or
+System.setProperty("prism.order", "es2,d3d,sw");
 ```
+It's good practice to set two or more pipelines - one of them may be not supported on device. Here is a support comparison:
+
+  |                       |    OpenGL (es2)     |    DirectX (d3d)   |    Software (sw)
+  | --------------------- | :-----------------: | :----------------: | :----------------:
+  | Windows               | :x:*                | :heavy_check_mark: | :heavy_check_mark:
+  | Linux (Unix)          | :heavy_check_mark:  | :x:                | :heavy_check_mark:
+  | MacOS                 | :heavy_check_mark:**| :x:                | :heavy_check_mark:
+
+```*``` - It may work (see instruction below)
+
+```**``` - Apple says that **OpenGL** will remove soon and proposes to use **Metal**
 
 ## How to use OpenGL on Windows
 To use OpenGL rendering pipeline on Windows, you can use two ways:
