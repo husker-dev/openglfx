@@ -33,7 +33,7 @@ OpenGL implementation for JavaFX, based on JOGL
     }
     
     dependencies {
-        implementation 'com.github.husker-dev:openglfx:1.0'
+        implementation 'com.github.husker-dev:openglfx:1.1'
     }
     ```
   - Create node
