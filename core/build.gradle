@@ -10,10 +10,10 @@ repositories {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+    runtimeOnly "org.jetbrains.kotlin:kotlin-stdlib"
 
-    implementation "org.openjfx:javafx-base:16:win"
-    implementation "org.openjfx:javafx-controls:16:win"
-    implementation "org.openjfx:javafx-graphics:16:win"
-    implementation "org.openjfx:javafx-swing:16:win"
+    runtimeOnly "org.openjfx:javafx-base:16:win"
+    runtimeOnly "org.openjfx:javafx-controls:16:win"
+    runtimeOnly "org.openjfx:javafx-graphics:16:win"
+    runtimeOnly "org.openjfx:javafx-swing:16:win"
 }

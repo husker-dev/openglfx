@@ -20,27 +20,23 @@ sourceSets{
 }
 
 dependencies {
-    implementation 'com.github.husker-dev:openglfx:core:2.0'
-    implementation 'com.github.husker-dev:openglfx:lwjgl:2.0'
-    implementation 'com.github.husker-dev:openglfx:jogl:2.0'
-
-    implementation project(':core')
-    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+    runtimeOnly project(':core')
+    runtimeOnly "org.jetbrains.kotlin:kotlin-stdlib"
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
 
-    implementation "org.openjfx:javafx-base:16:win"
-    implementation "org.openjfx:javafx-controls:16:win"
-    implementation "org.openjfx:javafx-graphics:16:win"
-    implementation "org.openjfx:javafx-swing:16:win"
+    runtimeOnly "org.openjfx:javafx-base:16:win"
+    runtimeOnly "org.openjfx:javafx-controls:16:win"
+    runtimeOnly "org.openjfx:javafx-graphics:16:win"
+    runtimeOnly "org.openjfx:javafx-swing:16:win"
 
-    implementation platform("org.lwjgl:lwjgl-bom:3.3.0")
+    runtimeOnly platform("org.lwjgl:lwjgl-bom:3.3.0")
 
-    implementation "org.lwjgl:lwjgl"
-    implementation "org.lwjgl:lwjgl-glfw"
-    implementation "org.lwjgl:lwjgl-opengl"
+    runtimeOnly "org.lwjgl:lwjgl"
+    runtimeOnly "org.lwjgl:lwjgl-glfw"
+    runtimeOnly "org.lwjgl:lwjgl-opengl"
     runtimeOnly "org.lwjgl:lwjgl::natives-windows"
     runtimeOnly "org.lwjgl:lwjgl-glfw::natives-windows"
     runtimeOnly "org.lwjgl:lwjgl-opengl::natives-windows"
 
-    implementation files('../libs/javafx.graphics.win-es2.jar')
+    runtimeOnly files('../libs/javafx.graphics.win-es2.jar')
 }
