@@ -97,9 +97,6 @@ OpenGL implementation for JavaFX
   // ...
   
   dependencies {
-      // Kotlin library to support Java 8 features
-      implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
-  
       // OpenGLFX
       implementation 'com.github.husker-dev.openglfx:core:2.3'
       implementation 'com.github.husker-dev.openglfx:lwjgl:2.3'
@@ -154,9 +151,6 @@ OpenGL implementation for JavaFX
   // ...
   
   dependencies {
-      // Kotlin library to support Java 8 features
-      implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
-  
       // OpenGLFX
       implementation 'com.github.husker-dev.openglfx:core:2.3'
       implementation 'com.github.husker-dev.openglfx:jogl:2.3'
