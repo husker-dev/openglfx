@@ -18,16 +18,16 @@ sourceSets{
 }
 
 dependencies {
-    runtimeOnly project(':core')
-    runtimeOnly "org.jetbrains.kotlin:kotlin-stdlib"
+    compileOnly project(':core')
+    compileOnly "org.jetbrains.kotlin:kotlin-stdlib"
 
-    runtimeOnly "org.openjfx:javafx-base:16:win"
-    runtimeOnly "org.openjfx:javafx-controls:16:win"
-    runtimeOnly "org.openjfx:javafx-graphics:16:win"
-    runtimeOnly "org.openjfx:javafx-swing:16:win"
+    compileOnly "org.openjfx:javafx-base:16:win"
+    compileOnly "org.openjfx:javafx-controls:16:win"
+    compileOnly "org.openjfx:javafx-graphics:16:win"
+    compileOnly "org.openjfx:javafx-swing:16:win"
 
-    runtimeOnly 'org.jogamp.jogl:jogl-all-main:2.3.2'
-    runtimeOnly 'org.jogamp.gluegen:gluegen-rt-main:2.3.2'
+    compileOnly 'org.jogamp.jogl:jogl-all-main:2.3.2'
+    compileOnly 'org.jogamp.gluegen:gluegen-rt-main:2.3.2'
 
-    runtimeOnly files('../libs/javafx.graphics.win-es2.jar')
+    compileOnly files('../libs/javafx.graphics.win-es2.jar')
 }

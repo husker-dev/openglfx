@@ -4,7 +4,6 @@ plugins {
 
 repositories {
     mavenCentral()
-    maven { url 'https://jitpack.io' }
 }
 
 
@@ -20,23 +19,23 @@ sourceSets{
 }
 
 dependencies {
-    runtimeOnly project(':core')
-    runtimeOnly "org.jetbrains.kotlin:kotlin-stdlib"
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+    compileOnly project(':core')
+    compileOnly "org.jetbrains.kotlin:kotlin-stdlib"
+    compileOnly 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
 
-    runtimeOnly "org.openjfx:javafx-base:16:win"
-    runtimeOnly "org.openjfx:javafx-controls:16:win"
-    runtimeOnly "org.openjfx:javafx-graphics:16:win"
-    runtimeOnly "org.openjfx:javafx-swing:16:win"
+    compileOnly "org.openjfx:javafx-base:16:win"
+    compileOnly "org.openjfx:javafx-controls:16:win"
+    compileOnly "org.openjfx:javafx-graphics:16:win"
+    compileOnly "org.openjfx:javafx-swing:16:win"
 
-    runtimeOnly platform("org.lwjgl:lwjgl-bom:3.3.0")
+    compileOnly platform("org.lwjgl:lwjgl-bom:3.3.0")
 
-    runtimeOnly "org.lwjgl:lwjgl"
-    runtimeOnly "org.lwjgl:lwjgl-glfw"
-    runtimeOnly "org.lwjgl:lwjgl-opengl"
-    runtimeOnly "org.lwjgl:lwjgl::natives-windows"
-    runtimeOnly "org.lwjgl:lwjgl-glfw::natives-windows"
-    runtimeOnly "org.lwjgl:lwjgl-opengl::natives-windows"
+    compileOnly "org.lwjgl:lwjgl"
+    compileOnly "org.lwjgl:lwjgl-glfw"
+    compileOnly "org.lwjgl:lwjgl-opengl"
+    compileOnly "org.lwjgl:lwjgl::natives-windows"
+    compileOnly "org.lwjgl:lwjgl-glfw::natives-windows"
+    compileOnly "org.lwjgl:lwjgl-opengl::natives-windows"
 
-    runtimeOnly files('../libs/javafx.graphics.win-es2.jar')
+    compileOnly files('../libs/javafx.graphics.win-es2.jar')
 }

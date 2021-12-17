@@ -2,18 +2,18 @@ plugins {
     id 'org.jetbrains.kotlin.jvm'
 }
 
-group 'com.husker'
-version '2.0'
-
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    runtimeOnly "org.jetbrains.kotlin:kotlin-stdlib"
 
-    runtimeOnly "org.openjfx:javafx-base:16:win"
-    runtimeOnly "org.openjfx:javafx-controls:16:win"
-    runtimeOnly "org.openjfx:javafx-graphics:16:win"
-    runtimeOnly "org.openjfx:javafx-swing:16:win"
+    //implementation 'com.github.husker-dev:openglfx:2.1'
+
+    compileOnly "org.jetbrains.kotlin:kotlin-stdlib"
+
+    compileOnly "org.openjfx:javafx-base:16:win"
+    compileOnly "org.openjfx:javafx-controls:16:win"
+    compileOnly "org.openjfx:javafx-graphics:16:win"
+    compileOnly "org.openjfx:javafx-swing:16:win"
 }
