@@ -21,12 +21,27 @@ OpenGL implementation for JavaFX
 
 ## Usage
 
-  - Node creation
-    ```java
-    Node glNode = OpenGLCanvas.create(/* Module */);
+  - Add dependency
+    ```gradle
+      repositories {
+          // ...
+          maven { url 'https://jitpack.io' }
+      }
+    
+      dependencies {
+          implementation 'com.github.husker-dev.openglfx:core:2.1'
+
+          implementation 'com.github.husker-dev.openglfx:lwjgl:2.1' // For LWJGL
+          implementation 'com.github.husker-dev.openglfx:jogl:2.1'  // For JOGL
+      }
     ```
-    ```java
-    Node glNode = OpenGLCanvas.create(/* Module */, /* DirectDrawPolicy */);
+
+  - Create Node 
+    ```kotlin
+    val canvas = OpenGLCanvas.create(/* Module */);
+    ```
+    ```kotlin
+    val canvas = OpenGLCanvas.create(/* Module */, /* DirectDrawPolicy */);
     ```
     
     #### Module
@@ -37,6 +52,23 @@ OpenGL implementation for JavaFX
       - ```NEVER``` - Never use direct render
       - ```IF_AVAILABLE``` - Use direct render if available
       - ```ALWAYS``` - Use only direct render
+
+  - Handle events
+    ```kotlin
+    canvas.onInitialize {
+        // ...
+    }
+    canvas.onRender {
+        // ...
+    }
+    canvas.onReshape {
+        // ...
+    }
+    canvas.onDispose {
+        // ...
+    }
+    ```
+   
 
 
 ## Rendering types
@@ -69,8 +101,8 @@ OpenGL implementation for JavaFX
       implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
   
       // OpenGLFX
-      implementation 'com.github.husker-dev:openglfx:core:2.0'
-      implementation 'com.github.husker-dev:openglfx:lwjgl:2.0'
+      implementation 'com.github.husker-dev.openglfx:core:2.1'
+      implementation 'com.github.husker-dev.openglfx:lwjgl:2.1'
     
       // LWJGL
       implementation "org.lwjgl:lwjgl"
@@ -126,8 +158,8 @@ OpenGL implementation for JavaFX
       implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
   
       // OpenGLFX
-      implementation 'com.github.husker-dev:openglfx:core:2.0'
-      implementation 'com.github.husker-dev:openglfx:jogl:2.0'
+      implementation 'com.github.husker-dev.openglfx:core:2.1'
+      implementation 'com.github.husker-dev.openglfx:jogl:2.1'
     
       // JOGL
       implementation 'org.jogamp.jogl:jogl-all-main:2.3.2'
