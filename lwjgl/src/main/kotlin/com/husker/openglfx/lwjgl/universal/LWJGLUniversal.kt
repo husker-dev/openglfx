@@ -166,11 +166,7 @@ class LWJGLUniversal: LWJGLCanvas() {
             glfwSetWindowSize(window, max(width * dpi, 1.0).toInt(), max(height * dpi, 1.0).toInt())
     }
 
-    override fun onNGRender(g: Graphics){
-
-    }
-
-
+    override fun onNGRender(g: Graphics){}
 
     override fun repaint() {
         synchronized(shouldPaint) { shouldPaint.notifyAll() }

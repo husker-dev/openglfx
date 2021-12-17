@@ -32,7 +32,7 @@ class DirectExampleApp: Application(){
             glLoadIdentity()
             glOrtho(0.0, canvas.scene.width, 0.0, canvas.scene.height, -1.0, 100.0)
         }
-        canvas.onNGRender{
+        canvas.onRender{
             glClearColor(1.0f, 1.0f, 1.0f, 1.0f)
             glClearDepth(1.0)
 

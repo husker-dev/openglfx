@@ -68,7 +68,7 @@ abstract class OpenGLCanvas: Pane() {
     protected val scaledHeight: Double
         get() = height * dpi
 
-    fun onNGRender(listener: Runnable){
+    fun onRender(listener: Runnable){
         onRender = listener
     }
 

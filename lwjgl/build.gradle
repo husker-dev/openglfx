@@ -4,7 +4,9 @@ plugins {
 
 repositories {
     mavenCentral()
+    maven { url 'https://jitpack.io' }
 }
+
 
 sourceSets{
     examples {
@@ -18,6 +20,10 @@ sourceSets{
 }
 
 dependencies {
+    implementation 'com.github.husker-dev:openglfx:core:2.0'
+    implementation 'com.github.husker-dev:openglfx:lwjgl:2.0'
+    implementation 'com.github.husker-dev:openglfx:jogl:2.0'
+
     implementation project(':core')
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
