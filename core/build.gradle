@@ -1,0 +1,19 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm'
+}
+
+group 'com.husker'
+version '2.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+
+    implementation "org.openjfx:javafx-base:16:win"
+    implementation "org.openjfx:javafx-controls:16:win"
+    implementation "org.openjfx:javafx-graphics:16:win"
+    implementation "org.openjfx:javafx-swing:16:win"
+}

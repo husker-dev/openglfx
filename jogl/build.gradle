@@ -1,0 +1,33 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm'
+}
+
+repositories {
+    mavenCentral()
+}
+
+sourceSets{
+    examples {
+        resources { srcDirs "src/examples/resources" }
+        java {
+            srcDirs 'src/examples/kotlin'
+            compileClasspath += sourceSets.main.runtimeClasspath
+            runtimeClasspath += sourceSets.main.runtimeClasspath
+        }
+    }
+}
+
+dependencies {
+    implementation project(':core')
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+
+    implementation "org.openjfx:javafx-base:16:win"
+    implementation "org.openjfx:javafx-controls:16:win"
+    implementation "org.openjfx:javafx-graphics:16:win"
+    implementation "org.openjfx:javafx-swing:16:win"
+
+    implementation 'org.jogamp.jogl:jogl-all-main:2.3.2'
+    implementation 'org.jogamp.gluegen:gluegen-rt-main:2.3.2'
+
+    implementation files('../libs/javafx.graphics.win-es2.jar')
+}

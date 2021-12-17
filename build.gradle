@@ -1,39 +1,33 @@
 plugins {
     id 'java'
-    id 'org.jetbrains.kotlin.jvm' version '1.5.21'
+    id 'org.jetbrains.kotlin.jvm' version '1.6.10'
 }
 
-group 'com.husker'
-version '1.1'
-
-repositories {
-    mavenCentral()
+allprojects {
+    version = "2.0"
 }
 
-sourceSets {
-    main {
-        resources {
-            srcDirs "src/main/resources"
-        }
+group 'com.husker.openglfx'
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'maven'
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    task sourcesJar(type: Jar, dependsOn: classes) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
     }
-}
 
-jar{
-    java {
-        exclude 'com/husker/test/**'
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        classifier = 'javadoc'
+        from javadoc.destinationDir
     }
-}
 
-dependencies {
-    implementation fileTree("libs")
-
-    implementation "org.jetbrains.kotlin:kotlin-stdlib"
-
-    implementation "org.openjfx:javafx-base:16:win"
-    implementation "org.openjfx:javafx-controls:16:win"
-    implementation "org.openjfx:javafx-graphics:16:win"
-    implementation "org.openjfx:javafx-swing:16:win"
-
-    implementation 'org.jogamp.jogl:jogl-all-main:2.3.2'
-    implementation 'org.jogamp.gluegen:gluegen-rt-main:2.3.2'
+    artifacts {
+        archives sourcesJar
+        archives javadocJar
+    }
 }
