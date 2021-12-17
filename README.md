@@ -29,10 +29,10 @@ OpenGL implementation for JavaFX
       }
     
       dependencies {
-          implementation 'com.github.husker-dev.openglfx:core:2.1'
+          implementation 'com.github.husker-dev.openglfx:core:2.3'
 
-          implementation 'com.github.husker-dev.openglfx:lwjgl:2.1' // For LWJGL
-          implementation 'com.github.husker-dev.openglfx:jogl:2.1'  // For JOGL
+          implementation 'com.github.husker-dev.openglfx:lwjgl:2.3' // For LWJGL
+          implementation 'com.github.husker-dev.openglfx:jogl:2.3'  // For JOGL
       }
     ```
 
@@ -101,8 +101,8 @@ OpenGL implementation for JavaFX
       implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
   
       // OpenGLFX
-      implementation 'com.github.husker-dev.openglfx:core:2.1'
-      implementation 'com.github.husker-dev.openglfx:lwjgl:2.1'
+      implementation 'com.github.husker-dev.openglfx:core:2.3'
+      implementation 'com.github.husker-dev.openglfx:lwjgl:2.3'
     
       // LWJGL
       implementation "org.lwjgl:lwjgl"
@@ -158,8 +158,8 @@ OpenGL implementation for JavaFX
       implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
   
       // OpenGLFX
-      implementation 'com.github.husker-dev.openglfx:core:2.1'
-      implementation 'com.github.husker-dev.openglfx:jogl:2.1'
+      implementation 'com.github.husker-dev.openglfx:core:2.3'
+      implementation 'com.github.husker-dev.openglfx:jogl:2.3'
     
       // JOGL
       implementation 'org.jogamp.jogl:jogl-all-main:2.3.2'
