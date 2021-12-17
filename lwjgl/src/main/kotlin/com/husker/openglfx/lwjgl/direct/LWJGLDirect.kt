@@ -58,18 +58,20 @@ class LWJGLDirect: LWJGLCanvas() {
             texGr.clear()
 
             LWJGLUtils.rawGL {
-                stackPush().use {
-                    val oldBuffer = it.mallocInt(1)
-                    glGetIntegerv(GL_FRAMEBUFFER_BINDING, oldBuffer)
+                val stack = stackPush()
 
-                    glBindFramebuffer(GL_FRAMEBUFFER, textureFBO)
-                    glViewport(0, 0, scaledWidth.toInt(), scaledHeight.toInt())
-                    fireInitEvent()
-                    fireReshapeEvent()
-                    fireRenderEvent()
+                val oldBuffer = stack.mallocInt(1)
+                glGetIntegerv(GL_FRAMEBUFFER_BINDING, oldBuffer)
 
-                    glBindFramebuffer(GL_FRAMEBUFFER, oldBuffer[0])
-                }
+                glBindFramebuffer(GL_FRAMEBUFFER, textureFBO)
+                glViewport(0, 0, scaledWidth.toInt(), scaledHeight.toInt())
+                fireInitEvent()
+                fireReshapeEvent()
+                fireRenderEvent()
+
+                glBindFramebuffer(GL_FRAMEBUFFER, oldBuffer[0])
+
+                stack.close()
             }
         }
 

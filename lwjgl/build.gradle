@@ -21,7 +21,6 @@ sourceSets{
 dependencies {
     compileOnly project(':core')
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib"
-    compileOnly 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
 
     compileOnly "org.openjfx:javafx-base:16:win"
     compileOnly "org.openjfx:javafx-controls:16:win"

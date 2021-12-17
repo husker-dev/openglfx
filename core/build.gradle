@@ -5,11 +5,12 @@ plugins {
 repositories {
     mavenCentral()
 }
+repositories {
+
+    maven { url 'https://jitpack.io' }
+}
 
 dependencies {
-
-    //implementation 'com.github.husker-dev:openglfx:2.1'
-
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib"
 
     compileOnly "org.openjfx:javafx-base:16:win"

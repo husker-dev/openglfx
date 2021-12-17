@@ -3,7 +3,6 @@ package com.husker.openglfx.lwjgl.universal
 import com.husker.openglfx.lwjgl.LWJGLCanvas
 import com.husker.openglfx.utils.FXUtils
 import com.husker.openglfx.utils.LifetimeLoopThread
-import com.sun.javafx.geom.Matrix3f
 import com.sun.javafx.scene.DirtyBits
 import com.sun.javafx.scene.NodeHelper
 import com.sun.prism.Graphics
@@ -14,7 +13,6 @@ import javafx.scene.image.ImageView
 import javafx.scene.image.PixelBuffer
 import javafx.scene.image.PixelFormat
 import javafx.scene.image.WritableImage
-import javafx.scene.transform.Transform
 import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.glfw.GLFWErrorCallback
 import org.lwjgl.opengl.GL
@@ -71,25 +69,10 @@ class LWJGLUniversal: LWJGLCanvas() {
                 glfwMakeContextCurrent(window)
                 GL.createCapabilities()
 
-                var tex = 0
-                var texFBO = 0
-
                 while(!glfwWindowShouldClose(window)){
                     if(width.toInt() != lastSize.first || height.toInt() != lastSize.second){
                         updateGLSize()
                         lastSize = Pair(width.toInt(), height.toInt())
-
-                        /*
-                        // Gen FBO
-                        texFBO = glGenFramebuffers()
-                        glBindFramebuffer(GL_FRAMEBUFFER, texFBO)
-
-                        // Gen Texture
-                        tex = glGenTextures()
-                        glBindTexture(GL_TEXTURE_2D, tex)
-                        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width.toInt(), height.toInt(), 0, GL_RGB, GL_UNSIGNED_BYTE, 0)
-
-                         */
 
                         if(!initialized){
                             initialized = true
