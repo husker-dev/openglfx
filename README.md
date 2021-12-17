@@ -78,7 +78,7 @@ OpenGL implementation for JavaFX
   | Performance           | :x:                | :heavy_check_mark:
   | Smooth resizing       | :x:                | :heavy_check_mark:
   | Separate GL context   | :heavy_check_mark: | :x:
-  | OpenGL pipeline       | :heavy_check_mark: | :heavy_check_mark:
+  | **OpenGL** pipeline       | :heavy_check_mark: | :heavy_check_mark:
   | **DirectX** pipeline  | :heavy_check_mark: | :x:
   | **Software** pipeline | :heavy_check_mark: | :x:
   | Calls ```init``` once | :heavy_check_mark: | :x:
