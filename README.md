@@ -29,12 +29,14 @@ OpenGL implementation for JavaFX
       }
     
       dependencies {
-          implementation 'com.github.husker-dev.openglfx:core:2.3'
+          implementation 'com.github.husker-dev.openglfx:core:2.4'
 
-          implementation 'com.github.husker-dev.openglfx:lwjgl:2.3' // For LWJGL
-          implementation 'com.github.husker-dev.openglfx:jogl:2.3'  // For JOGL
+          implementation 'com.github.husker-dev.openglfx:lwjgl:2.4' // For LWJGL
+          implementation 'com.github.husker-dev.openglfx:jogl:2.4'  // For JOGL
       }
     ```
+    
+    > LWJGL has the best performance
 
   - Create Node 
     ```kotlin
@@ -49,7 +51,7 @@ OpenGL implementation for JavaFX
       - ```LWJGL_MODULE``` - LWJGL library
     
     #### DirectDrawPolicy
-      - ```NEVER``` - Never use direct render
+      - ```NEVER``` - Never use direct render (default)
       - ```IF_AVAILABLE``` - Use direct render if available
       - ```ALWAYS``` - Use only direct render
 
@@ -98,8 +100,8 @@ OpenGL implementation for JavaFX
   
   dependencies {
       // OpenGLFX
-      implementation 'com.github.husker-dev.openglfx:core:2.3'
-      implementation 'com.github.husker-dev.openglfx:lwjgl:2.3'
+      implementation 'com.github.husker-dev.openglfx:core:2.4'
+      implementation 'com.github.husker-dev.openglfx:lwjgl:2.4'
     
       // LWJGL
       implementation "org.lwjgl:lwjgl"
@@ -152,8 +154,8 @@ OpenGL implementation for JavaFX
   
   dependencies {
       // OpenGLFX
-      implementation 'com.github.husker-dev.openglfx:core:2.3'
-      implementation 'com.github.husker-dev.openglfx:jogl:2.3'
+      implementation 'com.github.husker-dev.openglfx:core:2.4'
+      implementation 'com.github.husker-dev.openglfx:jogl:2.4'
     
       // JOGL
       implementation 'org.jogamp.jogl:jogl-all-main:2.3.2'
