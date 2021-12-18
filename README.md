@@ -19,9 +19,31 @@ OpenGL implementation for JavaFX
 <img src="https://user-images.githubusercontent.com/31825139/131416822-b90bb974-583c-48a2-ae47-8e0022fd5229.gif" height="280"/>
 </p>
 
+## Description 
+JavaFX has very poor 3D functionality, so this library was created.
+
+
+There are two ways to render OpenGL content into JavaFX frame:
+- The first method is to change the rendering method of the node, and call our OpenGL functions. 
+  This method only works if ES2 is selected as the JavaFX rendering engine (pipeline). This method is called ```Direct```
+- The second way is to create a new OpenGL window where all the rendering takes place. Later, the entire pixel buffer is copied to the image on the JavaFX side. 
+  This method is very slow, although it has an acceleration due to the use of IntBuffer from nio. But, anywaym it calculates on CPU. This method is called ```Universal```
+
+There are also several ways to call OpenGL functions from Java code. The most preferred is ```LWJGL``` because it doesn't create unnecessary objects like ```JOGL``` does. All of them supported in this library.
+
+> JOGL also has problems on MacOS.
+
 ## Usage
 
   - Add dependency
+
+    What do you need to include:
+      - Modern JavaFX. (JavaFX 16 is tested). 
+      - Kotlin standart library
+      - OpenGLFX core
+      - LWJGL/JOGL module for OpenGLFX
+    
+    Example:
     ```gradle
       repositories {
           // ...
@@ -34,12 +56,9 @@ OpenGL implementation for JavaFX
           implementation 'com.github.husker-dev.openglfx:lwjgl:2.4' // For LWJGL
           implementation 'com.github.husker-dev.openglfx:jogl:2.4'  // For JOGL
           
-          // Kotlin library
-          implementation "org.jetbrains.kotlin:kotlin-stdlib"       
+          // ...
       }
     ```
-    
-    > LWJGL has the best performance
 
   - Create Node 
     ```kotlin
@@ -74,9 +93,7 @@ OpenGL implementation for JavaFX
     }
     ```
    
-
-
-## Rendering types
+## Rendering types comparison
 
   |                       |      Universal     |       Direct
   | --------------------- | :----------------: | :----------------: |
