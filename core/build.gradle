@@ -5,10 +5,6 @@ plugins {
 repositories {
     mavenCentral()
 }
-repositories {
-
-    maven { url 'https://jitpack.io' }
-}
 
 dependencies {
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib"

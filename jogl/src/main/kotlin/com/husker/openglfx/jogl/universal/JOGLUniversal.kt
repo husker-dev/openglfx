@@ -7,10 +7,13 @@ import com.jogamp.opengl.*
 import com.jogamp.opengl.GL2GL3.*
 import com.sun.javafx.scene.DirtyBits
 import com.sun.javafx.scene.NodeHelper
+import com.sun.javafx.tk.PlatformImage
+import com.sun.javafx.tk.Toolkit
 import com.sun.prism.Graphics
+import com.sun.prism.Image
+import com.sun.prism.Texture
+import com.sun.prism.impl.BufferUtil
 import javafx.animation.AnimationTimer
-import javafx.application.Platform
-import javafx.scene.image.ImageView
 import javafx.scene.image.PixelBuffer
 import javafx.scene.image.PixelFormat
 import javafx.scene.image.WritableImage
@@ -31,17 +34,14 @@ class JOGLUniversal(
     private val resizeUpdating = LifetimeLoopThread(100){ updateGLSize() }
     private var bufferUpdateRequired = false
 
-    private var imageView = ImageView()
     private var image = WritableImage(1, 1)
+    private var lastImage = image
+    private var imageReady = false
 
     private lateinit var pixelIntBuffer: IntBuffer
     private lateinit var pixelBuffer: PixelBuffer<IntBuffer>
 
     init{
-        imageView.fitWidthProperty().bind(widthProperty())
-        imageView.fitHeightProperty().bind(heightProperty())
-        children.add(imageView)
-
         widthProperty().addListener{_, _, _ -> resizeUpdating.startRequest() }
         heightProperty().addListener{_, _, _ -> resizeUpdating.startRequest() }
 
@@ -117,22 +117,41 @@ class JOGLUniversal(
             return
 
         if(image.width.toInt() != renderWidth || image.height.toInt() != renderHeight){
-            pixelIntBuffer = IntBuffer.allocate(renderWidth * renderHeight)
+            pixelIntBuffer = BufferUtil.newIntBuffer(renderWidth * renderHeight)
             pixelBuffer = PixelBuffer(renderWidth, renderHeight, pixelIntBuffer, PixelFormat.getIntArgbPreInstance())
+
             image = WritableImage(pixelBuffer)
-            Platform.runLater { imageView.image = image }
+            imageReady = false
         }
 
         gl.glReadBuffer(gl.defaultReadBuffer)
         gl.glReadPixels(0, 0, renderWidth, renderHeight, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, pixelIntBuffer)
+        imageReady = true
         bufferUpdateRequired = true
     }
 
     private fun updateGLSize() = glWindow.windowResizedOp(max(width * dpi, 1.0).toInt(), max(height * dpi, 1.0).toInt())
 
-    override fun onNGRender(g: Graphics){}
+    override fun onNGRender(g: Graphics){
+        val imageToRender = if(imageReady){
+            lastImage = image
+            image
+        }else lastImage
+
+        val texture = g.resourceFactory.getCachedTexture(imageToRender.getPlatformImage() as Image, Texture.WrapMode.CLAMP_TO_EDGE)
+        if(!texture.isLocked)
+            texture.lock()
+
+        g.drawTexture(texture,
+            0f, 0f, imageToRender.width.toFloat(), imageToRender.height.toFloat(),
+            0f, 0f, imageToRender.width.toFloat() * dpi.toFloat(), imageToRender.height.toFloat() * dpi.toFloat())
+
+        texture.unlock()
+    }
 
     override fun repaint() {
         glWindow.display()
     }
+
+    private fun WritableImage.getPlatformImage() = Toolkit.getImageAccessor().getPlatformImage(this) as PlatformImage
 }
