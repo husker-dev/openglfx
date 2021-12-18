@@ -115,7 +115,7 @@ OpenGL implementation for JavaFX
   }
   ```
   
-  ### Kotlin example
+  ### Kotlin
   ```kotlin
   val canvas = OpenGLCanvas.create(LWJGL_MODULE)
   // OpenGLCanvas.create(LWJGL_MODULE, DirectDrawPolicy.ALWAYS)
@@ -165,7 +165,7 @@ OpenGL implementation for JavaFX
   }
   ```
   
-  ### Kotlin example
+  ### Kotlin
   ```kotlin
   val canvas = OpenGLCanvas.create(JOGL_MODULE)
   // OpenGLCanvas.create(JOGL_MODULE, DirectDrawPolicy.ALWAYS)
