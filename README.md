@@ -33,6 +33,9 @@ OpenGL implementation for JavaFX
 
           implementation 'com.github.husker-dev.openglfx:lwjgl:2.4' // For LWJGL
           implementation 'com.github.husker-dev.openglfx:jogl:2.4'  // For JOGL
+          
+          // Kotlin library
+          implementation "org.jetbrains.kotlin:kotlin-stdlib"       
       }
     ```
     
@@ -111,6 +114,9 @@ OpenGL implementation for JavaFX
       runtimeOnly "org.lwjgl:lwjgl-glfw::your-platform"
       runtimeOnly "org.lwjgl:lwjgl-opengl::your-platform"
   
+      // Kotlin
+      implementation "org.jetbrains.kotlin:kotlin-stdlib"
+  
       // ...
   }
   ```
@@ -160,6 +166,9 @@ OpenGL implementation for JavaFX
       // JOGL
       implementation 'org.jogamp.jogl:jogl-all-main:2.3.2'
       implementation 'org.jogamp.gluegen:gluegen-rt-main:2.3.2'
+  
+      // Kotlin
+      implementation "org.jetbrains.kotlin:kotlin-stdlib"
   
       // ...
   }
