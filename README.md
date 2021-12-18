@@ -85,7 +85,7 @@ OpenGL implementation for JavaFX
   | **Software** pipeline | :heavy_check_mark: | :x:
   | Calls ```init``` once | :heavy_check_mark: | :x:
 
-## Examples
+## Example code
 
 <details><summary>LWJGL</summary>
 
