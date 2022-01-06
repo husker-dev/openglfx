@@ -24,10 +24,10 @@ JavaFX has very poor 3D functionality, so this library was created.
 
 
 There are two ways to render OpenGL content into JavaFX frame:
-- The first method is to change the rendering method of the node, and call our OpenGL functions. 
-  This method only works if ES2 is selected as the JavaFX rendering engine (pipeline). This method is called ```Direct```
+- The first method is to change the rendering function of the node, and call our OpenGL draw calls. 
+  This method only works if ES2 is selected as the JavaFX rendering engine (pipeline). It is called ```Direct```
 - The second way is to create a new OpenGL window where all the rendering takes place. Later, the entire pixel buffer is copied to the image on the JavaFX side. 
-  This method is very slow, although it has an acceleration due to the use of IntBuffer from nio. But, anywaym it calculates on CPU. This method is called ```Universal```
+  This method is very slow, although it has an acceleration due to the use of IntBuffer from NIO. But, anyway it calculates on CPU. This method is called ```Universal```
 
 There are also several ways to call OpenGL functions from Java code. The most preferred is ```LWJGL``` because it doesn't create unnecessary objects like ```JOGL``` does. All of them supported in this library.
 
