@@ -33,65 +33,6 @@ There are also several ways to call OpenGL functions from Java code. The most pr
 
 > JOGL also has problems on MacOS.
 
-## Usage
-
-  - Add dependency
-
-    What do you need to include:
-      - Modern JavaFX. (JavaFX 16 is tested). 
-      - Kotlin standart library
-      - OpenGLFX core
-      - LWJGL/JOGL module for OpenGLFX
-    
-    Example:
-    ```gradle
-      repositories {
-          // ...
-          maven { url 'https://jitpack.io' }
-      }
-    
-      dependencies {
-          implementation 'com.github.husker-dev.openglfx:core:2.4'
-
-          implementation 'com.github.husker-dev.openglfx:lwjgl:2.4' // For LWJGL
-          implementation 'com.github.husker-dev.openglfx:jogl:2.4'  // For JOGL
-          
-          // ...
-      }
-    ```
-
-  - Create Node 
-    ```kotlin
-    val canvas = OpenGLCanvas.create(/* Module */);
-    ```
-    ```kotlin
-    val canvas = OpenGLCanvas.create(/* Module */, /* DirectDrawPolicy */);
-    ```
-    
-    #### Module
-      - ```JOGL_MODULE``` - JOGL library
-      - ```LWJGL_MODULE``` - LWJGL library
-    
-    #### DirectDrawPolicy
-      - ```NEVER``` - Never use direct render (default)
-      - ```IF_AVAILABLE``` - Use direct render if available
-      - ```ALWAYS``` - Use only direct render
-
-  - Handle events
-    ```kotlin
-    canvas.onInitialize {
-        // ...
-    }
-    canvas.onRender {
-        // ...
-    }
-    canvas.onReshape {
-        // ...
-    }
-    canvas.onDispose {
-        // ...
-    }
-    ```
 ## Example code
   <details><summary>LWJGL</summary>
 
@@ -126,10 +67,10 @@ There are also several ways to call OpenGL functions from Java code. The most pr
   
   ### Kotlin
   ```kotlin
-  val canvas = OpenGLCanvas.create(LWJGL_MODULE)
-  // OpenGLCanvas.create(LWJGL_MODULE, DirectDrawPolicy.ALWAYS)
-  // OpenGLCanvas.create(LWJGL_MODULE, DirectDrawPolicy.IF_AVAILABLE)
-  // OpenGLCanvas.create(LWJGL_MODULE, DirectDrawPolicy.NEVER)
+  val canvas = OpenGLCanvas.create(LWJGL_MODULE, DirectDrawPolicy.NEVER)
+  // DirectDrawPolicy.NEVER         - Never use direct render (default)
+  // DirectDrawPolicy.IF_AVAILABLE  - Use direct render if available
+  // DirectDrawPolicy.ALWAYS        - Use only direct render
   
   canvas.onInitialize {
       // ...
@@ -144,9 +85,9 @@ There are also several ways to call OpenGL functions from Java code. The most pr
       // ...
   }
   ```
-  [Direct example](https://github.com/husker-dev/openglfx/blob/master/lwjgl/src/examples/kotlin/Direct.kt)
+  [Direct LWJGL example](https://github.com/husker-dev/openglfx/blob/master/lwjgl/src/examples/kotlin/Direct.kt)
   
-  [Universal example](https://github.com/husker-dev/openglfx/blob/master/lwjgl/src/examples/kotlin/Universal.kt)
+  [Universal LWJGL example](https://github.com/husker-dev/openglfx/blob/master/lwjgl/src/examples/kotlin/Universal.kt)
   
   ---
 </details>
@@ -181,10 +122,10 @@ There are also several ways to call OpenGL functions from Java code. The most pr
   
   ### Kotlin
   ```kotlin
-  val canvas = OpenGLCanvas.create(JOGL_MODULE)
-  // OpenGLCanvas.create(JOGL_MODULE, DirectDrawPolicy.ALWAYS)
-  // OpenGLCanvas.create(JOGL_MODULE, DirectDrawPolicy.IF_AVAILABLE)
-  // OpenGLCanvas.create(JOGL_MODULE, DirectDrawPolicy.NEVER)
+  val canvas = OpenGLCanvas.create(JOGL_MODULE, DirectDrawPolicy.NEVER)
+  // DirectDrawPolicy.NEVER         - Never use direct render (default)
+  // DirectDrawPolicy.IF_AVAILABLE  - Use direct render if available
+  // DirectDrawPolicy.ALWAYS        - Use only direct render
   
   canvas.onInitialize {
       val gl = (canvas as JOGLFXCanvas).gl
@@ -204,9 +145,9 @@ There are also several ways to call OpenGL functions from Java code. The most pr
   }
   ```
   
-  [Direct example](https://github.com/husker-dev/openglfx/blob/master/jogl/src/examples/kotlin/Direct.kt)
+  [Direct JOGL example](https://github.com/husker-dev/openglfx/blob/master/jogl/src/examples/kotlin/Direct.kt)
   
-  [Universal example](https://github.com/husker-dev/openglfx/blob/master/jogl/src/examples/kotlin/Universal.kt)
+  [Universal JOGL example](https://github.com/husker-dev/openglfx/blob/master/jogl/src/examples/kotlin/Universal.kt)
   
   ---
 </details>
