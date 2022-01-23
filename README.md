@@ -92,22 +92,8 @@ There are also several ways to call OpenGL functions from Java code. The most pr
         // ...
     }
     ```
-   
-## Rendering types comparison
-
-  |                       |      Universal     |       Direct
-  | --------------------- | :----------------: | :----------------: |
-  | Performance           | :x:                | :heavy_check_mark:
-  | Smooth resizing       | :x:                | :heavy_check_mark:
-  | Separate GL context   | :heavy_check_mark: | :x:
-  | **OpenGL** pipeline       | :heavy_check_mark: | :heavy_check_mark:
-  | **DirectX** pipeline  | :heavy_check_mark: | :x:
-  | **Software** pipeline | :heavy_check_mark: | :x:
-  | Calls ```init``` once | :heavy_check_mark: | :x:
-
 ## Example code
-
-<details><summary>LWJGL</summary>
+  <details><summary>LWJGL</summary>
 
   ### Gradle
   ```groovy
@@ -161,6 +147,8 @@ There are also several ways to call OpenGL functions from Java code. The most pr
   [Direct example](https://github.com/husker-dev/openglfx/blob/master/lwjgl/src/examples/kotlin/Direct.kt)
   
   [Universal example](https://github.com/husker-dev/openglfx/blob/master/lwjgl/src/examples/kotlin/Universal.kt)
+  
+  ---
 </details>
 
 
@@ -219,8 +207,21 @@ There are also several ways to call OpenGL functions from Java code. The most pr
   [Direct example](https://github.com/husker-dev/openglfx/blob/master/jogl/src/examples/kotlin/Direct.kt)
   
   [Universal example](https://github.com/husker-dev/openglfx/blob/master/jogl/src/examples/kotlin/Universal.kt)
+  
+  ---
 </details>
+   
+## Rendering types comparison
 
+  |                       |      Universal     |       Direct
+  | --------------------- | :----------------: | :----------------: |
+  | Performance           | :x:                | :heavy_check_mark:
+  | Smooth resizing       | :x:                | :heavy_check_mark:
+  | Separate GL context   | :heavy_check_mark: | :x:
+  | **OpenGL** pipeline       | :heavy_check_mark: | :heavy_check_mark:
+  | **DirectX** pipeline  | :heavy_check_mark: | :x:
+  | **Software** pipeline | :heavy_check_mark: | :x:
+  | Calls ```init``` once | :heavy_check_mark: | :x:
 
 ## Wiki
   Read [wiki articles](https://github.com/husker-dev/openglfx/wiki) for more information
