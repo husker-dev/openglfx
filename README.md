@@ -47,8 +47,8 @@ There are also several ways to call OpenGL functions from Java code. The most pr
   
   dependencies {
       // OpenGLFX
-      implementation 'com.github.husker-dev.openglfx:core:2.4'
-      implementation 'com.github.husker-dev.openglfx:lwjgl:2.4'
+      implementation 'com.github.husker-dev.openglfx:core:2.5'
+      implementation 'com.github.husker-dev.openglfx:lwjgl:2.5'
     
       // LWJGL
       implementation "org.lwjgl:lwjgl"
@@ -76,6 +76,9 @@ There are also several ways to call OpenGL functions from Java code. The most pr
       // ...
   }
   canvas.onRender {
+      // ...
+  }
+  canvas.onUpdate {
       // ...
   }
   canvas.onReshape {
@@ -106,8 +109,8 @@ There are also several ways to call OpenGL functions from Java code. The most pr
   
   dependencies {
       // OpenGLFX
-      implementation 'com.github.husker-dev.openglfx:core:2.4'
-      implementation 'com.github.husker-dev.openglfx:jogl:2.4'
+      implementation 'com.github.husker-dev.openglfx:core:2.5'
+      implementation 'com.github.husker-dev.openglfx:jogl:2.5'
     
       // JOGL
       implementation 'org.jogamp.jogl:jogl-all-main:2.3.2'
@@ -135,6 +138,9 @@ There are also several ways to call OpenGL functions from Java code. The most pr
       val gl = (canvas as JOGLFXCanvas).gl
       // ...
   }
+  canvas.onUpdate {
+      // ...
+  }
   canvas.onReshape {
       val gl = (canvas as JOGLFXCanvas).gl
       // ...
@@ -151,6 +157,25 @@ There are also several ways to call OpenGL functions from Java code. The most pr
   
   ---
 </details>
+
+## Timer
+
+Repaint timer allows you to automatically repaint canvas with fixed FPS.
+
+Due to JavaFX limits, ```onRender``` method may be called more or less times than required. 
+To solve this problem, there is a method ```onUpdate```. It invokes every frame, so you can do all the calculations there.
+
+```kotlin
+canvas.createTimer(60.0)  // FPS: 60
+```
+
+To manipulate timer lifecycle, you can do following:
+```kotlin
+val timer = canvas.createTimer(60.0)
+
+timer.started = false
+timer.fps = 200.0
+```
    
 ## Rendering types comparison
 
