@@ -4,14 +4,14 @@ plugins {
 }
 
 allprojects {
-    version = "2.4"
+    version = "2.5"
 }
 
 repositories {
     mavenCentral()
 }
 
-group 'com.husker.openglfx'
+group 'com.huskerdev.openglfx'
 
 subprojects {
     apply plugin: 'java'

@@ -6,6 +6,8 @@ repositories {
     mavenCentral()
 }
 
+archivesBaseName = 'openglfx-lwjgl'
+
 sourceSets{
     examples {
         resources { srcDirs "src/examples/resources" }
