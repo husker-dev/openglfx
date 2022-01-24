@@ -1,3 +1,7 @@
+import java.nio.file.Files
+import java.nio.file.Paths
+import static java.nio.file.StandardCopyOption.*;
+
 plugins {
     id 'java'
     id 'org.jetbrains.kotlin.jvm' version '1.6.10'
@@ -35,3 +39,15 @@ subprojects {
         archives javadocJar
     }
 }
+
+task compileAll {
+    group 'release'
+    doLast {
+        Files.copy(Paths.get("$projectDir/core/build/libs/core-${version}.jar"), Paths.get("$projectDir/build/libs/openglfx-core-${version}.jar"), REPLACE_EXISTING)
+        Files.copy(Paths.get("$projectDir/lwjgl/build/libs/lwjgl-${version}.jar"), Paths.get("$projectDir/build/libs/openglfx-lwjgl-${version}.jar"), REPLACE_EXISTING)
+        Files.copy(Paths.get("$projectDir/jogl/build/libs/jogl-${version}.jar"), Paths.get("$projectDir/build/libs/openglfx-jogl-${version}.jar"), REPLACE_EXISTING)
+    }
+}
+compileAll.dependsOn 'core:jar'
+compileAll.dependsOn 'lwjgl:jar'
+compileAll.dependsOn 'jogl:jar'

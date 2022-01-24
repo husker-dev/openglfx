@@ -6,8 +6,6 @@ repositories {
     mavenCentral()
 }
 
-archivesBaseName = 'openglfx-core'
-
 dependencies {
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib"
 
