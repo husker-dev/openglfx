@@ -1,5 +1,6 @@
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.nio.file.Path
 import static java.nio.file.StandardCopyOption.*;
 
 plugins {
@@ -8,7 +9,7 @@ plugins {
 }
 
 allprojects {
-    version = "2.5"
+    version = "2.5.1"
 }
 
 repositories {
@@ -43,6 +44,16 @@ subprojects {
 task compileAll {
     group 'release'
     doLast {
+        Path out = Paths.get("$projectDir/build/libs")
+        if(Files.exists(out)) {
+            Files.walk(out)
+                    .sorted(Comparator.reverseOrder())
+                    .map { it.toFile() }
+                    .forEach { it.delete() }
+        }
+        Files.createDirectory(out.parent)
+        Files.createDirectory(out)
+
         Files.copy(Paths.get("$projectDir/core/build/libs/core-${version}.jar"), Paths.get("$projectDir/build/libs/openglfx-core-${version}.jar"), REPLACE_EXISTING)
         Files.copy(Paths.get("$projectDir/lwjgl/build/libs/lwjgl-${version}.jar"), Paths.get("$projectDir/build/libs/openglfx-lwjgl-${version}.jar"), REPLACE_EXISTING)
         Files.copy(Paths.get("$projectDir/jogl/build/libs/jogl-${version}.jar"), Paths.get("$projectDir/build/libs/openglfx-jogl-${version}.jar"), REPLACE_EXISTING)
