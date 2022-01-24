@@ -19,73 +19,22 @@ OpenGL implementation for JavaFX
 <img src="https://user-images.githubusercontent.com/31825139/131416822-b90bb974-583c-48a2-ae47-8e0022fd5229.gif" height="280"/>
 </p>
 
-## Usage
-
-  - Add dependency
-    ```gradle
-      repositories {
-          // ...
-          maven { url 'https://jitpack.io' }
-      }
-    
-      dependencies {
-          implementation 'com.github.husker-dev.openglfx:core:2.3'
-
-          implementation 'com.github.husker-dev.openglfx:lwjgl:2.3' // For LWJGL
-          implementation 'com.github.husker-dev.openglfx:jogl:2.3'  // For JOGL
-      }
-    ```
-
-  - Create Node 
-    ```kotlin
-    val canvas = OpenGLCanvas.create(/* Module */);
-    ```
-    ```kotlin
-    val canvas = OpenGLCanvas.create(/* Module */, /* DirectDrawPolicy */);
-    ```
-    
-    #### Module
-      - ```JOGL_MODULE``` - JOGL library
-      - ```LWJGL_MODULE``` - LWJGL library
-    
-    #### DirectDrawPolicy
-      - ```NEVER``` - Never use direct render
-      - ```IF_AVAILABLE``` - Use direct render if available
-      - ```ALWAYS``` - Use only direct render
-
-  - Handle events
-    ```kotlin
-    canvas.onInitialize {
-        // ...
-    }
-    canvas.onRender {
-        // ...
-    }
-    canvas.onReshape {
-        // ...
-    }
-    canvas.onDispose {
-        // ...
-    }
-    ```
-   
+## Description 
+JavaFX has very poor 3D functionality, so this library was created.
 
 
-## Rendering types
+There are two ways to render OpenGL content into JavaFX frame:
+- The first method is to change the rendering function of the node, and call our OpenGL draw calls. 
+  This method only works if ES2 is selected as the JavaFX rendering engine (pipeline). It is called ```Direct```
+- The second way is to create a new OpenGL window where all the rendering takes place. Later, the entire pixel buffer is copied to the image on the JavaFX side. 
+  This method is very slow, although it has an acceleration due to the use of IntBuffer from NIO. But, anyway it calculates on CPU. This method is called ```Universal```
 
-  |                       |      Universal     |       Direct
-  | --------------------- | :----------------: | :----------------: |
-  | Performance           | :x:                | :heavy_check_mark:
-  | Smooth resizing       | :x:                | :heavy_check_mark:
-  | Separate GL context   | :heavy_check_mark: | :x:
-  | **OpenGL** pipeline       | :heavy_check_mark: | :heavy_check_mark:
-  | **DirectX** pipeline  | :heavy_check_mark: | :x:
-  | **Software** pipeline | :heavy_check_mark: | :x:
-  | Calls ```init``` once | :heavy_check_mark: | :x:
+There are also several ways to call OpenGL functions from Java code. The most preferred is ```LWJGL``` because it doesn't create unnecessary objects like ```JOGL``` does. All of them supported in this library.
 
-## Examples
+> JOGL also has problems on MacOS.
 
-<details><summary>LWJGL</summary>
+## Example code
+  <details><summary>LWJGL</summary>
 
   ### Gradle
   ```groovy
@@ -98,8 +47,8 @@ OpenGL implementation for JavaFX
   
   dependencies {
       // OpenGLFX
-      implementation 'com.github.husker-dev.openglfx:core:2.3'
-      implementation 'com.github.husker-dev.openglfx:lwjgl:2.3'
+      implementation 'com.github.husker-dev.openglfx:core:2.4'
+      implementation 'com.github.husker-dev.openglfx:lwjgl:2.4'
     
       // LWJGL
       implementation "org.lwjgl:lwjgl"
@@ -109,16 +58,19 @@ OpenGL implementation for JavaFX
       runtimeOnly "org.lwjgl:lwjgl-glfw::your-platform"
       runtimeOnly "org.lwjgl:lwjgl-opengl::your-platform"
   
+      // Kotlin
+      implementation "org.jetbrains.kotlin:kotlin-stdlib"
+  
       // ...
   }
   ```
   
-  ### Kotlin example
+  ### Kotlin
   ```kotlin
-  val canvas = OpenGLCanvas.create(LWJGL_MODULE)
-  // OpenGLCanvas.create(LWJGL_MODULE, DirectDrawPolicy.ALWAYS)
-  // OpenGLCanvas.create(LWJGL_MODULE, DirectDrawPolicy.IF_AVAILABLE)
-  // OpenGLCanvas.create(LWJGL_MODULE, DirectDrawPolicy.NEVER)
+  val canvas = OpenGLCanvas.create(LWJGL_MODULE, DirectDrawPolicy.NEVER)
+  // DirectDrawPolicy.NEVER         - Never use direct render (default)
+  // DirectDrawPolicy.IF_AVAILABLE  - Use direct render if available
+  // DirectDrawPolicy.ALWAYS        - Use only direct render
   
   canvas.onInitialize {
       // ...
@@ -133,9 +85,11 @@ OpenGL implementation for JavaFX
       // ...
   }
   ```
-  [Direct example](https://github.com/husker-dev/openglfx/blob/master/lwjgl/src/examples/kotlin/Direct.kt)
+  [Direct LWJGL example](https://github.com/husker-dev/openglfx/blob/master/lwjgl/src/examples/kotlin/Direct.kt)
   
-  [Universal example](https://github.com/husker-dev/openglfx/blob/master/lwjgl/src/examples/kotlin/Universal.kt)
+  [Universal LWJGL example](https://github.com/husker-dev/openglfx/blob/master/lwjgl/src/examples/kotlin/Universal.kt)
+  
+  ---
 </details>
 
 
@@ -152,23 +106,26 @@ OpenGL implementation for JavaFX
   
   dependencies {
       // OpenGLFX
-      implementation 'com.github.husker-dev.openglfx:core:2.3'
-      implementation 'com.github.husker-dev.openglfx:jogl:2.3'
+      implementation 'com.github.husker-dev.openglfx:core:2.4'
+      implementation 'com.github.husker-dev.openglfx:jogl:2.4'
     
       // JOGL
       implementation 'org.jogamp.jogl:jogl-all-main:2.3.2'
       implementation 'org.jogamp.gluegen:gluegen-rt-main:2.3.2'
   
+      // Kotlin
+      implementation "org.jetbrains.kotlin:kotlin-stdlib"
+  
       // ...
   }
   ```
   
-  ### Kotlin example
+  ### Kotlin
   ```kotlin
-  val canvas = OpenGLCanvas.create(JOGL_MODULE)
-  // OpenGLCanvas.create(JOGL_MODULE, DirectDrawPolicy.ALWAYS)
-  // OpenGLCanvas.create(JOGL_MODULE, DirectDrawPolicy.IF_AVAILABLE)
-  // OpenGLCanvas.create(JOGL_MODULE, DirectDrawPolicy.NEVER)
+  val canvas = OpenGLCanvas.create(JOGL_MODULE, DirectDrawPolicy.NEVER)
+  // DirectDrawPolicy.NEVER         - Never use direct render (default)
+  // DirectDrawPolicy.IF_AVAILABLE  - Use direct render if available
+  // DirectDrawPolicy.ALWAYS        - Use only direct render
   
   canvas.onInitialize {
       val gl = (canvas as JOGLFXCanvas).gl
@@ -188,11 +145,24 @@ OpenGL implementation for JavaFX
   }
   ```
   
-  [Direct example](https://github.com/husker-dev/openglfx/blob/master/jogl/src/examples/kotlin/Direct.kt)
+  [Direct JOGL example](https://github.com/husker-dev/openglfx/blob/master/jogl/src/examples/kotlin/Direct.kt)
   
-  [Universal example](https://github.com/husker-dev/openglfx/blob/master/jogl/src/examples/kotlin/Universal.kt)
+  [Universal JOGL example](https://github.com/husker-dev/openglfx/blob/master/jogl/src/examples/kotlin/Universal.kt)
+  
+  ---
 </details>
+   
+## Rendering types comparison
 
+  |                       |      Universal     |       Direct
+  | --------------------- | :----------------: | :----------------: |
+  | Performance           | :x:                | :heavy_check_mark:
+  | Smooth resizing       | :x:                | :heavy_check_mark:
+  | Separate GL context   | :heavy_check_mark: | :x:
+  | **OpenGL** pipeline       | :heavy_check_mark: | :heavy_check_mark:
+  | **DirectX** pipeline  | :heavy_check_mark: | :x:
+  | **Software** pipeline | :heavy_check_mark: | :x:
+  | Calls ```init``` once | :heavy_check_mark: | :x:
 
 ## Wiki
   Read [wiki articles](https://github.com/husker-dev/openglfx/wiki) for more information
