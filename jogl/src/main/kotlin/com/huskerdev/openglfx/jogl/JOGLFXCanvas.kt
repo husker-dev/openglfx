@@ -1,6 +1,6 @@
-package com.husker.openglfx.jogl
+package com.huskerdev.openglfx.jogl
 
-import com.husker.openglfx.OpenGLCanvas
+import com.huskerdev.openglfx.OpenGLCanvas
 import com.jogamp.opengl.GL
 import com.jogamp.opengl.GL2
 

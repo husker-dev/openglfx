@@ -1,8 +1,8 @@
-package com.husker.openglfx.lwjgl.universal
+package com.huskerdev.openglfx.lwjgl.universal
 
-import com.husker.openglfx.lwjgl.LWJGLCanvas
-import com.husker.openglfx.utils.FXUtils
-import com.husker.openglfx.utils.LifetimeLoopThread
+import com.huskerdev.openglfx.lwjgl.LWJGLCanvas
+import com.huskerdev.openglfx.utils.FXUtils
+import com.huskerdev.openglfx.utils.LifetimeLoopThread
 import com.sun.javafx.scene.DirtyBits
 import com.sun.javafx.scene.NodeHelper
 import com.sun.javafx.tk.PlatformImage
@@ -157,7 +157,7 @@ class LWJGLUniversal: LWJGLCanvas() {
         }else lastImage
 
         val texture = g.resourceFactory.getCachedTexture(imageToRender.getPlatformImage() as Image, Texture.WrapMode.CLAMP_TO_EDGE)
-        if(!texture.isLocked)
+        if(!texture!!.isLocked)
             texture.lock()
 
         g.drawTexture(texture,
@@ -166,7 +166,7 @@ class LWJGLUniversal: LWJGLCanvas() {
         texture.unlock()
     }
 
-    override fun repaint() {
+    override fun requestRepaint() {
         synchronized(shouldPaint) { shouldPaint.notifyAll() }
     }
 

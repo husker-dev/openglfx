@@ -1,8 +1,8 @@
-package com.husker.openglfx.lwjgl
+package com.huskerdev.openglfx.lwjgl
 
-import com.husker.openglfx.FXGLInitializer
-import com.husker.openglfx.lwjgl.direct.LWJGLDirect
-import com.husker.openglfx.lwjgl.universal.LWJGLUniversal
+import com.huskerdev.openglfx.FXGLInitializer
+import com.huskerdev.openglfx.lwjgl.direct.LWJGLDirect
+import com.huskerdev.openglfx.lwjgl.universal.LWJGLUniversal
 
 class LWJGLInitializer: FXGLInitializer() {
     override val name = "LWJGL"

@@ -1,4 +1,4 @@
-package com.husker.openglfx.utils
+package com.huskerdev.openglfx.utils
 
 
 import com.sun.prism.GraphicsPipeline

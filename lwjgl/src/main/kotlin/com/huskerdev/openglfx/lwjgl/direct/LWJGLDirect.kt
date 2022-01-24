@@ -1,7 +1,7 @@
-package com.husker.openglfx.lwjgl.direct
+package com.huskerdev.openglfx.lwjgl.direct
 
-import com.husker.openglfx.lwjgl.LWJGLCanvas
-import com.husker.openglfx.lwjgl.utils.LWJGLUtils
+import com.huskerdev.openglfx.lwjgl.LWJGLCanvas
+import com.huskerdev.openglfx.lwjgl.utils.LWJGLUtils
 import com.sun.javafx.scene.DirtyBits
 import com.sun.javafx.scene.NodeHelper
 import com.sun.prism.Graphics
@@ -75,12 +75,13 @@ class LWJGLDirect: LWJGLCanvas() {
             }
         }
 
-        g.drawTexture(texture, 0f, 0f, width.toFloat(), height.toFloat(), 0.0f, 0.0f, scaledWidth.toFloat(), scaledHeight.toFloat())
+        g.drawTexture(texture, 0f, 0f, width.toFloat() + 0.5f, height.toFloat() + 0.5f, 0.0f, 0.0f, scaledWidth.toFloat(), scaledHeight.toFloat())
         texture.unlock()
     }
 
-    override fun repaint() {
+    override fun requestRepaint() {
         needTextureRedraw = true
         NodeHelper.markDirty(this, DirtyBits.NODE_GEOMETRY)
+        NodeHelper.markDirty(this, DirtyBits.NODE_CONTENTS)
     }
 }

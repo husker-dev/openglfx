@@ -1,8 +1,8 @@
-package com.husker.openglfx.jogl
+package com.huskerdev.openglfx.jogl
 
-import com.husker.openglfx.FXGLInitializer
-import com.husker.openglfx.jogl.direct.JOGLDirect
-import com.husker.openglfx.jogl.universal.JOGLUniversal
+import com.huskerdev.openglfx.FXGLInitializer
+import com.huskerdev.openglfx.jogl.direct.JOGLDirect
+import com.huskerdev.openglfx.jogl.universal.JOGLUniversal
 import com.jogamp.opengl.GLCapabilities
 import com.jogamp.opengl.GLProfile
 

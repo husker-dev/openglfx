@@ -6,14 +6,13 @@ repositories {
     mavenCentral()
 }
 
-
 sourceSets{
     examples {
         resources { srcDirs "src/examples/resources" }
         java {
             srcDirs 'src/examples/kotlin'
-            compileClasspath += sourceSets.main.runtimeClasspath
-            runtimeClasspath += sourceSets.main.runtimeClasspath
+            compileClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.compileClasspath
+            runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.compileClasspath
         }
     }
 }
@@ -22,10 +21,10 @@ dependencies {
     compileOnly project(':core')
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib"
 
-    compileOnly "org.openjfx:javafx-base:16:win"
-    compileOnly "org.openjfx:javafx-controls:16:win"
-    compileOnly "org.openjfx:javafx-graphics:16:win"
-    compileOnly "org.openjfx:javafx-swing:16:win"
+    compileOnly "org.openjfx:javafx-base:17.0.0.1:win"
+    compileOnly "org.openjfx:javafx-controls:17.0.0.1:win"
+    compileOnly "org.openjfx:javafx-graphics:17.0.0.1:win"
+    compileOnly "org.openjfx:javafx-swing:17.0.0.1:win"
 
     compileOnly platform("org.lwjgl:lwjgl-bom:3.3.0")
 

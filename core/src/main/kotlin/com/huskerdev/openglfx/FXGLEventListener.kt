@@ -1,4 +1,4 @@
-package com.husker.openglfx
+package com.huskerdev.openglfx
 
 
 interface FXGLEventListener {

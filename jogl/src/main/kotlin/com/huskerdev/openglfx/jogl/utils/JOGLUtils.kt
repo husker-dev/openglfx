@@ -1,4 +1,4 @@
-package com.husker.openglfx.jogl.utils
+package com.huskerdev.openglfx.jogl.utils
 
 import com.jogamp.opengl.GL2
 import com.jogamp.opengl.GL2.*

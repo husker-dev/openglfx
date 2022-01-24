@@ -1,6 +1,6 @@
-package com.husker.openglfx.lwjgl
+package com.huskerdev.openglfx.lwjgl
 
-import com.husker.openglfx.OpenGLCanvas
+import com.huskerdev.openglfx.OpenGLCanvas
 
 val LWJGL_MODULE = LWJGLInitializer()
 

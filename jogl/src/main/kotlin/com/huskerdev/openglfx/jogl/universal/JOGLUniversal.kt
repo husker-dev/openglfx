@@ -1,8 +1,8 @@
-package com.husker.openglfx.jogl.universal
+package com.huskerdev.openglfx.jogl.universal
 
-import com.husker.openglfx.jogl.JOGLFXCanvas
-import com.husker.openglfx.utils.FXUtils
-import com.husker.openglfx.utils.LifetimeLoopThread
+import com.huskerdev.openglfx.jogl.JOGLFXCanvas
+import com.huskerdev.openglfx.utils.FXUtils
+import com.huskerdev.openglfx.utils.LifetimeLoopThread
 import com.jogamp.opengl.*
 import com.jogamp.opengl.GL2GL3.*
 import com.sun.javafx.scene.DirtyBits
@@ -149,8 +149,9 @@ class JOGLUniversal(
         texture.unlock()
     }
 
-    override fun repaint() {
-        glWindow.display()
+    override fun requestRepaint() {
+        if(this::glWindow.isInitialized)
+            glWindow.display()
     }
 
     private fun WritableImage.getPlatformImage() = Toolkit.getImageAccessor().getPlatformImage(this) as PlatformImage

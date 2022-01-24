@@ -1,4 +1,4 @@
-package com.husker.openglfx.lwjgl.utils
+package com.huskerdev.openglfx.lwjgl.utils
 
 
 import org.lwjgl.opengl.GL20.*

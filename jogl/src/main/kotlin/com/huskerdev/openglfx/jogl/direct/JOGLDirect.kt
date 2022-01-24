@@ -1,7 +1,7 @@
-package com.husker.openglfx.jogl.direct
+package com.huskerdev.openglfx.jogl.direct
 
-import com.husker.openglfx.jogl.JOGLFXCanvas
-import com.husker.openglfx.jogl.utils.JOGLUtils
+import com.huskerdev.openglfx.jogl.JOGLFXCanvas
+import com.huskerdev.openglfx.jogl.utils.JOGLUtils
 import com.jogamp.opengl.*
 import com.jogamp.opengl.GL.*
 import com.sun.javafx.scene.DirtyBits
@@ -76,13 +76,14 @@ class JOGLDirect: JOGLFXCanvas() {
             }
         }
 
-        g.drawTexture(texture, 0f, 0f, width.toFloat(), height.toFloat(), 0.0f, 0.0f, scaledWidth.toFloat(), scaledHeight.toFloat())
+        g.drawTexture(texture, 0f, 0f, width.toFloat() + 0.5f, height.toFloat() + 0.5f, 0.0f, 0.0f, scaledWidth.toFloat(), scaledHeight.toFloat())
         texture.unlock()
     }
 
-    override fun repaint() {
+    override fun requestRepaint() {
         needTextureRedraw = true
         NodeHelper.markDirty(this, DirtyBits.NODE_GEOMETRY)
+        NodeHelper.markDirty(this, DirtyBits.NODE_CONTENTS)
     }
 
 }

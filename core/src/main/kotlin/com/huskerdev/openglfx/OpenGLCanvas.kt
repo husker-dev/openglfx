@@ -1,9 +1,9 @@
-package com.husker.openglfx
+package com.huskerdev.openglfx
 
 
-import com.husker.openglfx.utils.FXUtils
-import com.husker.openglfx.utils.RegionAccessorObject
-import com.husker.openglfx.utils.RegionAccessorOverrider
+import com.huskerdev.openglfx.utils.FXUtils
+import com.huskerdev.openglfx.utils.RegionAccessorObject
+import com.huskerdev.openglfx.utils.RegionAccessorOverrider
 
 import com.sun.javafx.sg.prism.NGRegion
 import com.sun.prism.Graphics
@@ -54,6 +54,7 @@ abstract class OpenGLCanvas: Pane() {
 
     private var onInit: Runnable? = null
     private var onRender: Runnable? = null
+    private var onUpdate: Runnable? = null
     private var onReshape: Runnable? = null
     private var onDispose: Runnable? = null
 
@@ -72,6 +73,10 @@ abstract class OpenGLCanvas: Pane() {
         onRender = listener
     }
 
+    fun onUpdate(listener: Runnable){
+        onUpdate = listener
+    }
+
     fun onReshape(listener: Runnable){
         onReshape = listener
     }
@@ -85,8 +90,22 @@ abstract class OpenGLCanvas: Pane() {
         onDispose = listener
     }
 
+    fun createTimer(fps: Double, applier: (FXGLTimer) -> Unit = {}): FXGLTimer{
+        return FXGLTimer(fps)
+            .apply(applier)
+            .apply {
+                canvas = this@OpenGLCanvas
+                started = true
+            }
+    }
+
     protected abstract fun onNGRender(g: Graphics)
-    protected abstract fun repaint()
+    protected abstract fun requestRepaint()
+
+    fun repaint(){
+        onUpdate?.run()
+        requestRepaint()
+    }
 
     protected open fun fireRenderEvent() {
         checkInitialization()
@@ -113,19 +132,6 @@ abstract class OpenGLCanvas: Pane() {
     }
 
     private class NGOpenGLCanvas(val canvas: OpenGLCanvas): NGRegion() {
-
-        init{
-            /*
-            NodeUtils.onWindowReady(canvas){
-                object: AnimationTimer(){
-                    override fun handle(p: Long) {
-                        //NodeHelper.markDirty(canvas, DirtyBits.NODE_GEOMETRY)
-                    }
-                }.start()
-            }
-
-             */
-        }
 
         override fun renderContent(g: Graphics) {
             canvas.onNGRender(g)
