@@ -31,6 +31,8 @@ There are also several ways to call OpenGL functions from Java code. The most pr
 
 ## Example code
 
+  You can use [example generator](https://huskerdev.com/?page=tools/openglfx), or choose one of these:
+
   <details><summary>LWJGL</summary>
 
   ### Gradle
