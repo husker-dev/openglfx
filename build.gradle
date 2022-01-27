@@ -7,7 +7,7 @@ plugins {
 }
 
 allprojects {
-    version = "2.5.2"
+    version = "2.6"
 }
 
 repositories {
@@ -43,8 +43,8 @@ task compileAll {
     group 'release'
     doLast {
         Path out = Paths.get("$projectDir/build/libs")
-        if(Files.exists(out)) {
-            Files.walk(out)
+        if(Files.exists(out.parent)) {
+            Files.walk(out.parent)
                     .sorted(Comparator.reverseOrder())
                     .map { it.toFile() }
                     .forEach { it.delete() }
