@@ -44,8 +44,8 @@ There are also several ways to call OpenGL functions from Java code. The most pr
   
   dependencies {
       // OpenGLFX
-      implementation 'com.github.husker-dev.openglfx:core:2.5.1'
-      implementation 'com.github.husker-dev.openglfx:lwjgl:2.5.1'
+      implementation 'com.github.husker-dev.openglfx:core:2.6'
+      implementation 'com.github.husker-dev.openglfx:lwjgl:2.6'
     
       // LWJGL
       implementation "org.lwjgl:lwjgl"
@@ -106,8 +106,8 @@ There are also several ways to call OpenGL functions from Java code. The most pr
   
   dependencies {
       // OpenGLFX
-      implementation 'com.github.husker-dev.openglfx:core:2.5.1'
-      implementation 'com.github.husker-dev.openglfx:jogl:2.5.1'
+      implementation 'com.github.husker-dev.openglfx:core:2.6'
+      implementation 'com.github.husker-dev.openglfx:jogl:2.6'
     
       // JOGL
       implementation 'org.jogamp.jogl:jogl-all-main:2.3.2'
