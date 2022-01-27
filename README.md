@@ -19,9 +19,7 @@ OpenGL implementation for JavaFX
 <img src="https://user-images.githubusercontent.com/31825139/131416822-b90bb974-583c-48a2-ae47-8e0022fd5229.gif" height="280"/>
 </p>
 
-## Description 
-JavaFX has very poor 3D functionality, so this library was created.
-
+## How it works
 
 There are two ways to render OpenGL content into JavaFX frame:
 - The first method is to change the rendering function of the node, and call our OpenGL draw calls. 
@@ -31,9 +29,8 @@ There are two ways to render OpenGL content into JavaFX frame:
 
 There are also several ways to call OpenGL functions from Java code. The most preferred is ```LWJGL``` because it doesn't create unnecessary objects like ```JOGL``` does. All of them supported in this library.
 
-> JOGL also has problems on MacOS.
-
 ## Example code
+
   <details><summary>LWJGL</summary>
 
   ### Gradle
@@ -47,8 +44,8 @@ There are also several ways to call OpenGL functions from Java code. The most pr
   
   dependencies {
       // OpenGLFX
-      implementation 'com.github.husker-dev.openglfx:core:2.5'
-      implementation 'com.github.husker-dev.openglfx:lwjgl:2.5'
+      implementation 'com.github.husker-dev.openglfx:core:2.5.1'
+      implementation 'com.github.husker-dev.openglfx:lwjgl:2.5.1'
     
       // LWJGL
       implementation "org.lwjgl:lwjgl"
@@ -109,8 +106,8 @@ There are also several ways to call OpenGL functions from Java code. The most pr
   
   dependencies {
       // OpenGLFX
-      implementation 'com.github.husker-dev.openglfx:core:2.5'
-      implementation 'com.github.husker-dev.openglfx:jogl:2.5'
+      implementation 'com.github.husker-dev.openglfx:core:2.5.1'
+      implementation 'com.github.husker-dev.openglfx:jogl:2.5.1'
     
       // JOGL
       implementation 'org.jogamp.jogl:jogl-all-main:2.3.2'
@@ -158,6 +155,8 @@ There are also several ways to call OpenGL functions from Java code. The most pr
   ---
 </details>
 
+> Don't use JOGL if you want to run application on MacOS!
+
 ## Timer
 
 Repaint timer allows you to automatically repaint canvas with fixed FPS.
@@ -179,15 +178,18 @@ timer.fps = 200.0
    
 ## Rendering types comparison
 
+- **Universal** - Uses separated window for OpenGL
+- **Direct** - Uses JavaFX's OpenGL ([initially](https://github.com/husker-dev/openglfx/wiki/How-to-enable-OpenGL-pipeline-on-Windows) doesn't work on Windows)
+
   |                       |      Universal     |       Direct
   | --------------------- | :----------------: | :----------------: |
   | Performance           | :x:                | :heavy_check_mark:
   | Smooth resizing       | :x:                | :heavy_check_mark:
   | Separate GL context   | :heavy_check_mark: | :x:
-  | **OpenGL** pipeline       | :heavy_check_mark: | :heavy_check_mark:
-  | **DirectX** pipeline  | :heavy_check_mark: | :x:
-  | **Software** pipeline | :heavy_check_mark: | :x:
-  | Calls ```init``` once | :heavy_check_mark: | :x:
+  | Windows               | :heavy_check_mark: | :x:
+  | Linux                 | :heavy_check_mark: | :heavy_check_mark:
+  | MacOS                 | :heavy_check_mark: | :heavy_check_mark:
+  | Calls ```onInit``` once | :heavy_check_mark: | :x:
 
 ## Wiki
   Read [wiki articles](https://github.com/husker-dev/openglfx/wiki) for more information
