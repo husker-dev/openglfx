@@ -22,6 +22,7 @@ OpenGL implementation for JavaFX
 ## Description 
 JavaFX has very poor 3D functionality, so this library was created.
 
+## How it works
 
 There are two ways to render OpenGL content into JavaFX frame:
 - The first method is to change the rendering function of the node, and call our OpenGL draw calls. 
@@ -31,9 +32,8 @@ There are two ways to render OpenGL content into JavaFX frame:
 
 There are also several ways to call OpenGL functions from Java code. The most preferred is ```LWJGL``` because it doesn't create unnecessary objects like ```JOGL``` does. All of them supported in this library.
 
-> JOGL also has problems on MacOS.
-
 ## Example code
+
   <details><summary>LWJGL</summary>
 
   ### Gradle
@@ -157,6 +157,8 @@ There are also several ways to call OpenGL functions from Java code. The most pr
   
   ---
 </details>
+
+> Don't use JOGL if you want to run application on MacOS!
 
 ## Timer
 
