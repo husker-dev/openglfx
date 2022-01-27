@@ -4,6 +4,7 @@ import com.huskerdev.openglfx.OpenGLCanvas
 import com.jogamp.opengl.GL
 import com.jogamp.opengl.GL2
 
+@JvmField
 val JOGL_MODULE = JOGLFXInitializer()
 
 val boundGLThreads = hashMapOf<Thread, GL>()

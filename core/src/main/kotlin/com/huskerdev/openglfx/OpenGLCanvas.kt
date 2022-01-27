@@ -90,6 +90,7 @@ abstract class OpenGLCanvas: Pane() {
         onDispose = listener
     }
 
+    @JvmOverloads
     fun createTimer(fps: Double, applier: (FXGLTimer) -> Unit = {}): FXGLTimer{
         return FXGLTimer(fps)
             .apply(applier)
