@@ -159,6 +159,11 @@ There are also several ways to call OpenGL functions from Java code. The most pr
 
 > Don't use JOGL if you want to run application on MacOS!
 
+## Example repo
+If you still have a misunderstanding about the minimal implementation, take a look at the example repository that uses OpenGLFX with Java and Maven 
+
+https://github.com/orange451/OpenGLFX-LWJGL-Sample
+
 ## Timer
 
 Repaint timer allows you to automatically repaint canvas with fixed FPS.
