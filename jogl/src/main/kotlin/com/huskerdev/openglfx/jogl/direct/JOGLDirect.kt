@@ -82,8 +82,7 @@ class JOGLDirect: JOGLFXCanvas() {
 
     override fun repaint() {
         needTextureRedraw = true
-        NodeHelper.markDirty(this, DirtyBits.NODE_GEOMETRY)
-        NodeHelper.markDirty(this, DirtyBits.NODE_CONTENTS)
+        NodeHelper.markDirty(this, DirtyBits.NODE_BOUNDS)
     }
 
 }
