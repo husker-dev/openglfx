@@ -7,8 +7,8 @@ import javafx.event.EventType
 
 class GLRenderEvent(
     @NamedArg("eventType") eventType: EventType<GLRenderEvent>,
-    val fps: Double,
-    val delta: Int
+    val fps: Int,
+    val delta: Double
 ) : Event(eventType) {
 
     companion object {

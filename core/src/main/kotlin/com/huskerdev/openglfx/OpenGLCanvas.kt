@@ -127,7 +127,7 @@ abstract class OpenGLCanvas: Pane() {
             lastFpsTime = now
         }
 
-        val event = GLRenderEvent(GLRenderEvent.ANY, delta, currentFps)
+        val event = GLRenderEvent(GLRenderEvent.ANY, currentFps, delta)
 
         onRender.forEach { it.accept(event) }
     }
