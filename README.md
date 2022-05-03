@@ -164,23 +164,27 @@ If you still have a misunderstanding about the minimal implementation, take a lo
 
 https://github.com/orange451/OpenGLFX-LWJGL-Sample
 
-## Timer
+## Animator
 
-Repaint timer allows you to automatically repaint canvas with fixed FPS.
+Animator allows you to automatically repaint canvas with fixed FPS.
 
-Due to JavaFX limits, ```onRender``` method may be called more or less times than required. 
-To solve this problem, there is a method ```onUpdate```. It invokes every frame, so you can do all the calculations there.
+> Due to JavaFX limits, ```onRender``` method may be called more or less times than required. 
 
 ```kotlin
-canvas.createTimer(60.0)  // FPS: 60
+canvas.animator = GLCanvasAnimator(60.0, started = true) // FPS: 60
 ```
 
-To manipulate timer lifecycle, you can do following:
+To set unlimited FPS, replace number to ```GLCanvasAnimator.UNLIMITED_FPS```:
 ```kotlin
-val timer = canvas.createTimer(60.0)
+canvas.animator = GLCanvasAnimator(GLCanvasAnimator.UNLIMITED_FPS, started = true) // FPS: Unlimited
+```
 
-timer.started = false
-timer.fps = 200.0
+To manipulate animator lifecycle, you can do following:
+```kotlin
+val myAnimator = GLCanvasAnimator(60.0)
+
+myAnimator.fps = 200.0
+myAnimator.started = true
 ```
    
 ## Rendering types comparison
