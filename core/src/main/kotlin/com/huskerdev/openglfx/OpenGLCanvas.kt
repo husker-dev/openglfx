@@ -71,6 +71,18 @@ abstract class OpenGLCanvas: Pane() {
     private var countedFps = 0
     private var currentFps = 0
 
+    var animator: GLCanvasAnimator? = null
+        set(value) {
+            if(field != null) {
+                field!!.started = false
+                field!!.boundCanvas = null
+            }
+
+            if(value != null)
+                value.boundCanvas = this
+
+            field = value
+        }
 
     protected val dpi: Double
         get() = scene.window.outputScaleX
@@ -96,16 +108,6 @@ abstract class OpenGLCanvas: Pane() {
 
     fun onDispose(listener: Runnable){
         onDispose.add(listener)
-    }
-
-    @JvmOverloads
-    fun createTimer(fps: Double, applier: (FXGLTimer) -> Unit = {}): FXGLTimer{
-        return FXGLTimer(fps)
-            .apply(applier)
-            .apply {
-                canvas = this@OpenGLCanvas
-                started = true
-            }
     }
 
     protected abstract fun onNGRender(g: Graphics)

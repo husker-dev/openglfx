@@ -1,4 +1,5 @@
 import com.huskerdev.openglfx.DirectDrawPolicy
+import com.huskerdev.openglfx.GLCanvasAnimator
 import com.huskerdev.openglfx.OpenGLCanvas
 import com.huskerdev.openglfx.lwjgl.LWJGL_MODULE
 import javafx.application.Application
@@ -29,10 +30,9 @@ class UniversalExampleApp: Application(){
 
     private fun createGL(): Region {
         val canvas = OpenGLCanvas.create(LWJGL_MODULE, DirectDrawPolicy.NEVER)
-        canvas.createTimer(200.0)
+        canvas.animator = GLCanvasAnimator(GLCanvasAnimator.UNLIMITED_FPS, started = true)
 
         var animVar = 0.0
-        var y = 0.0
 
         canvas.onReshape {
             glMatrixMode(GL_PROJECTION)
@@ -41,7 +41,7 @@ class UniversalExampleApp: Application(){
         }
         canvas.onRender {
             animVar += 0.1
-            y = sin(animVar) * (stage.height / 3)
+            val y = sin(animVar) * (stage.height / 3)
 
             val width = stage.width
             val height = stage.height

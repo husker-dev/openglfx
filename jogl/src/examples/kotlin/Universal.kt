@@ -1,4 +1,5 @@
 import com.huskerdev.openglfx.DirectDrawPolicy
+import com.huskerdev.openglfx.GLCanvasAnimator
 import com.huskerdev.openglfx.OpenGLCanvas
 import com.huskerdev.openglfx.jogl.JOGLFXCanvas
 import com.huskerdev.openglfx.jogl.JOGL_MODULE
@@ -32,10 +33,9 @@ class UniversalExampleApp: Application(){
 
     private fun createGL(): Region{
         val canvas = OpenGLCanvas.create(JOGL_MODULE, DirectDrawPolicy.NEVER)
-        canvas.createTimer(200.0)
+        canvas.animator = GLCanvasAnimator(GLCanvasAnimator.UNLIMITED_FPS, started = true)
 
         var animVar = 0.0
-        var y = 0.0
 
         canvas.onReshape{
             val gl = (canvas as JOGLFXCanvas).gl
@@ -46,7 +46,7 @@ class UniversalExampleApp: Application(){
         }
         canvas.onRender{
             animVar += 0.1
-            y = sin(animVar) * (stage.height / 3)
+            val y = sin(animVar) * (stage.height / 3)
 
             val gl = (canvas as JOGLFXCanvas).gl
             val width = stage.width

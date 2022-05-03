@@ -8,16 +8,21 @@ import com.sun.prism.Graphics
 import com.sun.prism.GraphicsPipeline
 import com.sun.prism.RTTexture
 import com.sun.prism.Texture
+import javafx.animation.AnimationTimer
+import javafx.application.Platform
 import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL30.*
 import org.lwjgl.system.MemoryStack.stackPush
 import java.lang.reflect.Method
+import java.util.concurrent.atomic.AtomicBoolean
 
 
 class LWJGLDirect: LWJGLCanvas() {
 
     private lateinit var texture: RTTexture
     private var textureFBO = -1
+
+    private var needsRepaint = AtomicBoolean(false)
 
     private var needTextureRedraw = true
     private val needTextureRecreation: Boolean
@@ -26,6 +31,19 @@ class LWJGLDirect: LWJGLCanvas() {
     private lateinit var getFboIDMethod: Method
 
     private var needGLInit = true
+
+    init {
+        object: AnimationTimer(){
+            override fun handle(now: Long) {
+                if(needsRepaint.get()) {
+                    needsRepaint.set(false)
+
+                    needTextureRedraw = true
+                    NodeHelper.markDirty(this@LWJGLDirect, DirtyBits.NODE_BOUNDS)
+                }
+            }
+        }.start()
+    }
 
     override fun onNGRender(g: Graphics) {
         if(scaledWidth == 0.0 || scaledHeight == 0.0)
@@ -79,8 +97,5 @@ class LWJGLDirect: LWJGLCanvas() {
         texture.unlock()
     }
 
-    override fun repaint() {
-        needTextureRedraw = true
-        NodeHelper.markDirty(this, DirtyBits.NODE_BOUNDS)
-    }
+    override fun repaint() = needsRepaint.set(true)
 }

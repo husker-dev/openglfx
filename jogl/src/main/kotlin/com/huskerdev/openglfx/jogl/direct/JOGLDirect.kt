@@ -10,9 +10,11 @@ import com.sun.prism.Graphics
 import com.sun.prism.GraphicsPipeline
 import com.sun.prism.RTTexture
 import com.sun.prism.Texture
+import javafx.animation.AnimationTimer
 import jogamp.opengl.GLDrawableFactoryImpl
 import java.lang.reflect.Method
 import java.nio.IntBuffer
+import java.util.concurrent.atomic.AtomicBoolean
 
 
 class JOGLDirect: JOGLFXCanvas() {
@@ -23,11 +25,26 @@ class JOGLDirect: JOGLFXCanvas() {
     private lateinit var texture: RTTexture
     private var textureFBO = -1
 
+    private var needsRepaint = AtomicBoolean(false)
+
     private var needTextureRedraw = true
     private val needTextureRecreation: Boolean
         get() = !this::texture.isInitialized || texture.contentWidth != scaledWidth.toInt() || texture.contentHeight != scaledHeight.toInt()
 
     private lateinit var getFboIDMethod: Method
+
+    init {
+        object: AnimationTimer(){
+            override fun handle(now: Long) {
+                if(needsRepaint.get()) {
+                    needsRepaint.set(false)
+
+                    needTextureRedraw = true
+                    NodeHelper.markDirty(this@JOGLDirect, DirtyBits.NODE_BOUNDS)
+                }
+            }
+        }.start()
+    }
 
     override fun onNGRender(g: Graphics) {
         if(scaledWidth == 0.0 || scaledHeight == 0.0)
@@ -80,9 +97,6 @@ class JOGLDirect: JOGLFXCanvas() {
         texture.unlock()
     }
 
-    override fun repaint() {
-        needTextureRedraw = true
-        NodeHelper.markDirty(this, DirtyBits.NODE_BOUNDS)
-    }
+    override fun repaint() = needsRepaint.set(true)
 
 }
