@@ -69,7 +69,7 @@ class JOGLDirect: JOGLFXCanvas() {
                 gl.glBindFramebuffer(GL_FRAMEBUFFER, textureFBO)
                 gl.glViewport(0, 0, scaledWidth.toInt(), scaledHeight.toInt())
                 fireInitEvent(gl)
-                fireReshapeEvent(gl)
+                fireReshapeEvent(gl, scaledWidth.toInt(), scaledHeight.toInt())
                 fireRenderEvent(gl)
 
                 gl.glBindFramebuffer(GL_FRAMEBUFFER, oldBuffer[0])
@@ -80,7 +80,7 @@ class JOGLDirect: JOGLFXCanvas() {
         texture.unlock()
     }
 
-    override fun requestRepaint() {
+    override fun repaint() {
         needTextureRedraw = true
         NodeHelper.markDirty(this, DirtyBits.NODE_GEOMETRY)
         NodeHelper.markDirty(this, DirtyBits.NODE_CONTENTS)

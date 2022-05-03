@@ -44,11 +44,10 @@ class UniversalExampleApp: Application(){
             gl.glLoadIdentity()
             gl.glOrtho(0.0, canvas.scene.width, 0.0, canvas.scene.height, -1.0, 100.0)
         }
-        canvas.onUpdate {
+        canvas.onRender{
             animVar += 0.1
             y = sin(animVar) * (stage.height / 3)
-        }
-        canvas.onRender{
+
             val gl = (canvas as JOGLFXCanvas).gl
             val width = stage.width
             val height = stage.height

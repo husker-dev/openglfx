@@ -61,7 +61,7 @@ class JOGLUniversal(
                     fireDisposeEvent(drawable.gl)
                 }
                 override fun reshape(drawable: GLAutoDrawable, x: Int, y: Int, width: Int, height: Int) {
-                    fireReshapeEvent(drawable.gl)
+                    fireReshapeEvent(drawable.gl, width, height)
                 }
                 override fun display(drawable: GLAutoDrawable) {
                     fireRenderEvent(drawable.gl)
@@ -149,7 +149,7 @@ class JOGLUniversal(
         texture.unlock()
     }
 
-    override fun requestRepaint() {
+    override fun repaint() {
         if(this::glWindow.isInitialized)
             glWindow.display()
     }

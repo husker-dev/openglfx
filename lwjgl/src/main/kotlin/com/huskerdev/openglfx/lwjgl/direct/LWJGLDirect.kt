@@ -66,7 +66,7 @@ class LWJGLDirect: LWJGLCanvas() {
                 glBindFramebuffer(GL_FRAMEBUFFER, textureFBO)
                 glViewport(0, 0, scaledWidth.toInt(), scaledHeight.toInt())
                 fireInitEvent()
-                fireReshapeEvent()
+                fireReshapeEvent(scaledWidth.toInt(), scaledHeight.toInt())
                 fireRenderEvent()
 
                 glBindFramebuffer(GL_FRAMEBUFFER, oldBuffer[0])
@@ -79,7 +79,7 @@ class LWJGLDirect: LWJGLCanvas() {
         texture.unlock()
     }
 
-    override fun requestRepaint() {
+    override fun repaint() {
         needTextureRedraw = true
         NodeHelper.markDirty(this, DirtyBits.NODE_GEOMETRY)
         NodeHelper.markDirty(this, DirtyBits.NODE_CONTENTS)

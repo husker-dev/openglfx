@@ -77,10 +77,10 @@ class LWJGLUniversal: LWJGLCanvas() {
                             initialized = true
                             fireInitEvent()
                         }
-                        fireReshapeEvent()
+                        fireReshapeEvent(scaledWidth.toInt(), scaledHeight.toInt())
                     }
 
-                    glViewport(0, 0, (width * dpi).toInt(), (height * dpi).toInt())
+                    glViewport(0, 0, scaledWidth.toInt(), scaledHeight.toInt())
                     fireRenderEvent()
 
                     readGLPixels()
@@ -166,7 +166,7 @@ class LWJGLUniversal: LWJGLCanvas() {
         texture.unlock()
     }
 
-    override fun requestRepaint() {
+    override fun repaint() {
         synchronized(shouldPaint) { shouldPaint.notifyAll() }
     }
 

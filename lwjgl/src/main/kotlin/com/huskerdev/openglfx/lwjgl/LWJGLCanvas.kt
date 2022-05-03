@@ -5,5 +5,4 @@ import com.huskerdev.openglfx.OpenGLCanvas
 @JvmField
 val LWJGL_MODULE = LWJGLInitializer()
 
-abstract class LWJGLCanvas: OpenGLCanvas() {
-}
+abstract class LWJGLCanvas: OpenGLCanvas()

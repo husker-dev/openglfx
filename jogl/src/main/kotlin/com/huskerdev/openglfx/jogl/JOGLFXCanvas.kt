@@ -23,9 +23,9 @@ abstract class JOGLFXCanvas: OpenGLCanvas() {
         boundGLThreads.remove(renderThread)
     }
 
-    fun fireReshapeEvent(gl: GL) {
+    fun fireReshapeEvent(gl: GL, width: Int, height: Int) {
         boundGLThreads[renderThread!!] = gl
-        fireReshapeEvent()
+        fireReshapeEvent(width, height)
         boundGLThreads.remove(renderThread)
     }
 

@@ -1,6 +1,9 @@
 package com.huskerdev.openglfx
 
 
+import com.huskerdev.openglfx.events.GLInitializeEvent
+import com.huskerdev.openglfx.events.GLRenderEvent
+import com.huskerdev.openglfx.events.GLReshapeEvent
 import com.huskerdev.openglfx.utils.FXUtils
 import com.huskerdev.openglfx.utils.RegionAccessorObject
 import com.huskerdev.openglfx.utils.RegionAccessorOverrider
@@ -8,6 +11,7 @@ import com.huskerdev.openglfx.utils.RegionAccessorOverrider
 import com.sun.javafx.sg.prism.NGRegion
 import com.sun.prism.Graphics
 import javafx.scene.layout.Pane
+import java.util.function.Consumer
 
 enum class DirectDrawPolicy {
     NEVER,
@@ -18,7 +22,7 @@ enum class DirectDrawPolicy {
 abstract class OpenGLCanvas: Pane() {
 
     companion object{
-        init{
+        init {
             RegionAccessorOverrider.overwrite(object: RegionAccessorObject<OpenGLCanvas>(){
                 override fun doCreatePeer(node: OpenGLCanvas) = NGOpenGLCanvas(node)
             })
@@ -52,13 +56,21 @@ abstract class OpenGLCanvas: Pane() {
         }
     }
 
-    private var onInit: Runnable? = null
-    private var onRender: Runnable? = null
-    private var onUpdate: Runnable? = null
-    private var onReshape: Runnable? = null
-    private var onDispose: Runnable? = null
+    private var onInit = arrayListOf<Consumer<GLInitializeEvent>>()
+    private var onRender = arrayListOf<Consumer<GLRenderEvent>>()
+    private var onReshape = arrayListOf<Consumer<GLReshapeEvent>>()
+    private var onDispose = arrayListOf<Runnable>()
 
     private var initialized = false
+
+    // Delta
+    private var lastDeltaTime = System.nanoTime()
+
+    // Fps
+    private var lastFpsTime = System.nanoTime()
+    private var countedFps = 0
+    private var currentFps = 0
+
 
     protected val dpi: Double
         get() = scene.window.outputScaleX
@@ -69,25 +81,21 @@ abstract class OpenGLCanvas: Pane() {
     protected val scaledHeight: Double
         get() = height * dpi
 
-    fun onRender(listener: Runnable){
-        onRender = listener
+    fun onRender(listener: Consumer<GLRenderEvent>){
+        onRender.add(listener)
     }
 
-    fun onUpdate(listener: Runnable){
-        onUpdate = listener
+    fun onReshape(listener: Consumer<GLReshapeEvent>){
+        onReshape.add(listener)
     }
 
-    fun onReshape(listener: Runnable){
-        onReshape = listener
-    }
-
-    fun onInitialize(listener: Runnable){
-        onInit = listener
+    fun onInitialize(listener: Consumer<GLInitializeEvent>){
+        onInit.add(listener)
         initialized = false
     }
 
     fun onDispose(listener: Runnable){
-        onDispose = listener
+        onDispose.add(listener)
     }
 
     @JvmOverloads
@@ -101,34 +109,47 @@ abstract class OpenGLCanvas: Pane() {
     }
 
     protected abstract fun onNGRender(g: Graphics)
-    protected abstract fun requestRepaint()
-
-    fun repaint(){
-        onUpdate?.run()
-        requestRepaint()
-    }
+    abstract fun repaint()
 
     protected open fun fireRenderEvent() {
         checkInitialization()
-        onRender?.run()
+
+        val now = System.nanoTime()
+        val delta = (now - lastDeltaTime) / 1000000000.0
+        lastDeltaTime = now
+
+        countedFps++
+        if((now - lastFpsTime) / 1000000 > 1000) {
+            currentFps = countedFps
+            countedFps = 0
+            lastFpsTime = now
+        }
+
+        val event = GLRenderEvent(GLRenderEvent.ANY, delta, currentFps)
+
+        onRender.forEach { it.accept(event) }
     }
 
-    protected open fun fireReshapeEvent() {
+    protected open fun fireReshapeEvent(width: Int, height: Int) {
         checkInitialization()
-        onReshape?.run()
+
+        val event = GLReshapeEvent(GLReshapeEvent.ANY, width, height)
+        onReshape.forEach { it.accept(event) }
     }
 
     protected open fun fireInitEvent() = checkInitialization()
 
     protected open fun fireDisposeEvent() {
         checkInitialization()
-        onDispose?.run()
+        onDispose.forEach { it.run() }
     }
 
     private fun checkInitialization(){
         if(!initialized){
             initialized = true
-            onInit?.run()
+
+            val event = GLInitializeEvent(GLInitializeEvent.ANY)
+            onInit.forEach { it.accept(event) }
         }
     }
 
