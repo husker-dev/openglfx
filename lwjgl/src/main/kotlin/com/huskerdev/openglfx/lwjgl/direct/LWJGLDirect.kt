@@ -9,7 +9,6 @@ import com.sun.prism.GraphicsPipeline
 import com.sun.prism.RTTexture
 import com.sun.prism.Texture
 import javafx.animation.AnimationTimer
-import javafx.application.Platform
 import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL30.*
 import org.lwjgl.system.MemoryStack.stackPush
@@ -56,7 +55,7 @@ class LWJGLDirect: LWJGLCanvas() {
         }
 
         if (needTextureRecreation) {
-            texture = GraphicsPipeline.getDefaultResourceFactory().createRTTexture(scaledWidth.toInt(), scaledHeight.toInt(), Texture.WrapMode.CLAMP_TO_ZERO)
+            texture = GraphicsPipeline.getDefaultResourceFactory().createRTTexture(scaledWidth.toInt(), scaledHeight.toInt(), Texture.WrapMode.CLAMP_TO_ZERO, false)
             texture.contentsUseful()
 
             if(!this::getFboIDMethod.isInitialized) {

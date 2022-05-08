@@ -7,7 +7,7 @@ import kotlin.concurrent.thread
 class GLCanvasAnimator @JvmOverloads constructor(fps: Double, started: Boolean = false) {
 
     companion object {
-        @JvmStatic val UNLIMITED_FPS = 0.0
+        const val UNLIMITED_FPS = 0.0
     }
 
     var boundCanvas: OpenGLCanvas? = null

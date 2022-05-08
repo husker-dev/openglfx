@@ -110,11 +110,13 @@ class JOGLUniversal(
     }
 
     private fun onWindowReady(){
+        /*
         val oldOnCloseRequest = scene.window.onCloseRequest
         scene.window.setOnCloseRequest {
             glWindow!!.destroy()
             oldOnCloseRequest?.handle(it)
         }
+         */
 
         // DPI changed listener
         var lastDPI = 1.0
