@@ -21,6 +21,7 @@ import org.lwjgl.glfw.GLFWErrorCallback
 import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL30.*
 import java.nio.IntBuffer
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 import kotlin.math.max
 
@@ -38,18 +39,20 @@ class LWJGLUniversal: LWJGLCanvas() {
 
     private var window = 0L
 
-    private var shouldPaint = Object()
+    private var needsRepaint = AtomicBoolean(false)
+    private var repaintLock = Object()
+
     private var lastSize = Pair(10, 10)
     private var initialized = false
 
     init{
         widthProperty().addListener{_, _, _ ->
             resizeUpdating.startRequest()
-            synchronized(shouldPaint) { shouldPaint.notifyAll() }
+            synchronized(repaintLock) { repaintLock.notifyAll() }
         }
         heightProperty().addListener{_, _, _ ->
             resizeUpdating.startRequest()
-            synchronized(shouldPaint) { shouldPaint.notifyAll() }
+            synchronized(repaintLock) { repaintLock.notifyAll() }
         }
 
         Platform.runLater {
@@ -68,7 +71,7 @@ class LWJGLUniversal: LWJGLCanvas() {
                 glfwMakeContextCurrent(window)
                 GL.createCapabilities()
 
-                while(!glfwWindowShouldClose(window)){
+                while(true){
                     if(width.toInt() != lastSize.first || height.toInt() != lastSize.second){
                         updateGLSize()
                         lastSize = Pair(width.toInt(), height.toInt())
@@ -84,10 +87,16 @@ class LWJGLUniversal: LWJGLCanvas() {
                     fireRenderEvent()
 
                     readGLPixels()
-                    NodeHelper.markDirty(this@LWJGLUniversal, DirtyBits.NODE_GEOMETRY)
 
-                    synchronized(shouldPaint) { shouldPaint.wait() }
+                    needsRepaint.set(true)
+                    synchronized(repaintLock) { repaintLock.wait() }
                 }
+            }
+        }
+
+        visibleProperty().addListener { _, _, _ ->
+            synchronized(repaintLock){
+                repaintLock.notifyAll()
             }
         }
 
@@ -97,6 +106,12 @@ class LWJGLUniversal: LWJGLCanvas() {
                     if (bufferUpdateRequired) {
                         pixelBuffer.updateBuffer { null }
                         bufferUpdateRequired = false
+                    }
+                    if(needsRepaint.get()) {
+                        needsRepaint.set(false)
+
+                        NodeHelper.markDirty(this@LWJGLUniversal, DirtyBits.NODE_BOUNDS)
+                        NodeHelper.markDirty(this@LWJGLUniversal, DirtyBits.REGION_SHAPE)
                     }
                 } catch (_: Exception){}
             }
@@ -151,6 +166,9 @@ class LWJGLUniversal: LWJGLCanvas() {
     }
 
     override fun onNGRender(g: Graphics){
+        if(!initialized)
+            return
+
         val imageToRender = if(imageReady){
             lastImage = image
             image
@@ -167,7 +185,8 @@ class LWJGLUniversal: LWJGLCanvas() {
     }
 
     override fun repaint() {
-        synchronized(shouldPaint) { shouldPaint.notifyAll() }
+        if(isVisible)
+            synchronized(repaintLock) { repaintLock.notifyAll() }
     }
 
     private fun WritableImage.getPlatformImage() = Toolkit.getImageAccessor().getPlatformImage(this) as PlatformImage

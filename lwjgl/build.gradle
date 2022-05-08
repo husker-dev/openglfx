@@ -21,10 +21,10 @@ dependencies {
     compileOnly project(':core')
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib"
 
-    compileOnly "org.openjfx:javafx-base:17.0.0.1:win"
-    compileOnly "org.openjfx:javafx-controls:17.0.0.1:win"
-    compileOnly "org.openjfx:javafx-graphics:17.0.0.1:win"
-    compileOnly "org.openjfx:javafx-swing:17.0.0.1:win"
+    compileOnly "org.openjfx:javafx-base:$openjfx:win"
+    compileOnly "org.openjfx:javafx-controls:$openjfx:win"
+    compileOnly "org.openjfx:javafx-graphics:$openjfx:win"
+    compileOnly "org.openjfx:javafx-swing:$openjfx:win"
 
     compileOnly platform("org.lwjgl:lwjgl-bom:3.3.0")
 

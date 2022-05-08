@@ -14,6 +14,7 @@ import com.sun.prism.Image
 import com.sun.prism.Texture
 import com.sun.prism.impl.BufferUtil
 import javafx.animation.AnimationTimer
+import javafx.application.Platform
 import javafx.scene.image.PixelBuffer
 import javafx.scene.image.PixelFormat
 import javafx.scene.image.WritableImage
@@ -21,6 +22,8 @@ import jogamp.opengl.GLDrawableFactoryImpl
 import jogamp.opengl.GLOffscreenAutoDrawableImpl
 import jogamp.opengl.util.glsl.GLSLTextureRaster
 import java.nio.IntBuffer
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.concurrent.thread
 import kotlin.math.max
 
 class JOGLUniversal(
@@ -28,7 +31,7 @@ class JOGLUniversal(
 ): JOGLFXCanvas() {
 
     private var drawableFactory: GLDrawableFactoryImpl = GLDrawableFactoryImpl.getFactoryImpl(capabilities.glProfile)
-    private lateinit var glWindow: GLOffscreenAutoDrawableImpl
+    private var glWindow: GLOffscreenAutoDrawableImpl? = null
     private lateinit var glslTextureRaster: GLSLTextureRaster
 
     private val resizeUpdating = LifetimeLoopThread(100){ updateGLSize() }
@@ -38,6 +41,9 @@ class JOGLUniversal(
     private var lastImage = image
     private var imageReady = false
 
+    private var needsRepaint = AtomicBoolean(false)
+    private var repaintLock = Object()
+
     private lateinit var pixelIntBuffer: IntBuffer
     private lateinit var pixelBuffer: PixelBuffer<IntBuffer>
 
@@ -45,10 +51,10 @@ class JOGLUniversal(
         widthProperty().addListener{_, _, _ -> resizeUpdating.startRequest() }
         heightProperty().addListener{_, _, _ -> resizeUpdating.startRequest() }
 
-        Thread{
+        Platform.runLater {
             capabilities.isFBO = true
             glWindow = drawableFactory.createOffscreenAutoDrawable(GLProfile.getDefaultDevice(), capabilities, null, 10, 10) as GLOffscreenAutoDrawableImpl
-            glWindow.addGLEventListener(object: GLEventListener{
+            glWindow!!.addGLEventListener(object: GLEventListener{
                 override fun init(drawable: GLAutoDrawable) {
                     renderThread = Thread.currentThread()
                     val gl = drawable.gl
@@ -66,12 +72,23 @@ class JOGLUniversal(
                 override fun display(drawable: GLAutoDrawable) {
                     fireRenderEvent(drawable.gl)
                     readGLPixels(drawable, drawable.gl as GL2)
-                    NodeHelper.markDirty(this@JOGLUniversal, DirtyBits.NODE_GEOMETRY)
+
+                    needsRepaint.set(true)
                 }
             })
-
-            FXUtils.onWindowReady(this){ onWindowReady() }
-        }.start()
+            updateGLSize()
+            thread(isDaemon = true) {
+                while(true){
+                    glWindow!!.display()
+                    synchronized(repaintLock) { repaintLock.wait() }
+                }
+            }
+        }
+        visibleProperty().addListener { _, _, _ ->
+            synchronized(repaintLock){
+                repaintLock.notifyAll()
+            }
+        }
 
         object: AnimationTimer(){
             override fun handle(now: Long) {
@@ -80,15 +97,22 @@ class JOGLUniversal(
                         pixelBuffer.updateBuffer { null }
                         bufferUpdateRequired = false
                     }
+                    if(needsRepaint.get()) {
+                        needsRepaint.set(false)
+
+                        NodeHelper.markDirty(this@JOGLUniversal, DirtyBits.NODE_BOUNDS)
+                        NodeHelper.markDirty(this@JOGLUniversal, DirtyBits.REGION_SHAPE)
+                    }
                 } catch (_: Exception){}
             }
         }.start()
+        FXUtils.onWindowReady(this){ onWindowReady() }
     }
 
     private fun onWindowReady(){
         val oldOnCloseRequest = scene.window.onCloseRequest
         scene.window.setOnCloseRequest {
-            glWindow.destroy()
+            glWindow!!.destroy()
             oldOnCloseRequest?.handle(it)
         }
 
@@ -130,7 +154,9 @@ class JOGLUniversal(
         bufferUpdateRequired = true
     }
 
-    private fun updateGLSize() = glWindow.windowResizedOp(max(width * dpi, 1.0).toInt(), max(height * dpi, 1.0).toInt())
+    private fun updateGLSize() {
+        glWindow?.windowResizedOp(max(width * dpi, 1.0).toInt(), max(height * dpi, 1.0).toInt())
+    }
 
     override fun onNGRender(g: Graphics){
         val imageToRender = if(imageReady){
@@ -150,8 +176,8 @@ class JOGLUniversal(
     }
 
     override fun repaint() {
-        if(this::glWindow.isInitialized)
-            glWindow.display()
+        if(isVisible)
+            synchronized(repaintLock) { repaintLock.notifyAll() }
     }
 
     private fun WritableImage.getPlatformImage() = Toolkit.getImageAccessor().getPlatformImage(this) as PlatformImage

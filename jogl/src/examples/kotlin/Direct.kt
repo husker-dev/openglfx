@@ -46,7 +46,7 @@ class DirectExampleApp: Application(){
             gl.glOrtho(0.0, canvas.scene.width, 0.0, canvas.scene.height, -1.0, 100.0)
         }
         canvas.onRender {
-            animVar += 0.1
+            animVar += it.delta * 10
             val y = sin(animVar) * (stage.height / 3)
 
             val gl = (canvas as JOGLFXCanvas).gl

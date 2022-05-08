@@ -41,6 +41,7 @@ class JOGLDirect: JOGLFXCanvas() {
 
                     needTextureRedraw = true
                     NodeHelper.markDirty(this@JOGLDirect, DirtyBits.NODE_BOUNDS)
+                    NodeHelper.markDirty(this@JOGLDirect, DirtyBits.REGION_SHAPE)
                 }
             }
         }.start()

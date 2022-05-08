@@ -40,6 +40,7 @@ class LWJGLDirect: LWJGLCanvas() {
 
                     needTextureRedraw = true
                     NodeHelper.markDirty(this@LWJGLDirect, DirtyBits.NODE_BOUNDS)
+                    NodeHelper.markDirty(this@LWJGLDirect, DirtyBits.REGION_SHAPE)
                 }
             }
         }.start()
