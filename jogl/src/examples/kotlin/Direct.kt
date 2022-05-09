@@ -3,6 +3,7 @@ import com.huskerdev.openglfx.GLCanvasAnimator
 import com.huskerdev.openglfx.OpenGLCanvas
 import com.huskerdev.openglfx.jogl.JOGLFXCanvas
 import com.huskerdev.openglfx.jogl.JOGL_MODULE
+import com.jogamp.opengl.GL
 import com.jogamp.opengl.GL2ES3.GL_QUADS
 import com.jogamp.opengl.fixedfunc.GLMatrixFunc
 import javafx.application.Application
@@ -55,13 +56,14 @@ class DirectExampleApp: Application(){
 
             gl.glClearColor(1.0f, 1.0f, 1.0f, 1.0f)
             gl.glClearDepth(1.0)
+            gl.glClear(GL.GL_COLOR_BUFFER_BIT)
 
             gl.glColor3f(1.0f, 0.5f, 0.0f)
             gl.glBegin(GL_QUADS)
             gl.glVertex2d(0.0, 0.0)
             gl.glVertex2d(width, 0.0)
-            gl.glVertex2d(width, height)
-            gl.glVertex2d(0.0, height)
+            gl.glVertex2d(width, height / 2)
+            gl.glVertex2d(0.0, height / 2)
             gl.glEnd()
 
             // Moving rectangle

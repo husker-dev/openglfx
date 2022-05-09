@@ -50,13 +50,14 @@ class DirectExampleApp: Application(){
 
             glClearColor(1.0f, 1.0f, 1.0f, 1.0f)
             glClearDepth(1.0)
+            glClear(GL_COLOR_BUFFER_BIT)
 
             glColor3f(1.0f, 0.5f, 0.0f)
             glBegin(GL_QUADS)
             glVertex2d(0.0, 0.0)
             glVertex2d(width, 0.0)
-            glVertex2d(width, height)
-            glVertex2d(0.0, height)
+            glVertex2d(width, height / 2)
+            glVertex2d(0.0, height / 2)
             glEnd()
 
             // Moving rectangle

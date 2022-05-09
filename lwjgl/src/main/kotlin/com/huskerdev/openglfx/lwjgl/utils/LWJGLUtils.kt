@@ -1,29 +1,26 @@
 package com.huskerdev.openglfx.lwjgl.utils
 
 
-import org.lwjgl.opengl.GL20.*
-import org.lwjgl.system.MemoryStack.stackPush
+import org.lwjgl.opengl.GL30.*
 
 class LWJGLUtils {
 
     companion object {
         fun rawGL(runnable: Runnable) {
-            val stack = stackPush()
+            val program = glGetInteger(GL_CURRENT_PROGRAM)
+            val buffer = glGetInteger(GL_FRAMEBUFFER_BINDING)
 
-            val program = stack.mallocInt(1)
-            glGetIntegerv(GL_CURRENT_PROGRAM, program)
-
+            // Reset configuration
             glUseProgram(0)
             glPushAttrib(GL_ALL_ATTRIB_BITS)
-            glPushMatrix()
 
+            // Render
             runnable.run()
 
-            glPopMatrix()
+            // Back to FX configuration
             glPopAttrib()
-            glUseProgram(program[0])
-
-            stack.close()
+            glUseProgram(program)
+            glBindFramebuffer(GL_FRAMEBUFFER, buffer)
         }
     }
 }

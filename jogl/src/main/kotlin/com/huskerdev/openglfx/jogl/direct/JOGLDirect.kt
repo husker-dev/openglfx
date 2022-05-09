@@ -19,27 +19,22 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 class JOGLDirect: JOGLFXCanvas() {
 
-    private var drawableFactory: GLDrawableFactoryImpl = GLDrawableFactoryImpl.getFactoryImpl(GLProfile.getDefault())
+    private val factory = GLDrawableFactoryImpl.getFactoryImpl(GLProfile.getDefault())
 
     private lateinit var context: GLContext
     private lateinit var texture: RTTexture
     private var textureFBO = -1
 
     private var needsRepaint = AtomicBoolean(false)
-
-    private var needTextureRedraw = true
-    private val needTextureRecreation: Boolean
-        get() = !this::texture.isInitialized || texture.contentWidth != scaledWidth.toInt() || texture.contentHeight != scaledHeight.toInt()
+    private var needTextureRepaint = true
 
     private lateinit var getFboIDMethod: Method
 
     init {
         object: AnimationTimer(){
             override fun handle(now: Long) {
-                if(needsRepaint.get()) {
-                    needsRepaint.set(false)
-
-                    needTextureRedraw = true
+                if(needsRepaint.getAndSet(false)) {
+                    needTextureRepaint = true
                     NodeHelper.markDirty(this@JOGLDirect, DirtyBits.NODE_BOUNDS)
                     NodeHelper.markDirty(this@JOGLDirect, DirtyBits.REGION_SHAPE)
                 }
@@ -52,13 +47,13 @@ class JOGLDirect: JOGLFXCanvas() {
             return
 
         if (!this::context.isInitialized)
-            context = drawableFactory.createExternalGLContext()
+            context = factory.createExternalGLContext()
         val gl = context.gl.gL2
         if(renderThread == null)
             renderThread = Thread.currentThread()
 
-        if (needTextureRecreation) {
-            texture = GraphicsPipeline.getDefaultResourceFactory().createRTTexture(scaledWidth.toInt(), scaledHeight.toInt(), Texture.WrapMode.CLAMP_TO_ZERO)
+        if (!this::texture.isInitialized || texture.contentWidth != scaledWidth.toInt() || texture.contentHeight != scaledHeight.toInt()) {
+            texture = GraphicsPipeline.getDefaultResourceFactory().createRTTexture(scaledWidth.toInt(), scaledHeight.toInt(), Texture.WrapMode.CLAMP_TO_ZERO, false)
             texture.contentsUseful()
 
             if(!this::getFboIDMethod.isInitialized) {
@@ -66,17 +61,12 @@ class JOGLDirect: JOGLFXCanvas() {
                 getFboIDMethod.isAccessible = true
             }
             textureFBO = getFboIDMethod.invoke(texture) as Int
-            needTextureRedraw = true
+            needTextureRepaint = true
         } else
             texture.lock()
 
-        if(needTextureRedraw) {
-            needTextureRedraw = false
-
-            val texGr = texture.createGraphics()
-            texGr.isDepthBuffer = true
-            texGr.isDepthTest = true
-            texGr.clear()
+        if(needTextureRepaint) {
+            needTextureRepaint = false
 
             JOGLUtils.rawGL(gl) {
                 if (gl !is GL2)
