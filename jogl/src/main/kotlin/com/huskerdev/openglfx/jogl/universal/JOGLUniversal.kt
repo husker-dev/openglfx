@@ -1,7 +1,7 @@
 package com.huskerdev.openglfx.jogl.universal
 
 import com.huskerdev.openglfx.jogl.JOGLFXCanvas
-import com.huskerdev.openglfx.utils.BufferUtilization
+import com.huskerdev.openglfx.utils.OpenGLFXUtils
 import com.jogamp.opengl.*
 import com.jogamp.opengl.GL2GL3.*
 import com.sun.javafx.scene.DirtyBits
@@ -18,7 +18,6 @@ import javafx.scene.image.PixelFormat
 import javafx.scene.image.WritableImage
 import jogamp.opengl.GLDrawableFactoryImpl
 import jogamp.opengl.GLOffscreenAutoDrawableImpl
-import jogamp.opengl.util.glsl.GLSLTextureRaster
 import java.nio.ByteBuffer
 import java.nio.IntBuffer
 import java.util.concurrent.atomic.AtomicBoolean
@@ -50,16 +49,17 @@ class JOGLUniversal(
     private var initialized = false
 
     init{
-        Platform.runLater {
+        OpenGLFXUtils.executeOnMainThread {
             capabilities.isFBO = true
             val glWindow = GLDrawableFactoryImpl
                 .getFactoryImpl(capabilities.glProfile)
                 .createOffscreenAutoDrawable(GLProfile.getDefaultDevice(), capabilities, null, 100, 100) as GLOffscreenAutoDrawableImpl
             glWindow.display()
-            thread(isDaemon = true) {
 
+            thread(isDaemon = true) {
                 glWindow.context.makeCurrent()
                 val gl = glWindow.gl
+
                 while(true){
                     renderThread = Thread.currentThread()
                     if(scaledWidth.toInt() != lastSize.first || scaledHeight.toInt() != lastSize.second){
@@ -94,7 +94,7 @@ class JOGLUniversal(
                     // Garbage-collector for byte buffers
                     removedBuffers.removeAll {
                         return@removeAll if(System.nanoTime() - it.second > 1000000L * 1000 * 1){
-                            BufferUtilization.clean(it.first)
+                            OpenGLFXUtils.cleanByteBuffer(it.first)
                             true
                         } else false
                     }

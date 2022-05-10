@@ -4,7 +4,7 @@ package com.huskerdev.openglfx
 import com.huskerdev.openglfx.events.GLInitializeEvent
 import com.huskerdev.openglfx.events.GLRenderEvent
 import com.huskerdev.openglfx.events.GLReshapeEvent
-import com.huskerdev.openglfx.utils.FXUtils
+import com.huskerdev.openglfx.utils.OpenGLFXUtils
 import com.huskerdev.openglfx.utils.RegionAccessorObject
 import com.huskerdev.openglfx.utils.RegionAccessorOverrider
 
@@ -34,7 +34,7 @@ abstract class OpenGLCanvas: Pane() {
             initializer: FXGLInitializer,
             directDrawPolicy: DirectDrawPolicy = DirectDrawPolicy.NEVER
         ): OpenGLCanvas {
-            val isES2 = FXUtils.pipelineName == "es2"
+            val isES2 = OpenGLFXUtils.pipelineName == "es2"
             return when(directDrawPolicy) {
                 DirectDrawPolicy.NEVER -> {
                     if(!initializer.supportsUniversal)
@@ -45,7 +45,7 @@ abstract class OpenGLCanvas: Pane() {
                     if(!initializer.supportsDirect)
                         throw UnsupportedOperationException("${initializer.name} doesn't support direct rendering")
                     if(!isES2)
-                        throw UnsupportedOperationException("Direct rendering only supports ES2 JavaFX pipeline (current: ${FXUtils.pipelineName})")
+                        throw UnsupportedOperationException("Direct rendering only supports ES2 JavaFX pipeline (current: ${OpenGLFXUtils.pipelineName})")
                     initializer.createDirect()
                 }
                 DirectDrawPolicy.IF_AVAILABLE -> {

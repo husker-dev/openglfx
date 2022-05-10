@@ -1,7 +1,7 @@
 package com.huskerdev.openglfx.lwjgl.universal
 
 import com.huskerdev.openglfx.lwjgl.LWJGLCanvas
-import com.huskerdev.openglfx.utils.BufferUtilization
+import com.huskerdev.openglfx.utils.OpenGLFXUtils
 import com.sun.javafx.scene.DirtyBits
 import com.sun.javafx.scene.NodeHelper
 import com.sun.javafx.tk.PlatformImage
@@ -47,7 +47,7 @@ class LWJGLUniversal: LWJGLCanvas() {
     private var initialized = false
 
     init{
-        Platform.runLater {
+        OpenGLFXUtils.executeOnMainThread {
             GLFWErrorCallback.createPrint(System.err).set()
             if (!glfwInit())
                 throw IllegalStateException("Unable to initialize GLFW")
@@ -96,7 +96,7 @@ class LWJGLUniversal: LWJGLCanvas() {
                     // Garbage-collector for byte buffers
                     removedBuffers.removeAll {
                         return@removeAll if(System.nanoTime() - it.second > 1000000L * 1000 * 1){
-                            BufferUtilization.clean(it.first)
+                            OpenGLFXUtils.cleanByteBuffer(it.first)
                             true
                         } else false
                     }
