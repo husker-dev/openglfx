@@ -7,8 +7,6 @@ import java.nio.ByteBuffer
 import java.util.concurrent.Executor
 
 
-
-
 class OpenGLFXUtils {
 
     companion object {
@@ -34,6 +32,20 @@ class OpenGLFXUtils {
                 }
                 macosDispatcher!!.execute(runnable)
             }else runnable.run()
+        }
+
+        fun executeOnMainThreadSync(runnable: Runnable){
+            var notifier: Object? = Object()
+
+            executeOnMainThread {
+                runnable.run()
+
+                synchronized(notifier!!) { notifier!!.notifyAll() }
+                notifier = null
+            }
+
+            if(notifier != null)
+                synchronized(notifier!!) { notifier!!.wait() }
         }
     }
 }

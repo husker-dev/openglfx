@@ -85,7 +85,11 @@ abstract class OpenGLCanvas: Pane() {
         }
 
     protected val dpi: Double
-        get() = scene.window.outputScaleX
+        get() {
+            if(scene == null || scene.window == null)
+                return 1.0
+            return scene.window.outputScaleX
+        }
 
     protected val scaledWidth: Double
         get() = width * dpi
