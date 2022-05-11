@@ -21,7 +21,6 @@ class ExampleRenderer {
             glLoadIdentity()
 
             glTranslatef(0.0f, 0.0f, -40.0f);
-            glEnable(GL_DEPTH_TEST)
         }
 
         fun render(canvas: OpenGLCanvas, event: GLRenderEvent){
@@ -29,6 +28,9 @@ class ExampleRenderer {
 
             val width = canvas.width
             val height = canvas.height
+
+            glEnable(GL_DEPTH_TEST)
+            glDepthFunc(GL_LEQUAL)
 
             glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
 

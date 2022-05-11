@@ -1,6 +1,7 @@
 package com.huskerdev.openglfx.lwjgl.universal
 
 import com.huskerdev.openglfx.lwjgl.LWJGLCanvas
+import com.huskerdev.openglfx.lwjgl.utils.GLContext
 import com.huskerdev.openglfx.utils.OpenGLFXUtils
 import com.sun.javafx.scene.DirtyBits
 import com.sun.javafx.scene.NodeHelper
@@ -47,47 +48,35 @@ class LWJGLUniversal: LWJGLCanvas() {
     private var initialized = false
 
     init{
-        OpenGLFXUtils.executeOnMainThread {
-            GLFWErrorCallback.createPrint(System.err).set()
-            if (!glfwInit())
-                throw IllegalStateException("Unable to initialize GLFW")
+        thread(isDaemon = true){
+            GLContext.createNew().makeCurrent()
+            createCapabilities()
 
-            glfwDefaultWindowHints()
-            glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE)
+            glDepthFunc(GL_LEQUAL)
+            glEnable(GL_DEPTH_TEST)
 
-            val window = glfwCreateWindow(100, 100, "", 0, 0)
-            if (window == 0L)
-                throw RuntimeException("Failed to create the GLFW window")
+            while(true){
+                if(scaledWidth.toInt() != lastSize.first || scaledHeight.toInt() != lastSize.second){
+                    lastSize = Pair(scaledWidth.toInt(), scaledHeight.toInt())
+                    updateFramebufferSize()
 
-            thread(isDaemon = true){
-                glfwMakeContextCurrent(window)
-                createCapabilities()
-
-                glDepthFunc(GL_LEQUAL)
-                glEnable(GL_DEPTH_TEST)
-
-                while(true){
-                    if(scaledWidth.toInt() != lastSize.first || scaledHeight.toInt() != lastSize.second){
-                        lastSize = Pair(scaledWidth.toInt(), scaledHeight.toInt())
-                        updateFramebufferSize()
-
-                        if(!initialized){
-                            initialized = true
-                            fireInitEvent()
-                        }
-                        fireReshapeEvent(lastSize.first, lastSize.second)
+                    if(!initialized){
+                        initialized = true
+                        fireInitEvent()
                     }
-
-                    glViewport(0, 0, lastSize.first, lastSize.second)
-                    fireRenderEvent()
-
-                    readPixels()
-
-                    needsRepaint.set(true)
-                    synchronized(repaintLock) { repaintLock.wait() }
+                    fireReshapeEvent(lastSize.first, lastSize.second)
                 }
+
+                glViewport(0, 0, lastSize.first, lastSize.second)
+                fireRenderEvent()
+
+                readPixels()
+
+                needsRepaint.set(true)
+                synchronized(repaintLock) { repaintLock.wait() }
             }
         }
+
 
         visibleProperty().addListener { _, _, _ -> repaint() }
         widthProperty().addListener { _, _, _ -> repaint() }
