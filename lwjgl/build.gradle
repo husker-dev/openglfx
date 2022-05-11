@@ -1,9 +1,29 @@
+import org.gradle.internal.os.OperatingSystem
+
 plugins {
     id 'org.jetbrains.kotlin.jvm'
 }
 
 repositories {
     mavenCentral()
+}
+
+switch (OperatingSystem.current()) {
+    case OperatingSystem.LINUX:
+        def osArch = System.getProperty("os.arch")
+        project.ext.lwjglNatives = osArch.startsWith("arm") || osArch.startsWith("aarch64")
+                ? "natives-linux-${osArch.contains("64") || osArch.startsWith("armv8") ? "arm64" : "arm32"}"
+                : "natives-linux"
+        break
+    case OperatingSystem.MAC_OS:
+        project.ext.lwjglNatives = System.getProperty("os.arch").startsWith("aarch64") ? "natives-macos-arm64" : "natives-macos"
+        break
+    case OperatingSystem.WINDOWS:
+        def osArch = System.getProperty("os.arch")
+        project.ext.lwjglNatives = osArch.contains("64")
+                ? "natives-windows${osArch.startsWith("aarch64") ? "-arm64" : ""}"
+                : "natives-windows-x86"
+        break
 }
 
 sourceSets{
@@ -31,9 +51,9 @@ dependencies {
     compileOnly "org.lwjgl:lwjgl"
     compileOnly "org.lwjgl:lwjgl-glfw"
     compileOnly "org.lwjgl:lwjgl-opengl"
-    compileOnly "org.lwjgl:lwjgl::natives-windows"
-    compileOnly "org.lwjgl:lwjgl-glfw::natives-windows"
-    compileOnly "org.lwjgl:lwjgl-opengl::natives-windows"
+    compileOnly "org.lwjgl:lwjgl::$lwjglNatives"
+    compileOnly "org.lwjgl:lwjgl-glfw::$lwjglNatives"
+    compileOnly "org.lwjgl:lwjgl-opengl::$lwjglNatives"
 
     compileOnly files('../libs/javafx.graphics.win-es2.jar')
 }
