@@ -64,6 +64,11 @@ class LWJGLDirect: LWJGLCanvas() {
         if(needTextureRepaint) {
             needTextureRepaint = false
 
+            val texGr = texture.createGraphics()
+            texGr.isDepthBuffer = true
+            texGr.isDepthTest = true
+            texGr.clear()
+
             LWJGLUtils.rawGL {
                 glBindFramebuffer(GL_FRAMEBUFFER, textureFBO)
                 glViewport(0, 0, scaledWidth.toInt(), scaledHeight.toInt())

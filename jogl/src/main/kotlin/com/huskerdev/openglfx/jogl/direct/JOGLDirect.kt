@@ -68,6 +68,11 @@ class JOGLDirect: JOGLFXCanvas() {
         if(needTextureRepaint) {
             needTextureRepaint = false
 
+            val texGr = texture.createGraphics()
+            texGr.isDepthBuffer = true
+            texGr.isDepthTest = true
+            texGr.clear()
+
             JOGLUtils.rawGL(gl) {
                 if (gl !is GL2)
                     return@rawGL
