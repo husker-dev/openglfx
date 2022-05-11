@@ -46,8 +46,8 @@ There are also several ways to call OpenGL functions from Java code. The most pr
   
   dependencies {
       // OpenGLFX
-      implementation 'com.github.husker-dev.openglfx:core:2.8'
-      implementation 'com.github.husker-dev.openglfx:lwjgl:2.8'
+      implementation 'com.github.husker-dev.openglfx:core:2.10'
+      implementation 'com.github.husker-dev.openglfx:lwjgl:2.10'
     
       // LWJGL
       implementation "org.lwjgl:lwjgl"
@@ -75,9 +75,6 @@ There are also several ways to call OpenGL functions from Java code. The most pr
       // ...
   }
   canvas.onRender {
-      // ...
-  }
-  canvas.onUpdate {
       // ...
   }
   canvas.onReshape {
@@ -108,8 +105,8 @@ There are also several ways to call OpenGL functions from Java code. The most pr
   
   dependencies {
       // OpenGLFX
-      implementation 'com.github.husker-dev.openglfx:core:2.8'
-      implementation 'com.github.husker-dev.openglfx:jogl:2.8'
+      implementation 'com.github.husker-dev.openglfx:core:2.10'
+      implementation 'com.github.husker-dev.openglfx:jogl:2.10'
     
       // JOGL
       implementation 'org.jogamp.jogl:jogl-all-main:2.3.2'
@@ -130,22 +127,19 @@ There are also several ways to call OpenGL functions from Java code. The most pr
   // DirectDrawPolicy.ALWAYS        - Use only direct render
   
   canvas.onInitialize {
-      val gl = (canvas as JOGLFXCanvas).gl
+      val gl = (it as JOGLRenderEvent).gl
       // ...
   }
   canvas.onRender {
-      val gl = (canvas as JOGLFXCanvas).gl
-      // ...
-  }
-  canvas.onUpdate {
+      val gl = (it as JOGLRenderEvent).gl
       // ...
   }
   canvas.onReshape {
-      val gl = (canvas as JOGLFXCanvas).gl
+      val gl = (it as JOGLRenderEvent).gl
       // ...
   }
   canvas.onDispose {
-      val gl = (canvas as JOGLFXCanvas).gl
+      val gl = (it as JOGLRenderEvent).gl
       // ...
   }
   ```
