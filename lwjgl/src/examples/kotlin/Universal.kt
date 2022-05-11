@@ -6,8 +6,7 @@ import javafx.application.Application
 import javafx.scene.Scene
 import javafx.scene.layout.Region
 import javafx.stage.Stage
-import org.lwjgl.opengl.GL30.*
-import kotlin.math.sin
+import rendering.ExampleRenderer
 
 fun main(){
     System.setProperty("prism.vsync", "false")
@@ -30,47 +29,10 @@ class UniversalExampleApp: Application(){
 
     private fun createGL(): Region {
         val canvas = OpenGLCanvas.create(LWJGL_MODULE, DirectDrawPolicy.NEVER)
-        canvas.animator = GLCanvasAnimator(GLCanvasAnimator.UNLIMITED_FPS, started = true)
+        canvas.animator = GLCanvasAnimator(60.0, started = true)
 
-        var animVar = 0.0
-
-        canvas.onReshape {
-            glMatrixMode(GL_PROJECTION)
-            glLoadIdentity()
-            glOrtho(0.0, canvas.scene.width, 0.0, canvas.scene.height, -1.0, 100.0)
-        }
-        canvas.onRender {
-            animVar += it.delta * 10
-            val y = sin(animVar) * (stage.height / 3)
-
-            val width = stage.width
-            val height = stage.height
-
-            glClearColor(1.0f, 1.0f, 1.0f, 1.0f)
-            glClearDepth(1.0)
-            glClear(GL_COLOR_BUFFER_BIT)
-
-            glColor3f(1.0f, 0.5f, 0.0f)
-            glBegin(GL_QUADS)
-            glVertex2d(0.0, 0.0)
-            glVertex2d(width, 0.0)
-            glVertex2d(width, height / 2)
-            glVertex2d(0.0, height / 2)
-            glEnd()
-
-            // Moving rectangle
-            val rectSize = 40.0
-            val rectX = (width - rectSize) / 2
-            val rectY = (height - rectSize) / 2 + y
-
-            glColor3f(0f, 0.5f, 0.0f)
-            glBegin(GL_QUADS)
-            glVertex2d(rectX, rectY)
-            glVertex2d(rectX + rectSize, rectY)
-            glVertex2d(rectX + rectSize, rectY + rectSize)
-            glVertex2d(rectX, rectY + rectSize)
-            glEnd()
-        }
+        canvas.onReshape { ExampleRenderer.reshape(canvas, it) }
+        canvas.onRender { ExampleRenderer.render(canvas, it) }
 
         return canvas
     }

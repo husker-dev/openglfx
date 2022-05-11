@@ -5,7 +5,7 @@ import javafx.event.Event
 import javafx.event.EventType
 
 
-class GLRenderEvent(
+open class GLRenderEvent(
     @NamedArg("eventType") eventType: EventType<GLRenderEvent>,
     val fps: Int,
     val delta: Double

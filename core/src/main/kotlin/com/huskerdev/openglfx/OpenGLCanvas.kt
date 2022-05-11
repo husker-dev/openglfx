@@ -1,6 +1,7 @@
 package com.huskerdev.openglfx
 
 
+import com.huskerdev.openglfx.events.GLDisposeEvent
 import com.huskerdev.openglfx.events.GLInitializeEvent
 import com.huskerdev.openglfx.events.GLRenderEvent
 import com.huskerdev.openglfx.events.GLReshapeEvent
@@ -59,7 +60,7 @@ abstract class OpenGLCanvas: Pane() {
     private var onInit = arrayListOf<Consumer<GLInitializeEvent>>()
     private var onRender = arrayListOf<Consumer<GLRenderEvent>>()
     private var onReshape = arrayListOf<Consumer<GLReshapeEvent>>()
-    private var onDispose = arrayListOf<Runnable>()
+    private var onDispose = arrayListOf<Consumer<GLDisposeEvent>>()
 
     private var initialized = false
 
@@ -110,14 +111,14 @@ abstract class OpenGLCanvas: Pane() {
         initialized = false
     }
 
-    fun onDispose(listener: Runnable){
+    fun onDispose(listener: Consumer<GLDisposeEvent>){
         onDispose.add(listener)
     }
 
     protected abstract fun onNGRender(g: Graphics)
     abstract fun repaint()
 
-    protected open fun fireRenderEvent() {
+    protected fun fireRenderEvent() {
         checkInitialization()
 
         val now = System.nanoTime()
@@ -131,33 +132,28 @@ abstract class OpenGLCanvas: Pane() {
             lastFpsTime = now
         }
 
-        val event = GLRenderEvent(GLRenderEvent.ANY, currentFps, delta)
-
-        onRender.forEach { it.accept(event) }
+        dispatchRenderEvent(GLRenderEvent(GLRenderEvent.ANY, currentFps, delta))
     }
 
-    protected open fun fireReshapeEvent(width: Int, height: Int) {
+    protected fun fireReshapeEvent(width: Int, height: Int) {
         checkInitialization()
-
-        val event = GLReshapeEvent(GLReshapeEvent.ANY, width, height)
-        onReshape.forEach { it.accept(event) }
+        dispatchReshapeEvent(GLReshapeEvent(GLReshapeEvent.ANY, width, height))
     }
 
-    protected open fun fireInitEvent() = checkInitialization()
-
-    protected open fun fireDisposeEvent() {
-        checkInitialization()
-        onDispose.forEach { it.run() }
-    }
+    protected fun fireInitEvent() = checkInitialization()
+    protected fun fireDisposeEvent() = dispatchDisposeEvent(GLDisposeEvent(GLDisposeEvent.ANY))
 
     private fun checkInitialization(){
         if(!initialized){
             initialized = true
-
-            val event = GLInitializeEvent(GLInitializeEvent.ANY)
-            onInit.forEach { it.accept(event) }
+            dispatchInitEvent(GLInitializeEvent(GLInitializeEvent.ANY))
         }
     }
+
+    protected open fun dispatchRenderEvent(event: GLRenderEvent) = onRender.forEach { it.accept(event) }
+    protected open fun dispatchReshapeEvent(event: GLReshapeEvent) = onReshape.forEach { it.accept(event) }
+    protected open fun dispatchInitEvent(event: GLInitializeEvent) = onInit.forEach { it.accept(event) }
+    protected open fun dispatchDisposeEvent(event: GLDisposeEvent) = onDispose.forEach { it.accept(event) }
 
     private class NGOpenGLCanvas(val canvas: OpenGLCanvas): NGRegion() {
 

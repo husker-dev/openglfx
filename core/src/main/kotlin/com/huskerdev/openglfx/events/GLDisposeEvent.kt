@@ -4,11 +4,8 @@ import javafx.beans.NamedArg
 import javafx.event.Event
 import javafx.event.EventType
 
-
-open class GLReshapeEvent(
-    @NamedArg("eventType") eventType: EventType<GLReshapeEvent>,
-    val width: Int,
-    val height: Int
+open class GLDisposeEvent(
+    @NamedArg("eventType") eventType: EventType<GLDisposeEvent>
 ) : Event(eventType) {
 
     companion object {
@@ -18,6 +15,6 @@ open class GLReshapeEvent(
          * Common supertype for all event types.
          */
         @JvmStatic
-        val ANY: EventType<GLReshapeEvent> = EventType<GLReshapeEvent>(Event.ANY, "GL_RESHAPE")
+        val ANY: EventType<GLDisposeEvent> = EventType<GLDisposeEvent>(Event.ANY, "GL_DISPOSE")
     }
 }

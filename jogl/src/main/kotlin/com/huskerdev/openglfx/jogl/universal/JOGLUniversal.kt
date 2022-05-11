@@ -12,7 +12,6 @@ import com.sun.prism.Graphics
 import com.sun.prism.Image
 import com.sun.prism.Texture
 import javafx.animation.AnimationTimer
-import javafx.application.Platform
 import javafx.scene.image.PixelBuffer
 import javafx.scene.image.PixelFormat
 import javafx.scene.image.WritableImage
@@ -27,6 +26,8 @@ class JOGLUniversal(
     capabilities: GLCapabilities
 ): JOGLFXCanvas() {
 
+    override lateinit var gl: GL2
+
     private val removedBuffers = arrayListOf<Pair<ByteBuffer, Long>>()
 
     private var bufferUpdateRequired = false
@@ -40,7 +41,8 @@ class JOGLUniversal(
     private lateinit var pixelBuffer: PixelBuffer<IntBuffer>
 
     private var texture = -1
-    private var textureFBO = -1
+    private var fbo = -1
+    private var depthBuffer = -1
 
     private var needsRepaint = AtomicBoolean(false)
     private var repaintLock = Object()
@@ -58,25 +60,27 @@ class JOGLUniversal(
 
             thread(isDaemon = true) {
                 glWindow.context.makeCurrent()
-                val gl = glWindow.gl
+                gl = glWindow.gl.gL2
+
+                gl.glDepthFunc(GL_LEQUAL)
+                gl.glEnable(GL_DEPTH_TEST)
 
                 while(true){
-                    renderThread = Thread.currentThread()
                     if(scaledWidth.toInt() != lastSize.first || scaledHeight.toInt() != lastSize.second){
                         lastSize = Pair(scaledWidth.toInt(), scaledHeight.toInt())
                         updateFramebufferSize(gl)
 
                         if(!initialized){
                             initialized = true
-                            fireInitEvent(gl)
+                            fireInitEvent()
                         }
-                        fireReshapeEvent(gl, lastSize.first, lastSize.second)
+                        fireReshapeEvent(lastSize.first, lastSize.second)
                     }
 
                     gl.glViewport(0, 0, lastSize.first, lastSize.second)
-                    fireRenderEvent(gl)
+                    fireRenderEvent()
 
-                    readPixels(gl as GL2)
+                    readPixels()
 
                     needsRepaint.set(true)
                     synchronized(repaintLock) { repaintLock.wait() }
@@ -112,7 +116,7 @@ class JOGLUniversal(
         }.start()
     }
 
-    private fun readPixels(gl: GL2){
+    private fun readPixels(){
         if (scene == null || scene.window == null || width <= 0 || height <= 0)
             return
 
@@ -142,8 +146,10 @@ class JOGLUniversal(
         val buffer = intArrayOf(0)
         if(texture != -1)
             gl.glDeleteTextures(1, intArrayOf(texture), 0)
-        if(textureFBO != -1)
-            gl.glDeleteFramebuffers(1, intArrayOf(textureFBO), 0)
+        if(fbo != -1)
+            gl.glDeleteFramebuffers(1, intArrayOf(fbo), 0)
+        if(depthBuffer != -1)
+            gl.glDeleteRenderbuffers(1, intArrayOf(depthBuffer), 0)
 
         gl.glGenTextures(1, buffer, 0)
         texture = buffer[0]
@@ -151,9 +157,15 @@ class JOGLUniversal(
         gl.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, lastSize.first, lastSize.second, 0, GL_RGBA, GL_UNSIGNED_BYTE, null)
 
         gl.glGenFramebuffers(1, buffer, 0)
-        textureFBO = buffer[0]
-        gl.glBindFramebuffer(GL_FRAMEBUFFER, textureFBO)
+        fbo = buffer[0]
+        gl.glBindFramebuffer(GL_FRAMEBUFFER, fbo)
         gl.glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0)
+
+        gl.glGenRenderbuffers(1, buffer, 0)
+        depthBuffer = buffer[0]
+        gl.glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer)
+        gl.glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, lastSize.first, lastSize.second)
+        gl.glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer)
     }
 
     override fun onNGRender(g: Graphics){

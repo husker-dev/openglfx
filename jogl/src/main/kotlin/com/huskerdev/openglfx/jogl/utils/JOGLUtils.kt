@@ -11,6 +11,9 @@ class JOGLUtils {
             val program = IntBuffer.allocate(1)
             gl.glGetIntegerv(GL_CURRENT_PROGRAM, program)
 
+            val framebuffer = IntBuffer.allocate(1)
+            gl.glGetIntegerv(GL_FRAMEBUFFER_BINDING, framebuffer)
+
             gl.glUseProgram(0)
             gl.glPushAttrib(GL_ALL_ATTRIB_BITS)
             gl.glPushMatrix()
@@ -20,6 +23,7 @@ class JOGLUtils {
             gl.glPopMatrix()
             gl.glPopAttrib()
             gl.glUseProgram(program[0])
+            gl.glBindFramebuffer(GL_FRAMEBUFFER, framebuffer[0])
         }
     }
 }

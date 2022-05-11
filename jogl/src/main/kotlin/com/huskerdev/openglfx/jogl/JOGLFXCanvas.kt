@@ -1,43 +1,26 @@
 package com.huskerdev.openglfx.jogl
 
 import com.huskerdev.openglfx.OpenGLCanvas
-import com.jogamp.opengl.GL
+import com.huskerdev.openglfx.events.*
+import com.huskerdev.openglfx.jogl.events.*
 import com.jogamp.opengl.GL2
+import javafx.event.EventType
 
 @JvmField
 val JOGL_MODULE = JOGLFXInitializer()
 
-val boundGLThreads = hashMapOf<Thread, GL>()
-val contextGL: GL
-    get() = boundGLThreads[Thread.currentThread()]!!
-
 abstract class JOGLFXCanvas: OpenGLCanvas() {
+    abstract val gl: GL2
 
-    var renderThread: Thread? = null
-    val gl: GL2
-        get() = boundGLThreads[renderThread] as GL2
+    override fun dispatchRenderEvent(event: GLRenderEvent) =
+        super.dispatchRenderEvent(JOGLRenderEvent(gl, event.eventType as EventType<GLRenderEvent>, event.fps, event.delta))
 
-    fun fireRenderEvent(gl: GL) {
-        boundGLThreads[renderThread!!] = gl
-        fireRenderEvent()
-        boundGLThreads.remove(renderThread)
-    }
+    override fun dispatchReshapeEvent(event: GLReshapeEvent) =
+        super.dispatchReshapeEvent(JOGLReshapeEvent(gl, event.eventType as EventType<GLReshapeEvent>, event.width, event.height))
 
-    fun fireReshapeEvent(gl: GL, width: Int, height: Int) {
-        boundGLThreads[renderThread!!] = gl
-        fireReshapeEvent(width, height)
-        boundGLThreads.remove(renderThread)
-    }
+    override fun dispatchInitEvent(event: GLInitializeEvent) =
+        super.dispatchInitEvent(JOGLInitializeEvent(gl, event.eventType as EventType<GLInitializeEvent>))
 
-    fun fireInitEvent(gl: GL) {
-        boundGLThreads[renderThread!!] = gl
-        fireInitEvent()
-        boundGLThreads.remove(renderThread)
-    }
-
-    fun fireDisposeEvent(gl: GL) {
-        boundGLThreads[renderThread!!] = gl
-        fireDisposeEvent()
-        boundGLThreads.remove(renderThread)
-    }
+    override fun dispatchDisposeEvent(event: GLDisposeEvent) =
+        super.dispatchDisposeEvent(JOGLDisposeEvent(gl, event.eventType as EventType<GLDisposeEvent>))
 }

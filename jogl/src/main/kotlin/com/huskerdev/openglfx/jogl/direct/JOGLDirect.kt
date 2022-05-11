@@ -17,7 +17,9 @@ import java.nio.IntBuffer
 import java.util.concurrent.atomic.AtomicBoolean
 
 
-class JOGLDirect: JOGLFXCanvas() {
+class JOGLDirect : JOGLFXCanvas() {
+
+    override lateinit var gl: GL2
 
     private val factory = GLDrawableFactoryImpl.getFactoryImpl(GLProfile.getDefault())
 
@@ -48,9 +50,7 @@ class JOGLDirect: JOGLFXCanvas() {
 
         if (!this::context.isInitialized)
             context = factory.createExternalGLContext()
-        val gl = context.gl.gL2
-        if(renderThread == null)
-            renderThread = Thread.currentThread()
+        gl = context.gl.gL2
 
         if (!this::texture.isInitialized || texture.contentWidth != scaledWidth.toInt() || texture.contentHeight != scaledHeight.toInt()) {
             texture = GraphicsPipeline.getDefaultResourceFactory().createRTTexture(scaledWidth.toInt(), scaledHeight.toInt(), Texture.WrapMode.CLAMP_TO_ZERO, false)
@@ -74,18 +74,11 @@ class JOGLDirect: JOGLFXCanvas() {
             texGr.clear()
 
             JOGLUtils.rawGL(gl) {
-                if (gl !is GL2)
-                    return@rawGL
-                val oldBuffer = IntBuffer.allocate(1)
-                gl.glGetIntegerv(GL_FRAMEBUFFER_BINDING, oldBuffer)
-
                 gl.glBindFramebuffer(GL_FRAMEBUFFER, textureFBO)
                 gl.glViewport(0, 0, scaledWidth.toInt(), scaledHeight.toInt())
-                fireInitEvent(gl)
-                fireReshapeEvent(gl, scaledWidth.toInt(), scaledHeight.toInt())
-                fireRenderEvent(gl)
-
-                gl.glBindFramebuffer(GL_FRAMEBUFFER, oldBuffer[0])
+                fireInitEvent()
+                fireReshapeEvent(scaledWidth.toInt(), scaledHeight.toInt())
+                fireRenderEvent()
             }
         }
 

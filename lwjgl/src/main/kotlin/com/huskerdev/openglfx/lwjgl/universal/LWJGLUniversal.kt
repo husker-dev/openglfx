@@ -10,7 +10,6 @@ import com.sun.prism.Graphics
 import com.sun.prism.Image
 import com.sun.prism.Texture
 import javafx.animation.AnimationTimer
-import javafx.application.Platform
 import javafx.scene.image.PixelBuffer
 import javafx.scene.image.PixelFormat
 import javafx.scene.image.WritableImage
@@ -38,7 +37,8 @@ class LWJGLUniversal: LWJGLCanvas() {
     private lateinit var pixelBuffer: PixelBuffer<IntBuffer>
 
     private var texture = -1
-    private var textureFBO = -1
+    private var fbo = -1
+    private var depthBuffer = -1
 
     private var needsRepaint = AtomicBoolean(false)
     private var repaintLock = Object()
@@ -62,6 +62,9 @@ class LWJGLUniversal: LWJGLCanvas() {
             thread(isDaemon = true){
                 glfwMakeContextCurrent(window)
                 createCapabilities()
+
+                glDepthFunc(GL_LEQUAL)
+                glEnable(GL_DEPTH_TEST)
 
                 while(true){
                     if(scaledWidth.toInt() != lastSize.first || scaledHeight.toInt() != lastSize.second){
@@ -143,16 +146,23 @@ class LWJGLUniversal: LWJGLCanvas() {
     private fun updateFramebufferSize() {
         if(texture != -1)
             glDeleteTextures(texture)
-        if(textureFBO != -1)
-            glDeleteFramebuffers(textureFBO)
+        if(fbo != -1)
+            glDeleteFramebuffers(fbo)
+        if(depthBuffer != -1)
+            glDeleteRenderbuffers(depthBuffer)
+
+        fbo = glGenFramebuffers()
+        glBindFramebuffer(GL_FRAMEBUFFER, fbo)
 
         texture = glGenTextures()
         glBindTexture(GL_TEXTURE_2D, texture)
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, lastSize.first, lastSize.second, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0)
-
-        textureFBO = glGenFramebuffers()
-        glBindFramebuffer(GL_FRAMEBUFFER, textureFBO)
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0)
+
+        depthBuffer = glGenRenderbuffers()
+        glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer)
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, lastSize.first, lastSize.second)
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer)
     }
 
     override fun onNGRender(g: Graphics){

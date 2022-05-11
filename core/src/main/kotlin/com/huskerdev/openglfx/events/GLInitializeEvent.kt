@@ -5,7 +5,7 @@ import javafx.event.Event
 import javafx.event.EventType
 
 
-class GLInitializeEvent(
+open class GLInitializeEvent(
     @NamedArg("eventType") eventType: EventType<GLInitializeEvent>
 ) : Event(eventType) {
 
