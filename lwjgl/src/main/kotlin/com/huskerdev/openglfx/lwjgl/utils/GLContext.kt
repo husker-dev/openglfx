@@ -79,18 +79,20 @@ abstract class GLContext {
                 shareWith as CGLContext
                 val pix = PointerBuffer.allocateDirect(Long.SIZE_BYTES)
                 val num = intArrayOf(1)
-                val context = PointerBuffer.allocateDirect(1)
+                val context = PointerBuffer.allocateDirect(Long.SIZE_BYTES)
 
                 println("CGLChoosePixelFormat: " + CGLChoosePixelFormat(intArrayOf(kCGLPFAAccelerated, kCGLPFAOpenGLProfile, kCGLOGLPVersion_3_2_Core, 0), pix, num))
                 println("pix: $pix")
                 println("pix.address: ${pix.address()}")
                 println("num: ${num[0]}")
-                println("pix.get: ${pix.get()}")
 
-                CGLCreateContext(pix.get(), shareWith.context, context)
-                CGLDestroyPixelFormat(pix.get())
+                val pixObj = pix.get()
+                println("pix.get: $pixObj")
 
-                println("context: ${context}")
+                CGLCreateContext(pixObj, shareWith.context, context)
+                CGLDestroyPixelFormat(pixObj)
+
+                println("context: $context")
                 println("context.address: ${context.address()}")
 
                 return CGLContext(context.get())
