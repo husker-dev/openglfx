@@ -77,9 +77,9 @@ abstract class GLContext {
             }
             if(PlatformUtil.isMac()){
                 shareWith as CGLContext
-                val pix = PointerBuffer.allocateDirect(1)
+                val pix = PointerBuffer.allocateDirect(Long.SIZE_BYTES)
                 val num = intArrayOf(1)
-                val context = PointerBuffer.allocateDirect(1)
+                val context = PointerBuffer.allocateDirect(Long.SIZE_BYTES)
 
                 println("CGLChoosePixelFormat: " + CGLChoosePixelFormat(intArrayOf(kCGLPFAAccelerated, kCGLPFAOpenGLProfile, kCGLOGLPVersion_3_2_Core, 0), pix, num))
                 println("pix: $pix")
