@@ -193,7 +193,7 @@ myAnimator.started = true
   | Separate GL context   | :heavy_check_mark: | :x:
   | Windows               | :heavy_check_mark: | :x:
   | Linux                 | :heavy_check_mark: | :heavy_check_mark:
-  | MacOS                 | :heavy_check_mark: | :heavy_check_mark:
+  | MacOS                 | :x: | :heavy_check_mark:
   | Calls ```onInit``` once | :heavy_check_mark: | :x:
 
 ## Wiki
