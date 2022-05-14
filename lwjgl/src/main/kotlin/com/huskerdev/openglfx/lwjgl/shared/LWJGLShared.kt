@@ -17,17 +17,17 @@ import java.util.concurrent.atomic.AtomicBoolean
 class LWJGLShared: LWJGLCanvas() {
 
     private var lastSize = Pair(-1, -1)
-    var initialized = false
+    private var initialized = false
 
-    var context: GLContext? = null
-    var fxContext: GLContext? = null
+    private var context: GLContext? = null
+    private var fxContext: GLContext? = null
 
-    var texture = -1
-    var fbo = -1
-    var depthBuffer = -1
+    private var texture = -1
+    private var fbo = -1
+    private var depthBuffer = -1
 
-    var fxTexture: RTTexture? = null
-    var fxTextureId = -1
+    private var fxTexture: RTTexture? = null
+    private var fxTextureId = -1
 
     private var needsRepaint = AtomicBoolean(false)
 
@@ -122,8 +122,7 @@ class LWJGLShared: LWJGLCanvas() {
     }
 
     override fun repaint() {
-
-            needsRepaint.set(true)
+        needsRepaint.set(true)
     }
 
 }

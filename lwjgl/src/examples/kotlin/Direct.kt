@@ -1,13 +1,11 @@
 import com.huskerdev.openglfx.DirectDrawPolicy
 import com.huskerdev.openglfx.GLCanvasAnimator
-import com.huskerdev.openglfx.GLCanvasAnimator.Companion.UNLIMITED_FPS
 import com.huskerdev.openglfx.OpenGLCanvas
 import com.huskerdev.openglfx.lwjgl.LWJGL_MODULE
 import javafx.application.Application
 import javafx.scene.Scene
 import javafx.scene.layout.Region
 import javafx.stage.Stage
-import org.lwjgl.opengl.GL30.*
 import rendering.ExampleRenderer
 
 fun main(){

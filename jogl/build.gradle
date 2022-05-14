@@ -21,10 +21,10 @@ dependencies {
     compileOnly project(':core')
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib"
 
-    compileOnly "org.openjfx:javafx-base:$openjfx:win"
-    compileOnly "org.openjfx:javafx-controls:$openjfx:win"
-    compileOnly "org.openjfx:javafx-graphics:$openjfx:win"
-    compileOnly "org.openjfx:javafx-swing:$openjfx:win"
+    compileOnly "org.openjfx:javafx-base:$jfxVersion:win"
+    compileOnly "org.openjfx:javafx-controls:$jfxVersion:win"
+    compileOnly "org.openjfx:javafx-graphics:$jfxVersion:win"
+    compileOnly "org.openjfx:javafx-swing:$jfxVersion:win"
 
     compileOnly 'org.jogamp.jogl:jogl-all-main:2.3.2'
     compileOnly 'org.jogamp.gluegen:gluegen-rt-main:2.3.2'
