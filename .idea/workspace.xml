@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="d39d0143-d2aa-4261-8506-35cd0ece831b" name="Changes" comment="Some fixes">
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/utils/D3DSharedTexture.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/src/main/resources/com/huskerdev/openglfx/utils/openglfx.dll" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lwjgl/src/examples/kotlin/Interop.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lwjgl/src/main/kotlin/com/huskerdev/openglfx/lwjgl/interop/LWJGLInterop.kt" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="ExternalProjectsManager">
+    <system id="GRADLE">
+      <state>
+        <task path="$PROJECT_DIR$">
+          <activation />
+        </task>
+        <task path="$PROJECT_DIR$/core">
+          <activation />
+        </task>
+        <task path="$PROJECT_DIR$/jogl">
+          <activation />
+        </task>
+        <task path="$PROJECT_DIR$/lwjgl">
+          <activation />
+        </task>
+        <projects_view>
+          <tree_state>
+            <expand>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="openglfx" type="f1a62948:ProjectNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="openglfx" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="openglfx" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="build" type="c8890929:TasksNode$1" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="openglfx" type="f1a62948:ProjectNode" />
+                <item name="core" type="2d1252cf:ModuleNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="openglfx" type="f1a62948:ProjectNode" />
+                <item name="core" type="2d1252cf:ModuleNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="openglfx" type="f1a62948:ProjectNode" />
+                <item name="core" type="2d1252cf:ModuleNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="build" type="c8890929:TasksNode$1" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="openglfx" type="f1a62948:ProjectNode" />
+                <item name="jogl" type="2d1252cf:ModuleNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="openglfx" type="f1a62948:ProjectNode" />
+                <item name="jogl" type="2d1252cf:ModuleNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="openglfx" type="f1a62948:ProjectNode" />
+                <item name="jogl" type="2d1252cf:ModuleNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="build" type="c8890929:TasksNode$1" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="openglfx" type="f1a62948:ProjectNode" />
+                <item name="lwjgl" type="2d1252cf:ModuleNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="openglfx" type="f1a62948:ProjectNode" />
+                <item name="lwjgl" type="2d1252cf:ModuleNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="openglfx" type="f1a62948:ProjectNode" />
+                <item name="lwjgl" type="2d1252cf:ModuleNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="build" type="c8890929:TasksNode$1" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="openglfx" type="f1a62948:ProjectNode" />
+                <item name="lwjgl" type="2d1252cf:ModuleNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="other" type="c8890929:TasksNode$1" />
+              </path>
+            </expand>
+            <select />
+          </tree_state>
+        </projects_view>
+      </state>
+    </system>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Kotlin Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="28eHzyZkaRx4UprXyd7zlrVfDwZ" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/lwjgl/src/main/kotlin" />
+    <property name="project.structure.last.edited" value="Project" />
+    <property name="project.structure.proportion" value="0.0" />
+    <property name="project.structure.side.proportion" value="0.0" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\redfa\Desktop\openglfx\lwjgl\src\main\kotlin" />
+      <recent name="C:\Users\redfa\Desktop\openglfx\core\src\main\resources\com\huskerdev\openglfx\utils" />
+      <recent name="C:\Users\redfa\Desktop\openglfx\jogl\src\examples\kotlin" />
+    </key>
+    <key name="MoveKotlinTopLevelDeclarationsDialog.RECENTS_KEY">
+      <recent name="com.huskerdev.openglfx.utils" />
+      <recent name="com.huskerdev.openglfx.lwjgl.utils" />
+      <recent name="com.huskerdev.openglfx.lwjgl.shared" />
+    </key>
+    <key name="CopyKotlinDeclarationDialog.RECENTS_KEY">
+      <recent name="com.huskerdev.openglfx.events" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Kotlin.InteropKt">
+    <configuration name="JOGL Direct" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="DirectKt" />
+      <module name="openglfx.jogl.examples" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="JOGL Universal" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="UniversalKt" />
+      <module name="openglfx.jogl.examples" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="LWJGL Direct" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="DirectKt" />
+      <module name="openglfx.lwjgl.examples" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="LWJGL Shared" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="SharedKt" />
+      <module name="openglfx.lwjgl.examples" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="LWJGL Universal" type="Application" factoryName="Application">
+      <option name="ALTERNATIVE_JRE_PATH" value="openjdk-17" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <option name="MAIN_CLASS_NAME" value="UniversalKt" />
+      <module name="openglfx.lwjgl.examples" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="InteropKt" type="JetRunConfigurationType" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="InteropKt" />
+      <module name="openglfx.lwjgl.examples" />
+      <shortenClasspath name="NONE" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Application.LWJGL Shared" />
+      <item itemvalue="Application.LWJGL Direct" />
+      <item itemvalue="Application.LWJGL Universal" />
+      <item itemvalue="Application.JOGL Direct" />
+      <item itemvalue="Application.JOGL Universal" />
+      <item itemvalue="Kotlin.InteropKt" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Kotlin.InteropKt" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="d39d0143-d2aa-4261-8506-35cd0ece831b" name="Changes" comment="" />
+      <created>1651570399635</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1651570399635</updated>
+      <workItem from="1651570401453" duration="7558000" />
+      <workItem from="1651582892718" duration="2620000" />
+      <workItem from="1652012705747" duration="4211000" />
+      <workItem from="1652017173984" duration="1126000" />
+      <workItem from="1652024112115" duration="13357000" />
+      <workItem from="1652090728279" duration="10167000" />
+      <workItem from="1652108735809" duration="591000" />
+      <workItem from="1652177900162" duration="20387000" />
+      <workItem from="1652245270621" duration="24073000" />
+      <workItem from="1652343656707" duration="14828000" />
+      <workItem from="1652457657674" duration="1938000" />
+      <workItem from="1652514818953" duration="4675000" />
+    </task>
+    <task id="LOCAL-00001" summary="Added JavaFX events">
+      <created>1651573350041</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1651573350041</updated>
+    </task>
+    <task id="LOCAL-00002" summary="New DirtyBits for node repainting">
+      <created>1651575188314</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1651575188314</updated>
+    </task>
+    <task id="LOCAL-00003" summary="New Timer (Animator), Freeze in direct mode fix">
+      <created>1651576910478</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1651576910478</updated>
+    </task>
+    <task id="LOCAL-00004" summary="New version in build script">
+      <created>1651577064069</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1651577064069</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Swapped FPS and Delta fix">
+      <created>1651583090842</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1651583090842</updated>
+    </task>
+    <task id="LOCAL-00006" summary="New version in build script">
+      <created>1651583159274</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1651583159274</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Some fixes">
+      <created>1652016192935</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1652016192935</updated>
+    </task>
+    <task id="LOCAL-00008" summary="New version in build script">
+      <created>1652016232675</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1652016232675</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Destroy on closing fix">
+      <created>1652031929950</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1652031929950</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Buffer memory utilization, FBO in universal render">
+      <created>1652108186814</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1652108186814</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Added macOS main thread dispatcher">
+      <created>1652180198558</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1652180198558</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Some fixes">
+      <created>1652209597286</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1652209597286</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Added depth test in Direct node">
+      <created>1652245431779</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1652245431779</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Returned depth buffer to Universal render, JOGL events">
+      <created>1652281350999</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1652281350999</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Custom context creation, Added rendering using shared contexts">
+      <created>1652288746018</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1652288746018</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Added LWJGL natives for target platform">
+      <created>1652290899482</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1652290899482</updated>
+    </task>
+    <task id="LOCAL-00017" summary="Some fixes">
+      <created>1652522859606</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1652522859606</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Added JavaFX events" />
+    <MESSAGE value="New DirtyBits for node repainting" />
+    <MESSAGE value="New Timer (Animator), Freeze in direct mode fix" />
+    <MESSAGE value="Swapped FPS and Delta fix" />
+    <MESSAGE value="New version in build script" />
+    <MESSAGE value="Destroy on closing fix" />
+    <MESSAGE value="Buffer memory utilization, FBO in universal render" />
+    <MESSAGE value="Added macOS main thread dispatcher" />
+    <MESSAGE value="Added depth test in Direct node" />
+    <MESSAGE value="Returned depth buffer to Universal render, JOGL events" />
+    <MESSAGE value="Custom context creation, Added rendering using shared contexts" />
+    <MESSAGE value="Added LWJGL natives for target platform" />
+    <MESSAGE value="Some fixes" />
+    <option name="LAST_COMMIT_MESSAGE" value="Some fixes" />
+  </component>
+</project>
