@@ -53,15 +53,17 @@ abstract class GLContext {
                 }
             }
             if(PlatformUtil.isMac()){
-                val pix = PointerBuffer.allocateDirect(1)
-                val num = intArrayOf(0)
-                val context = PointerBuffer.allocateDirect(1)
+                val pix = PointerBuffer.allocateDirect(Long.SIZE_BYTES)
+                val num = intArrayOf(1)
+                val context = PointerBuffer.allocateDirect(Long.SIZE_BYTES)
 
                 CGLChoosePixelFormat(intArrayOf(kCGLPFAAccelerated, kCGLPFAOpenGLProfile, kCGLOGLPVersion_Legacy, 0), pix, num)
-                CGLCreateContext(pix.address(), 0, context)
-                CGLDestroyPixelFormat(pix.address())
 
-                return CGLContext(context.address())
+                val pixelFormat = pix.get()
+                CGLCreateContext(pixelFormat, 0, context)
+                CGLDestroyPixelFormat(pixelFormat)
+
+                return CGLContext(context.get())
             }
 
             throw UnsupportedOperationException("Unsupported OS")
@@ -77,15 +79,12 @@ abstract class GLContext {
             }
             if(PlatformUtil.isMac()){
                 shareWith as CGLContext
-                val pix = PointerBuffer.allocateDirect(Long.SIZE_BYTES)
-                val num = intArrayOf(1)
+
                 val context = PointerBuffer.allocateDirect(Long.SIZE_BYTES)
+                val pixelFormat = CGLGetPixelFormat(shareWith.context)
 
-                //println("CGLChoosePixelFormat: " + CGLChoosePixelFormat(intArrayOf(kCGLPFAAccelerated, kCGLPFAOpenGLProfile, kCGLOGLPVersion_3_2_Core, 0), pix, num))
-
-                val pixObj = CGLGetPixelFormat(shareWith.context)
-                println("CGLCreateContext: " + CGLCreateContext(pixObj, shareWith.context, context))
-                println("CGLDestroyPixelFormat: " + CGLDestroyPixelFormat(pixObj))
+                CGLCreateContext(pixelFormat, shareWith.context, context)
+                CGLDestroyPixelFormat(pixelFormat)
 
                 return CGLContext(context.get())
             }

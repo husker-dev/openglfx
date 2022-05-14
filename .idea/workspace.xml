@@ -4,11 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d39d0143-d2aa-4261-8506-35cd0ece831b" name="Changes" comment="Debug info">
+    <list default="true" id="d39d0143-d2aa-4261-8506-35cd0ece831b" name="Changes" comment="Some fixes">
       <change afterPath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/utils/D3DSharedTexture.kt" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/core/src/main/resources/com/huskerdev/openglfx/utils/openglfx.dll" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/lwjgl/src/examples/kotlin/Interop.kt" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/lwjgl/src/main/kotlin/com/huskerdev/openglfx/lwjgl/interop/LWJGLInterop.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lwjgl/src/main/kotlin/com/huskerdev/openglfx/lwjgl/shared/LWJGLShared.kt" beforeDir="false" afterPath="$PROJECT_DIR$/lwjgl/src/main/kotlin/com/huskerdev/openglfx/lwjgl/shared/LWJGLShared.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lwjgl/src/main/kotlin/com/huskerdev/openglfx/lwjgl/utils/GLContext.kt" beforeDir="false" afterPath="$PROJECT_DIR$/lwjgl/src/main/kotlin/com/huskerdev/openglfx/lwjgl/utils/GLContext.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -172,7 +175,7 @@
       <recent name="com.huskerdev.openglfx.events" />
     </key>
   </component>
-  <component name="RunManager" selected="Kotlin.InteropKt">
+  <component name="RunManager" selected="Application.JOGL Universal">
     <configuration name="JOGL Direct" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="DirectKt" />
       <module name="openglfx.jogl.examples" />
@@ -203,7 +206,6 @@
     </configuration>
     <configuration name="LWJGL Universal" type="Application" factoryName="Application">
       <option name="ALTERNATIVE_JRE_PATH" value="openjdk-17" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
       <option name="MAIN_CLASS_NAME" value="UniversalKt" />
       <module name="openglfx.lwjgl.examples" />
       <method v="2">
@@ -251,7 +253,7 @@
       <workItem from="1652245270621" duration="24073000" />
       <workItem from="1652343656707" duration="14828000" />
       <workItem from="1652457657674" duration="1938000" />
-      <workItem from="1652514818953" duration="17670000" />
+      <workItem from="1652514818953" duration="19514000" />
     </task>
     <task id="LOCAL-00001" summary="Added JavaFX events">
       <created>1651573350041</created>
@@ -421,7 +423,14 @@
       <option name="project" value="LOCAL" />
       <updated>1652540600735</updated>
     </task>
-    <option name="localTasksCounter" value="25" />
+    <task id="LOCAL-00025" summary="Debug info">
+      <created>1652541245881</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1652541245881</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -451,8 +460,8 @@
     <MESSAGE value="Returned depth buffer to Universal render, JOGL events" />
     <MESSAGE value="Custom context creation, Added rendering using shared contexts" />
     <MESSAGE value="Added LWJGL natives for target platform" />
-    <MESSAGE value="Some fixes" />
     <MESSAGE value="Debug info" />
-    <option name="LAST_COMMIT_MESSAGE" value="Debug info" />
+    <MESSAGE value="Some fixes" />
+    <option name="LAST_COMMIT_MESSAGE" value="Some fixes" />
   </component>
 </project>

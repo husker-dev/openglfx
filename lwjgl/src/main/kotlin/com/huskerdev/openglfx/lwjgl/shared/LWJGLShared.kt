@@ -11,7 +11,6 @@ import com.sun.prism.Texture
 import javafx.animation.AnimationTimer
 import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL30.*
-import org.lwjgl.opengl.GL43.glCopyImageSubData
 import java.util.concurrent.atomic.AtomicBoolean
 
 class LWJGLShared: LWJGLCanvas() {
@@ -27,7 +26,6 @@ class LWJGLShared: LWJGLCanvas() {
     private var depthBuffer = -1
 
     private var fxTexture: RTTexture? = null
-    private var fxTextureId = -1
 
     private var needsRepaint = AtomicBoolean(false)
 
@@ -49,21 +47,19 @@ class LWJGLShared: LWJGLCanvas() {
     }
 
     private fun updateFramebufferSize() {
-        if(texture != -1)
-            glDeleteTextures(texture)
         if(fbo != -1)
             glDeleteFramebuffers(fbo)
         if(depthBuffer != -1)
             glDeleteRenderbuffers(depthBuffer)
 
-        texture = glGenTextures()
-        glBindTexture(GL_TEXTURE_2D, texture)
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, lastSize.first, lastSize.second, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+        fxTexture?.dispose()
+        fxTexture = GraphicsPipeline.getDefaultResourceFactory().createRTTexture(lastSize.first, lastSize.second, Texture.WrapMode.CLAMP_TO_ZERO, false)
+
+        texture = getTextureId(fxTexture!!)
 
         fbo = glGenFramebuffers()
         glBindFramebuffer(GL_FRAMEBUFFER, fbo)
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0)
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this.texture, 0)
 
         depthBuffer = glGenRenderbuffers()
         glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer)
@@ -81,12 +77,12 @@ class LWJGLShared: LWJGLCanvas() {
             GLContext.clearCurrent()
         }
 
-        // Draw to secondary context
+        // Draw to our context
         context!!.makeCurrent()
         if(scaledWidth.toInt() != lastSize.first || scaledHeight.toInt() != lastSize.second){
             lastSize = Pair(scaledWidth.toInt(), scaledHeight.toInt())
-            updateFramebufferSize()
 
+            updateFramebufferSize()
             fireReshapeEvent(lastSize.first, lastSize.second)
         }
         glViewport(0, 0, lastSize.first, lastSize.second)
@@ -94,32 +90,17 @@ class LWJGLShared: LWJGLCanvas() {
         glFinish()
         fxContext!!.makeCurrent()
 
-        if(fxTexture == null || fxTexture!!.contentWidth != lastSize.first || fxTexture!!.contentHeight != lastSize.second){
-            fxTexture?.dispose()
-
-            fxTexture = GraphicsPipeline.getDefaultResourceFactory().createRTTexture(lastSize.first, lastSize.second, Texture.WrapMode.CLAMP_TO_ZERO, false)
-            fxTexture!!.contentsUseful()
-
-            fxTextureId = getTextureId(fxTexture!!)
-        }
-
-        glCopyImageSubData(
-            texture, GL_TEXTURE_2D, 0, 0, 0, 0,
-            fxTextureId, GL_TEXTURE_2D, 0, 0, 0, 0,
-            lastSize.first, lastSize.second, 1
-        )
-
         if(!fxTexture!!.isLocked)
             fxTexture!!.lock()
         g.drawTexture(fxTexture, 0f, 0f, width.toFloat() + 0.5f, height.toFloat() + 0.5f, 0.0f, 0.0f, scaledWidth.toFloat(), scaledHeight.toFloat())
         fxTexture!!.unlock()
     }
 
-    private fun getTextureId(texture: RTTexture): Int{
-        val resource = Class.forName("com.sun.prism.impl.BaseTexture").getDeclaredField("resource").apply { isAccessible = true }[texture]
-        val data = resource::class.java.superclass.superclass.getDeclaredMethod("getResource").apply { isAccessible = true }.invoke(resource)
-        return data::class.java.superclass.getDeclaredField("texID").apply { isAccessible = true }[data] as Int
-    }
+    private fun getTextureId(texture: RTTexture) =
+        Class.forName("com.sun.prism.es2.ES2RTTexture")
+            .getMethod("getNativeSourceHandle")
+            .apply { isAccessible = true }
+            .invoke(texture) as Int
 
     override fun repaint() {
         needsRepaint.set(true)
