@@ -253,7 +253,7 @@
       <workItem from="1652245270621" duration="24073000" />
       <workItem from="1652343656707" duration="14828000" />
       <workItem from="1652457657674" duration="1938000" />
-      <workItem from="1652514818953" duration="14156000" />
+      <workItem from="1652514818953" duration="15467000" />
     </task>
     <task id="LOCAL-00001" summary="Added JavaFX events">
       <created>1651573350041</created>
@@ -395,7 +395,14 @@
       <option name="project" value="LOCAL" />
       <updated>1652536807907</updated>
     </task>
-    <option name="localTasksCounter" value="21" />
+    <task id="LOCAL-00021" summary="Debug info">
+      <created>1652537518138</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1652537518138</updated>
+    </task>
+    <option name="localTasksCounter" value="22" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
