@@ -82,18 +82,10 @@ abstract class GLContext {
                 val context = PointerBuffer.allocateDirect(Long.SIZE_BYTES)
 
                 println("CGLChoosePixelFormat: " + CGLChoosePixelFormat(intArrayOf(kCGLPFAAccelerated, kCGLPFAOpenGLProfile, kCGLOGLPVersion_3_2_Core, 0), pix, num))
-                println("pix: $pix")
-                println("pix.address: ${pix.address()}")
-                println("num: ${num[0]}")
 
                 val pixObj = pix.get()
-                println("pix.get: $pixObj")
-
-                CGLCreateContext(pixObj, shareWith.context, context)
-                CGLDestroyPixelFormat(pixObj)
-
-                println("context: $context")
-                println("context.address: ${context.address()}")
+                println("CGLCreateContext: " + CGLCreateContext(pixObj, shareWith.context, context))
+                println("CGLDestroyPixelFormat: " + CGLDestroyPixelFormat(pixObj))
 
                 return CGLContext(context.get())
             }
@@ -157,7 +149,7 @@ abstract class GLContext {
     ): GLContext() {
 
         override fun makeCurrent() {
-            CGLSetCurrentContext(context)
+            println("CGLSetCurrentContext: " + CGLSetCurrentContext(context))
         }
     }
 
