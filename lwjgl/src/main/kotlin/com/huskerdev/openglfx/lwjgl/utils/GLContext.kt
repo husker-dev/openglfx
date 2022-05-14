@@ -81,9 +81,9 @@ abstract class GLContext {
                 val num = intArrayOf(1)
                 val context = PointerBuffer.allocateDirect(Long.SIZE_BYTES)
 
-                println("CGLChoosePixelFormat: " + CGLChoosePixelFormat(intArrayOf(kCGLPFAAccelerated, kCGLPFAOpenGLProfile, kCGLOGLPVersion_3_2_Core, 0), pix, num))
+                //println("CGLChoosePixelFormat: " + CGLChoosePixelFormat(intArrayOf(kCGLPFAAccelerated, kCGLPFAOpenGLProfile, kCGLOGLPVersion_3_2_Core, 0), pix, num))
 
-                val pixObj = pix.get()
+                val pixObj = CGLGetPixelFormat(shareWith.context)
                 println("CGLCreateContext: " + CGLCreateContext(pixObj, shareWith.context, context))
                 println("CGLDestroyPixelFormat: " + CGLDestroyPixelFormat(pixObj))
 

@@ -9,8 +9,6 @@
       <change afterPath="$PROJECT_DIR$/core/src/main/resources/com/huskerdev/openglfx/utils/openglfx.dll" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/lwjgl/src/examples/kotlin/Interop.kt" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/lwjgl/src/main/kotlin/com/huskerdev/openglfx/lwjgl/interop/LWJGLInterop.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lwjgl/src/main/kotlin/com/huskerdev/openglfx/lwjgl/utils/GLContext.kt" beforeDir="false" afterPath="$PROJECT_DIR$/lwjgl/src/main/kotlin/com/huskerdev/openglfx/lwjgl/utils/GLContext.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -253,7 +251,7 @@
       <workItem from="1652245270621" duration="24073000" />
       <workItem from="1652343656707" duration="14828000" />
       <workItem from="1652457657674" duration="1938000" />
-      <workItem from="1652514818953" duration="17207000" />
+      <workItem from="1652514818953" duration="17670000" />
     </task>
     <task id="LOCAL-00001" summary="Added JavaFX events">
       <created>1651573350041</created>
@@ -416,7 +414,14 @@
       <option name="project" value="LOCAL" />
       <updated>1652539871374</updated>
     </task>
-    <option name="localTasksCounter" value="24" />
+    <task id="LOCAL-00024" summary="Debug info">
+      <created>1652540600734</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1652540600735</updated>
+    </task>
+    <option name="localTasksCounter" value="25" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
