@@ -82,10 +82,10 @@ abstract class GLContext {
                 val context = PointerBuffer.allocateDirect(1)
 
                 CGLChoosePixelFormat(intArrayOf(kCGLPFAAccelerated, kCGLPFAOpenGLProfile, kCGLOGLPVersion_3_2_Core, 0), pix, num)
-                CGLCreateContext(pix.address(), shareWith.context, context)
-                CGLDestroyPixelFormat(pix.address())
+                CGLCreateContext(pix.get(), shareWith.context, context)
+                CGLDestroyPixelFormat(pix.get())
 
-                return CGLContext(context.address())
+                return CGLContext(context.get())
             }
             if(PlatformUtil.isLinux()){
                 shareWith as GLXContext
