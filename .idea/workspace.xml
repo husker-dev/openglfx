@@ -5,11 +5,27 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d39d0143-d2aa-4261-8506-35cd0ece831b" name="Changes" comment="Some fixes">
-      <change afterPath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/utils/D3DSharedTexture.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/src/main/resources/com/huskerdev/openglfx/utils/openglfx.dll" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/utils/d3d9/D3D9Device.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/utils/d3d9/D3D9Texture.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/utils/d3d9/D3D9Utils.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/src/main/native/openglfx/openglfx.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/src/main/native/openglfx/openglfx.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/src/main/native/openglfx/openglfx.sln" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/src/main/native/openglfx/openglfx.vcxproj" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/src/main/native/openglfx/openglfx.vcxproj.filters" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/src/main/native/openglfx/openglfx.vcxproj.user" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/src/main/native/openglfx/wgl.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/src/main/native/vswhere.exe" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/src/main/resources/com/huskerdev/openglfx/natives/openglfx_arm64.dll" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/src/main/resources/com/huskerdev/openglfx/natives/openglfx_x64.dll" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/src/main/resources/com/huskerdev/openglfx/natives/openglfx_x86.dll" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/lwjgl/src/examples/kotlin/Interop.kt" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/lwjgl/src/main/kotlin/com/huskerdev/openglfx/lwjgl/interop/LWJGLInterop.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/core/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/utils/OpenGLFXUtils.kt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/utils/OpenGLFXUtils.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lwjgl/src/examples/kotlin/Shared.kt" beforeDir="false" afterPath="$PROJECT_DIR$/lwjgl/src/examples/kotlin/Shared.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lwjgl/src/main/kotlin/com/huskerdev/openglfx/lwjgl/shared/LWJGLShared.kt" beforeDir="false" afterPath="$PROJECT_DIR$/lwjgl/src/main/kotlin/com/huskerdev/openglfx/lwjgl/shared/LWJGLShared.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lwjgl/src/main/kotlin/com/huskerdev/openglfx/lwjgl/utils/GLContext.kt" beforeDir="false" afterPath="$PROJECT_DIR$/lwjgl/src/main/kotlin/com/huskerdev/openglfx/lwjgl/utils/GLContext.kt" afterDir="false" />
     </list>
@@ -54,68 +70,31 @@
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="openglfx" type="f1a62948:ProjectNode" />
                 <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="build" type="c8890929:TasksNode$1" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="openglfx" type="f1a62948:ProjectNode" />
-                <item name="core" type="2d1252cf:ModuleNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="openglfx" type="f1a62948:ProjectNode" />
-                <item name="core" type="2d1252cf:ModuleNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="openglfx" type="f1a62948:ProjectNode" />
-                <item name="core" type="2d1252cf:ModuleNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="build" type="c8890929:TasksNode$1" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="openglfx" type="f1a62948:ProjectNode" />
-                <item name="jogl" type="2d1252cf:ModuleNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="openglfx" type="f1a62948:ProjectNode" />
-                <item name="jogl" type="2d1252cf:ModuleNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="openglfx" type="f1a62948:ProjectNode" />
-                <item name="jogl" type="2d1252cf:ModuleNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="build" type="c8890929:TasksNode$1" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="openglfx" type="f1a62948:ProjectNode" />
-                <item name="lwjgl" type="2d1252cf:ModuleNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="openglfx" type="f1a62948:ProjectNode" />
-                <item name="lwjgl" type="2d1252cf:ModuleNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="openglfx" type="f1a62948:ProjectNode" />
-                <item name="lwjgl" type="2d1252cf:ModuleNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="build" type="c8890929:TasksNode$1" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="openglfx" type="f1a62948:ProjectNode" />
-                <item name="lwjgl" type="2d1252cf:ModuleNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
                 <item name="other" type="c8890929:TasksNode$1" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="openglfx" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="release" type="c8890929:TasksNode$1" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="openglfx" type="f1a62948:ProjectNode" />
+                <item name="core" type="2d1252cf:ModuleNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="openglfx" type="f1a62948:ProjectNode" />
+                <item name="core" type="2d1252cf:ModuleNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="openglfx" type="f1a62948:ProjectNode" />
+                <item name="core" type="2d1252cf:ModuleNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="build" type="c8890929:TasksNode$1" />
               </path>
             </expand>
             <select />
@@ -155,18 +134,20 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/lwjgl/src/main/kotlin" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/core/src/main/native" />
     <property name="project.structure.last.edited" value="Project" />
     <property name="project.structure.proportion" value="0.0" />
     <property name="project.structure.side.proportion" value="0.0" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\redfa\Desktop\openglfx\core\src\main\native" />
       <recent name="C:\Users\redfa\Desktop\openglfx\lwjgl\src\main\kotlin" />
       <recent name="C:\Users\redfa\Desktop\openglfx\core\src\main\resources\com\huskerdev\openglfx\utils" />
       <recent name="C:\Users\redfa\Desktop\openglfx\jogl\src\examples\kotlin" />
     </key>
     <key name="MoveKotlinTopLevelDeclarationsDialog.RECENTS_KEY">
+      <recent name="com.huskerdev.openglfx.utils.d3d9" />
       <recent name="com.huskerdev.openglfx.utils" />
       <recent name="com.huskerdev.openglfx.lwjgl.utils" />
       <recent name="com.huskerdev.openglfx.lwjgl.shared" />
@@ -175,7 +156,7 @@
       <recent name="com.huskerdev.openglfx.events" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.JOGL Universal">
+  <component name="RunManager" selected="Gradle.openglfx [compileJar]">
     <configuration name="JOGL Direct" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="DirectKt" />
       <module name="openglfx.jogl.examples" />
@@ -197,6 +178,13 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="LWJGL Interop" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="InteropKt" />
+      <module name="openglfx.lwjgl.examples" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="LWJGL Shared" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="SharedKt" />
       <module name="openglfx.lwjgl.examples" />
@@ -212,25 +200,39 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="InteropKt" type="JetRunConfigurationType" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="InteropKt" />
-      <module name="openglfx.lwjgl.examples" />
-      <shortenClasspath name="NONE" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
+    <configuration name="openglfx [compileJar]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="compileJar" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <method v="2" />
     </configuration>
     <list>
+      <item itemvalue="Application.LWJGL Interop" />
       <item itemvalue="Application.LWJGL Shared" />
       <item itemvalue="Application.LWJGL Direct" />
       <item itemvalue="Application.LWJGL Universal" />
       <item itemvalue="Application.JOGL Direct" />
       <item itemvalue="Application.JOGL Universal" />
-      <item itemvalue="Kotlin.InteropKt" />
+      <item itemvalue="Gradle.openglfx [compileJar]" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Kotlin.InteropKt" />
+        <item itemvalue="Gradle.openglfx [compileJar]" />
       </list>
     </recent_temporary>
   </component>
@@ -253,7 +255,9 @@
       <workItem from="1652245270621" duration="24073000" />
       <workItem from="1652343656707" duration="14828000" />
       <workItem from="1652457657674" duration="1938000" />
-      <workItem from="1652514818953" duration="19514000" />
+      <workItem from="1652514818953" duration="31512000" />
+      <workItem from="1652605646424" duration="14608000" />
+      <workItem from="1652626361017" duration="4218000" />
     </task>
     <task id="LOCAL-00001" summary="Added JavaFX events">
       <created>1651573350041</created>
@@ -430,7 +434,14 @@
       <option name="project" value="LOCAL" />
       <updated>1652541245881</updated>
     </task>
-    <option name="localTasksCounter" value="26" />
+    <task id="LOCAL-00026" summary="Some fixes">
+      <created>1652550220269</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1652550220269</updated>
+    </task>
+    <option name="localTasksCounter" value="27" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

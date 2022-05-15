@@ -119,11 +119,11 @@ abstract class GLContext {
                 GLXContext(glXGetCurrentDisplay(), glXGetCurrentContext())
             else throw UnsupportedOperationException("Unsupported OS")
 
-        fun clearCurrent(){
-            if(PlatformUtil.isWindows())
+        fun clearCurrent(): Boolean{
+            return if(PlatformUtil.isWindows())
                 wglMakeCurrent(0, 0)
             else if(PlatformUtil.isMac())
-                CGLSetCurrentContext(0)
+                CGLSetCurrentContext(0) == 0
             else if(PlatformUtil.isLinux())
                 glXMakeCurrent(0, 0, 0)
             else throw UnsupportedOperationException("Unsupported OS")
@@ -131,34 +131,25 @@ abstract class GLContext {
 
     }
 
-    abstract fun makeCurrent()
+    abstract fun makeCurrent(): Boolean
 
     class WGLContext(
         val rc: Long,
         val dc: Long
     ): GLContext() {
-
-        override fun makeCurrent() {
-            wglMakeCurrent(dc, rc)
-        }
+        override fun makeCurrent() = wglMakeCurrent(dc, rc)
     }
 
     class CGLContext(
         val context: Long,
     ): GLContext() {
-
-        override fun makeCurrent() {
-            println("CGLSetCurrentContext: " + CGLSetCurrentContext(context))
-        }
+        override fun makeCurrent() = CGLSetCurrentContext(context) == 0
     }
 
     class GLXContext(
         val display: Long,
         val context: Long,
     ): GLContext() {
-
-        override fun makeCurrent() {
-            glXMakeCurrent(display, 0, context)
-        }
+        override fun makeCurrent() = glXMakeCurrent(display, 0, context)
     }
 }

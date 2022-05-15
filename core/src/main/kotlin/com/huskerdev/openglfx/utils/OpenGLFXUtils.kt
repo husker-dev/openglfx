@@ -47,5 +47,18 @@ class OpenGLFXUtils {
             if(notifier != null)
                 synchronized(notifier!!) { notifier!!.wait() }
         }
+
+        private val arch = System.getProperty("os.arch")
+        val arm64 = arch.startsWith("aarch64") || arch.startsWith("armv8")
+        val arm32 = arch.startsWith("arm") && !arm64
+        val x64 = arch.contains("64") && !arm32 && !arm64
+        val x86 = !x64 && !arm32 && !arm64
+
+        val archName: String
+            get() = if(arm64) "arm64"
+                else if(arm32) "arm32"
+                else if(x64) "x64"
+                else if(x86) "x86"
+                else throw UnsupportedOperationException("Unsupported OS architecture")
     }
 }

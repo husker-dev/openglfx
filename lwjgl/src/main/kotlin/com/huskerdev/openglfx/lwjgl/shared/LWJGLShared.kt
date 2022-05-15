@@ -73,8 +73,6 @@ class LWJGLShared: LWJGLCanvas() {
 
             fxContext = GLContext.fromCurrent()
             context = GLContext.createNew(fxContext!!)
-
-            GLContext.clearCurrent()
         }
 
         // Draw to our context
