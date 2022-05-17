@@ -9,7 +9,10 @@ import com.jogamp.opengl.GLProfile
 import javafx.event.EventType
 import jogamp.opengl.GLDrawableFactoryImpl
 
-class JOGLUniversalCanvas(executor: GLExecutor): UniversalGLCanvas(executor){
+class JOGLUniversalCanvas(
+    executor: GLExecutor,
+    profile: Int
+): UniversalGLCanvas(executor, profile){
 
     var gl: GL2? = null
         get() {
@@ -31,7 +34,10 @@ class JOGLUniversalCanvas(executor: GLExecutor): UniversalGLCanvas(executor){
         super.dispatchDisposeEvent(JOGLDisposeEvent(gl!!, event.eventType as EventType<GLDisposeEvent>))
 }
 
-class JOGLSharedCanvas(executor: GLExecutor): SharedGLCanvas(executor){
+class JOGLSharedCanvas(
+    executor: GLExecutor,
+    profile: Int
+): SharedGLCanvas(executor, profile){
 
     var gl: GL2? = null
         get() {
@@ -53,7 +59,10 @@ class JOGLSharedCanvas(executor: GLExecutor): SharedGLCanvas(executor){
         super.dispatchDisposeEvent(JOGLDisposeEvent(gl!!, event.eventType as EventType<GLDisposeEvent>))
 }
 
-class JOGLInteropCanvas(executor: GLExecutor): InteropGLCanvas(executor){
+class JOGLInteropCanvas(
+    executor: GLExecutor,
+    profile: Int
+): InteropGLCanvas(executor, profile){
 
     var gl: GL2? = null
         get() {

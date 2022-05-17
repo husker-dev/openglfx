@@ -20,8 +20,10 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
 open class UniversalGLCanvas(
-    private val executor: GLExecutor
-) : OpenGLCanvas(){
+    private val executor: GLExecutor,
+    profile: Int
+) : OpenGLCanvas(profile){
+
     private val removedBuffers = arrayListOf<Pair<ByteBuffer, Long>>()
 
     private var bufferUpdateRequired = false
@@ -46,7 +48,7 @@ open class UniversalGLCanvas(
 
     init{
         thread(isDaemon = true){
-            GLContext.createNew(executor).makeCurrent()
+            GLContext.createNew(executor, profile).makeCurrent()
             executor.initGLFunctions()
 
             while(true){
@@ -70,7 +72,6 @@ open class UniversalGLCanvas(
                 synchronized(repaintLock) { repaintLock.wait() }
             }
         }
-
 
         visibleProperty().addListener { _, _, _ -> repaint() }
         widthProperty().addListener { _, _, _ -> repaint() }

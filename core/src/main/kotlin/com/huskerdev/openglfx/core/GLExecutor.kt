@@ -20,17 +20,15 @@ const val GL_NEAREST = 0x2600
 const val kCGLPFAAccelerated = 73
 const val kCGLPFAOpenGLProfile = 99
 const val kCGLOGLPVersion_Legacy = 0x1000
+const val kCGLOGLPVersion_3_2_Core = 0x3200
 
 const val WGL_ACCESS_WRITE_DISCARD_NV = 0x2
 
 abstract class GLExecutor {
 
-    open val universalCanvas
-        get() = UniversalGLCanvas(this)
-    open val sharedCanvas
-        get() = SharedGLCanvas(this)
-    open val interopCanvas
-        get() = InteropGLCanvas(this)
+    open fun universalCanvas(profile: Int) = UniversalGLCanvas(this, profile)
+    open fun sharedCanvas(profile: Int) = SharedGLCanvas(this, profile)
+    open fun interopCanvas(profile: Int) = InteropGLCanvas(this, profile)
 
     abstract fun initGLFunctions()
     abstract fun createNativeObject(): NativeObject

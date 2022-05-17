@@ -19,8 +19,9 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 
 open class InteropGLCanvas(
-    private val executor: GLExecutor
-) : OpenGLCanvas(){
+    private val executor: GLExecutor,
+    profile: Int
+) : OpenGLCanvas(profile){
 
     companion object {
 
@@ -73,7 +74,7 @@ open class InteropGLCanvas(
         if(!initialized){
             initialized = true
 
-            context = GLContext.createNew(executor)
+            context = GLContext.createNew(executor, profile)
             context!!.makeCurrent()
             executor.initGLFunctions()
 

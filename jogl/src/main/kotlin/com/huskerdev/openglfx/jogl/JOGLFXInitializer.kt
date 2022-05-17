@@ -47,12 +47,9 @@ class JOGLExecutor: GLExecutor() {
 
     private val buffer = intArrayOf(0)
 
-    override val universalCanvas: UniversalGLCanvas
-        get() = JOGLUniversalCanvas(this)
-    override val sharedCanvas: SharedGLCanvas
-        get() = JOGLSharedCanvas(this)
-    override val interopCanvas: InteropGLCanvas
-        get() = JOGLInteropCanvas(this)
+    override fun universalCanvas(profile: Int) = JOGLUniversalCanvas(this, profile)
+    override fun sharedCanvas(profile: Int) = JOGLSharedCanvas(this, profile)
+    override fun interopCanvas(profile: Int) = JOGLInteropCanvas(this, profile)
 
     private fun createPointer(ptr: Long): PointerBuffer{
         val buffer = ByteBuffer.allocateDirect(0).order(ByteOrder.nativeOrder())

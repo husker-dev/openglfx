@@ -7,8 +7,6 @@ class D3D9Device(val handle: Long) {
 
     companion object {
 
-
-
         val fxDevice: D3D9Device by lazy {
             val pipeline = GraphicsPipeline.getPipeline()
             val resourceFactory = (pipeline::class.java.getDeclaredField("factories").apply { isAccessible = true }[pipeline] as Array<*>)[0]!!

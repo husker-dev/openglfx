@@ -1,5 +1,6 @@
 package com.huskerdev.openglfx.core
 
+import com.huskerdev.openglfx.CORE_PROFILE
 import com.huskerdev.openglfx.utils.WinUtils
 import com.sun.javafx.PlatformUtil
 
@@ -8,7 +9,7 @@ abstract class GLContext(
 ) {
 
     companion object {
-        fun createNew(executor: GLExecutor): GLContext = executor.run {
+        fun createNew(executor: GLExecutor, profile: Int): GLContext = executor.run {
             if(PlatformUtil.isWindows()){
                 val dc = WinUtils.createDummyGLWindow()
                 val rc = wglCreateContext(dc)
@@ -20,7 +21,8 @@ abstract class GLContext(
                 val num = intArrayOf(1)
                 val context = executor.createNativeObject()
 
-                CGLChoosePixelFormat(intArrayOf(kCGLPFAAccelerated, kCGLPFAOpenGLProfile, kCGLOGLPVersion_Legacy, 0), pix.address, num)
+                val version = if(profile == CORE_PROFILE) kCGLOGLPVersion_3_2_Core else kCGLOGLPVersion_Legacy
+                CGLChoosePixelFormat(intArrayOf(kCGLPFAAccelerated, kCGLPFAOpenGLProfile, version, 0), pix.address, num)
 
                 val pixelFormat = pix.value
                 CGLCreateContext(pixelFormat, 0, context.address)
@@ -31,7 +33,7 @@ abstract class GLContext(
             throw UnsupportedOperationException("Unsupported OS")
         }
 
-        fun createNew(executor: GLExecutor, shareWith: GLContext): GLContext = executor.run {
+        fun createNew(executor: GLExecutor, profile: Int, shareWith: GLContext): GLContext = executor.run {
             if(PlatformUtil.isWindows()){
                 shareWith as WGLContext
                 val rc = wglCreateContext(shareWith.dc)
@@ -41,10 +43,14 @@ abstract class GLContext(
             }
             if(PlatformUtil.isMac()){
                 shareWith as CGLContext
-
+                val pix = executor.createNativeObject()
+                val num = intArrayOf(1)
                 val context = executor.createNativeObject()
-                val pixelFormat = CGLGetPixelFormat(shareWith.context)
 
+                val version = if(profile == CORE_PROFILE) kCGLOGLPVersion_3_2_Core else kCGLOGLPVersion_Legacy
+                CGLChoosePixelFormat(intArrayOf(kCGLPFAAccelerated, kCGLPFAOpenGLProfile, version, 0), pix.address, num)
+
+                val pixelFormat = pix.value
                 CGLCreateContext(pixelFormat, shareWith.context, context.address)
                 CGLDestroyPixelFormat(pixelFormat)
 

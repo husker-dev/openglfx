@@ -10,8 +10,9 @@ import javafx.animation.AnimationTimer
 import java.util.concurrent.atomic.AtomicBoolean
 
 open class SharedGLCanvas(
-    private val executor: GLExecutor
-): OpenGLCanvas(){
+    private val executor: GLExecutor,
+    profile: Int
+): OpenGLCanvas(profile){
 
     private var lastSize = Pair(-1, -1)
 
@@ -47,7 +48,7 @@ open class SharedGLCanvas(
                 executor.initGLFunctions()
 
                 fxContext = GLContext.fromCurrent(executor)
-                context = GLContext.createNew(executor, fxContext!!)
+                context = GLContext.createNew(executor, profile, fxContext!!)
             }
 
             context!!.makeCurrent()

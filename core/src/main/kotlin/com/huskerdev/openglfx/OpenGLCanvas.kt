@@ -19,8 +19,12 @@ import com.sun.prism.Texture
 import javafx.scene.layout.Pane
 import java.util.function.Consumer
 
+const val CORE_PROFILE = 0
+const val COMPATIBILITY_PROFILE = 1
 
-abstract class OpenGLCanvas: Pane() {
+abstract class OpenGLCanvas(
+    val profile: Int
+): Pane() {
 
     companion object {
 
@@ -32,15 +36,16 @@ abstract class OpenGLCanvas: Pane() {
             })
         }
 
+        @JvmOverloads
         @JvmStatic
-        fun create(executor: GLExecutor): OpenGLCanvas {
+        fun create(executor: GLExecutor, profile: Int = COMPATIBILITY_PROFILE): OpenGLCanvas {
             return if(forceUniversal)
-                executor.universalCanvas
+                executor.universalCanvas(profile)
             else when (OpenGLFXUtils.pipelineName) {
-                "es2" -> executor.sharedCanvas
+                "es2" -> executor.sharedCanvas(profile)
                 "d3d" -> if(executor.hasWGLDX())
-                    executor.interopCanvas else executor.universalCanvas
-                else -> executor.universalCanvas
+                    executor.interopCanvas(profile) else executor.universalCanvas(profile)
+                else -> executor.universalCanvas(profile)
             }
         }
     }
