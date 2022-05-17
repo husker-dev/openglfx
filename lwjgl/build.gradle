@@ -34,6 +34,15 @@ sourceSets{
     }
 }
 
+jar {
+    manifest {
+        attributes 'Main-Class': 'UniversalKt'
+    }
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
 dependencies {
     implementation project(':core')
     implementation "org.jetbrains.kotlin:kotlin-stdlib"

@@ -1,12 +1,13 @@
-package com.huskerdev.openglfx.lwjgl.interop
+package com.huskerdev.openglfx.core.impl
 
-import com.huskerdev.openglfx.lwjgl.LWJGLCanvas
-import com.huskerdev.openglfx.lwjgl.utils.GLContext
-import com.huskerdev.openglfx.utils.OpenGLFXUtils
-import com.huskerdev.openglfx.utils.d3d9.D3D9Device
-import com.huskerdev.openglfx.utils.d3d9.D3D9Texture
-import com.huskerdev.openglfx.utils.d3d9.D3D9Utils
-import com.huskerdev.openglfx.utils.d3d9.D3D9Utils.Companion.textureResource
+import com.huskerdev.openglfx.OpenGLCanvas
+import com.huskerdev.openglfx.core.GLContext
+import com.huskerdev.openglfx.core.GLExecutor
+import com.huskerdev.openglfx.core.*
+import com.huskerdev.openglfx.utils.OpenGLFXUtils.Companion.DX9TextureResource
+import com.huskerdev.openglfx.core.d3d9.D3D9Device
+import com.huskerdev.openglfx.core.d3d9.D3D9Texture
+import com.huskerdev.openglfx.utils.WinUtils
 import com.sun.javafx.scene.DirtyBits
 import com.sun.javafx.scene.NodeHelper
 import com.sun.prism.Graphics
@@ -14,23 +15,19 @@ import com.sun.prism.GraphicsPipeline
 import com.sun.prism.PixelFormat
 import com.sun.prism.Texture
 import javafx.animation.AnimationTimer
-import org.lwjgl.PointerBuffer
-import org.lwjgl.opengl.GL
-import org.lwjgl.opengl.GL11.glGenTextures
-import org.lwjgl.opengl.GL30.*
-import org.lwjgl.opengl.WGLNVDXInterop.*
-import java.io.FileOutputStream
-import java.nio.ByteBuffer
 import java.util.concurrent.atomic.AtomicBoolean
 
-class LWJGLInterop: LWJGLCanvas() {
+
+open class InteropGLCanvas(
+    private val executor: GLExecutor
+) : OpenGLCanvas(){
 
     companion object {
 
         private const val textureStep = 400
 
         init {
-            D3D9Utils.loadLibrary()
+            WinUtils.loadLibrary()
         }
     }
 
@@ -61,26 +58,24 @@ class LWJGLInterop: LWJGLCanvas() {
 
         object: AnimationTimer(){
             override fun handle(now: Long) {
-                try {
-                    if(needsRepaint.getAndSet(false)) {
-                        NodeHelper.markDirty(this@LWJGLInterop, DirtyBits.NODE_BOUNDS)
-                        NodeHelper.markDirty(this@LWJGLInterop, DirtyBits.REGION_SHAPE)
-                    }
-                } catch (_: Exception){}
+                if(needsRepaint.getAndSet(false)) {
+                    NodeHelper.markDirty(this@InteropGLCanvas, DirtyBits.NODE_BOUNDS)
+                    NodeHelper.markDirty(this@InteropGLCanvas, DirtyBits.REGION_SHAPE)
+                }
             }
         }.start()
     }
 
-    override fun onNGRender(g: Graphics) {
+    override fun onNGRender(g: Graphics) = executor.run {
         if(width == 0.0 || height == 0.0)
             return
 
         if(!initialized){
             initialized = true
 
-            context = GLContext.createNew()
+            context = GLContext.createNew(executor)
             context!!.makeCurrent()
-            GL.createCapabilities()
+            executor.initGLFunctions()
 
             interopHandle = wglDXOpenDeviceNV(fxDevice.handle)
         }
@@ -99,29 +94,26 @@ class LWJGLInterop: LWJGLCanvas() {
         fireRenderEvent()
         unlockInteropTexture()
 
-        if(!fxTextureObject.isLocked)
-            fxTextureObject.lock()
-        g.drawTexture(fxTextureObject, 0f, 0f, width.toFloat() + 0.5f, height.toFloat() + 0.5f, 0.0f, 0.0f, scaledWidth.toFloat(), scaledHeight.toFloat())
-        fxTextureObject.unlock()
+        drawResultTexture(g, fxTextureObject)
     }
 
     private fun lockInteropTexture(){
         if(!locked){
             locked = true
-            D3D9Utils.wglDXLockObjectsNV(GL.getCapabilitiesWGL().wglDXLockObjectsNV, interopHandle, sharedTextureHandle)
+            WinUtils.wglDXLockObjectsNV(executor.getWglDXLockObjectsNVPtr(), interopHandle, sharedTextureHandle)
         }
     }
 
     private fun unlockInteropTexture(){
         if(locked){
             locked = false
-            D3D9Utils.wglDXUnlockObjectsNV(GL.getCapabilitiesWGL().wglDXUnlockObjectsNV, interopHandle, sharedTextureHandle)
+            WinUtils.wglDXUnlockObjectsNV(executor.getWglDXUnlockObjectsNVPtr(), interopHandle, sharedTextureHandle)
         }
     }
 
-    private fun updateFramebufferSize() {
-        val deltaWidth = lastSize.first - (if(this::fxTextureObject.isInitialized) fxTextureObject.contentWidth else 0)
-        val deltaHeight = lastSize.second - (if(this::fxTextureObject.isInitialized) fxTextureObject.contentHeight else 0)
+    private fun updateFramebufferSize() = executor.run {
+        val deltaWidth = lastSize.first - (if(this@InteropGLCanvas::fxTextureObject.isInitialized) fxTextureObject.contentWidth else 0)
+        val deltaHeight = lastSize.second - (if(this@InteropGLCanvas::fxTextureObject.isInitialized) fxTextureObject.contentHeight else 0)
 
         if(deltaWidth in -textureStep..0 && deltaHeight in -textureStep..0)
             return
@@ -163,9 +155,8 @@ class LWJGLInterop: LWJGLCanvas() {
 
         // Create default JavaFX texture and replace native handle to custom one
         fxTextureObject = GraphicsPipeline.getDefaultResourceFactory().createTexture(PixelFormat.BYTE_BGRA_PRE, Texture.Usage.DYNAMIC, Texture.WrapMode.CLAMP_TO_EDGE, width, height)
-        D3D9Utils.replaceTextureInResource(fxTextureObject.textureResource, fxTexture.handle)
+        WinUtils.replaceD3DTextureInResource(fxTextureObject.DX9TextureResource, fxTexture.handle)
     }
 
     override fun repaint() = needsRepaint.set(true)
-
 }

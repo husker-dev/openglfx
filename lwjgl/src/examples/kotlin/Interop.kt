@@ -1,13 +1,11 @@
 
 import com.huskerdev.openglfx.GLCanvasAnimator
-import com.huskerdev.openglfx.lwjgl.interop.LWJGLInterop
+import com.huskerdev.openglfx.OpenGLCanvas
+import com.huskerdev.openglfx.lwjgl.LWJGL_MODULE
 import javafx.application.Application
 import javafx.scene.Scene
-import javafx.scene.control.Button
 import javafx.scene.control.SplitPane
-import javafx.scene.layout.FlowPane
 import javafx.scene.layout.Region
-import javafx.scene.layout.StackPane
 import javafx.stage.Stage
 import rendering.ExampleRenderer
 
@@ -27,26 +25,17 @@ class InteropExampleApp: Application(){
         stage.width = 300.0
         stage.height = 300.0
 
-        /*
         stage.scene = Scene(object: SplitPane(){
             init {
                 items.add(createGL())
                 items.add(createGL())
             }
         })
-
-         */
-
-
-
-
-        stage.scene = Scene(createGL())
-
         stage.show()
     }
 
     private fun createGL(): Region {
-        val canvas = LWJGLInterop()
+        val canvas = OpenGLCanvas.create(LWJGL_MODULE)
         canvas.animator = GLCanvasAnimator(60.0, started = true)
 
         canvas.prefWidth = 80.0

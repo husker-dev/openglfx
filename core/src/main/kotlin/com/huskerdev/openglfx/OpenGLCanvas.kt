@@ -1,6 +1,10 @@
 package com.huskerdev.openglfx
 
 
+import com.huskerdev.openglfx.core.GLExecutor
+import com.huskerdev.openglfx.core.impl.InteropGLCanvas
+import com.huskerdev.openglfx.core.impl.SharedGLCanvas
+import com.huskerdev.openglfx.core.impl.UniversalGLCanvas
 import com.huskerdev.openglfx.events.GLDisposeEvent
 import com.huskerdev.openglfx.events.GLInitializeEvent
 import com.huskerdev.openglfx.events.GLRenderEvent
@@ -11,48 +15,32 @@ import com.huskerdev.openglfx.utils.RegionAccessorOverrider
 
 import com.sun.javafx.sg.prism.NGRegion
 import com.sun.prism.Graphics
+import com.sun.prism.Texture
 import javafx.scene.layout.Pane
 import java.util.function.Consumer
 
-enum class DirectDrawPolicy {
-    NEVER,
-    IF_AVAILABLE,
-    ALWAYS
-}
 
 abstract class OpenGLCanvas: Pane() {
 
-    companion object{
+    companion object {
+
+        var forceUniversal = false
+
         init {
-            RegionAccessorOverrider.overwrite(object: RegionAccessorObject<OpenGLCanvas>(){
+            RegionAccessorOverrider.overwrite(object : RegionAccessorObject<OpenGLCanvas>() {
                 override fun doCreatePeer(node: OpenGLCanvas) = NGOpenGLCanvas(node)
             })
         }
 
-        @JvmOverloads
         @JvmStatic
-        fun create(
-            initializer: FXGLInitializer,
-            directDrawPolicy: DirectDrawPolicy = DirectDrawPolicy.NEVER
-        ): OpenGLCanvas {
-            val isES2 = OpenGLFXUtils.pipelineName == "es2"
-            return when(directDrawPolicy) {
-                DirectDrawPolicy.NEVER -> {
-                    if(!initializer.supportsUniversal)
-                        throw UnsupportedOperationException("${initializer.name} doesn't support universal rendering")
-                    initializer.createUniversal()
-                }
-                DirectDrawPolicy.ALWAYS -> {
-                    if(!initializer.supportsDirect)
-                        throw UnsupportedOperationException("${initializer.name} doesn't support direct rendering")
-                    if(!isES2)
-                        throw UnsupportedOperationException("Direct rendering only supports ES2 JavaFX pipeline (current: ${OpenGLFXUtils.pipelineName})")
-                    initializer.createDirect()
-                }
-                DirectDrawPolicy.IF_AVAILABLE -> {
-                    if(initializer.supportsDirect && isES2) initializer.createDirect()
-                    else initializer.createUniversal()
-                }
+        fun create(executor: GLExecutor): OpenGLCanvas {
+            return if(forceUniversal)
+                executor.universalCanvas
+            else when (OpenGLFXUtils.pipelineName) {
+                "es2" -> executor.sharedCanvas
+                "d3d" -> if(executor.hasWGLDX())
+                    executor.interopCanvas else executor.universalCanvas
+                else -> executor.universalCanvas
             }
         }
     }
@@ -154,6 +142,13 @@ abstract class OpenGLCanvas: Pane() {
     protected open fun dispatchReshapeEvent(event: GLReshapeEvent) = onReshape.forEach { it.accept(event) }
     protected open fun dispatchInitEvent(event: GLInitializeEvent) = onInit.forEach { it.accept(event) }
     protected open fun dispatchDisposeEvent(event: GLDisposeEvent) = onDispose.forEach { it.accept(event) }
+
+    protected fun drawResultTexture(g: Graphics, texture: Texture){
+        if(!texture.isLocked)
+            texture.lock()
+        g.drawTexture(texture, 0f, 0f, width.toFloat() + 0.5f, height.toFloat() + 0.5f, 0.0f, 0.0f, scaledWidth.toFloat(), scaledHeight.toFloat())
+        texture.unlock()
+    }
 
     private class NGOpenGLCanvas(val canvas: OpenGLCanvas): NGRegion() {
 

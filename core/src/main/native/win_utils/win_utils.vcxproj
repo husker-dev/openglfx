@@ -20,6 +20,7 @@
     <ProjectGuid>{080fe932-402d-4e68-9575-7e6a7a6306b1}</ProjectGuid>
     <RootNamespace>openglfx</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>win_utils</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -84,7 +85,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>%JAVA_HOME%\lib\jvm.lib;opengl32.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(ProjectDir)..\..\resources\com\huskerdev\openglfx\natives\openglfx_x86.dll</OutputFile>
+      <OutputFile>$(ProjectDir)..\..\resources\com\huskerdev\openglfx\natives\win_utils_x86.dll</OutputFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -104,7 +105,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>%JAVA_HOME%\lib\jvm.lib;opengl32.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(ProjectDir)..\..\resources\com\huskerdev\openglfx\natives\openglfx_x64.dll</OutputFile>
+      <OutputFile>$(ProjectDir)..\..\resources\com\huskerdev\openglfx\natives\win_utils_x64.dll</OutputFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
@@ -124,15 +125,14 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>%JAVA_HOME%\lib\jvm.lib;opengl32.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(ProjectDir)..\..\resources\com\huskerdev\openglfx\natives\openglfx_arm64.dll</OutputFile>
+      <OutputFile>$(ProjectDir)..\..\resources\com\huskerdev\openglfx\natives\win_utils_arm64.dll</OutputFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="openglfx.cpp" />
+    <ClCompile Include="win_utils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="openglfx.h" />
-    <ClInclude Include="wgl.h" />
+    <ClInclude Include="win_utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

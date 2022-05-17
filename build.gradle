@@ -64,7 +64,7 @@ compileJar.dependsOn 'lwjgl:jar'
 compileJar.dependsOn 'jogl:jar'
 
 
-task compileWinNatives() {
+task compileWinUtils() {
     group "release"
 
     doLast {
@@ -72,9 +72,9 @@ task compileWinNatives() {
             // Uses 'msbuild' to compile project
             // and 'vswhere' to find msbuild.exe
             String msbuildPath = runCommand("${projectDir}\\core\\src\\main\\native\\vswhere.exe -latest -requires Microsoft.Component.MSBuild -find MSBuild\\**\\Bin\\MSBuild.exe").text
-            println("Compiling windows natives:")
+            println("Compiling win utils natives:")
             for (i in ["x86", "x64", "ARM64"]) {
-                ConsoleOutput output = runCommand("\"${msbuildPath}\" \"${projectDir}\\core\\src\\main\\native\\openglfx\\openglfx.sln\" /t:Build /nologo /p:Configuration=Release;Platform=$i;RunCodeAnalysis=False")
+                ConsoleOutput output = runCommand("\"${msbuildPath}\" \"${projectDir}\\core\\src\\main\\native\\win_utils\\win_utils.sln\" /t:Build /nologo /p:Configuration=Release;Platform=$i;RunCodeAnalysis=False")
 
                 String status
                 if(output.code != 0){
@@ -85,7 +85,8 @@ task compileWinNatives() {
 
                 println("\t- $i${repeat(".", 15 - i.length())}[${status}]")
             }
-        }
+        }else
+            println("Compiling d3d9 utils is only available on Windows")
     }
 }
 

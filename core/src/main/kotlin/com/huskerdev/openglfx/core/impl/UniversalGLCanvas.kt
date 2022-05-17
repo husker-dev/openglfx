@@ -1,7 +1,7 @@
-package com.huskerdev.openglfx.lwjgl.universal
+package com.huskerdev.openglfx.core.impl
 
-import com.huskerdev.openglfx.lwjgl.LWJGLCanvas
-import com.huskerdev.openglfx.lwjgl.utils.GLContext
+import com.huskerdev.openglfx.OpenGLCanvas
+import com.huskerdev.openglfx.core.*
 import com.huskerdev.openglfx.utils.OpenGLFXUtils
 import com.sun.javafx.scene.DirtyBits
 import com.sun.javafx.scene.NodeHelper
@@ -14,17 +14,14 @@ import javafx.animation.AnimationTimer
 import javafx.scene.image.PixelBuffer
 import javafx.scene.image.PixelFormat
 import javafx.scene.image.WritableImage
-import org.lwjgl.glfw.GLFW.*
-import org.lwjgl.glfw.GLFWErrorCallback
-import org.lwjgl.opengl.GL.createCapabilities
-import org.lwjgl.opengl.GL30.*
 import java.nio.ByteBuffer
 import java.nio.IntBuffer
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
-class LWJGLUniversal: LWJGLCanvas() {
-
+open class UniversalGLCanvas(
+    private val executor: GLExecutor
+) : OpenGLCanvas(){
     private val removedBuffers = arrayListOf<Pair<ByteBuffer, Long>>()
 
     private var bufferUpdateRequired = false
@@ -49,11 +46,8 @@ class LWJGLUniversal: LWJGLCanvas() {
 
     init{
         thread(isDaemon = true){
-            GLContext.createNew().makeCurrent()
-            createCapabilities()
-
-            glDepthFunc(GL_LEQUAL)
-            glEnable(GL_DEPTH_TEST)
+            GLContext.createNew(executor).makeCurrent()
+            executor.initGLFunctions()
 
             while(true){
                 if(scaledWidth.toInt() != lastSize.first || scaledHeight.toInt() != lastSize.second){
@@ -67,7 +61,7 @@ class LWJGLUniversal: LWJGLCanvas() {
                     fireReshapeEvent(lastSize.first, lastSize.second)
                 }
 
-                glViewport(0, 0, lastSize.first, lastSize.second)
+                executor.glViewport(0, 0, lastSize.first, lastSize.second)
                 fireRenderEvent()
 
                 readPixels()
@@ -98,15 +92,15 @@ class LWJGLUniversal: LWJGLCanvas() {
                         bufferUpdateRequired = false
                     }
                     if(needsRepaint.getAndSet(false)) {
-                        NodeHelper.markDirty(this@LWJGLUniversal, DirtyBits.NODE_BOUNDS)
-                        NodeHelper.markDirty(this@LWJGLUniversal, DirtyBits.REGION_SHAPE)
+                        NodeHelper.markDirty(this@UniversalGLCanvas, DirtyBits.NODE_BOUNDS)
+                        NodeHelper.markDirty(this@UniversalGLCanvas, DirtyBits.REGION_SHAPE)
                     }
                 } catch (_: Exception){}
             }
         }.start()
     }
 
-    private fun readPixels(){
+    private fun readPixels() = executor.run {
         if (scene == null || scene.window == null || width <= 0 || height <= 0)
             return
 
@@ -132,7 +126,7 @@ class LWJGLUniversal: LWJGLCanvas() {
         bufferUpdateRequired = true
     }
 
-    private fun updateFramebufferSize() {
+    private fun updateFramebufferSize() = executor.run {
         if(texture != -1)
             glDeleteTextures(texture)
         if(fbo != -1)
@@ -164,13 +158,8 @@ class LWJGLUniversal: LWJGLCanvas() {
         }else lastImage
 
         val texture = g.resourceFactory.getCachedTexture(imageToRender.getPlatformImage() as Image, Texture.WrapMode.CLAMP_TO_EDGE)
-        if(!texture.isLocked)
-            texture.lock()
 
-        g.drawTexture(texture,
-            0f, 0f, scaledWidth.toFloat(), scaledHeight.toFloat(),
-            0f, 0f, imageToRender.width.toFloat() * dpi.toFloat(), imageToRender.height.toFloat() * dpi.toFloat())
-        texture.unlock()
+        drawResultTexture(g, texture)
     }
 
     override fun repaint() {

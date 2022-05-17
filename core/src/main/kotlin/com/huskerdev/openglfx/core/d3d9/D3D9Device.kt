@@ -1,13 +1,13 @@
-package com.huskerdev.openglfx.utils.d3d9
+package com.huskerdev.openglfx.core.d3d9
 
+import com.huskerdev.openglfx.utils.WinUtils
 import com.sun.prism.GraphicsPipeline
 
 class D3D9Device(val handle: Long) {
 
     companion object {
 
-        @JvmStatic private external fun createDevice(): Long
-        @JvmStatic private external fun createTexture(device: Long, width: Int, height: Int): LongArray
+
 
         val fxDevice: D3D9Device by lazy {
             val pipeline = GraphicsPipeline.getPipeline()
@@ -18,12 +18,10 @@ class D3D9Device(val handle: Long) {
 
             D3D9Device(device)
         }
-
-        fun create() = D3D9Device(createDevice())
     }
 
     fun createTexture(width: Int, height: Int): D3D9Texture {
-        val result = createTexture(handle, width, height)
+        val result = WinUtils.createD3DTexture(handle, width, height)
         return D3D9Texture(result[0], result[1])
     }
 
