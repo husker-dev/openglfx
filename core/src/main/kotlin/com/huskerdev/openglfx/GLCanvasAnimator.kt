@@ -1,58 +1,36 @@
 package com.huskerdev.openglfx
 
-import java.lang.Thread.sleep
-import kotlin.concurrent.thread
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.ScheduledFuture
+import java.util.concurrent.TimeUnit
 
 
-class GLCanvasAnimator @JvmOverloads constructor(fps: Double, started: Boolean = false) {
+class GLCanvasAnimator @JvmOverloads constructor(
+    val fps: Double = UNLIMITED_FPS
+) {
 
     companion object {
         const val UNLIMITED_FPS = 0.0
     }
 
+    private lateinit var executor: ScheduledExecutorService
+    private lateinit var timer: ScheduledFuture<*>
+
     var boundCanvas: OpenGLCanvas? = null
-        internal set
-
-    var started = false
-        set(value) {
-            if(!timerThread.isAlive)
-                timerThread.start()
-            field = value
-            synchronized(timerNotifier) { timerNotifier.notifyAll() }
-        }
-
-    private var waitMillis = 0L
-    private var waitNanos = 0
-
-    var fps = 60.0
-        set(value) {
+        internal set(value) {
             field = value
 
-            if(value == UNLIMITED_FPS) {
-                waitMillis = 0
-                waitNanos = 0
-            } else {
-                waitMillis = (1000.0 / fps).toLong()
-                waitNanos = ((1000.0 / fps - waitMillis) * 100000).toInt()
+            if(this::executor.isInitialized){
+                timer.cancel(true)
+                executor.shutdown()
+            }
+
+            if(value != null) {
+                executor = Executors.newScheduledThreadPool(1) { Thread(it).apply { isDaemon = true } }
+                timer = executor.scheduleAtFixedRate({
+                    boundCanvas?.repaint()
+                }, 0, (1000000000 / fps).toLong(), TimeUnit.NANOSECONDS)
             }
         }
-
-    private val timerNotifier = Object()
-    private val timerThread = thread(start = false, isDaemon = true) {
-        while(true){
-            if(!started){
-                synchronized(timerNotifier) { timerNotifier.wait() }
-                continue
-            }
-            if(fps != UNLIMITED_FPS)
-                sleep(waitMillis, waitNanos)
-            boundCanvas?.repaint()
-        }
-    }
-
-    init {
-        this.fps = fps
-        this.started = started
-    }
-
 }

@@ -23,5 +23,8 @@
     <ClInclude Include="win_utils.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="wgl.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

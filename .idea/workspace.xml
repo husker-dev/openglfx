@@ -4,15 +4,24 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d39d0143-d2aa-4261-8506-35cd0ece831b" name="Changes" comment="New architecture, new JOGL features">
+    <list default="true" id="d39d0143-d2aa-4261-8506-35cd0ece831b" name="Changes" comment="Added GL profile support to macOS">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/GLCanvasAnimator.kt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/GLCanvasAnimator.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/OpenGLCanvas.kt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/OpenGLCanvas.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/GLContext.kt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/GLContext.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/GLExecutor.kt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/GLExecutor.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/d3d9/D3D9Device.kt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/d3d9/D3D9Device.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/impl/InteropGLCanvas.kt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/impl/InteropGLCanvas.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/impl/SharedGLCanvas.kt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/impl/SharedGLCanvas.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/impl/UniversalGLCanvas.kt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/impl/UniversalGLCanvas.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/utils/WinUtils.kt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/utils/WinUtils.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/native/win_utils/win_utils.h" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/native/win_utils/win_utils.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/native/win_utils/win_utils.vcxproj" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/native/win_utils/win_utils.vcxproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/native/win_utils/win_utils.vcxproj.filters" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/native/win_utils/win_utils.vcxproj.filters" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/resources/com/huskerdev/openglfx/natives/win_utils_x64.dll" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/com/huskerdev/openglfx/natives/win_utils_x64.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/jogl/src/main/kotlin/com/huskerdev/openglfx/jogl/JOGLFXInitializer.kt" beforeDir="false" afterPath="$PROJECT_DIR$/jogl/src/main/kotlin/com/huskerdev/openglfx/jogl/JOGLFXExecutor.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lwjgl/src/examples/kotlin/Interop.kt" beforeDir="false" afterPath="$PROJECT_DIR$/lwjgl/src/examples/kotlin/Interop.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lwjgl/src/examples/kotlin/Shared.kt" beforeDir="false" afterPath="$PROJECT_DIR$/lwjgl/src/examples/kotlin/Shared.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lwjgl/src/examples/kotlin/Universal.kt" beforeDir="false" afterPath="$PROJECT_DIR$/lwjgl/src/examples/kotlin/Universal.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lwjgl/src/main/kotlin/com/huskerdev/openglfx/lwjgl/LWJGLExecutor.kt" beforeDir="false" afterPath="$PROJECT_DIR$/lwjgl/src/main/kotlin/com/huskerdev/openglfx/lwjgl/LWJGLExecutor.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -281,8 +290,8 @@
       <item itemvalue="Gradle.openglfx [compileJar]" />
       <item itemvalue="Gradle.openglfx:lwjgl [jar]" />
       <item itemvalue="Gradle.openglfx [compileD3D9Utils]" />
-      <item itemvalue="Kotlin.SharedKt" />
       <item itemvalue="Gradle.openglfx [compileWinUtils]" />
+      <item itemvalue="Kotlin.SharedKt" />
     </list>
     <recent_temporary>
       <list>
@@ -320,7 +329,8 @@
       <workItem from="1652702304711" duration="6693000" />
       <workItem from="1652776359314" duration="908000" />
       <workItem from="1652777882541" duration="7349000" />
-      <workItem from="1652787362848" duration="8293000" />
+      <workItem from="1652787362848" duration="9848000" />
+      <workItem from="1652867577796" duration="5310000" />
     </task>
     <task id="LOCAL-00001" summary="Added JavaFX events">
       <created>1651573350041</created>
@@ -518,7 +528,14 @@
       <option name="project" value="LOCAL" />
       <updated>1652802049546</updated>
     </task>
-    <option name="localTasksCounter" value="29" />
+    <task id="LOCAL-00029" summary="Added GL profile support to macOS">
+      <created>1652804458446</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1652804458446</updated>
+    </task>
+    <option name="localTasksCounter" value="30" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -552,6 +569,7 @@
     <MESSAGE value="Some fixes" />
     <MESSAGE value="Added DX interop rendering type to LWJGL" />
     <MESSAGE value="New architecture, new JOGL features" />
-    <option name="LAST_COMMIT_MESSAGE" value="New architecture, new JOGL features" />
+    <MESSAGE value="Added GL profile support to macOS" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added GL profile support to macOS" />
   </component>
 </project>

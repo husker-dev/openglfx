@@ -34,7 +34,7 @@ class InteropExampleApp: Application(){
 
     private fun createGL(): Region {
         val canvas = OpenGLCanvas.create(JOGL_MODULE)
-        canvas.animator = GLCanvasAnimator(60.0, started = true)
+        canvas.animator = GLCanvasAnimator(60.0)
 
         canvas.onReshape { ExampleRenderer.reshape(canvas, it) }
         canvas.onRender { ExampleRenderer.render(canvas, it) }

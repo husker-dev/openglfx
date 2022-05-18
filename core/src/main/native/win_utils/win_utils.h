@@ -1,13 +1,10 @@
 #include <d3d9.h>
 #include <gl/gl.h>
 
+#include "wgl.h"
 #include <jni.h>
 #include <iostream>
 
-
-// wglDXLockObjectsNV and wglDXUnlockObjectsNV from wgl.h
-typedef BOOL(WINAPI* PFNWGLDXLOCKOBJECTSNVPROC) (HANDLE hDevice, GLint count, HANDLE* hObjects);
-typedef BOOL(WINAPI* PFNWGLDXUNLOCKOBJECTSNVPROC) (HANDLE hDevice, GLint count, HANDLE* hObjects);
 
 // Emulate internal JavaFX's code for memory mapping
 struct IManagedResource {
@@ -78,9 +75,9 @@ extern "C" {
             resource->pSurface->GetDesc(&resource->desc);
     }
 
-    JNIEXPORT jlong JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_createDummyGLWindow(JNIEnv* env, jobject) {
-        PIXELFORMATDESCRIPTOR pfd = {};
-        pfd.nSize = sizeof(pfd);
+    JNIEXPORT jlongArray JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_createGLContext(JNIEnv* env, jobject, jboolean isCore, jlong shareRc, jlong choosePixelPtr, jlong createContextPtr) {
+        PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC)choosePixelPtr;
+        PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC)createContextPtr;
 
         WNDCLASS wc = {};
         wc.lpfnWndProc = DefWindowProc;
@@ -88,20 +85,60 @@ extern "C" {
         wc.lpszClassName = L"openglfx";
         RegisterClass(&wc);
 
-        HWND hwnd = CreateWindow(
+        HWND hwnd = CreateWindowEx(
+            WS_EX_APPWINDOW,
             L"openglfx", L"",
-            WS_OVERLAPPEDWINDOW,
+            WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU | WS_MINIMIZEBOX | WS_CAPTION | WS_MAXIMIZEBOX | WS_THICKFRAME,
             0, 0,
             100, 100,
             NULL, NULL,
             GetModuleHandle(NULL),
             NULL);
-
         HDC dc = GetDC(hwnd);
 
-        int pixel_format = ChoosePixelFormat(dc, &pfd);
-        SetPixelFormat(dc, pixel_format, &pfd);
+        // Create basic pixel format
+        PIXELFORMATDESCRIPTOR pfd = {};
+        pfd.nSize = sizeof(pfd);
+        pfd.dwFlags = PFD_DOUBLEBUFFER | PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW;
+        pfd.iPixelType = PFD_TYPE_RGBA;
+        pfd.cColorBits = 24;
+        pfd.cDepthBits = 16;
+        pfd.iLayerType = PFD_MAIN_PLANE;
 
-        return (jlong)dc;
+        // Create extended pixel format
+        int pixel_format_arb;
+        UINT pixel_formats_count;
+
+        int pixel_attributes[] = {
+            WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
+            WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
+            WGL_DOUBLE_BUFFER_ARB, GL_TRUE,
+            WGL_COLOR_BITS_ARB, 24,
+            WGL_DEPTH_BITS_ARB, 16,
+            WGL_ACCELERATION_ARB, WGL_FULL_ACCELERATION_ARB,
+            WGL_PIXEL_TYPE_ARB, WGL_TYPE_RGBA_ARB,
+            0
+        };
+        if (!wglChoosePixelFormatARB(dc, pixel_attributes, NULL, 1, &pixel_format_arb, &pixel_formats_count))
+            std::cout << "Failed to choose supported pixel format (WGL)" << std::endl;
+        if (!SetPixelFormat(dc, pixel_format_arb, &pfd))
+            std::cout << "Failed to set pixel format (WGL)" << std::endl;
+
+        // Create context
+        GLint context_attributes[] = {
+            WGL_CONTEXT_PROFILE_MASK_ARB, isCore ? WGL_CONTEXT_CORE_PROFILE_BIT_ARB : WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
+            0
+        };
+
+        HGLRC rc;
+        if (!(rc = wglCreateContextAttribsARB(dc, (HGLRC)shareRc, context_attributes)))
+            std::cout << "Failed to create context (WGL)" << std::endl;
+        wglMakeCurrent(nullptr, nullptr);
+
+        jlongArray result = env->NewLongArray(2);
+        jlong array[2] = { (jlong)rc, (jlong)dc };
+        env->SetLongArrayRegion(result, 0, 2, array);
+
+        return result;
     }
 }

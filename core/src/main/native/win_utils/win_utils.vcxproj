@@ -132,6 +132,7 @@
     <ClCompile Include="win_utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="wgl.h" />
     <ClInclude Include="win_utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -9,7 +9,7 @@ import javafx.scene.layout.Region
 import javafx.stage.Stage
 import rendering.ExampleRenderer
 
-fun main(){
+fun main() {
     System.setProperty("prism.order", "d3d,sw")
     System.setProperty("prism.vsync", "false")
     Application.launch(InteropExampleApp::class.java)
@@ -36,7 +36,7 @@ class InteropExampleApp: Application(){
 
     private fun createGL(): Region {
         val canvas = OpenGLCanvas.create(LWJGL_MODULE)
-        canvas.animator = GLCanvasAnimator(60.0, started = true)
+        canvas.animator = GLCanvasAnimator(60.0)
 
         canvas.prefWidth = 80.0
         canvas.prefHeight = 80.0

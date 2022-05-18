@@ -62,8 +62,8 @@ class LWJGLExecutor: GLExecutor() {
     override fun wglGetCurrentContext() = WGL.wglGetCurrentContext()
     override fun wglGetCurrentDC() = WGL.wglGetCurrentDC()
     override fun wglMakeCurrent(dc: Long, context: Long) = WGL.wglMakeCurrent(dc, context)
-    override fun wglCreateContext(dc: Long) = WGL.wglCreateContext(dc)
-    override fun wglShareLists(rc1: Long, rc2: Long) = WGL.wglShareLists(rc1, rc2)
+    override fun getWglChoosePixelFormatARBPtr() = GL.getCapabilitiesWGL().wglChoosePixelFormatARB
+    override fun getWglCreateContextAttribsARBPtr() = GL.getCapabilitiesWGL().wglCreateContextAttribsARB
 
     // WGL DX Interop
     override fun wglDXOpenDeviceNV(dxDevice: Long) = WGLNVDXInterop.wglDXOpenDeviceNV(dxDevice)

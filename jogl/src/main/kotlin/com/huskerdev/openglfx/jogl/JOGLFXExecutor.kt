@@ -2,9 +2,6 @@ package com.huskerdev.openglfx.jogl
 
 import com.huskerdev.openglfx.core.GLExecutor
 import com.huskerdev.openglfx.core.NativeObject
-import com.huskerdev.openglfx.core.impl.InteropGLCanvas
-import com.huskerdev.openglfx.core.impl.SharedGLCanvas
-import com.huskerdev.openglfx.core.impl.UniversalGLCanvas
 import com.jogamp.common.nio.Buffers
 import com.jogamp.common.nio.PointerBuffer
 import com.jogamp.opengl.GL2
@@ -140,8 +137,8 @@ class JOGLExecutor: GLExecutor() {
     override fun wglGetCurrentContext() = checkContext { WGL.wglGetCurrentContext() }
     override fun wglGetCurrentDC() = checkContext { WGL.wglGetCurrentDC() }
     override fun wglMakeCurrent(dc: Long, context: Long) = checkContext { WGL.wglMakeCurrent(dc, context) }
-    override fun wglCreateContext(dc: Long) = checkContext { WGL.wglCreateContext(dc) }
-    override fun wglShareLists(rc1: Long, rc2: Long) = checkContext { WGL.wglShareLists(rc1, rc2) }
+    override fun getWglChoosePixelFormatARBPtr() = checkContext { (gl.context as WindowsWGLContext).wglExtProcAddressTable.getAddressFor("wglChoosePixelFormatARB") }
+    override fun getWglCreateContextAttribsARBPtr() = checkContext { (gl.context as WindowsWGLContext).wglExtProcAddressTable.getAddressFor("wglCreateContextAttribsARB") }
 
     // WGL DX Interop
     override fun wglDXOpenDeviceNV(dxDevice: Long) = wglExt.wglDXOpenDeviceNV(createPointer(dxDevice).buffer)

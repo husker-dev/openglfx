@@ -27,6 +27,8 @@ open class InteropGLCanvas(
 
         private const val textureStep = 400
 
+        private var interopHandle = -1L
+
         init {
             WinUtils.loadLibrary()
         }
@@ -41,7 +43,6 @@ open class InteropGLCanvas(
     private var fbo = -1
     private var depthBuffer = -1
 
-    private var interopHandle = -1L
     private var sharedTextureHandle = -1L
     private var locked = false
 
@@ -78,7 +79,8 @@ open class InteropGLCanvas(
             context!!.makeCurrent()
             executor.initGLFunctions()
 
-            interopHandle = wglDXOpenDeviceNV(fxDevice.handle)
+            if(interopHandle == -1L)
+                interopHandle = wglDXOpenDeviceNV(fxDevice.handle)
         }
         context!!.makeCurrent()
 

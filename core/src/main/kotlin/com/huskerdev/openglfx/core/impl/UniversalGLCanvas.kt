@@ -3,6 +3,7 @@ package com.huskerdev.openglfx.core.impl
 import com.huskerdev.openglfx.OpenGLCanvas
 import com.huskerdev.openglfx.core.*
 import com.huskerdev.openglfx.utils.OpenGLFXUtils
+import com.sun.javafx.geom.Rectangle
 import com.sun.javafx.scene.DirtyBits
 import com.sun.javafx.scene.NodeHelper
 import com.sun.javafx.tk.PlatformImage
@@ -24,13 +25,17 @@ open class UniversalGLCanvas(
     profile: Int
 ) : OpenGLCanvas(profile){
 
+    companion object {
+        private val bufferDirtyMethod = PixelBuffer::class.java.getDeclaredMethod("bufferDirty", Rectangle::class.java).apply { isAccessible = true }
+        private fun PixelBuffer<*>.bufferDirty(rectangle: Rectangle?) = bufferDirtyMethod.invoke(this, rectangle)
+    }
+
+    private var initialized = false
+    private var context: GLContext? = null
+
     private val removedBuffers = arrayListOf<Pair<ByteBuffer, Long>>()
 
-    private var bufferUpdateRequired = false
-
     private var image = WritableImage(1, 1)
-    private var lastImage = image
-    private var imageReady = false
 
     private var pixelIntBuffer: IntBuffer? = null
     private var pixelByteBuffer: ByteBuffer? = null
@@ -41,38 +46,9 @@ open class UniversalGLCanvas(
     private var depthBuffer = -1
 
     private var needsRepaint = AtomicBoolean(false)
-    private var repaintLock = Object()
-
     private var lastSize = Pair(10, 10)
-    private var initialized = false
 
     init{
-        thread(isDaemon = true){
-            GLContext.createNew(executor, profile).makeCurrent()
-            executor.initGLFunctions()
-
-            while(true){
-                if(scaledWidth.toInt() != lastSize.first || scaledHeight.toInt() != lastSize.second){
-                    lastSize = Pair(scaledWidth.toInt(), scaledHeight.toInt())
-                    updateFramebufferSize()
-
-                    if(!initialized){
-                        initialized = true
-                        fireInitEvent()
-                    }
-                    fireReshapeEvent(lastSize.first, lastSize.second)
-                }
-
-                executor.glViewport(0, 0, lastSize.first, lastSize.second)
-                fireRenderEvent()
-
-                readPixels()
-
-                needsRepaint.set(true)
-                synchronized(repaintLock) { repaintLock.wait() }
-            }
-        }
-
         visibleProperty().addListener { _, _, _ -> repaint() }
         widthProperty().addListener { _, _, _ -> repaint() }
         heightProperty().addListener { _, _, _ -> repaint() }
@@ -88,10 +64,6 @@ open class UniversalGLCanvas(
                         } else false
                     }
 
-                    if (bufferUpdateRequired) {
-                        pixelBuffer.updateBuffer { null }
-                        bufferUpdateRequired = false
-                    }
                     if(needsRepaint.getAndSet(false)) {
                         NodeHelper.markDirty(this@UniversalGLCanvas, DirtyBits.NODE_BOUNDS)
                         NodeHelper.markDirty(this@UniversalGLCanvas, DirtyBits.REGION_SHAPE)
@@ -99,6 +71,32 @@ open class UniversalGLCanvas(
                 } catch (_: Exception){}
             }
         }.start()
+    }
+
+    override fun onNGRender(g: Graphics){
+        if(!initialized){
+            initialized = true
+
+            context = GLContext.createNew(executor, profile)
+            context!!.makeCurrent()
+            executor.initGLFunctions()
+
+            fireInitEvent()
+        }
+        context!!.makeCurrent()
+
+        if(scaledWidth.toInt() != lastSize.first || scaledHeight.toInt() != lastSize.second){
+            lastSize = Pair(scaledWidth.toInt(), scaledHeight.toInt())
+            updateFramebufferSize()
+            fireReshapeEvent(lastSize.first, lastSize.second)
+        }
+
+        executor.glViewport(0, 0, lastSize.first, lastSize.second)
+        fireRenderEvent()
+        readPixels()
+
+        val texture = g.resourceFactory.getCachedTexture(image.getPlatformImage() as Image, Texture.WrapMode.CLAMP_TO_EDGE)
+        drawResultTexture(g, texture)
     }
 
     private fun readPixels() = executor.run {
@@ -119,12 +117,11 @@ open class UniversalGLCanvas(
             pixelBuffer = PixelBuffer(renderWidth, renderHeight, pixelIntBuffer, PixelFormat.getIntArgbPreInstance())
 
             image = WritableImage(pixelBuffer)
-            imageReady = false
         }
 
         glReadPixels(0, 0, renderWidth, renderHeight, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, pixelIntBuffer!!)
-        imageReady = true
-        bufferUpdateRequired = true
+        pixelBuffer.bufferDirty(null)
+        return@run
     }
 
     private fun updateFramebufferSize() = executor.run {
@@ -149,24 +146,7 @@ open class UniversalGLCanvas(
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer)
     }
 
-    override fun onNGRender(g: Graphics){
-        if(!initialized)
-            return
-
-        val imageToRender = if(imageReady){
-            lastImage = image
-            image
-        }else lastImage
-
-        val texture = g.resourceFactory.getCachedTexture(imageToRender.getPlatformImage() as Image, Texture.WrapMode.CLAMP_TO_EDGE)
-
-        drawResultTexture(g, texture)
-    }
-
-    override fun repaint() {
-        if(isVisible)
-            synchronized(repaintLock) { repaintLock.notifyAll() }
-    }
+    override fun repaint() = needsRepaint.set(true)
 
     private fun WritableImage.getPlatformImage() = Toolkit.getImageAccessor().getPlatformImage(this) as PlatformImage
 }

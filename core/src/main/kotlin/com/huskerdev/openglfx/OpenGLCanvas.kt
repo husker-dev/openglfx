@@ -67,15 +67,11 @@ abstract class OpenGLCanvas(
 
     var animator: GLCanvasAnimator? = null
         set(value) {
-            if(field != null) {
-                field!!.started = false
+            if(field != null)
                 field!!.boundCanvas = null
-            }
-
-            if(value != null)
-                value.boundCanvas = this
-
             field = value
+
+            value?.boundCanvas = this
         }
 
     protected val dpi: Double

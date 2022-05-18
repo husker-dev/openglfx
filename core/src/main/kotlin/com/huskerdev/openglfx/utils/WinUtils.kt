@@ -14,7 +14,7 @@ class WinUtils {
         @JvmStatic external fun wglDXUnlockObjectsNV(funP: Long, interopHandle: Long, sharedTextureHandle: Long): Boolean
         @JvmStatic external fun createD3DTexture(device: Long, width: Int, height: Int): LongArray
         @JvmStatic external fun replaceD3DTextureInResource(resource: Long, newTexture: Long)
-        @JvmStatic external fun createDummyGLWindow(): Long // retrieve DC
+        @JvmStatic external fun createGLContext(isCore: Boolean, shareRc: Long, choosePixelPtr: Long, createContextPtr: Long): LongArray
 
         fun loadLibrary(){
             if(initialized) return
@@ -23,10 +23,12 @@ class WinUtils {
             val fileName = "win_utils_${OpenGLFXUtils.archName}.dll"
             val tmpFileName = "${System.getProperty("java.io.tmpdir")}/$fileName"
 
-            val inputStream = this::class.java.getResourceAsStream("/com/huskerdev/openglfx/natives/$fileName")!!
-            FileOutputStream(tmpFileName).use {
-                inputStream.transferTo(it)
-            }
+            try {
+                val inputStream = this::class.java.getResourceAsStream("/com/huskerdev/openglfx/natives/$fileName")!!
+                FileOutputStream(tmpFileName).use {
+                    inputStream.transferTo(it)
+                }
+            }catch (_: Exception){}
             System.load(tmpFileName)
         }
     }

@@ -57,8 +57,8 @@ abstract class GLExecutor {
     abstract fun wglGetCurrentContext(): Long
     abstract fun wglGetCurrentDC(): Long
     abstract fun wglMakeCurrent(dc: Long, context: Long): Boolean
-    abstract fun wglCreateContext(dc: Long): Long
-    abstract fun wglShareLists(rc1: Long, rc2: Long): Boolean
+    abstract fun getWglChoosePixelFormatARBPtr(): Long
+    abstract fun getWglCreateContextAttribsARBPtr(): Long
 
     // WGL DX
     abstract fun wglDXOpenDeviceNV(dxDevice: Long): Long

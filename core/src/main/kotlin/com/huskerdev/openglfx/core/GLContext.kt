@@ -11,10 +11,11 @@ abstract class GLContext(
     companion object {
         fun createNew(executor: GLExecutor, profile: Int): GLContext = executor.run {
             if(PlatformUtil.isWindows()){
-                val dc = WinUtils.createDummyGLWindow()
-                val rc = wglCreateContext(dc)
+                val result = WinUtils.createGLContext(
+                    profile == CORE_PROFILE, 0L,
+                    executor.getWglChoosePixelFormatARBPtr(), executor.getWglCreateContextAttribsARBPtr())
 
-                return WGLContext(executor, rc, dc)
+                return WGLContext(executor, result[0], result[1])
             }
             if(PlatformUtil.isMac()){
                 val pix = executor.createNativeObject()
@@ -35,11 +36,11 @@ abstract class GLContext(
 
         fun createNew(executor: GLExecutor, profile: Int, shareWith: GLContext): GLContext = executor.run {
             if(PlatformUtil.isWindows()){
-                shareWith as WGLContext
-                val rc = wglCreateContext(shareWith.dc)
-                wglShareLists(shareWith.rc, rc)
+                val result = WinUtils.createGLContext(
+                    profile == CORE_PROFILE, (shareWith as WGLContext).rc,
+                    executor.getWglChoosePixelFormatARBPtr(), executor.getWglCreateContextAttribsARBPtr())
 
-                return WGLContext(executor, rc, shareWith.dc)
+                return WGLContext(executor, result[0], result[1])
             }
             if(PlatformUtil.isMac()){
                 shareWith as CGLContext
