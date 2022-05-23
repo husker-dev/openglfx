@@ -29,11 +29,9 @@ dependencies {
     compileOnly platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
 
     compileOnly "org.lwjgl:lwjgl"
-    compileOnly "org.lwjgl:lwjgl-glfw"
     compileOnly "org.lwjgl:lwjgl-opengl"
 
     compileOnly "org.lwjgl:lwjgl::natives-$project.lwjglNatives"
-    compileOnly "org.lwjgl:lwjgl-glfw::natives-$project.lwjglNatives"
     compileOnly "org.lwjgl:lwjgl-opengl::natives-$project.lwjglNatives"
 
     compileOnly files('../libs/javafx.graphics.win-es2.jar')
