@@ -22,7 +22,6 @@ const val kCGLPFAOpenGLProfile = 99
 const val kCGLOGLPVersion_Legacy = 0x1000
 const val kCGLOGLPVersion_3_2_Core = 0x3200
 
-const val WGL_ACCESS_WRITE_DISCARD_NV = 0x2
 
 abstract class GLExecutor {
 
@@ -53,22 +52,6 @@ abstract class GLExecutor {
     abstract fun glViewport(x: Int, y: Int, w: Int, h: Int)
     abstract fun glFinish()
 
-    // WGL
-    abstract fun wglGetCurrentContext(): Long
-    abstract fun wglGetCurrentDC(): Long
-    abstract fun wglMakeCurrent(dc: Long, context: Long): Boolean
-    abstract fun getWglChoosePixelFormatARBPtr(): Long
-    abstract fun getWglCreateContextAttribsARBPtr(): Long
-
-    // WGL DX
-    abstract fun wglDXOpenDeviceNV(dxDevice: Long): Long
-    abstract fun wglDXRegisterObjectNV(device: Long, dxResource: Long, name: Int, type: Int, access: Int): Long
-    abstract fun wglDXSetResourceShareHandleNV(dxObject: Long, shareHandle: Long): Boolean
-    abstract fun wglDXUnregisterObjectNV(device: Long, obj: Long): Boolean
-    abstract fun hasWGLDX(): Boolean
-    abstract fun getWglDXLockObjectsNVPtr(): Long
-    abstract fun getWglDXUnlockObjectsNVPtr(): Long
-
     // CGL
     abstract fun CGLGetCurrentContext(): Long
     abstract fun CGLSetCurrentContext(context: Long): Int
@@ -76,11 +59,6 @@ abstract class GLExecutor {
     abstract fun CGLCreateContext(pix: Long, share: Long, ctxPtr: Long): Int
     abstract fun CGLDestroyPixelFormat(pix: Long): Int
     abstract fun CGLChoosePixelFormat(attribs: IntArray, pixPtr: Long, npix: IntArray): Int
-
-    // GLX
-    abstract fun glXGetCurrentDisplay(): Long
-    abstract fun glXGetCurrentContext(): Long
-    abstract fun glXMakeCurrent(display: Long, draw: Long, ctx: Long): Boolean
 }
 
 abstract class NativeObject {

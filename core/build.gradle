@@ -2,6 +2,8 @@ plugins {
     id 'org.jetbrains.kotlin.jvm'
 }
 
+
+
 repositories {
     mavenCentral()
 }
@@ -9,8 +11,7 @@ repositories {
 dependencies {
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib"
 
-    compileOnly "org.openjfx:javafx-base:$jfxVersion:win"
-    compileOnly "org.openjfx:javafx-controls:$jfxVersion:win"
-    compileOnly "org.openjfx:javafx-graphics:$jfxVersion:win"
-    compileOnly "org.openjfx:javafx-swing:$jfxVersion:win"
+    compileOnly "org.openjfx:javafx-base:$jfxVersion:$project.jfxNatives"
+    compileOnly "org.openjfx:javafx-controls:$jfxVersion:$project.jfxNatives"
+    compileOnly "org.openjfx:javafx-graphics:$jfxVersion:$project.jfxNatives"
 }

@@ -6,7 +6,6 @@ import com.huskerdev.openglfx.events.*
 import com.huskerdev.openglfx.jogl.events.*
 import com.jogamp.opengl.GL2
 import com.jogamp.opengl.GLProfile
-import javafx.event.EventType
 import jogamp.opengl.GLDrawableFactoryImpl
 
 class JOGLUniversalCanvas(
@@ -21,17 +20,10 @@ class JOGLUniversalCanvas(
             return field
         }
 
-    override fun dispatchRenderEvent(event: GLRenderEvent) =
-        super.dispatchRenderEvent(JOGLRenderEvent(gl!!, event.eventType as EventType<GLRenderEvent>, event.fps, event.delta))
-
-    override fun dispatchReshapeEvent(event: GLReshapeEvent) =
-        super.dispatchReshapeEvent(JOGLReshapeEvent(gl!!, event.eventType as EventType<GLReshapeEvent>, event.width, event.height))
-
-    override fun dispatchInitEvent(event: GLInitializeEvent) =
-        super.dispatchInitEvent(JOGLInitializeEvent(gl!!, event.eventType as EventType<GLInitializeEvent>))
-
-    override fun dispatchDisposeEvent(event: GLDisposeEvent) =
-        super.dispatchDisposeEvent(JOGLDisposeEvent(gl!!, event.eventType as EventType<GLDisposeEvent>))
+    override fun createRenderEvent(currentFps: Int, delta: Double, width: Int, height: Int) = JOGLRenderEvent(gl!!, GLRenderEvent.ANY, currentFps, delta, width, height)
+    override fun createReshapeEvent(width: Int, height: Int) = JOGLReshapeEvent(gl!!, GLReshapeEvent.ANY, width, height)
+    override fun createInitEvent() = JOGLInitializeEvent(gl!!, GLInitializeEvent.ANY)
+    override fun createDisposeEvent() = JOGLDisposeEvent(gl!!, GLDisposeEvent.ANY)
 }
 
 class JOGLSharedCanvas(
@@ -46,17 +38,10 @@ class JOGLSharedCanvas(
             return field
         }
 
-    override fun dispatchRenderEvent(event: GLRenderEvent) =
-        super.dispatchRenderEvent(JOGLRenderEvent(gl!!, event.eventType as EventType<GLRenderEvent>, event.fps, event.delta))
-
-    override fun dispatchReshapeEvent(event: GLReshapeEvent) =
-        super.dispatchReshapeEvent(JOGLReshapeEvent(gl!!, event.eventType as EventType<GLReshapeEvent>, event.width, event.height))
-
-    override fun dispatchInitEvent(event: GLInitializeEvent) =
-        super.dispatchInitEvent(JOGLInitializeEvent(gl!!, event.eventType as EventType<GLInitializeEvent>))
-
-    override fun dispatchDisposeEvent(event: GLDisposeEvent) =
-        super.dispatchDisposeEvent(JOGLDisposeEvent(gl!!, event.eventType as EventType<GLDisposeEvent>))
+    override fun createRenderEvent(currentFps: Int, delta: Double, width: Int, height: Int) = JOGLRenderEvent(gl!!, GLRenderEvent.ANY, currentFps, delta, width, height)
+    override fun createReshapeEvent(width: Int, height: Int) = JOGLReshapeEvent(gl!!, GLReshapeEvent.ANY, width, height)
+    override fun createInitEvent() = JOGLInitializeEvent(gl!!, GLInitializeEvent.ANY)
+    override fun createDisposeEvent() = JOGLDisposeEvent(gl!!, GLDisposeEvent.ANY)
 }
 
 class JOGLInteropCanvas(
@@ -71,15 +56,8 @@ class JOGLInteropCanvas(
             return field
         }
 
-    override fun dispatchRenderEvent(event: GLRenderEvent) =
-        super.dispatchRenderEvent(JOGLRenderEvent(gl!!, event.eventType as EventType<GLRenderEvent>, event.fps, event.delta))
-
-    override fun dispatchReshapeEvent(event: GLReshapeEvent) =
-        super.dispatchReshapeEvent(JOGLReshapeEvent(gl!!, event.eventType as EventType<GLReshapeEvent>, event.width, event.height))
-
-    override fun dispatchInitEvent(event: GLInitializeEvent) =
-        super.dispatchInitEvent(JOGLInitializeEvent(gl!!, event.eventType as EventType<GLInitializeEvent>))
-
-    override fun dispatchDisposeEvent(event: GLDisposeEvent) =
-        super.dispatchDisposeEvent(JOGLDisposeEvent(gl!!, event.eventType as EventType<GLDisposeEvent>))
+    override fun createRenderEvent(currentFps: Int, delta: Double, width: Int, height: Int) = JOGLRenderEvent(gl!!, GLRenderEvent.ANY, currentFps, delta, width, height)
+    override fun createReshapeEvent(width: Int, height: Int) = JOGLReshapeEvent(gl!!, GLReshapeEvent.ANY, width, height)
+    override fun createInitEvent() = JOGLInitializeEvent(gl!!, GLInitializeEvent.ANY)
+    override fun createDisposeEvent() = JOGLDisposeEvent(gl!!, GLDisposeEvent.ANY)
 }

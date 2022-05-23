@@ -12,35 +12,28 @@ import rendering.ExampleRenderer
 
 fun main(){
     System.setProperty("prism.vsync", "false")
+    OpenGLCanvas.forceUniversal = true
+
     Application.launch(UniversalExampleApp::class.java)
 }
 
 class UniversalExampleApp: Application(){
 
-    private lateinit var stage: Stage
-
     override fun start(stage: Stage?) {
-        this.stage = stage!!
+        stage!!.title = "Java \"Universal\" example"
+        stage.width = 400.0
+        stage.height = 400.0
 
-        stage.width = 300.0
-        stage.height = 300.0
-
-        stage.scene = Scene(object: SplitPane(){
-            init {
-                items.add(createGL())
-                items.add(createGL())
-            }
-        })
+        stage.scene = Scene(SplitPane(createGL(), createGL()))
         stage.show()
     }
 
     private fun createGL(): Region{
-        OpenGLCanvas.forceUniversal = true
         val canvas = OpenGLCanvas.create(JOGL_MODULE)
         canvas.animator = GLCanvasAnimator(60.0)
 
-        canvas.onReshape { ExampleRenderer.reshape(canvas, it) }
-        canvas.onRender { ExampleRenderer.render(canvas, it) }
+        canvas.addOnReshapeEvent(ExampleRenderer::reshape)
+        canvas.addOnRenderEvent(ExampleRenderer::render)
 
         return canvas
     }

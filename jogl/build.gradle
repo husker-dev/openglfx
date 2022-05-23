@@ -21,13 +21,15 @@ dependencies {
     compileOnly project(':core')
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib"
 
-    compileOnly "org.openjfx:javafx-base:$jfxVersion:win"
-    compileOnly "org.openjfx:javafx-controls:$jfxVersion:win"
-    compileOnly "org.openjfx:javafx-graphics:$jfxVersion:win"
-    compileOnly "org.openjfx:javafx-swing:$jfxVersion:win"
+    compileOnly "org.openjfx:javafx-base:$jfxVersion:$project.jfxNatives"
+    compileOnly "org.openjfx:javafx-controls:$jfxVersion:$project.jfxNatives"
+    compileOnly "org.openjfx:javafx-graphics:$jfxVersion:$project.jfxNatives"
 
-    compileOnly 'org.jogamp.jogl:jogl-all-main:2.3.2'
-    compileOnly 'org.jogamp.gluegen:gluegen-rt-main:2.3.2'
+    compileOnly "org.jogamp.gluegen:gluegen-rt:$joglVersion"
+    compileOnly "org.jogamp.gluegen:gluegen-rt:$joglVersion:natives-$project.joglNatives"
+
+    compileOnly "org.jogamp.jogl:jogl-all:$joglVersion"
+    compileOnly "org.jogamp.jogl:jogl-all:$joglVersion:natives-$project.joglNatives"
 
     compileOnly files('../libs/javafx.graphics.win-es2.jar')
 }

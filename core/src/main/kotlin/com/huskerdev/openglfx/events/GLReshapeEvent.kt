@@ -7,8 +7,8 @@ import javafx.event.EventType
 
 open class GLReshapeEvent(
     @NamedArg("eventType") eventType: EventType<GLReshapeEvent>,
-    val width: Int,
-    val height: Int
+    @JvmField val width: Int,
+    @JvmField val height: Int
 ) : Event(eventType) {
 
     companion object {

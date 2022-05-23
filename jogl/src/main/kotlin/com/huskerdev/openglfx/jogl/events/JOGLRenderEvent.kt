@@ -9,5 +9,7 @@ class JOGLRenderEvent(
     val gl: GL2,
     @NamedArg("eventType") eventType: EventType<GLRenderEvent>,
     fps: Int,
-    delta: Double
-): GLRenderEvent(eventType, fps, delta)
+    delta: Double,
+    width: Int,
+    height: Int
+): GLRenderEvent(eventType, fps, delta, width, height)

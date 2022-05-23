@@ -33,4 +33,12 @@ class GLCanvasAnimator @JvmOverloads constructor(
                 }, 0, (1000000000 / fps).toLong(), TimeUnit.NANOSECONDS)
             }
         }
+
+    internal fun bind(canvas: OpenGLCanvas?){
+        boundCanvas = canvas
+    }
+
+    internal fun unbind(){
+        boundCanvas = null
+    }
 }

@@ -1,4 +1,3 @@
-import org.gradle.internal.os.OperatingSystem
 
 plugins {
     id 'org.jetbrains.kotlin.jvm'
@@ -8,58 +7,34 @@ repositories {
     mavenCentral()
 }
 
-def os = OperatingSystem.current()
-def osArch = System.getProperty("os.arch")
-def arm64 = osArch.startsWith("aarch64") || osArch.startsWith("armv8")
-def arm32 = osArch.startsWith("arm") && !arm64
-def x64 = osArch.contains("64") && !arm32 && !arm64
-def x86 = !x64 && !arm32 && !arm64
-
-def lwjglArch = arm64? "-arm64" :arm32? "-arm32" :x64? "" :x86? "-x86" : ""
-def lwjglOS = os.linux? "linux" :os.macOsX? "macos" :os.windows? "windows" : os.name
-def lwjglNatives = lwjglOS + lwjglArch
-
-def jfxArch = arm64? "-aarch64" :arm32? "-arm32" :x64? "" :x86? "-x86" : ""
-def jfxOS = os.linux? "linux" :os.macOsX? "mac" :os.windows? "win" : os.name
-def jfxNatives = jfxOS + jfxArch
-
 sourceSets{
     examples {
         resources { srcDirs "src/examples/resources" }
         java {
-            srcDirs 'src/examples/kotlin'
+            srcDirs 'src/examples/kotlin', 'src/examples/java'
             compileClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.compileClasspath
             runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.compileClasspath
         }
     }
 }
 
-jar {
-    manifest {
-        attributes 'Main-Class': 'UniversalKt'
-    }
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-    }
-}
-
 dependencies {
-    implementation project(':core')
-    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+    compileOnly project(':core')
+    compileOnly "org.jetbrains.kotlin:kotlin-stdlib"
 
-    implementation "org.openjfx:javafx-base:$jfxVersion:$jfxNatives"
-    implementation "org.openjfx:javafx-controls:$jfxVersion:$jfxNatives"
-    implementation "org.openjfx:javafx-graphics:$jfxVersion:$jfxNatives"
+    compileOnly "org.openjfx:javafx-base:$jfxVersion:$project.jfxNatives"
+    compileOnly "org.openjfx:javafx-controls:$jfxVersion:$project.jfxNatives"
+    compileOnly "org.openjfx:javafx-graphics:$jfxVersion:$project.jfxNatives"
 
-    implementation platform("org.lwjgl:lwjgl-bom:3.3.0")
+    compileOnly platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
 
-    implementation "org.lwjgl:lwjgl"
-    implementation "org.lwjgl:lwjgl-glfw"
-    implementation "org.lwjgl:lwjgl-opengl"
+    compileOnly "org.lwjgl:lwjgl"
+    compileOnly "org.lwjgl:lwjgl-glfw"
+    compileOnly "org.lwjgl:lwjgl-opengl"
 
-    implementation "org.lwjgl:lwjgl::natives-$lwjglNatives"
-    implementation "org.lwjgl:lwjgl-glfw::natives-$lwjglNatives"
-    implementation "org.lwjgl:lwjgl-opengl::natives-$lwjglNatives"
+    compileOnly "org.lwjgl:lwjgl::natives-$project.lwjglNatives"
+    compileOnly "org.lwjgl:lwjgl-glfw::natives-$project.lwjglNatives"
+    compileOnly "org.lwjgl:lwjgl-opengl::natives-$project.lwjglNatives"
 
     compileOnly files('../libs/javafx.graphics.win-es2.jar')
 }

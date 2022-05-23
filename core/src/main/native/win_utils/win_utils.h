@@ -22,25 +22,175 @@ struct D3DResource {
 	IDirect3DSurface9* pDepthSurface;
 	IDirect3DTexture9* pTexture;
 
-	D3DSURFACE_DESC      desc;
+	D3DSURFACE_DESC desc;
 };
+
+HDC dc = 0;
+
+PFNWGLCHOOSEPIXELFORMATARBPROC          wglChoosePixelFormatARB;
+PFNWGLCREATECONTEXTATTRIBSARBPROC       wglCreateContextAttribsARB;
+
+PFNWGLDXOPENDEVICENVPROC                wglDXOpenDeviceNV = 0;
+PFNWGLDXREGISTEROBJECTNVPROC            wglDXRegisterObjectNV;
+PFNWGLDXSETRESOURCESHAREHANDLENVPROC    wglDXSetResourceShareHandleNV;
+PFNWGLDXUNREGISTEROBJECTNVPROC          wglDXUnregisterObjectNV;
+PFNWGLDXLOCKOBJECTSNVPROC               wglDXLockObjectsNV;
+PFNWGLDXUNLOCKOBJECTSNVPROC             wglDXUnlockObjectsNV;
 
 extern "C" {
 
-    JNIEXPORT jboolean JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_wglDXLockObjectsNV(JNIEnv* env, jobject, jlong funP, jlong handle, jlong textureHandle) {
-        PFNWGLDXLOCKOBJECTSNVPROC wglDXLockObjectsNV = (PFNWGLDXLOCKOBJECTSNVPROC)funP;
-        HANDLE sharedTextureHandle = (HANDLE)textureHandle;
+    jlongArray createLongArray(JNIEnv* env, int size, jlong* elements) {
+        jlongArray result = env->NewLongArray(size);
+        env->SetLongArrayRegion(result, 0, size, elements);
+        return result;
+    }
+
+    void checkBasicFunctions() {
+        if (dc == 0) {
+            HDC oldDC = wglGetCurrentDC();
+            HGLRC oldRC = wglGetCurrentContext();
+
+            PIXELFORMATDESCRIPTOR pfd = {};
+            pfd.nSize = sizeof(pfd);
+
+            WNDCLASS wc = {};
+            wc.lpfnWndProc = DefWindowProc;
+            wc.hInstance = GetModuleHandle(NULL);
+            wc.lpszClassName = L"openglfx";
+            RegisterClass(&wc);
+
+            // Create dummy window to initialize function
+            {
+                HWND hwnd = CreateWindow(
+                    L"openglfx", L"",
+                    WS_OVERLAPPEDWINDOW,
+                    0, 0,
+                    100, 100,
+                    NULL, NULL,
+                    GetModuleHandle(NULL),
+                    NULL);
+                HDC dc = GetDC(hwnd);
+
+                int pixel_format = 0;
+                if (!(pixel_format = ChoosePixelFormat(dc, &pfd)))
+                    std::cout << "Failed to choose pixel format" << std::endl;
+                if (!SetPixelFormat(dc, pixel_format, &pfd))
+                    std::cout << "Failed to set pixel format" << std::endl;
+
+                HGLRC rc = wglCreateContext(dc);
+                wglMakeCurrent(dc, rc);
+
+                // Load functions
+                wglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormatARB");
+                wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribsARB");
+
+                wglDXOpenDeviceNV = (PFNWGLDXOPENDEVICENVPROC)wglGetProcAddress("wglDXOpenDeviceNV");
+                wglDXRegisterObjectNV = (PFNWGLDXREGISTEROBJECTNVPROC)wglGetProcAddress("wglDXRegisterObjectNV");
+                wglDXSetResourceShareHandleNV = (PFNWGLDXSETRESOURCESHAREHANDLENVPROC)wglGetProcAddress("wglDXSetResourceShareHandleNV");
+                wglDXUnregisterObjectNV = (PFNWGLDXUNREGISTEROBJECTNVPROC)wglGetProcAddress("wglDXUnregisterObjectNV");
+                wglDXLockObjectsNV = (PFNWGLDXLOCKOBJECTSNVPROC)wglGetProcAddress("wglDXLockObjectsNV");
+                wglDXUnlockObjectsNV = (PFNWGLDXUNLOCKOBJECTSNVPROC)wglGetProcAddress("wglDXUnlockObjectsNV");
+
+                // Destroy dummy context
+                wglMakeCurrent(oldDC, oldRC);
+                wglDeleteContext(rc);
+                ReleaseDC(hwnd, dc);
+                DestroyWindow(hwnd);
+            }
+            
+            // Create window with ARB pixel attributes
+            HWND hwnd = CreateWindow(
+                L"openglfx", L"",
+                WS_OVERLAPPEDWINDOW,
+                0, 0,
+                100, 100,
+                NULL, NULL,
+                GetModuleHandle(NULL),
+                NULL);
+            dc = GetDC(hwnd);
+
+            int pixel_format_arb;
+            UINT pixel_formats_count;
+
+            int pixel_attributes[] = {
+                WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
+                WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
+                0
+            };
+            if (!wglChoosePixelFormatARB(dc, pixel_attributes, NULL, 1, &pixel_format_arb, &pixel_formats_count))
+                std::cout << "Failed to choose supported pixel format (WGL)" << std::endl;
+            if (!SetPixelFormat(dc, pixel_format_arb, &pfd))
+                std::cout << "Failed to set pixel format (WGL)" << std::endl;
+        }
+    }
+
+    JNIEXPORT jlongArray JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_getCurrentContext(JNIEnv* env, jobject) {
+        checkBasicFunctions();
         
-        return wglDXLockObjectsNV((HANDLE)handle, 1, &sharedTextureHandle);
+        jlong array[2] = { (jlong)wglGetCurrentContext(), (jlong)wglGetCurrentDC() };
+        return createLongArray(env, 2, array);
     }
 
-    JNIEXPORT jboolean JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_wglDXUnlockObjectsNV(JNIEnv* env, jobject, jlong funP, jlong handle, jlong textureHandle) {
-        PFNWGLDXUNLOCKOBJECTSNVPROC wglDXUnlockObjectsNV = (PFNWGLDXUNLOCKOBJECTSNVPROC)funP;
-        HANDLE sharedTextureHandle = (HANDLE)textureHandle;
-
-        return wglDXUnlockObjectsNV((HANDLE)handle, 1, &sharedTextureHandle);
+    JNIEXPORT jboolean JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_setCurrentContext(JNIEnv* env, jobject, jlong dc, jlong rc) {
+        checkBasicFunctions();
+        return wglMakeCurrent((HDC)dc, (HGLRC)rc);
     }
 
+    JNIEXPORT jlongArray JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_createContext(JNIEnv* env, jobject, jboolean isCore, jlong shareRc) {
+        checkBasicFunctions();
+
+        GLint context_attributes[] = {
+            WGL_CONTEXT_PROFILE_MASK_ARB, isCore ? WGL_CONTEXT_CORE_PROFILE_BIT_ARB : WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
+            0
+        };
+
+        HGLRC rc;
+        if (!(rc = wglCreateContextAttribsARB(dc, (HGLRC)shareRc, context_attributes)))
+            std::cout << "Failed to create context (WGL)" << std::endl;
+
+        jlong array[2] = { (jlong)rc, (jlong)dc };
+        return createLongArray(env, 2, array);
+    }
+
+    JNIEXPORT jboolean JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_hasDXInterop(JNIEnv* env, jobject) {
+        checkBasicFunctions();
+        return wglDXOpenDeviceNV != 0;
+    }
+
+    JNIEXPORT jlong JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_wglDXOpenDeviceNV(JNIEnv* env, jobject, jlong dxDevice) {
+        checkBasicFunctions();
+        return (jlong)wglDXOpenDeviceNV((void*)dxDevice);
+    }
+
+    JNIEXPORT jlong JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_wglDXRegisterObjectNV(JNIEnv* env, jobject, jlong device, jlong dxResource, jint name, jint type, jint access) {
+        checkBasicFunctions();
+        return (jlong)wglDXRegisterObjectNV((HANDLE)device, (void*)dxResource, name, type, access);
+    }
+
+    JNIEXPORT jboolean JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_wglDXSetResourceShareHandleNV(JNIEnv* env, jobject, jlong dxResource, jlong shareHandle) {
+        checkBasicFunctions();
+        return (jboolean)wglDXSetResourceShareHandleNV((void*)dxResource, (HANDLE)shareHandle);
+    }
+
+    JNIEXPORT jboolean JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_wglDXUnregisterObjectNV(JNIEnv* env, jobject, jlong device, jlong object) {
+        checkBasicFunctions();
+        return (jboolean)wglDXUnregisterObjectNV((HANDLE)device, (HANDLE)object);
+    }
+
+    JNIEXPORT jboolean JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_wglDXLockObjectsNV(JNIEnv* env, jobject, jlong handle, jlong textureHandle) {
+        checkBasicFunctions();
+        return wglDXLockObjectsNV((HANDLE)handle, 1, (HANDLE*)&textureHandle);
+    }
+
+    JNIEXPORT jboolean JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_wglDXUnlockObjectsNV(JNIEnv* env, jobject, jlong handle, jlong textureHandle) {
+        checkBasicFunctions();
+        return wglDXUnlockObjectsNV((HANDLE)handle, 1, (HANDLE*)&textureHandle);
+    }
+
+    /*  ===========
+            D3D
+        ===========
+    */
     JNIEXPORT jlongArray JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_createD3DTexture(JNIEnv* env, jobject, jlong _device, jint width, jint height) {
         IDirect3DDevice9Ex* device = (IDirect3DDevice9Ex*)_device;
 
@@ -73,72 +223,5 @@ extern "C" {
         resource->pTexture->GetSurfaceLevel(0, &resource->pSurface);
         if (resource->pSurface != nullptr)
             resource->pSurface->GetDesc(&resource->desc);
-    }
-
-    JNIEXPORT jlongArray JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_createGLContext(JNIEnv* env, jobject, jboolean isCore, jlong shareRc, jlong choosePixelPtr, jlong createContextPtr) {
-        PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC)choosePixelPtr;
-        PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC)createContextPtr;
-
-        WNDCLASS wc = {};
-        wc.lpfnWndProc = DefWindowProc;
-        wc.hInstance = GetModuleHandle(NULL);
-        wc.lpszClassName = L"openglfx";
-        RegisterClass(&wc);
-
-        HWND hwnd = CreateWindowEx(
-            WS_EX_APPWINDOW,
-            L"openglfx", L"",
-            WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_SYSMENU | WS_MINIMIZEBOX | WS_CAPTION | WS_MAXIMIZEBOX | WS_THICKFRAME,
-            0, 0,
-            100, 100,
-            NULL, NULL,
-            GetModuleHandle(NULL),
-            NULL);
-        HDC dc = GetDC(hwnd);
-
-        // Create basic pixel format
-        PIXELFORMATDESCRIPTOR pfd = {};
-        pfd.nSize = sizeof(pfd);
-        pfd.dwFlags = PFD_DOUBLEBUFFER | PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW;
-        pfd.iPixelType = PFD_TYPE_RGBA;
-        pfd.cColorBits = 24;
-        pfd.cDepthBits = 16;
-        pfd.iLayerType = PFD_MAIN_PLANE;
-
-        // Create extended pixel format
-        int pixel_format_arb;
-        UINT pixel_formats_count;
-
-        int pixel_attributes[] = {
-            WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
-            WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
-            WGL_DOUBLE_BUFFER_ARB, GL_TRUE,
-            WGL_COLOR_BITS_ARB, 24,
-            WGL_DEPTH_BITS_ARB, 16,
-            WGL_ACCELERATION_ARB, WGL_FULL_ACCELERATION_ARB,
-            WGL_PIXEL_TYPE_ARB, WGL_TYPE_RGBA_ARB,
-            0
-        };
-        if (!wglChoosePixelFormatARB(dc, pixel_attributes, NULL, 1, &pixel_format_arb, &pixel_formats_count))
-            std::cout << "Failed to choose supported pixel format (WGL)" << std::endl;
-        if (!SetPixelFormat(dc, pixel_format_arb, &pfd))
-            std::cout << "Failed to set pixel format (WGL)" << std::endl;
-
-        // Create context
-        GLint context_attributes[] = {
-            WGL_CONTEXT_PROFILE_MASK_ARB, isCore ? WGL_CONTEXT_CORE_PROFILE_BIT_ARB : WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
-            0
-        };
-
-        HGLRC rc;
-        if (!(rc = wglCreateContextAttribsARB(dc, (HGLRC)shareRc, context_attributes)))
-            std::cout << "Failed to create context (WGL)" << std::endl;
-        wglMakeCurrent(nullptr, nullptr);
-
-        jlongArray result = env->NewLongArray(2);
-        jlong array[2] = { (jlong)rc, (jlong)dc };
-        env->SetLongArrayRegion(result, 0, 2, array);
-
-        return result;
     }
 }

@@ -7,7 +7,14 @@ import com.huskerdev.openglfx.core.*
 import com.huskerdev.openglfx.utils.OpenGLFXUtils.Companion.DX9TextureResource
 import com.huskerdev.openglfx.core.d3d9.D3D9Device
 import com.huskerdev.openglfx.core.d3d9.D3D9Texture
+import com.huskerdev.openglfx.utils.WGL_ACCESS_WRITE_DISCARD_NV
 import com.huskerdev.openglfx.utils.WinUtils
+import com.huskerdev.openglfx.utils.WinUtils.Companion.wglDXLockObjectsNV
+import com.huskerdev.openglfx.utils.WinUtils.Companion.wglDXOpenDeviceNV
+import com.huskerdev.openglfx.utils.WinUtils.Companion.wglDXRegisterObjectNV
+import com.huskerdev.openglfx.utils.WinUtils.Companion.wglDXSetResourceShareHandleNV
+import com.huskerdev.openglfx.utils.WinUtils.Companion.wglDXUnlockObjectsNV
+import com.huskerdev.openglfx.utils.WinUtils.Companion.wglDXUnregisterObjectNV
 import com.sun.javafx.scene.DirtyBits
 import com.sun.javafx.scene.NodeHelper
 import com.sun.prism.Graphics
@@ -29,9 +36,6 @@ open class InteropGLCanvas(
 
         private var interopHandle = -1L
 
-        init {
-            WinUtils.loadLibrary()
-        }
     }
 
     private var lastSize = Pair(-1, -1)
@@ -103,14 +107,14 @@ open class InteropGLCanvas(
     private fun lockInteropTexture(){
         if(!locked){
             locked = true
-            WinUtils.wglDXLockObjectsNV(executor.getWglDXLockObjectsNVPtr(), interopHandle, sharedTextureHandle)
+            wglDXLockObjectsNV(interopHandle, sharedTextureHandle)
         }
     }
 
     private fun unlockInteropTexture(){
         if(locked){
             locked = false
-            WinUtils.wglDXUnlockObjectsNV(executor.getWglDXUnlockObjectsNVPtr(), interopHandle, sharedTextureHandle)
+            wglDXUnlockObjectsNV(interopHandle, sharedTextureHandle)
         }
     }
 

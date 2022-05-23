@@ -1,6 +1,5 @@
 package rendering
 
-import com.huskerdev.openglfx.OpenGLCanvas
 import com.huskerdev.openglfx.events.*
 import com.huskerdev.openglfx.jogl.events.*
 import com.jogamp.opengl.GL.*
@@ -13,28 +12,28 @@ class ExampleRenderer {
     companion object {
         var animation = 0.0
 
-        fun reshape(canvas: OpenGLCanvas, event: GLReshapeEvent){
+        fun reshape(event: GLReshapeEvent){
             val gl = (event as JOGLReshapeEvent).gl
 
             gl.glMatrixMode(GL_PROJECTION)
             gl.glLoadIdentity()
 
-            val aspect = canvas.height / canvas.width
+            val aspect = event.height.toDouble() / event.width
             gl.glFrustum(-1.0, 1.0, -aspect, aspect, 5.0, 60.0)
             gl.glMatrixMode(GL_MODELVIEW)
             gl.glLoadIdentity()
 
-            gl.glTranslatef(0.0f, 0.0f, -40.0f);
+            gl.glTranslatef(0.0f, 0.0f, -40.0f)
             gl.glEnable(GL_DEPTH_TEST)
         }
 
-        fun render(canvas: OpenGLCanvas, event: GLRenderEvent){
+        fun render(event: GLRenderEvent){
             val gl = (event as JOGLRenderEvent).gl
 
             animation += event.delta * 100
 
-            val width = canvas.width
-            val height = canvas.height
+            val width = event.width.toDouble()
+            val height = event.height.toDouble()
 
             gl.glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
 

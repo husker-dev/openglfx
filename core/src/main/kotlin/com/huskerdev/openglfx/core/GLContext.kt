@@ -1,6 +1,8 @@
 package com.huskerdev.openglfx.core
 
-import com.huskerdev.openglfx.CORE_PROFILE
+
+import com.huskerdev.openglfx.OpenGLCanvas.Companion.CORE_PROFILE
+import com.huskerdev.openglfx.utils.LinuxUtils
 import com.huskerdev.openglfx.utils.WinUtils
 import com.sun.javafx.PlatformUtil
 
@@ -11,10 +13,7 @@ abstract class GLContext(
     companion object {
         fun createNew(executor: GLExecutor, profile: Int): GLContext = executor.run {
             if(PlatformUtil.isWindows()){
-                val result = WinUtils.createGLContext(
-                    profile == CORE_PROFILE, 0L,
-                    executor.getWglChoosePixelFormatARBPtr(), executor.getWglCreateContextAttribsARBPtr())
-
+                val result = WinUtils.createContext(profile == CORE_PROFILE, 0L)
                 return WGLContext(executor, result[0], result[1])
             }
             if(PlatformUtil.isMac()){
@@ -31,15 +30,16 @@ abstract class GLContext(
 
                 return CGLContext(executor, context.value)
             }
+            if(PlatformUtil.isLinux()){
+                val result = LinuxUtils.createContext(profile == CORE_PROFILE, 0L)
+                return GLXContext(executor, result[0], result[1], result[2])
+            }
             throw UnsupportedOperationException("Unsupported OS")
         }
 
         fun createNew(executor: GLExecutor, profile: Int, shareWith: GLContext): GLContext = executor.run {
             if(PlatformUtil.isWindows()){
-                val result = WinUtils.createGLContext(
-                    profile == CORE_PROFILE, (shareWith as WGLContext).rc,
-                    executor.getWglChoosePixelFormatARBPtr(), executor.getWglCreateContextAttribsARBPtr())
-
+                val result = WinUtils.createContext(profile == CORE_PROFILE, (shareWith as WGLContext).rc)
                 return WGLContext(executor, result[0], result[1])
             }
             if(PlatformUtil.isMac()){
@@ -57,26 +57,34 @@ abstract class GLContext(
 
                 return CGLContext(executor, context.value)
             }
+            if(PlatformUtil.isLinux()){
+                val result = LinuxUtils.createContext(profile == CORE_PROFILE, (shareWith as GLXContext).context)
+                return GLXContext(executor, result[0], result[1], result[2])
+            }
             throw UnsupportedOperationException("Unsupported OS")
         }
 
         fun fromCurrent(executor: GLExecutor) = executor.run {
-            if (PlatformUtil.isWindows())
-                WGLContext(executor, wglGetCurrentContext(), wglGetCurrentDC())
+            if (PlatformUtil.isWindows()) {
+                val result = WinUtils.getCurrentContext()
+                WGLContext(executor, result[0], result[1])
+            }
             else if (PlatformUtil.isMac())
                 CGLContext(executor, CGLGetCurrentContext())
-            else if (PlatformUtil.isLinux())
-                GLXContext(executor, glXGetCurrentDisplay(), glXGetCurrentContext())
+            else if (PlatformUtil.isLinux()) {
+                val result = LinuxUtils.getCurrentContext()
+                GLXContext(executor, result[0], result[1], result[2])
+            }
             else throw UnsupportedOperationException("Unsupported OS")
         }
 
         fun clearCurrent(executor: GLExecutor) = executor.run {
             if(PlatformUtil.isWindows())
-                wglMakeCurrent(0, 0)
+                WinUtils.setCurrentContext(0L, 0L)
             else if(PlatformUtil.isMac())
                 CGLSetCurrentContext(0) == 0
             else if(PlatformUtil.isLinux())
-                glXMakeCurrent(0, 0, 0)
+                LinuxUtils.setCurrentContext(0L, 0L, 0L)
             else throw UnsupportedOperationException("Unsupported OS")
         }
     }
@@ -88,7 +96,7 @@ abstract class GLContext(
         val rc: Long,
         val dc: Long
     ): GLContext(executor) {
-        override fun makeCurrent() = executor.wglMakeCurrent(dc, rc)
+        override fun makeCurrent() = WinUtils.setCurrentContext(dc, rc)
     }
 
     class CGLContext(
@@ -101,8 +109,9 @@ abstract class GLContext(
     class GLXContext(
         executor: GLExecutor,
         val display: Long,
+        val window: Long,
         val context: Long,
     ): GLContext(executor) {
-        override fun makeCurrent() = executor.glXMakeCurrent(display, 0, context)
+        override fun makeCurrent() = LinuxUtils.setCurrentContext(display, window, context)
     }
 }

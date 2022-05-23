@@ -9,7 +9,7 @@ plugins {
 }
 
 allprojects {
-    version = "2.8"
+    version = "3.0"
 }
 
 repositories {
@@ -18,30 +18,30 @@ repositories {
 
 group 'com.huskerdev.openglfx'
 
-subprojects {
-    apply plugin: 'java'
-    apply plugin: 'maven'
+// Natives variables for LWJGL and JFX
+def os = OperatingSystem.current()
+def osArch = System.getProperty("os.arch")
+def arm64 = osArch.startsWith("aarch64") || osArch.startsWith("armv8")
+def arm32 = osArch.startsWith("arm") && !arm64
+def x64 = osArch.contains("64") && !arm32 && !arm64
+def x86 = !x64 && !arm32 && !arm64
 
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
+def lwjglArch = arm64? "-arm64" :arm32? "-arm32" :x64? "" :x86? "-x86" : ""
+def lwjglOS = os.linux? "linux" :os.macOsX? "macos" :os.windows? "windows" : os.name
+project.ext.lwjglNatives = lwjglOS + lwjglArch
 
-    task sourcesJar(type: Jar, dependsOn: classes) {
-        classifier = 'sources'
-        from sourceSets.main.allSource
-    }
+def joglArch = arm64? "-armv6hv" :arm32? "-armv6" :x64? "-amd64" :x86? "-i586" : ""
+def joglOS = os.linux? "linux" :os.macOsX? "macosx" :os.windows? "windows" : os.name
+project.ext.joglShortOS = os.linux? "x11" :os.macOsX? "osx" :os.windows? "win" : os.name
+project.ext.joglNatives = joglOS + (os.macOsX ? "-universal" : joglArch)
 
-    task javadocJar(type: Jar, dependsOn: javadoc) {
-        classifier = 'javadoc'
-        from javadoc.destinationDir
-    }
+def jfxArch = arm64? "-aarch64" :arm32? "-arm32" :x64? "" :x86? "-x86" : ""
+def jfxOS = os.linux? "linux" :os.macOsX? "mac" :os.windows? "win" : os.name
+project.ext.jfxNatives = jfxOS + jfxArch
 
-    artifacts {
-        archives sourcesJar
-        archives javadocJar
-    }
-}
 
-task compileJar {
+// Tasks
+task compileJars {
     group 'release'
     doLast {
         Path out = Paths.get("$projectDir/build/libs")
@@ -59,9 +59,9 @@ task compileJar {
         Files.copy(Paths.get("$projectDir/jogl/build/libs/jogl-${version}.jar"), Paths.get("$projectDir/build/libs/openglfx-jogl-${version}.jar"), REPLACE_EXISTING)
     }
 }
-compileJar.dependsOn 'core:jar'
-compileJar.dependsOn 'lwjgl:jar'
-compileJar.dependsOn 'jogl:jar'
+compileJars.dependsOn 'core:jar'
+compileJars.dependsOn 'lwjgl:jar'
+compileJars.dependsOn 'jogl:jar'
 
 
 task compileWinUtils() {
@@ -91,7 +91,7 @@ task compileWinUtils() {
 }
 
 static String repeat(String str, int count){
-    return new String(new char[count]).replace("\0", str);
+    return new String(new char[count]).replace("\0", str)
 }
 
 ConsoleOutput runCommand(String command, String context = null){
