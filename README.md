@@ -86,11 +86,11 @@ You can use [example generator](https://huskerdev.com/?page=tools/openglfx) to m
 
 Animator allows to automatically repaint canvas with fixed FPS.
 
-> Due to JavaFX limits, ```onRender``` method may be called less times than required. 
-
 ```kotlin
 canvas.animator = GLCanvasAnimator(60.0) // FPS: 60
 ```
+> Due to JavaFX limits, rendering method may be called less times than required. 
+> 
 
 To set unlimited FPS, replace number to ```GLCanvasAnimator.UNLIMITED_FPS```:
 ```kotlin
