@@ -6,7 +6,7 @@ import com.jogamp.opengl.GL2
 import javafx.beans.NamedArg
 import javafx.event.EventType
 
-class JOGLDisposeEvent(
-    gl: GL2,
+class JOGLDisposeEvent (
+    override val gl: GL2,
     @NamedArg("eventType") eventType: EventType<GLDisposeEvent>
-): GLDisposeEvent(eventType)
+): GLDisposeEvent(eventType), JOGLEvent

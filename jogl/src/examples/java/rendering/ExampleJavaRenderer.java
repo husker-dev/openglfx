@@ -14,7 +14,7 @@ public class ExampleJavaRenderer {
     static float animation = 0f;
 
     public static void reshape(GLReshapeEvent event){
-        GL2 gl = ((JOGLReshapeEvent)event).getGl().getGL2();
+        GL2 gl = ((JOGLEvent)event).getGl();
 
         gl.glMatrixMode(GL_PROJECTION);
         gl.glLoadIdentity();
@@ -29,7 +29,7 @@ public class ExampleJavaRenderer {
     }
 
     public static void render(GLRenderEvent event){
-        GL2 gl = ((JOGLRenderEvent)event).getGl().getGL2();
+        GL2 gl = ((JOGLEvent)event).getGl();
 
         animation += event.delta * 100;
 

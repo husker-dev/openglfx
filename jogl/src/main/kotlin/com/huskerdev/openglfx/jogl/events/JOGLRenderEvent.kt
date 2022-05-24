@@ -6,10 +6,10 @@ import javafx.beans.NamedArg
 import javafx.event.EventType
 
 class JOGLRenderEvent(
-    val gl: GL2,
+    override val gl: GL2,
     @NamedArg("eventType") eventType: EventType<GLRenderEvent>,
     fps: Int,
     delta: Double,
     width: Int,
     height: Int
-): GLRenderEvent(eventType, fps, delta, width, height)
+): GLRenderEvent(eventType, fps, delta, width, height), JOGLEvent

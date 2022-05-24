@@ -4,9 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d39d0143-d2aa-4261-8506-35cd0ece831b" name="Changes" comment="Examples, Linux natives, FpsCounter">
+    <list default="true" id="d39d0143-d2aa-4261-8506-35cd0ece831b" name="Changes" comment="Some build fixes">
+      <change afterPath="$PROJECT_DIR$/jogl/src/main/kotlin/com/huskerdev/openglfx/jogl/events/JOGLEvent.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lwjgl/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/lwjgl/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/jogl/src/examples/java/rendering/ExampleJavaRenderer.java" beforeDir="false" afterPath="$PROJECT_DIR$/jogl/src/examples/java/rendering/ExampleJavaRenderer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/jogl/src/examples/kotlin/rendering/ExampleRenderer.kt" beforeDir="false" afterPath="$PROJECT_DIR$/jogl/src/examples/kotlin/rendering/ExampleRenderer.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/jogl/src/main/kotlin/com/huskerdev/openglfx/jogl/events/JOGLDisposeEvent.kt" beforeDir="false" afterPath="$PROJECT_DIR$/jogl/src/main/kotlin/com/huskerdev/openglfx/jogl/events/JOGLDisposeEvent.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/jogl/src/main/kotlin/com/huskerdev/openglfx/jogl/events/JOGLInitializeEvent.kt" beforeDir="false" afterPath="$PROJECT_DIR$/jogl/src/main/kotlin/com/huskerdev/openglfx/jogl/events/JOGLInitializeEvent.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/jogl/src/main/kotlin/com/huskerdev/openglfx/jogl/events/JOGLRenderEvent.kt" beforeDir="false" afterPath="$PROJECT_DIR$/jogl/src/main/kotlin/com/huskerdev/openglfx/jogl/events/JOGLRenderEvent.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/jogl/src/main/kotlin/com/huskerdev/openglfx/jogl/events/JOGLReshapeEvent.kt" beforeDir="false" afterPath="$PROJECT_DIR$/jogl/src/main/kotlin/com/huskerdev/openglfx/jogl/events/JOGLReshapeEvent.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -116,7 +122,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/jogl/src/examples/java" />
+    <property name="last_opened_file_path" value="$USER_HOME$/Documents/Java_projects/DavydShit" />
     <property name="project.structure.last.edited" value="Project" />
     <property name="project.structure.proportion" value="0.13869625" />
     <property name="project.structure.side.proportion" value="0.2" />
@@ -144,7 +150,7 @@
       <recent name="" />
     </key>
   </component>
-  <component name="RunManager" selected="Kotlin.LWJGL Interop">
+  <component name="RunManager" selected="Kotlin.JOGL Interop">
     <configuration name="JOGL Interop" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="Interop" />
       <module name="openglfx.jogl.examples" />
@@ -339,7 +345,8 @@
       <workItem from="1653121612641" duration="1701000" />
       <workItem from="1653133673156" duration="2023000" />
       <workItem from="1653213992421" duration="7059000" />
-      <workItem from="1653287492295" duration="5745000" />
+      <workItem from="1653287492295" duration="6656000" />
+      <workItem from="1653385966994" duration="1039000" />
     </task>
     <task id="LOCAL-00001" summary="Added JavaFX events">
       <created>1651573350041</created>
@@ -558,7 +565,14 @@
       <option name="project" value="LOCAL" />
       <updated>1653315183631</updated>
     </task>
-    <option name="localTasksCounter" value="32" />
+    <task id="LOCAL-00032" summary="Some build fixes">
+      <created>1653316716590</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1653316716590</updated>
+    </task>
+    <option name="localTasksCounter" value="33" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -595,6 +609,7 @@
     <MESSAGE value="Added GL profile support to macOS" />
     <MESSAGE value="Profile choosing on Windows, Animator improvements" />
     <MESSAGE value="Examples, Linux natives, FpsCounter" />
-    <option name="LAST_COMMIT_MESSAGE" value="Examples, Linux natives, FpsCounter" />
+    <MESSAGE value="Some build fixes" />
+    <option name="LAST_COMMIT_MESSAGE" value="Some build fixes" />
   </component>
 </project>

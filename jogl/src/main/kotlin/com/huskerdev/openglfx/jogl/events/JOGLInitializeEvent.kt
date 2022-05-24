@@ -6,6 +6,6 @@ import javafx.beans.NamedArg
 import javafx.event.EventType
 
 class JOGLInitializeEvent(
-    val gl: GL2,
+    override val gl: GL2,
     @NamedArg("eventType") eventType: EventType<GLInitializeEvent>
-): GLInitializeEvent(eventType)
+): GLInitializeEvent(eventType), JOGLEvent

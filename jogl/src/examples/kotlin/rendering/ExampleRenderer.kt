@@ -13,7 +13,7 @@ class ExampleRenderer {
         var animation = 0.0
 
         fun reshape(event: GLReshapeEvent){
-            val gl = (event as JOGLReshapeEvent).gl
+            val gl = (event as JOGLEvent).gl
 
             gl.glMatrixMode(GL_PROJECTION)
             gl.glLoadIdentity()
@@ -28,7 +28,7 @@ class ExampleRenderer {
         }
 
         fun render(event: GLRenderEvent){
-            val gl = (event as JOGLRenderEvent).gl
+            val gl = (event as JOGLEvent).gl
 
             animation += event.delta * 100
 

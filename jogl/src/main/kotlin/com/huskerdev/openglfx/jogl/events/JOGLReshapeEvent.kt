@@ -6,8 +6,8 @@ import javafx.beans.NamedArg
 import javafx.event.EventType
 
 class JOGLReshapeEvent(
-    val gl: GL2,
+    override val gl: GL2,
     @NamedArg("eventType") eventType: EventType<GLReshapeEvent>,
     width: Int,
     height: Int
-): GLReshapeEvent(eventType, width, height)
+): GLReshapeEvent(eventType, width, height), JOGLEvent
