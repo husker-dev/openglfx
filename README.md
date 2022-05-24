@@ -6,13 +6,11 @@
 OpenGL implementation for JavaFX
 
 ## Features:
-  - **JOGL** support
-  - **LWJGL** support
-  - One-line Node creation
-  - Smooth resizing without slowing down the program
+  - **JOGL** and **LWJGL** support
   - HiDPI support
+  - Good performance
 
-## Examples
+## Screenshots
 
 <p>
 <img src="https://user-images.githubusercontent.com/31825139/129398976-f1317b23-5583-47e9-ab1c-d12eea54d4ab.gif" height="280"/>
@@ -21,180 +19,106 @@ OpenGL implementation for JavaFX
 
 ## How it works
 
-There are two ways to render OpenGL content into JavaFX frame:
-- The first method is to change the rendering function of the node, and call our OpenGL draw calls. 
-  This method only works if ES2 is selected as the JavaFX rendering engine (pipeline). It is called ```Direct```
-- The second way is to create a new OpenGL window where all the rendering takes place. Later, the entire pixel buffer is copied to the image on the JavaFX side. 
-  This method is very slow, although it has an acceleration due to the use of IntBuffer from NIO. But, anyway it calculates on CPU. This method is called ```Universal```
+- ### Windows
+  [NV_DX_interop](https://www.khronos.org/registry/OpenGL/extensions/NV/WGL_NV_DX_interop.txt) is used to synchronize textures between DirectX and OpenGL.
 
-There are also several ways to call OpenGL functions from Java code. The most preferred is ```LWJGL``` because it doesn't create unnecessary objects like ```JOGL``` does. All of them supported in this library.
+- ### Linux and macOS
+  Creates a new GL context, that is shared with the JavaFX's one. 
+
+  Then renders to a JavaFX texture.
+
+- ### Other cases (Fallback)
+  Copies PixelBuffer from ```glReadPixels``` to JavaFX Image
 
 ## Example code
 
-  You can use [example generator](https://huskerdev.com/?page=tools/openglfx), or choose one of these:
+You can use [example generator](https://huskerdev.com/?page=tools/openglfx) to mix **Java/Kotlin** and **Gradle/Maven/Sbt**
 
-  <details><summary>LWJGL</summary>
-
-  ### Gradle
+### Example with LWJGL + Kotlin:
+  #### Gradle
   ```groovy
   repositories {
       mavenCentral()
       maven { url 'https://jitpack.io' }
   }
-  
+
   // ...
-  
+
   dependencies {
       // OpenGLFX
-      implementation 'com.github.husker-dev.openglfx:core:2.10'
-      implementation 'com.github.husker-dev.openglfx:lwjgl:2.10'
-    
+      implementation 'com.github.husker-dev.openglfx:core:3.0'
+      implementation 'com.github.husker-dev.openglfx:lwjgl:3.0'
+
       // LWJGL
       implementation "org.lwjgl:lwjgl"
-      implementation "org.lwjgl:lwjgl-glfw"
       implementation "org.lwjgl:lwjgl-opengl"
-      runtimeOnly "org.lwjgl:lwjgl::your-platform"
-      runtimeOnly "org.lwjgl:lwjgl-glfw::your-platform"
-      runtimeOnly "org.lwjgl:lwjgl-opengl::your-platform"
-  
+
+      implementation "org.lwjgl:lwjgl::your-platform"
+      implementation "org.lwjgl:lwjgl-opengl::your-platform"
+
       // Kotlin
       implementation "org.jetbrains.kotlin:kotlin-stdlib"
-  
+
       // ...
   }
   ```
-  
-  ### Kotlin
+
+  #### Kotlin
   ```kotlin
-  val canvas = OpenGLCanvas.create(LWJGL_MODULE, DirectDrawPolicy.NEVER)
-  // DirectDrawPolicy.NEVER         - Never use direct render (default)
-  // DirectDrawPolicy.IF_AVAILABLE  - Use direct render if available
-  // DirectDrawPolicy.ALWAYS        - Use only direct render
-  
-  canvas.onInitialize {
-      // ...
-  }
-  canvas.onRender {
-      // ...
-  }
-  canvas.onReshape {
-      // ...
-  }
-  canvas.onDispose {
-      // ...
-  }
-  ```
-  [Direct LWJGL example](https://github.com/husker-dev/openglfx/blob/master/lwjgl/src/examples/kotlin/Direct.kt)
-  
-  [Universal LWJGL example](https://github.com/husker-dev/openglfx/blob/master/lwjgl/src/examples/kotlin/Universal.kt)
-  
-  ---
-</details>
+  val canvas = OpenGLCanvas.create(LWJGL_MODULE)
+  canvas.animator = GLCanvasAnimator(60.0)
 
-
-<details><summary>JOGL</summary>
-
-  ### Gradle
-  ```groovy
-  repositories {
-      mavenCentral()
-      maven { url 'https://jitpack.io' }
+  canvas.addOnInitializeEvent {
+      // ...
   }
-  
-  // ...
-  
-  dependencies {
-      // OpenGLFX
-      implementation 'com.github.husker-dev.openglfx:core:2.10'
-      implementation 'com.github.husker-dev.openglfx:jogl:2.10'
-    
-      // JOGL
-      implementation 'org.jogamp.jogl:jogl-all-main:2.3.2'
-      implementation 'org.jogamp.gluegen:gluegen-rt-main:2.3.2'
-  
-      // Kotlin
-      implementation "org.jetbrains.kotlin:kotlin-stdlib"
-  
+  canvas.addOnRenderEvent {
+      // ...
+  }
+  canvas.addOnReshapeEvent {
+      // ...
+  }
+  canvas.addOnDisposeEvent {
       // ...
   }
   ```
   
-  ### Kotlin
-  ```kotlin
-  val canvas = OpenGLCanvas.create(JOGL_MODULE, DirectDrawPolicy.NEVER)
-  // DirectDrawPolicy.NEVER         - Never use direct render (default)
-  // DirectDrawPolicy.IF_AVAILABLE  - Use direct render if available
-  // DirectDrawPolicy.ALWAYS        - Use only direct render
-  
-  canvas.onInitialize {
-      val gl = (it as JOGLRenderEvent).gl
-      // ...
-  }
-  canvas.onRender {
-      val gl = (it as JOGLRenderEvent).gl
-      // ...
-  }
-  canvas.onReshape {
-      val gl = (it as JOGLRenderEvent).gl
-      // ...
-  }
-  canvas.onDispose {
-      val gl = (it as JOGLRenderEvent).gl
-      // ...
-  }
-  ```
-  
-  [Direct JOGL example](https://github.com/husker-dev/openglfx/blob/master/jogl/src/examples/kotlin/Direct.kt)
-  
-  [Universal JOGL example](https://github.com/husker-dev/openglfx/blob/master/jogl/src/examples/kotlin/Universal.kt)
-  
-  ---
-</details>
-
-> Don't use JOGL if you want to run application on MacOS!
-
-## Example repo
-If you still have a misunderstanding about the minimal implementation, take a look at the example repository that uses OpenGLFX with Java and Maven 
-
-https://github.com/orange451/OpenGLFX-LWJGL-Sample
-
 ## Animator
 
-Animator allows you to automatically repaint canvas with fixed FPS.
-
-> Due to JavaFX limits, ```onRender``` method may be called more or less times than required. 
+Animator allows to automatically repaint canvas with fixed FPS.
 
 ```kotlin
-canvas.animator = GLCanvasAnimator(60.0, started = true) // FPS: 60
+canvas.animator = GLCanvasAnimator(60.0) // FPS: 60
 ```
+> Due to JavaFX limits, rendering method may be called less times than required. 
+> 
 
 To set unlimited FPS, replace number to ```GLCanvasAnimator.UNLIMITED_FPS```:
 ```kotlin
-canvas.animator = GLCanvasAnimator(GLCanvasAnimator.UNLIMITED_FPS, started = true) // FPS: Unlimited
+canvas.animator = GLCanvasAnimator(GLCanvasAnimator.UNLIMITED_FPS) // FPS: Unlimited
 ```
 
-To manipulate animator lifecycle, you can do following:
+To stop repainting, just remove the animator:
 ```kotlin
-val myAnimator = GLCanvasAnimator(60.0)
-
-myAnimator.fps = 200.0
-myAnimator.started = true
+canvas.animator = null
 ```
-   
-## Rendering types comparison
 
-- **Universal** - Uses separated window for OpenGL
-- **Direct** - Uses JavaFX's OpenGL ([initially](https://github.com/husker-dev/openglfx/wiki/How-to-enable-OpenGL-pipeline-on-Windows) doesn't work on Windows)
+## Notes
+- Canvas with ```NV_DX_interop``` is flickering when resized
+- JOGL can not initialize on macOS
+- Linux is supported only on x64 and x86 architectures
+> If anyone knows how to fix any of these problems I would be very happy
 
-  |                       |      Universal     |       Direct
-  | --------------------- | :----------------: | :----------------: |
-  | Performance           | :x:                | :heavy_check_mark:
-  | Smooth resizing       | :x:                | :heavy_check_mark:
-  | Separate GL context   | :heavy_check_mark: | :x:
-  | Windows               | :heavy_check_mark: | :x:
-  | Linux                 | :heavy_check_mark: | :heavy_check_mark:
-  | MacOS                 | :x: | :heavy_check_mark:
-  | Calls ```onInit``` once | :heavy_check_mark: | :x:
+
+## Example repo
+If you still have a misunderstanding about the implementation, take a look at the example repository that uses OpenGLFX with Java and Maven 
+
+https://github.com/orange451/OpenGLFX-LWJGL-Sample
+
+
+## Thanks to
+
+- [James H Ball](https://github.com/jameshball) - macOS tester
+- [Andrew Hamilton](https://github.com/orange451) - macOS tester, suggested new additions
 
 ## Wiki
-  Read [wiki articles](https://github.com/husker-dev/openglfx/wiki) for more information
+  Read [wiki articles](https://github.com/husker-dev/openglfx/wiki) for more information about JavaFX pipelines
