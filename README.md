@@ -102,6 +102,19 @@ To stop repainting, just remove the animator:
 canvas.animator = null
 ```
 
+## Reflections opens
+```
+--add-opens javafx.base/com.sun.javafx=ALL-UNNAMED
+--add-opens javafx.graphics/com.sun.prism=ALL-UNNAMED
+--add-opens javafx.graphics/com.sun.prism.d3d=ALL-UNNAMED
+--add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED
+--add-opens javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED
+--add-opens javafx.graphics/com.sun.javafx.sg.prism=ALL-UNNAMED
+--add-opens javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED
+--add-opens javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED
+--add-opens javafx.graphics/javafx.scene.image=ALL-UNNAMED
+```
+
 ## Notes
 - Canvas with ```NV_DX_interop``` is flickering when resized
 - JOGL can not initialize on macOS
