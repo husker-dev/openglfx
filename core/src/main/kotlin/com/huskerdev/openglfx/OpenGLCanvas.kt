@@ -172,10 +172,7 @@ abstract class OpenGLCanvas(
      * @param texture default JavaFX texture
      */
     protected fun drawResultTexture(g: Graphics, texture: Texture){
-        if(!texture.isLocked)
-            texture.lock()
         g.drawTexture(texture, 0f, 0f, width.toFloat() + 0.5f, height.toFloat() + 0.5f, 0.0f, 0.0f, scaledWidth.toFloat(), scaledHeight.toFloat())
-        texture.unlock()
     }
 
     private class NGOpenGLCanvas(val canvas: OpenGLCanvas): NGRegion() {

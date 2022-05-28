@@ -202,11 +202,8 @@ extern "C" {
         if ((h = device->CreateTexture(width, height, 0, D3DUSAGE_DYNAMIC, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &texture, &sharedHandle)) != S_OK)
             std::cout << "Failed to create D3D9 texture" << std::endl;
 
-        jlongArray result = env->NewLongArray(2);
-        jlong array[2] = { (jlong)texture, (jlong)sharedHandle };
-        env->SetLongArrayRegion(result, 0, 2, array);
-
-        return result;
+        jlong array[] = { (jlong)texture, (jlong)sharedHandle };
+        return createLongArray(env, 2, array);
     }
 
     JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_replaceD3DTextureInResource(JNIEnv* env, jobject, jlong _resource, jlong newTexture) {
@@ -217,11 +214,11 @@ extern "C" {
         resource->pResource->Release();
         resource->pSurface->Release();
 
+        // From D3DResource in D3DResourceManager.cpp
         resource->pResource = texture;
         resource->pResource->AddRef();
-        resource->pTexture = texture;
+        resource->pTexture = (IDirect3DTexture9*)resource->pResource;
         resource->pTexture->GetSurfaceLevel(0, &resource->pSurface);
-        if (resource->pSurface != nullptr)
-            resource->pSurface->GetDesc(&resource->desc);
+        resource->pSurface->GetDesc(&resource->desc);
     }
 }

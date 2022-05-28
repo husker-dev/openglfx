@@ -1,7 +1,7 @@
 package com.huskerdev.openglfx.jogl
 
 import com.huskerdev.openglfx.core.GLExecutor
-import com.huskerdev.openglfx.core.impl.*
+import com.huskerdev.openglfx.core.implementation.*
 import com.huskerdev.openglfx.events.*
 import com.huskerdev.openglfx.jogl.events.*
 import com.jogamp.opengl.GL2
@@ -11,7 +11,7 @@ import jogamp.opengl.GLDrawableFactoryImpl
 class JOGLUniversalCanvas(
     executor: GLExecutor,
     profile: Int
-): UniversalGLCanvas(executor, profile){
+): UniversalImpl(executor, profile){
 
     var gl: GL2? = null
         get() {
@@ -29,7 +29,7 @@ class JOGLUniversalCanvas(
 class JOGLSharedCanvas(
     executor: GLExecutor,
     profile: Int
-): SharedGLCanvas(executor, profile){
+): SharedImpl(executor, profile){
 
     var gl: GL2? = null
         get() {
@@ -47,7 +47,7 @@ class JOGLSharedCanvas(
 class JOGLInteropCanvas(
     executor: GLExecutor,
     profile: Int
-): InteropGLCanvas(executor, profile){
+): InteropImpl(executor, profile){
 
     var gl: GL2? = null
         get() {

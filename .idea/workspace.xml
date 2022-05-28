@@ -4,15 +4,19 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d39d0143-d2aa-4261-8506-35cd0ece831b" name="Changes" comment="Some build fixes">
-      <change afterPath="$PROJECT_DIR$/jogl/src/main/kotlin/com/huskerdev/openglfx/jogl/events/JOGLEvent.kt" afterDir="false" />
+    <list default="true" id="d39d0143-d2aa-4261-8506-35cd0ece831b" name="Changes" comment="Deletion">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/jogl/src/examples/java/rendering/ExampleJavaRenderer.java" beforeDir="false" afterPath="$PROJECT_DIR$/jogl/src/examples/java/rendering/ExampleJavaRenderer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/jogl/src/examples/kotlin/rendering/ExampleRenderer.kt" beforeDir="false" afterPath="$PROJECT_DIR$/jogl/src/examples/kotlin/rendering/ExampleRenderer.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/jogl/src/main/kotlin/com/huskerdev/openglfx/jogl/events/JOGLDisposeEvent.kt" beforeDir="false" afterPath="$PROJECT_DIR$/jogl/src/main/kotlin/com/huskerdev/openglfx/jogl/events/JOGLDisposeEvent.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/jogl/src/main/kotlin/com/huskerdev/openglfx/jogl/events/JOGLInitializeEvent.kt" beforeDir="false" afterPath="$PROJECT_DIR$/jogl/src/main/kotlin/com/huskerdev/openglfx/jogl/events/JOGLInitializeEvent.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/jogl/src/main/kotlin/com/huskerdev/openglfx/jogl/events/JOGLRenderEvent.kt" beforeDir="false" afterPath="$PROJECT_DIR$/jogl/src/main/kotlin/com/huskerdev/openglfx/jogl/events/JOGLRenderEvent.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/jogl/src/main/kotlin/com/huskerdev/openglfx/jogl/events/JOGLReshapeEvent.kt" beforeDir="false" afterPath="$PROJECT_DIR$/jogl/src/main/kotlin/com/huskerdev/openglfx/jogl/events/JOGLReshapeEvent.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/OpenGLCanvas.kt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/OpenGLCanvas.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/GLExecutor.kt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/GLExecutor.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/impl/InteropGLCanvas.kt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/implementation/InteropImpl.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/impl/SharedGLCanvas.kt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/implementation/SharedImpl.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/impl/UniversalGLCanvas.kt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/implementation/UniversalImpl.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/native/win_utils/win_utils.h" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/native/win_utils/win_utils.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/resources/com/huskerdev/openglfx/natives/win_utils_arm64.dll" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/com/huskerdev/openglfx/natives/win_utils_arm64.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/resources/com/huskerdev/openglfx/natives/win_utils_x64.dll" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/com/huskerdev/openglfx/natives/win_utils_x64.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/resources/com/huskerdev/openglfx/natives/win_utils_x86.dll" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/com/huskerdev/openglfx/natives/win_utils_x86.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/jogl/src/main/kotlin/com/huskerdev/openglfx/jogl/JOGLFXCanvas.kt" beforeDir="false" afterPath="$PROJECT_DIR$/jogl/src/main/kotlin/com/huskerdev/openglfx/jogl/JOGLFXCanvas.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lwjgl/src/examples/kotlin/Interop.kt" beforeDir="false" afterPath="$PROJECT_DIR$/lwjgl/src/examples/kotlin/Interop.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -122,7 +126,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$USER_HOME$/Documents/Java_projects/DavydShit" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../efxclipse-drift-samples-master" />
     <property name="project.structure.last.edited" value="Project" />
     <property name="project.structure.proportion" value="0.13869625" />
     <property name="project.structure.side.proportion" value="0.2" />
@@ -150,7 +154,7 @@
       <recent name="" />
     </key>
   </component>
-  <component name="RunManager" selected="Kotlin.JOGL Interop">
+  <component name="RunManager" selected="Application.LWJGL Interop">
     <configuration name="JOGL Interop" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="Interop" />
       <module name="openglfx.jogl.examples" />
@@ -271,7 +275,7 @@
       <option name="MAIN_CLASS_NAME" value="InteropKt" />
       <module name="openglfx.lwjgl.examples" />
       <shortenClasspath name="NONE" />
-      <option name="VM_PARAMETERS" value="--add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism=ALL-UNNAMED --add-opens javafx.base/com.sun.javafx=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.sg.prism=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism.d3d=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED --add-opens javafx.graphics/javafx.scene.image=ALL-UNNAMED" />
+      <option name="VM_PARAMETERS" value="--add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism=ALL-UNNAMED --add-opens javafx.base/com.sun.javafx=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.sg.prism=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism.d3d=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED --add-opens javafx.graphics/javafx.scene.image=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism.paint=ALL-UNNAMED" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -346,7 +350,13 @@
       <workItem from="1653133673156" duration="2023000" />
       <workItem from="1653213992421" duration="7059000" />
       <workItem from="1653287492295" duration="6656000" />
-      <workItem from="1653385966994" duration="1039000" />
+      <workItem from="1653385966994" duration="1442000" />
+      <workItem from="1653391512577" duration="593000" />
+      <workItem from="1653460711475" duration="950000" />
+      <workItem from="1653487917039" duration="289000" />
+      <workItem from="1653572588659" duration="7595000" />
+      <workItem from="1653650270629" duration="594000" />
+      <workItem from="1653731152273" duration="6200000" />
     </task>
     <task id="LOCAL-00001" summary="Added JavaFX events">
       <created>1651573350041</created>
@@ -572,7 +582,21 @@
       <option name="project" value="LOCAL" />
       <updated>1653316716590</updated>
     </task>
-    <option name="localTasksCounter" value="33" />
+    <task id="LOCAL-00033" summary="Added JOGLEvent interface">
+      <created>1653387138377</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1653387138377</updated>
+    </task>
+    <task id="LOCAL-00034" summary="Deletion">
+      <created>1653572636658</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1653572636658</updated>
+    </task>
+    <option name="localTasksCounter" value="35" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -610,6 +634,19 @@
     <MESSAGE value="Profile choosing on Windows, Animator improvements" />
     <MESSAGE value="Examples, Linux natives, FpsCounter" />
     <MESSAGE value="Some build fixes" />
-    <option name="LAST_COMMIT_MESSAGE" value="Some build fixes" />
+    <MESSAGE value="Added JOGLEvent interface" />
+    <MESSAGE value="Deletion" />
+    <option name="LAST_COMMIT_MESSAGE" value="Deletion" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>jar://$USER_HOME$/.jdks/liberica-17.0.1/lib/src.zip!/javafx.graphics/com/sun/prism/d3d/D3DContext.java</url>
+          <line>328</line>
+          <option name="timeStamp" value="8" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

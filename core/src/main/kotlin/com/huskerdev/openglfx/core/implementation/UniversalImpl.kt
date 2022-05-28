@@ -1,4 +1,4 @@
-package com.huskerdev.openglfx.core.impl
+package com.huskerdev.openglfx.core.implementation
 
 import com.huskerdev.openglfx.OpenGLCanvas
 import com.huskerdev.openglfx.core.*
@@ -18,9 +18,8 @@ import javafx.scene.image.WritableImage
 import java.nio.ByteBuffer
 import java.nio.IntBuffer
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.concurrent.thread
 
-open class UniversalGLCanvas(
+open class UniversalImpl(
     private val executor: GLExecutor,
     profile: Int
 ) : OpenGLCanvas(profile){
@@ -65,8 +64,8 @@ open class UniversalGLCanvas(
                     }
 
                     if(needsRepaint.getAndSet(false)) {
-                        NodeHelper.markDirty(this@UniversalGLCanvas, DirtyBits.NODE_BOUNDS)
-                        NodeHelper.markDirty(this@UniversalGLCanvas, DirtyBits.REGION_SHAPE)
+                        NodeHelper.markDirty(this@UniversalImpl, DirtyBits.NODE_BOUNDS)
+                        NodeHelper.markDirty(this@UniversalImpl, DirtyBits.REGION_SHAPE)
                     }
                 } catch (_: Exception){}
             }
@@ -96,7 +95,10 @@ open class UniversalGLCanvas(
         readPixels()
 
         val texture = g.resourceFactory.getCachedTexture(image.getPlatformImage() as Image, Texture.WrapMode.CLAMP_TO_EDGE)
+        if(!texture.isLocked)
+            texture.lock()
         drawResultTexture(g, texture)
+        texture.unlock()
     }
 
     private fun readPixels() = executor.run {

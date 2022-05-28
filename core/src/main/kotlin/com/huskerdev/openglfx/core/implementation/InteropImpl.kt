@@ -1,12 +1,10 @@
-package com.huskerdev.openglfx.core.impl
+package com.huskerdev.openglfx.core.implementation
 
 import com.huskerdev.openglfx.OpenGLCanvas
-import com.huskerdev.openglfx.core.GLContext
-import com.huskerdev.openglfx.core.GLExecutor
 import com.huskerdev.openglfx.core.*
-import com.huskerdev.openglfx.utils.OpenGLFXUtils.Companion.DX9TextureResource
 import com.huskerdev.openglfx.core.d3d9.D3D9Device
 import com.huskerdev.openglfx.core.d3d9.D3D9Texture
+import com.huskerdev.openglfx.utils.OpenGLFXUtils.Companion.DX9TextureResource
 import com.huskerdev.openglfx.utils.WGL_ACCESS_WRITE_DISCARD_NV
 import com.huskerdev.openglfx.utils.WinUtils
 import com.huskerdev.openglfx.utils.WinUtils.Companion.wglDXLockObjectsNV
@@ -17,25 +15,18 @@ import com.huskerdev.openglfx.utils.WinUtils.Companion.wglDXUnlockObjectsNV
 import com.huskerdev.openglfx.utils.WinUtils.Companion.wglDXUnregisterObjectNV
 import com.sun.javafx.scene.DirtyBits
 import com.sun.javafx.scene.NodeHelper
-import com.sun.prism.Graphics
-import com.sun.prism.GraphicsPipeline
-import com.sun.prism.PixelFormat
-import com.sun.prism.Texture
+import com.sun.prism.*
 import javafx.animation.AnimationTimer
 import java.util.concurrent.atomic.AtomicBoolean
 
 
-open class InteropGLCanvas(
+open class InteropImpl(
     private val executor: GLExecutor,
     profile: Int
 ) : OpenGLCanvas(profile){
 
     companion object {
-
-        private const val textureStep = 400
-
         private var interopHandle = -1L
-
     }
 
     private var lastSize = Pair(-1, -1)
@@ -65,8 +56,8 @@ open class InteropGLCanvas(
         object: AnimationTimer(){
             override fun handle(now: Long) {
                 if(needsRepaint.getAndSet(false)) {
-                    NodeHelper.markDirty(this@InteropGLCanvas, DirtyBits.NODE_BOUNDS)
-                    NodeHelper.markDirty(this@InteropGLCanvas, DirtyBits.REGION_SHAPE)
+                    NodeHelper.markDirty(this@InteropImpl, DirtyBits.NODE_BOUNDS)
+                    NodeHelper.markDirty(this@InteropImpl, DirtyBits.REGION_SHAPE)
                 }
             }
         }.start()
@@ -83,14 +74,15 @@ open class InteropGLCanvas(
             context!!.makeCurrent()
             executor.initGLFunctions()
 
-            if(interopHandle == -1L)
+            if (interopHandle == -1L)
                 interopHandle = wglDXOpenDeviceNV(fxDevice.handle)
         }
-        context!!.makeCurrent()
 
+        context!!.makeCurrent()
         if(scaledWidth.toInt() != lastSize.first || scaledHeight.toInt() != lastSize.second) {
             lastSize = Pair(scaledWidth.toInt(), scaledHeight.toInt())
             updateFramebufferSize()
+            context!!.makeCurrent() // For some reason the context is reset at this moment, so make it current again
 
             lockInteropTexture()
             fireReshapeEvent(lastSize.first, lastSize.second)
@@ -119,12 +111,6 @@ open class InteropGLCanvas(
     }
 
     private fun updateFramebufferSize() = executor.run {
-        val deltaWidth = lastSize.first - (if(this@InteropGLCanvas::fxTextureObject.isInitialized) fxTextureObject.contentWidth else 0)
-        val deltaHeight = lastSize.second - (if(this@InteropGLCanvas::fxTextureObject.isInitialized) fxTextureObject.contentHeight else 0)
-
-        if(deltaWidth in -textureStep..0 && deltaHeight in -textureStep..0)
-            return
-
         if (texture != -1) {
             wglDXUnregisterObjectNV(interopHandle, sharedTextureHandle)
 
@@ -135,8 +121,8 @@ open class InteropGLCanvas(
             glDeleteRenderbuffers(depthBuffer)
         }
 
-        val width = (lastSize.first / textureStep + 1) * textureStep
-        val height = (lastSize.second / textureStep + 1) * textureStep
+        val width = lastSize.first
+        val height = lastSize.second
 
         // Create and register DX shared texture
         fxTexture = fxDevice.createTexture(width, height)
@@ -162,6 +148,7 @@ open class InteropGLCanvas(
 
         // Create default JavaFX texture and replace native handle to custom one
         fxTextureObject = GraphicsPipeline.getDefaultResourceFactory().createTexture(PixelFormat.BYTE_BGRA_PRE, Texture.Usage.DYNAMIC, Texture.WrapMode.CLAMP_TO_EDGE, width, height)
+        fxTextureObject.makePermanent()
         WinUtils.replaceD3DTextureInResource(fxTextureObject.DX9TextureResource, fxTexture.handle)
     }
 

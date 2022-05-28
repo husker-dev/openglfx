@@ -1,6 +1,6 @@
 package com.huskerdev.openglfx.core
 
-import com.huskerdev.openglfx.core.impl.*
+import com.huskerdev.openglfx.core.implementation.*
 import java.nio.IntBuffer
 
 
@@ -25,9 +25,9 @@ const val kCGLOGLPVersion_3_2_Core = 0x3200
 
 abstract class GLExecutor {
 
-    open fun universalCanvas(profile: Int) = UniversalGLCanvas(this, profile)
-    open fun sharedCanvas(profile: Int) = SharedGLCanvas(this, profile)
-    open fun interopCanvas(profile: Int) = InteropGLCanvas(this, profile)
+    open fun universalCanvas(profile: Int) = UniversalImpl(this, profile)
+    open fun sharedCanvas(profile: Int) = SharedImpl(this, profile)
+    open fun interopCanvas(profile: Int) = InteropImpl(this, profile)
 
     abstract fun initGLFunctions()
     abstract fun createNativeObject(): NativeObject

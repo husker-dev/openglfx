@@ -1,4 +1,4 @@
-package com.huskerdev.openglfx.core.impl
+package com.huskerdev.openglfx.core.implementation
 
 import com.huskerdev.openglfx.OpenGLCanvas
 import com.huskerdev.openglfx.core.*
@@ -9,7 +9,7 @@ import com.sun.prism.*
 import javafx.animation.AnimationTimer
 import java.util.concurrent.atomic.AtomicBoolean
 
-open class SharedGLCanvas(
+open class SharedImpl(
     private val executor: GLExecutor,
     profile: Int
 ): OpenGLCanvas(profile){
@@ -35,8 +35,8 @@ open class SharedGLCanvas(
         object: AnimationTimer(){
             override fun handle(now: Long) {
                 if(needsRepaint.getAndSet(false)) {
-                    NodeHelper.markDirty(this@SharedGLCanvas, DirtyBits.NODE_BOUNDS)
-                    NodeHelper.markDirty(this@SharedGLCanvas, DirtyBits.REGION_SHAPE)
+                    NodeHelper.markDirty(this@SharedImpl, DirtyBits.NODE_BOUNDS)
+                    NodeHelper.markDirty(this@SharedImpl, DirtyBits.REGION_SHAPE)
                 }
             }
         }.start()
@@ -76,6 +76,7 @@ open class SharedGLCanvas(
 
         fxTexture?.dispose()
         fxTexture = GraphicsPipeline.getDefaultResourceFactory().createTexture(PixelFormat.BYTE_BGRA_PRE, Texture.Usage.DYNAMIC, Texture.WrapMode.CLAMP_TO_EDGE, lastSize.first, lastSize.second)
+        fxTexture!!.makePermanent()
 
         texture = fxTexture!!.GLTextureId
 
