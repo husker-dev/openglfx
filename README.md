@@ -116,8 +116,7 @@ canvas.animator = null
 ```
 
 ## Notes
-- Canvas with ```NV_DX_interop``` is flickering when resized
-- JOGL can not initialize on macOS
+- JOGL can't initialize on macOS
 - Linux is supported only on x64 and x86 architectures
 > If anyone knows how to fix any of these problems I would be very happy
 
