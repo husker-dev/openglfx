@@ -32,56 +32,111 @@ OpenGL implementation for JavaFX
 
 ## Example code
 
-You can use [example generator](https://huskerdev.com/?page=tools/openglfx) to mix **Java/Kotlin** and **Gradle/Maven/Sbt**
+You can use [example generator](https://huskerdev.com/?page=tools/openglfx) to mix **Java/Kotlin** and **Gradle/Maven/Sbt**.
 
-### Example with LWJGL + Kotlin:
-  #### Gradle
-  ```groovy
-  repositories {
-      mavenCentral()
-      maven { url 'https://jitpack.io' }
-  }
-
-  // ...
-
-  dependencies {
-      // OpenGLFX
-      implementation 'com.github.husker-dev.openglfx:core:3.0'
-      implementation 'com.github.husker-dev.openglfx:lwjgl:3.0'
-
-      // LWJGL
-      implementation "org.lwjgl:lwjgl"
-      implementation "org.lwjgl:lwjgl-opengl"
-
-      implementation "org.lwjgl:lwjgl::your-platform"
-      implementation "org.lwjgl:lwjgl-opengl::your-platform"
-
-      // Kotlin
-      implementation "org.jetbrains.kotlin:kotlin-stdlib"
-
-      // ...
-  }
-  ```
-
-  #### Kotlin
-  ```kotlin
-  val canvas = OpenGLCanvas.create(LWJGL_MODULE)
-  canvas.animator = GLCanvasAnimator(60.0)
-
-  canvas.addOnInitializeEvent {
-      // ...
-  }
-  canvas.addOnRenderEvent {
-      // ...
-  }
-  canvas.addOnReshapeEvent {
-      // ...
-  }
-  canvas.addOnDisposeEvent {
-      // ...
-  }
-  ```
+Or expand one of the following examples:
+<details><summary>Kotlin + LWJGL</summary>
   
+#### Gradle
+```groovy
+plugins {
+    id 'org.jetbrains.kotlin.jvm'
+}
+  
+repositories {
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    def lwjglNatives = "win"
+    def jfxNatives = "win"
+  
+    // Kotlin lib
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+  
+    // OpenGLFX
+    implementation 'com.github.husker-dev.openglfx:core:3.0.2'
+    implementation 'com.github.husker-dev.openglfx:lwjgl:3.0.2'
+
+    // LWJGL
+    implementation platform("org.lwjgl:lwjgl-bom:3.3.0")
+    implementation "org.lwjgl:lwjgl"
+    implementation "org.lwjgl:lwjgl-opengl"
+  
+    runtimeOnly "org.lwjgl:lwjgl::$lwjglNatives"
+    runtimeOnly "org.lwjgl:lwjgl-opengl::$lwjglNatives"
+
+    // JavaFX
+    compileOnly "org.openjfx:javafx-base:18.0.1:$jfxNatives"
+    compileOnly "org.openjfx:javafx-controls:18.0.1:$jfxNatives"
+    compileOnly "org.openjfx:javafx-graphics:18.0.1:$jfxNatives"
+}
+```
+
+#### Kotlin
+```kotlin
+import com.huskerdev.openglfx.GLCanvasAnimator
+import com.huskerdev.openglfx.OpenGLCanvas
+import com.huskerdev.openglfx.OpenGLCanvas.Companion.CORE_PROFILE
+import com.huskerdev.openglfx.lwjgl.LWJGLExecutor.Companion.LWJGL_MODULE
+import javafx.application.Application
+import javafx.scene.Scene
+import javafx.scene.control.SplitPane
+import javafx.scene.layout.Region
+import javafx.stage.Stage
+import org.lwjgl.opengl.GL30.*
+import kotlin.math.absoluteValue
+import kotlin.math.sin
+
+fun main() {
+    System.setProperty("prism.vsync", "false")
+    Application.launch(ExampleApp::class.java)
+}
+
+class ExampleApp: Application(){
+  
+    var animation = 0.0
+
+    override fun start(stage: Stage?) {
+        stage!!.title = "Kotlin \"LWJGL\" example"
+        stage.width = 400.0
+        stage.height = 400.0
+
+        stage.scene = Scene(createGLCanvas()))
+        stage.show()
+    }
+
+    private fun createGLCanvas(): Region {
+        val canvas = OpenGLCanvas.create(LWJGL_MODULE, CORE_PROFILE)
+        canvas.animator = GLCanvasAnimator(60.0)
+
+        canvas.addOnRenderEvent {
+            val alpha = sin(System.nanoTime().toDouble() / 1000000000.0).toFloat().absoluteValue
+  
+            glClearColor(alpha, 1 - alpha, 1 - alpha, 1f)
+            glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
+        }
+
+        return canvas
+    }
+}
+```
+  
+</details>
+  
+## OpenGL profile choosing
+Some people will want to change the OpenGL profile for some reason.
+
+To do this, you need to specify a variable at the OpenGLCanvas creation:
+```kotlin
+OpenGLCanvas.create(LWJGL_MODULE, CORE_PROFILE)
+```
+
+Possible values:
+- ```CORE_PROFILE```
+- ```COMPATIBILITY_PROFILE``` (default)
+
 ## Animator
 
 Animator allows to automatically repaint canvas with fixed FPS.
@@ -116,8 +171,7 @@ canvas.animator = null
 ```
 
 ## Notes
-- Canvas with ```NV_DX_interop``` is flickering when resized
-- JOGL can not initialize on macOS
+- JOGL can't initialize on macOS ([#22](https://github.com/husker-dev/openglfx/issues/22))
 - Linux is supported only on x64 and x86 architectures
 > If anyone knows how to fix any of these problems I would be very happy
 
