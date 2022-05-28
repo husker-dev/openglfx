@@ -4,18 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d39d0143-d2aa-4261-8506-35cd0ece831b" name="Changes" comment="Deletion">
+    <list default="true" id="d39d0143-d2aa-4261-8506-35cd0ece831b" name="Changes" comment="Fixed flickering on NV_DX_interop">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/OpenGLCanvas.kt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/OpenGLCanvas.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/GLExecutor.kt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/GLExecutor.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/impl/InteropGLCanvas.kt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/implementation/InteropImpl.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/impl/SharedGLCanvas.kt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/implementation/SharedImpl.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/impl/UniversalGLCanvas.kt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/implementation/UniversalImpl.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/native/win_utils/win_utils.h" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/native/win_utils/win_utils.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/com/huskerdev/openglfx/natives/win_utils_arm64.dll" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/com/huskerdev/openglfx/natives/win_utils_arm64.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/com/huskerdev/openglfx/natives/win_utils_x64.dll" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/com/huskerdev/openglfx/natives/win_utils_x64.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/com/huskerdev/openglfx/natives/win_utils_x86.dll" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/com/huskerdev/openglfx/natives/win_utils_x86.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/jogl/src/main/kotlin/com/huskerdev/openglfx/jogl/JOGLFXCanvas.kt" beforeDir="false" afterPath="$PROJECT_DIR$/jogl/src/main/kotlin/com/huskerdev/openglfx/jogl/JOGLFXCanvas.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/jogl/src/main/kotlin/com/huskerdev/openglfx/jogl/JOGLFXExecutor.kt" beforeDir="false" afterPath="$PROJECT_DIR$/jogl/src/main/kotlin/com/huskerdev/openglfx/jogl/JOGLFXExecutor.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lwjgl/src/examples/kotlin/Interop.kt" beforeDir="false" afterPath="$PROJECT_DIR$/lwjgl/src/examples/kotlin/Interop.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -126,7 +118,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../efxclipse-drift-samples-master" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../osci-render-software-oscilloscope" />
     <property name="project.structure.last.edited" value="Project" />
     <property name="project.structure.proportion" value="0.13869625" />
     <property name="project.structure.side.proportion" value="0.2" />
@@ -154,7 +146,7 @@
       <recent name="" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.LWJGL Interop">
+  <component name="RunManager" selected="Kotlin.LWJGL Interop">
     <configuration name="JOGL Interop" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="Interop" />
       <module name="openglfx.jogl.examples" />
@@ -356,7 +348,7 @@
       <workItem from="1653487917039" duration="289000" />
       <workItem from="1653572588659" duration="7595000" />
       <workItem from="1653650270629" duration="594000" />
-      <workItem from="1653731152273" duration="6200000" />
+      <workItem from="1653731152273" duration="11790000" />
     </task>
     <task id="LOCAL-00001" summary="Added JavaFX events">
       <created>1651573350041</created>
@@ -596,7 +588,14 @@
       <option name="project" value="LOCAL" />
       <updated>1653572636658</updated>
     </task>
-    <option name="localTasksCounter" value="35" />
+    <task id="LOCAL-00035" summary="Fixed flickering on NV_DX_interop">
+      <created>1653737535913</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1653737535913</updated>
+    </task>
+    <option name="localTasksCounter" value="36" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -636,7 +635,8 @@
     <MESSAGE value="Some build fixes" />
     <MESSAGE value="Added JOGLEvent interface" />
     <MESSAGE value="Deletion" />
-    <option name="LAST_COMMIT_MESSAGE" value="Deletion" />
+    <MESSAGE value="Fixed flickering on NV_DX_interop" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed flickering on NV_DX_interop" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

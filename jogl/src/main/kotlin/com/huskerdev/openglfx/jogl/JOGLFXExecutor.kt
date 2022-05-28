@@ -106,7 +106,6 @@ class JOGLExecutor: GLExecutor() {
         val buffer = Buffers.newDirectIntBuffer(1)
         val result = CGL.CGLChoosePixelFormat(Buffers.newDirectIntBuffer(attribs), createPointer(pixPtr), buffer)
         npix[0] = buffer.get()
-        println("Result: $result, npix: ${npix[0]}")
         return result
     }
 

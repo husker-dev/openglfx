@@ -1,6 +1,5 @@
 package com.huskerdev.openglfx
 
-
 import com.huskerdev.openglfx.core.GLExecutor
 import com.huskerdev.openglfx.events.GLDisposeEvent
 import com.huskerdev.openglfx.events.GLInitializeEvent
@@ -13,7 +12,6 @@ import com.sun.prism.Graphics
 import com.sun.prism.Texture
 import javafx.scene.layout.Pane
 import java.util.function.Consumer
-
 
 
 abstract class OpenGLCanvas(
@@ -37,8 +35,8 @@ abstract class OpenGLCanvas(
          * Create
          *
          * @param executor OpenGL implementation:
-         *  - 23
-         *  - fsd
+         *  - LWJGL_MODULE
+         *  - JOGL_MODULE
          * @param profile
          * @return
          */
