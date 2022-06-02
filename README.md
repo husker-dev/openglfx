@@ -172,8 +172,7 @@ canvas.animator = null
 
 ## Notes
 - JOGL can't initialize on macOS ([#22](https://github.com/husker-dev/openglfx/issues/22))
-- Linux is supported only on x64 and x86 architectures
-> If anyone knows how to fix any of these problems I would be very happy
+> If you know how to fix that problem I would be very happy
 
 
 ## Example repo
