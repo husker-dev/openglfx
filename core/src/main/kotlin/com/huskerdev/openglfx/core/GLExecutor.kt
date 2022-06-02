@@ -1,6 +1,6 @@
 package com.huskerdev.openglfx.core
 
-import com.huskerdev.openglfx.core.implementation.*
+import com.huskerdev.openglfx.core.implementations.*
 import java.nio.IntBuffer
 
 
@@ -17,11 +17,6 @@ const val GL_DEPTH_ATTACHMENT = 0x8D00
 const val GL_TEXTURE_MIN_FILTER = 0x2801
 const val GL_NEAREST = 0x2600
 
-const val kCGLPFAAccelerated = 73
-const val kCGLPFAOpenGLProfile = 99
-const val kCGLOGLPVersion_Legacy = 0x1000
-const val kCGLOGLPVersion_3_2_Core = 0x3200
-
 
 abstract class GLExecutor {
 
@@ -30,7 +25,6 @@ abstract class GLExecutor {
     open fun interopCanvas(profile: Int) = InteropImpl(this, profile)
 
     abstract fun initGLFunctions()
-    abstract fun createNativeObject(): NativeObject
 
     // GL
     abstract fun glDeleteFramebuffers(fbo: Int)
@@ -51,17 +45,4 @@ abstract class GLExecutor {
 
     abstract fun glViewport(x: Int, y: Int, w: Int, h: Int)
     abstract fun glFinish()
-
-    // CGL
-    abstract fun CGLGetCurrentContext(): Long
-    abstract fun CGLSetCurrentContext(context: Long): Int
-    abstract fun CGLGetPixelFormat(context: Long): Long
-    abstract fun CGLCreateContext(pix: Long, share: Long, ctxPtr: Long): Int
-    abstract fun CGLDestroyPixelFormat(pix: Long): Int
-    abstract fun CGLChoosePixelFormat(attribs: IntArray, pixPtr: Long, npix: IntArray): Int
-}
-
-abstract class NativeObject {
-    abstract val value: Long
-    abstract val address: Long
 }

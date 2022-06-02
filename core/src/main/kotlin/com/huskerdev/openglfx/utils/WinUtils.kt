@@ -10,10 +10,6 @@ class WinUtils {
             OpenGLFXUtils.loadLibrary()
         }
 
-        @JvmStatic external fun getCurrentContext(): LongArray
-        @JvmStatic external fun setCurrentContext(dc: Long, rc: Long): Boolean
-        @JvmStatic external fun createContext(isCore: Boolean, shareWith: Long): LongArray
-
         @JvmStatic external fun hasDXInterop(): Boolean
         @JvmStatic external fun wglDXOpenDeviceNV(dxDevice: Long): Long
         @JvmStatic external fun wglDXRegisterObjectNV(device: Long, dxResource: Long, name: Int, type: Int, access: Int): Long

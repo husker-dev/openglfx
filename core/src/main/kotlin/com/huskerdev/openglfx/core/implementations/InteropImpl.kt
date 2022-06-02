@@ -1,5 +1,6 @@
-package com.huskerdev.openglfx.core.implementation
+package com.huskerdev.openglfx.core.implementations
 
+import com.huskerdev.ojgl.GLContext
 import com.huskerdev.openglfx.OpenGLCanvas
 import com.huskerdev.openglfx.core.*
 import com.huskerdev.openglfx.core.d3d9.D3D9Device
@@ -38,15 +39,14 @@ open class InteropImpl(
     private var fbo = -1
     private var depthBuffer = -1
 
-    private var sharedTextureHandle = -1L
-    private var locked = false
+    private var interopTexture = -1L
 
     private var context: GLContext? = null
 
-    private val fxDevice = D3D9Device.fxDevice
+    private val fxDevice = D3D9Device.fxInstance
 
-    private lateinit var fxTexture: D3D9Texture
-    private lateinit var fxTextureObject: Texture
+    private lateinit var fxD3DTexture: D3D9Texture
+    private lateinit var fxTexture: Texture
 
     init {
         visibleProperty().addListener { _, _, _ -> repaint() }
@@ -70,7 +70,7 @@ open class InteropImpl(
         if(!initialized){
             initialized = true
 
-            context = GLContext.createNew(executor, profile)
+            context = GLContext.create(0, profile == CORE_PROFILE)
             context!!.makeCurrent()
             executor.initGLFunctions()
 
@@ -84,37 +84,23 @@ open class InteropImpl(
             updateFramebufferSize()
             context!!.makeCurrent() // For some reason the context is reset at this moment, so make it current again
 
-            lockInteropTexture()
+            wglDXLockObjectsNV(interopHandle, interopTexture)
             fireReshapeEvent(lastSize.first, lastSize.second)
-        }
+        }else
+            wglDXLockObjectsNV(interopHandle, interopTexture)
 
-        lockInteropTexture()
         glViewport(0, 0, lastSize.first, lastSize.second)
         fireRenderEvent()
-        unlockInteropTexture()
+        wglDXUnlockObjectsNV(interopHandle, interopTexture)
 
-        drawResultTexture(g, fxTextureObject)
-    }
-
-    private fun lockInteropTexture(){
-        if(!locked){
-            locked = true
-            wglDXLockObjectsNV(interopHandle, sharedTextureHandle)
-        }
-    }
-
-    private fun unlockInteropTexture(){
-        if(locked){
-            locked = false
-            wglDXUnlockObjectsNV(interopHandle, sharedTextureHandle)
-        }
+        drawResultTexture(g, fxTexture)
     }
 
     private fun updateFramebufferSize() = executor.run {
         if (texture != -1) {
-            wglDXUnregisterObjectNV(interopHandle, sharedTextureHandle)
+            wglDXUnregisterObjectNV(interopHandle, interopTexture)
 
-            fxTextureObject.dispose()
+            fxTexture.dispose()
 
             glDeleteTextures(texture)
             glDeleteFramebuffers(fbo)
@@ -125,8 +111,8 @@ open class InteropImpl(
         val height = lastSize.second
 
         // Create and register DX shared texture
-        fxTexture = fxDevice.createTexture(width, height)
-        wglDXSetResourceShareHandleNV(fxTexture.handle, fxTexture.sharedHandle)
+        fxD3DTexture = fxDevice.createTexture(width, height)
+        wglDXSetResourceShareHandleNV(fxD3DTexture.handle, fxD3DTexture.sharedHandle)
 
         // Create GL texture
         texture = glGenTextures()
@@ -144,12 +130,12 @@ open class InteropImpl(
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer)
 
         // Create interop texture
-        sharedTextureHandle = wglDXRegisterObjectNV(interopHandle, fxTexture.handle, texture, GL_TEXTURE_2D, WGL_ACCESS_WRITE_DISCARD_NV)
+        interopTexture = wglDXRegisterObjectNV(interopHandle, fxD3DTexture.handle, texture, GL_TEXTURE_2D, WGL_ACCESS_WRITE_DISCARD_NV)
 
         // Create default JavaFX texture and replace native handle to custom one
-        fxTextureObject = GraphicsPipeline.getDefaultResourceFactory().createTexture(PixelFormat.BYTE_BGRA_PRE, Texture.Usage.DYNAMIC, Texture.WrapMode.CLAMP_TO_EDGE, width, height)
-        fxTextureObject.makePermanent()
-        WinUtils.replaceD3DTextureInResource(fxTextureObject.DX9TextureResource, fxTexture.handle)
+        fxTexture = GraphicsPipeline.getDefaultResourceFactory().createTexture(PixelFormat.BYTE_BGRA_PRE, Texture.Usage.DYNAMIC, Texture.WrapMode.CLAMP_TO_EDGE, width, height)
+        fxTexture.makePermanent()
+        WinUtils.replaceD3DTextureInResource(fxTexture.DX9TextureResource, fxD3DTexture.handle)
     }
 
     override fun repaint() = needsRepaint.set(true)

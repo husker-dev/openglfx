@@ -1,10 +1,11 @@
-
 plugins {
     id 'org.jetbrains.kotlin.jvm'
 }
+apply from: "$rootDir/dependencies.gradle"
 
 repositories {
     mavenCentral()
+    maven { url 'https://jitpack.io' }
 }
 
 sourceSets{
@@ -19,20 +20,13 @@ sourceSets{
 }
 
 dependencies {
+    compileOnly DEFAULT
     compileOnly project(':core')
-    compileOnly "org.jetbrains.kotlin:kotlin-stdlib"
-
-    compileOnly "org.openjfx:javafx-base:$jfxVersion:$project.jfxNatives"
-    compileOnly "org.openjfx:javafx-controls:$jfxVersion:$project.jfxNatives"
-    compileOnly "org.openjfx:javafx-graphics:$jfxVersion:$project.jfxNatives"
 
     compileOnly platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
-
     compileOnly "org.lwjgl:lwjgl"
     compileOnly "org.lwjgl:lwjgl-opengl"
 
-    compileOnly "org.lwjgl:lwjgl::natives-$project.lwjglNatives"
-    compileOnly "org.lwjgl:lwjgl-opengl::natives-$project.lwjglNatives"
-
-    compileOnly files('../libs/javafx.graphics.win-es2.jar')
+    compileOnly "org.lwjgl:lwjgl::$project.lwjglNatives"
+    compileOnly "org.lwjgl:lwjgl-opengl::$project.lwjglNatives"
 }

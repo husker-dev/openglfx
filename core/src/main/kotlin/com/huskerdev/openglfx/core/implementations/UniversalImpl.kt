@@ -1,5 +1,6 @@
-package com.huskerdev.openglfx.core.implementation
+package com.huskerdev.openglfx.core.implementations
 
+import com.huskerdev.ojgl.GLContext
 import com.huskerdev.openglfx.OpenGLCanvas
 import com.huskerdev.openglfx.core.*
 import com.huskerdev.openglfx.utils.OpenGLFXUtils
@@ -76,7 +77,7 @@ open class UniversalImpl(
         if(!initialized){
             initialized = true
 
-            context = GLContext.createNew(executor, profile)
+            context = GLContext.create(0L, profile == CORE_PROFILE)
             context!!.makeCurrent()
             executor.initGLFunctions()
 

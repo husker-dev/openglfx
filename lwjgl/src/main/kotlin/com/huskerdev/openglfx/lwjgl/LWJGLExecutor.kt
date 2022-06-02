@@ -1,8 +1,6 @@
 package com.huskerdev.openglfx.lwjgl
 
 import com.huskerdev.openglfx.core.GLExecutor
-import com.huskerdev.openglfx.core.NativeObject
-import org.lwjgl.PointerBuffer
 import org.lwjgl.opengl.*
 import java.nio.IntBuffer
 
@@ -15,15 +13,6 @@ class LWJGLExecutor: GLExecutor() {
 
     override fun initGLFunctions() {
         GL.createCapabilities()
-    }
-
-    override fun createNativeObject() = object: NativeObject(){
-        val pointer = PointerBuffer.allocateDirect(Long.SIZE_BYTES)
-
-        override val value: Long
-            get() = pointer.get()
-        override val address: Long
-            get() = pointer.address()
     }
 
     // GL
@@ -50,12 +39,4 @@ class LWJGLExecutor: GLExecutor() {
 
     override fun glViewport(x: Int, y: Int, w: Int, h: Int) = GL30.glViewport(x, y, w, h)
     override fun glFinish() = GL30.glFinish()
-
-    // CGL
-    override fun CGLGetCurrentContext() = CGL.CGLGetCurrentContext()
-    override fun CGLSetCurrentContext(context: Long) = CGL.CGLSetCurrentContext(context)
-    override fun CGLGetPixelFormat(context: Long) = CGL.CGLGetPixelFormat(context)
-    override fun CGLCreateContext(pix: Long, share: Long, ctxPtr: Long) = CGL.CGLCreateContext(pix, share, PointerBuffer.create(ctxPtr, Long.SIZE_BYTES))
-    override fun CGLDestroyPixelFormat(pix: Long) = CGL.CGLDestroyPixelFormat(pix)
-    override fun CGLChoosePixelFormat(attribs: IntArray, pixPtr: Long, npix: IntArray) = CGL.CGLChoosePixelFormat(attribs, PointerBuffer.create(pixPtr, Long.SIZE_BYTES), npix)
 }

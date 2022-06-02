@@ -1,16 +1,18 @@
 plugins {
     id 'org.jetbrains.kotlin.jvm'
 }
+apply from: "$rootDir/dependencies.gradle"
 
 repositories {
     mavenCentral()
+    maven { url 'https://jitpack.io' }
 }
 
 sourceSets{
     examples {
         resources { srcDirs "src/examples/resources" }
         java {
-            srcDirs 'src/examples/kotlin'
+            srcDirs 'src/examples/kotlin', 'src/examples/java'
             compileClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.compileClasspath
             runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.compileClasspath
         }
@@ -18,18 +20,12 @@ sourceSets{
 }
 
 dependencies {
+    compileOnly DEFAULT
     compileOnly project(':core')
-    compileOnly "org.jetbrains.kotlin:kotlin-stdlib"
-
-    compileOnly "org.openjfx:javafx-base:$jfxVersion:$project.jfxNatives"
-    compileOnly "org.openjfx:javafx-controls:$jfxVersion:$project.jfxNatives"
-    compileOnly "org.openjfx:javafx-graphics:$jfxVersion:$project.jfxNatives"
 
     compileOnly "org.jogamp.gluegen:gluegen-rt:$joglVersion"
     compileOnly "org.jogamp.gluegen:gluegen-rt:$joglVersion:natives-$project.joglNatives"
 
     compileOnly "org.jogamp.jogl:jogl-all:$joglVersion"
     compileOnly "org.jogamp.jogl:jogl-all:$joglVersion:natives-$project.joglNatives"
-
-    compileOnly files('../libs/javafx.graphics.win-es2.jar')
 }

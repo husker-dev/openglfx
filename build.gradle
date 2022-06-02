@@ -28,7 +28,7 @@ def x86 = !x64 && !arm32 && !arm64
 
 def lwjglArch = arm64? "-arm64" :arm32? "-arm32" :x64? "" :x86? "-x86" : ""
 def lwjglOS = os.linux? "linux" :os.macOsX? "macos" :os.windows? "windows" : os.name
-project.ext.lwjglNatives = lwjglOS + lwjglArch
+project.ext.lwjglNatives = "natives-${lwjglOS + lwjglArch}"
 
 def joglArch = arm64? "-armv6hv" :arm32? "-armv6" :x64? "-amd64" :x86? "-i586" : ""
 def joglOS = os.linux? "linux" :os.macOsX? "macosx" :os.windows? "windows" : os.name

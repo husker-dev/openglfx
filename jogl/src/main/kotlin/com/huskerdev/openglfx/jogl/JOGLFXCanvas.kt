@@ -1,7 +1,7 @@
 package com.huskerdev.openglfx.jogl
 
 import com.huskerdev.openglfx.core.GLExecutor
-import com.huskerdev.openglfx.core.implementation.*
+import com.huskerdev.openglfx.core.implementations.*
 import com.huskerdev.openglfx.events.*
 import com.huskerdev.openglfx.jogl.events.*
 import com.jogamp.opengl.GL2

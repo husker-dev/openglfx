@@ -124,34 +124,6 @@ extern "C" {
         }
     }
 
-    JNIEXPORT jlongArray JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_getCurrentContext(JNIEnv* env, jobject) {
-        checkBasicFunctions();
-        
-        jlong array[2] = { (jlong)wglGetCurrentContext(), (jlong)wglGetCurrentDC() };
-        return createLongArray(env, 2, array);
-    }
-
-    JNIEXPORT jboolean JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_setCurrentContext(JNIEnv* env, jobject, jlong dc, jlong rc) {
-        checkBasicFunctions();
-        return wglMakeCurrent((HDC)dc, (HGLRC)rc);
-    }
-
-    JNIEXPORT jlongArray JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_createContext(JNIEnv* env, jobject, jboolean isCore, jlong shareRc) {
-        checkBasicFunctions();
-
-        GLint context_attributes[] = {
-            WGL_CONTEXT_PROFILE_MASK_ARB, isCore ? WGL_CONTEXT_CORE_PROFILE_BIT_ARB : WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
-            0
-        };
-
-        HGLRC rc;
-        if (!(rc = wglCreateContextAttribsARB(dc, (HGLRC)shareRc, context_attributes)))
-            std::cout << "Failed to create context (WGL)" << std::endl;
-
-        jlong array[2] = { (jlong)rc, (jlong)dc };
-        return createLongArray(env, 2, array);
-    }
-
     JNIEXPORT jboolean JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_hasDXInterop(JNIEnv* env, jobject) {
         checkBasicFunctions();
         return wglDXOpenDeviceNV != 0;

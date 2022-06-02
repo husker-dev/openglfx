@@ -1,5 +1,6 @@
-package com.huskerdev.openglfx.core.implementation
+package com.huskerdev.openglfx.core.implementations
 
+import com.huskerdev.ojgl.GLContext
 import com.huskerdev.openglfx.OpenGLCanvas
 import com.huskerdev.openglfx.core.*
 import com.huskerdev.openglfx.utils.OpenGLFXUtils.Companion.GLTextureId
@@ -47,8 +48,8 @@ open class SharedImpl(
             if (context == null) {
                 executor.initGLFunctions()
 
-                fxContext = GLContext.fromCurrent(executor)
-                context = GLContext.createNew(executor, profile, fxContext!!)
+                fxContext = GLContext.current()
+                context = GLContext.create(fxContext!!, profile == CORE_PROFILE)
             }
 
             context!!.makeCurrent()

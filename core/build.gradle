@@ -1,17 +1,22 @@
 plugins {
     id 'org.jetbrains.kotlin.jvm'
 }
+apply from: "$rootDir/dependencies.gradle"
 
-
+jar {
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
 
 repositories {
     mavenCentral()
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
-    compileOnly "org.jetbrains.kotlin:kotlin-stdlib"
+    compileOnly DEFAULT
 
-    compileOnly "org.openjfx:javafx-base:$jfxVersion:$project.jfxNatives"
-    compileOnly "org.openjfx:javafx-controls:$jfxVersion:$project.jfxNatives"
-    compileOnly "org.openjfx:javafx-graphics:$jfxVersion:$project.jfxNatives"
+    implementation "com.github.husker-dev:offscreen-jgl:$ojglVersion"
+    compileOnly "org.jetbrains.kotlin:kotlin-stdlib"
 }

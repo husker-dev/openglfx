@@ -1,0 +1,9 @@
+ext {
+    DEFAULT = [
+            "com.github.husker-dev:offscreen-jgl:$ojglVersion",
+            "org.openjfx:javafx-base:$jfxVersion:$project.jfxNatives",
+            "org.openjfx:javafx-controls:$jfxVersion:$project.jfxNatives",
+            "org.openjfx:javafx-graphics:$jfxVersion:$project.jfxNatives",
+            files("$rootDir/libs/javafx.graphics.win-es2.jar")
+    ]
+}

@@ -7,7 +7,7 @@ class D3D9Device(val handle: Long) {
 
     companion object {
 
-        val fxDevice: D3D9Device by lazy {
+        val fxInstance: D3D9Device by lazy {
             val pipeline = GraphicsPipeline.getPipeline()
             val resourceFactory = (pipeline::class.java.getDeclaredField("factories").apply { isAccessible = true }[pipeline] as Array<*>)[0]!!
             val context = resourceFactory::class.java.getDeclaredField("context").apply { isAccessible = true }[resourceFactory]
@@ -18,9 +18,7 @@ class D3D9Device(val handle: Long) {
         }
     }
 
-    fun createTexture(width: Int, height: Int): D3D9Texture {
-        val result = WinUtils.createD3DTexture(handle, width, height)
-        return D3D9Texture(result[0], result[1])
-    }
+    fun createTexture(width: Int, height: Int) =
+        WinUtils.createD3DTexture(handle, width, height).run { D3D9Texture(this[0], this[1]) }
 
 }
