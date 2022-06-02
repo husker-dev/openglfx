@@ -8,7 +8,7 @@ OpenGL implementation for JavaFX
 ## Features:
   - **JOGL** and **LWJGL** support
   - HiDPI support
-  - Best available performance
+  - The best available performance
 
 ## Screenshots
 
