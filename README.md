@@ -139,7 +139,7 @@ Possible values:
 
 ## Animator
 
-Animator allows to automatically repaint canvas with fixed FPS.
+Animator allows to automatically repaint canvas with the fixed FPS.
 
 ```kotlin
 canvas.animator = GLCanvasAnimator(60.0) // FPS: 60
