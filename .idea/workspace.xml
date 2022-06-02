@@ -4,35 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d39d0143-d2aa-4261-8506-35cd0ece831b" name="Changes" comment="Fixed flickering on NV_DX_interop">
-      <change afterPath="$PROJECT_DIR$/dependencies.gradle" afterDir="false" />
+    <list default="true" id="d39d0143-d2aa-4261-8506-35cd0ece831b" name="Changes" comment="Added OJGL, Refactoring">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/core/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/GLContext.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/GLExecutor.kt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/GLExecutor.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/d3d9/D3D9Device.kt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/d3d9/D3D9Device.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/implementation/InteropImpl.kt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/implementations/InteropImpl.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/implementation/SharedImpl.kt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/implementations/SharedImpl.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/implementation/UniversalImpl.kt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/implementations/UniversalImpl.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/utils/LinuxUtils.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/utils/WinUtils.kt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/utils/WinUtils.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/native/linux_utils/CMakeLists.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/native/linux_utils/CMakePresets.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/native/linux_utils/linux_utils.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/native/linux_utils/linux_utils.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/native/win_utils/win_utils.h" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/native/win_utils/win_utils.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/com/huskerdev/openglfx/natives/linux_utils_x64.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/com/huskerdev/openglfx/natives/linux_utils_x86.so" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/com/huskerdev/openglfx/natives/win_utils_arm64.dll" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/com/huskerdev/openglfx/natives/win_utils_arm64.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/com/huskerdev/openglfx/natives/win_utils_x64.dll" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/com/huskerdev/openglfx/natives/win_utils_x64.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/com/huskerdev/openglfx/natives/win_utils_x86.dll" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/com/huskerdev/openglfx/natives/win_utils_x86.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/jogl/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/jogl/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/jogl/src/main/kotlin/com/huskerdev/openglfx/jogl/JOGLFXCanvas.kt" beforeDir="false" afterPath="$PROJECT_DIR$/jogl/src/main/kotlin/com/huskerdev/openglfx/jogl/JOGLFXCanvas.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/jogl/src/main/kotlin/com/huskerdev/openglfx/jogl/JOGLFXExecutor.kt" beforeDir="false" afterPath="$PROJECT_DIR$/jogl/src/main/kotlin/com/huskerdev/openglfx/jogl/JOGLFXExecutor.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lwjgl/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/lwjgl/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lwjgl/src/main/kotlin/com/huskerdev/openglfx/lwjgl/LWJGLExecutor.kt" beforeDir="false" afterPath="$PROJECT_DIR$/lwjgl/src/main/kotlin/com/huskerdev/openglfx/lwjgl/LWJGLExecutor.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -83,154 +57,6 @@
                 <item name="Tasks" type="e4a08cd1:TasksNode" />
                 <item name="release" type="c8890929:TasksNode$1" />
               </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="openglfx" type="f1a62948:ProjectNode" />
-                <item name="core" type="2d1252cf:ModuleNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="openglfx" type="f1a62948:ProjectNode" />
-                <item name="core" type="2d1252cf:ModuleNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="openglfx" type="f1a62948:ProjectNode" />
-                <item name="core" type="2d1252cf:ModuleNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="build" type="c8890929:TasksNode$1" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="openglfx" type="f1a62948:ProjectNode" />
-                <item name="core" type="2d1252cf:ModuleNode" />
-                <item name="Dependencies" type="6de06a37:ExternalSystemViewDefaultContributor$MyDependenciesNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="openglfx" type="f1a62948:ProjectNode" />
-                <item name="jogl" type="2d1252cf:ModuleNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="openglfx" type="f1a62948:ProjectNode" />
-                <item name="jogl" type="2d1252cf:ModuleNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="openglfx" type="f1a62948:ProjectNode" />
-                <item name="jogl" type="2d1252cf:ModuleNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="build" type="c8890929:TasksNode$1" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="openglfx" type="f1a62948:ProjectNode" />
-                <item name="jogl" type="2d1252cf:ModuleNode" />
-                <item name="Dependencies" type="6de06a37:ExternalSystemViewDefaultContributor$MyDependenciesNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="openglfx" type="f1a62948:ProjectNode" />
-                <item name="jogl" type="2d1252cf:ModuleNode" />
-                <item name="Dependencies" type="6de06a37:ExternalSystemViewDefaultContributor$MyDependenciesNode" />
-                <item name="compileClasspath" type="62daadca:ExternalSystemViewDefaultContributor$DependencyScopeExternalSystemNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="openglfx" type="f1a62948:ProjectNode" />
-                <item name="jogl" type="2d1252cf:ModuleNode" />
-                <item name="Dependencies" type="6de06a37:ExternalSystemViewDefaultContributor$MyDependenciesNode" />
-                <item name="examplesCompileClasspath" type="62daadca:ExternalSystemViewDefaultContributor$DependencyScopeExternalSystemNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="openglfx" type="f1a62948:ProjectNode" />
-                <item name="jogl" type="2d1252cf:ModuleNode" />
-                <item name="Dependencies" type="6de06a37:ExternalSystemViewDefaultContributor$MyDependenciesNode" />
-                <item name="examplesCompileClasspath" type="62daadca:ExternalSystemViewDefaultContributor$DependencyScopeExternalSystemNode" />
-                <item name="org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.10" type="b3323d55:ExternalSystemViewDefaultContributor$DependencyExternalSystemNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="openglfx" type="f1a62948:ProjectNode" />
-                <item name="jogl" type="2d1252cf:ModuleNode" />
-                <item name="Dependencies" type="6de06a37:ExternalSystemViewDefaultContributor$MyDependenciesNode" />
-                <item name="examplesRuntimeClasspath" type="62daadca:ExternalSystemViewDefaultContributor$DependencyScopeExternalSystemNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="openglfx" type="f1a62948:ProjectNode" />
-                <item name="jogl" type="2d1252cf:ModuleNode" />
-                <item name="Dependencies" type="6de06a37:ExternalSystemViewDefaultContributor$MyDependenciesNode" />
-                <item name="examplesRuntimeClasspath" type="62daadca:ExternalSystemViewDefaultContributor$DependencyScopeExternalSystemNode" />
-                <item name="org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.10" type="b3323d55:ExternalSystemViewDefaultContributor$DependencyExternalSystemNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="openglfx" type="f1a62948:ProjectNode" />
-                <item name="jogl" type="2d1252cf:ModuleNode" />
-                <item name="Dependencies" type="6de06a37:ExternalSystemViewDefaultContributor$MyDependenciesNode" />
-                <item name="runtimeClasspath" type="62daadca:ExternalSystemViewDefaultContributor$DependencyScopeExternalSystemNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="openglfx" type="f1a62948:ProjectNode" />
-                <item name="jogl" type="2d1252cf:ModuleNode" />
-                <item name="Dependencies" type="6de06a37:ExternalSystemViewDefaultContributor$MyDependenciesNode" />
-                <item name="runtimeClasspath" type="62daadca:ExternalSystemViewDefaultContributor$DependencyScopeExternalSystemNode" />
-                <item name="org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.10" type="b3323d55:ExternalSystemViewDefaultContributor$DependencyExternalSystemNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="openglfx" type="f1a62948:ProjectNode" />
-                <item name="lwjgl" type="2d1252cf:ModuleNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="openglfx" type="f1a62948:ProjectNode" />
-                <item name="lwjgl" type="2d1252cf:ModuleNode" />
-                <item name="Dependencies" type="6de06a37:ExternalSystemViewDefaultContributor$MyDependenciesNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="openglfx" type="f1a62948:ProjectNode" />
-                <item name="lwjgl" type="2d1252cf:ModuleNode" />
-                <item name="Dependencies" type="6de06a37:ExternalSystemViewDefaultContributor$MyDependenciesNode" />
-                <item name="compileClasspath" type="62daadca:ExternalSystemViewDefaultContributor$DependencyScopeExternalSystemNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="openglfx" type="f1a62948:ProjectNode" />
-                <item name="lwjgl" type="2d1252cf:ModuleNode" />
-                <item name="Dependencies" type="6de06a37:ExternalSystemViewDefaultContributor$MyDependenciesNode" />
-                <item name="examplesCompileClasspath" type="62daadca:ExternalSystemViewDefaultContributor$DependencyScopeExternalSystemNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="openglfx" type="f1a62948:ProjectNode" />
-                <item name="lwjgl" type="2d1252cf:ModuleNode" />
-                <item name="Dependencies" type="6de06a37:ExternalSystemViewDefaultContributor$MyDependenciesNode" />
-                <item name="examplesCompileClasspath" type="62daadca:ExternalSystemViewDefaultContributor$DependencyScopeExternalSystemNode" />
-                <item name="org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.10" type="b3323d55:ExternalSystemViewDefaultContributor$DependencyExternalSystemNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="openglfx" type="f1a62948:ProjectNode" />
-                <item name="lwjgl" type="2d1252cf:ModuleNode" />
-                <item name="Dependencies" type="6de06a37:ExternalSystemViewDefaultContributor$MyDependenciesNode" />
-                <item name="examplesRuntimeClasspath" type="62daadca:ExternalSystemViewDefaultContributor$DependencyScopeExternalSystemNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="openglfx" type="f1a62948:ProjectNode" />
-                <item name="lwjgl" type="2d1252cf:ModuleNode" />
-                <item name="Dependencies" type="6de06a37:ExternalSystemViewDefaultContributor$MyDependenciesNode" />
-                <item name="examplesRuntimeClasspath" type="62daadca:ExternalSystemViewDefaultContributor$DependencyScopeExternalSystemNode" />
-                <item name="org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.10" type="b3323d55:ExternalSystemViewDefaultContributor$DependencyExternalSystemNode" />
-              </path>
             </expand>
             <select />
           </tree_state>
@@ -272,7 +98,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$USER_HOME$/OpenGLFX-LWJGL-Sample" />
     <property name="project.structure.last.edited" value="Project" />
     <property name="project.structure.proportion" value="0.13869625" />
     <property name="project.structure.side.proportion" value="0.2" />
@@ -300,7 +126,7 @@
       <recent name="" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.LWJGL Interop">
+  <component name="RunManager" selected="Gradle.Build library">
     <configuration name="JOGL Interop" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="Interop" />
       <module name="openglfx.jogl.examples" />
@@ -625,7 +451,7 @@
       <workItem from="1653817511532" duration="3386000" />
       <workItem from="1653991719337" duration="2513000" />
       <workItem from="1654028211307" duration="27000" />
-      <workItem from="1654171613529" duration="6160000" />
+      <workItem from="1654171613529" duration="6772000" />
     </task>
     <task id="LOCAL-00001" summary="Added JavaFX events">
       <created>1651573350041</created>
@@ -879,7 +705,14 @@
       <option name="project" value="LOCAL" />
       <updated>1653767174035</updated>
     </task>
-    <option name="localTasksCounter" value="37" />
+    <task id="LOCAL-00037" summary="Added OJGL, Refactoring">
+      <created>1654194541433</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1654194541433</updated>
+    </task>
+    <option name="localTasksCounter" value="38" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -920,7 +753,8 @@
     <MESSAGE value="Added JOGLEvent interface" />
     <MESSAGE value="Deletion" />
     <MESSAGE value="Fixed flickering on NV_DX_interop" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed flickering on NV_DX_interop" />
+    <MESSAGE value="Added OJGL, Refactoring" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added OJGL, Refactoring" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
