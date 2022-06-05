@@ -56,8 +56,8 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
   
     // OpenGLFX
-    implementation 'com.github.husker-dev.openglfx:core:3.0.2'
-    implementation 'com.github.husker-dev.openglfx:lwjgl:3.0.2'
+    implementation 'com.github.husker-dev.openglfx:core:3.0.4'
+    implementation 'com.github.husker-dev.openglfx:lwjgl:3.0.4'
 
     // LWJGL
     implementation platform("org.lwjgl:lwjgl-bom:3.3.0")
