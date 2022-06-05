@@ -174,13 +174,6 @@ canvas.animator = null
 - JOGL can't initialize on macOS ([#22](https://github.com/husker-dev/openglfx/issues/22))
 > If you know how to fix that problem I would be very happy
 
-
-## Example repo
-If you still have a misunderstanding about the implementation, take a look at the example repository that uses OpenGLFX with Java and Maven 
-
-https://github.com/orange451/OpenGLFX-LWJGL-Sample
-
-
 ## Thanks to
 
 - [James H Ball](https://github.com/jameshball) - macOS tester
