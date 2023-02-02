@@ -169,8 +169,19 @@ abstract class OpenGLCanvas(
      * @param g Node's graphics
      * @param texture default JavaFX texture
      */
-    protected fun drawResultTexture(g: Graphics, texture: Texture){
-        g.drawTexture(texture, 0f, 0f, width.toFloat() + 0.5f, height.toFloat() + 0.5f, 0.0f, 0.0f, scaledWidth.toFloat(), scaledHeight.toFloat())
+    protected fun drawResultTexture(graphics: Graphics, texture: Texture) {
+        // sy1 and sy2 are flipped to fix the bug https://github.com/husker-dev/openglfx/issues/25
+        graphics.drawTexture(
+            /* tex = */ texture,
+            /* dx1 = */ 0f,
+            /* dy1 = */ 0f,
+            /* dx2 = */ width.toFloat() + 0.5f,
+            /* dy2 = */ height.toFloat() + 0.5f,
+            /* sx1 = */ 0.0f,
+            /* sy1 = */ scaledHeight.toFloat(),
+            /* sx2 = */ scaledWidth.toFloat(),
+            /* sy2 = */ 0.0f
+        )
     }
 
     private class NGOpenGLCanvas(val canvas: OpenGLCanvas): NGRegion() {
