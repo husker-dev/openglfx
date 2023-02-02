@@ -22,9 +22,7 @@ import java.nio.ByteOrder
 import java.nio.FloatBuffer
 
 fun main() {
-    System.setProperty("prism.order", "d3d,sw")
-    System.setProperty("prism.vsync", "false")
-
+    System.setProperty("prism.order", "es2,d3d,sw")
     Application.launch(HelloTriangleExampleApp::class.java)
 }
 
@@ -50,18 +48,27 @@ class HelloTriangleExampleApp : Application() {
     var bufferId: Int = 0
     var programId: Int = 0
     val bufferData: FloatBuffer = ByteBuffer.allocateDirect(100 shl 2).order(ByteOrder.nativeOrder()).asFloatBuffer()
+    var isDirty: Boolean = true
 
     fun init(event: GLInitializeEvent) {
         val vertexShaderSource: String = """
-            attribute vec3 position;
-            
-            void main() {
-                gl_Position = vec4(position, 1);
-            }
-        """.trimIndent()
-        val pixelShaderSource: String = """            
-            |void main() {
-            |    gl_Color = vec4(1.0, 0.5, 0.2, 1.0);
+            |#version 330 core
+            |
+            |layout (location = 0) in vec3 aPos;
+            |
+            |void main()
+            |{
+            |    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+            |}
+            |""".trimMargin("|")
+        val pixelShaderSource: String = """  
+            |#version 330 core
+            | 
+            |out vec4 FragColor;
+            |       
+            |void main() 
+            |{
+            |    FragColor = vec4(1.0, 0.5, 0.2, 1.0);
             |}
         """.trimMargin("|")
 
@@ -92,7 +99,14 @@ class HelloTriangleExampleApp : Application() {
         GL20.glDeleteShader(vertexShaderId)
         GL20.glDeleteShader(pixelShaderId)
 
-        bufferData.put(floatArrayOf(-0.5f, -0.5f, 0.0f, 0.5f, -0.5f, 0.0f, 0.0f, 0.5f, 0.0f))
+        bufferData.put(
+            floatArrayOf(
+                -0.5f, -0.5f, 0.0f,
+                0.5f, -0.5f, 0.0f,
+                0.0f, 0.5f, 0.0f
+            )
+        )
+        bufferData.rewind()
         bufferId = GL15.glGenBuffers()
     }
 
@@ -103,9 +117,16 @@ class HelloTriangleExampleApp : Application() {
     }
 
     fun render(event: GLRenderEvent) {
+        GL11.glClearColor(0.2f, 0.3f, 0.3f, 1.0f)
+        GL11.glClear(GL11.GL_COLOR_BUFFER_BIT)
         GL20.glUseProgram(programId)
         GL15.glBindBuffer(GL_ARRAY_BUFFER, bufferId)
-        GL15.glBufferData(GL_ARRAY_BUFFER, bufferData, GL_STATIC_DRAW)
+        GL20.glEnableVertexAttribArray(0)
+        GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 3 * 4, 0)
+        if (isDirty) {
+            GL15.glBufferData(GL_ARRAY_BUFFER, bufferData, GL_STATIC_DRAW)
+            isDirty = false
+        }
         GL11.glDrawArrays(GL_TRIANGLES, 0, 3)
     }
 
