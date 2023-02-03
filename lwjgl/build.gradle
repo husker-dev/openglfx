@@ -29,4 +29,6 @@ dependencies {
 
     compileOnly "org.lwjgl:lwjgl::$project.lwjglNatives"
     compileOnly "org.lwjgl:lwjgl-opengl::$project.lwjglNatives"
+
+    compileOnly "org.l33tlabs.twl:pngdecoder:1.0" // used by `Learn Opengl - Textures.kt`
 }
