@@ -1,14 +1,35 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath "gradle.plugin.com.github.johnrengelman:shadow:7.1.2"
+        classpath "org.openjfx:javafx-plugin:0.0.13"
+    }
+}
+
 plugins {
     id 'org.jetbrains.kotlin.jvm'
 }
+
 apply from: "$rootDir/dependencies.gradle"
+apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'org.openjfx.javafxplugin'
+
+javafx {
+    version = "18.0.1"
+    modules = ["javafx.controls", "javafx.graphics", "javafx.swing"]
+}
 
 repositories {
     mavenCentral()
-    maven { url 'https://jitpack.io' }
+    google()
+    maven { url "https://jitpack.io" }
+    maven { url "https://maven.jzy3d.org/releases" } // jogamp
 }
 
-sourceSets{
+sourceSets {
     examples {
         resources { srcDirs "src/examples/resources" }
         java {
@@ -20,15 +41,43 @@ sourceSets{
 }
 
 dependencies {
-    compileOnly DEFAULT
-    compileOnly project(':core')
+    api DEFAULT
+    api project(':core')
 
-    compileOnly platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
-    compileOnly "org.lwjgl:lwjgl"
-    compileOnly "org.lwjgl:lwjgl-opengl"
+    api platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
+    api "org.lwjgl:lwjgl"
+    api "org.lwjgl:lwjgl-opengl"
 
-    compileOnly "org.lwjgl:lwjgl::$project.lwjglNatives"
-    compileOnly "org.lwjgl:lwjgl-opengl::$project.lwjglNatives"
+    api "org.lwjgl:lwjgl::$project.lwjglNatives"
+    api "org.lwjgl:lwjgl-opengl::$project.lwjglNatives"
 
-    compileOnly "org.l33tlabs.twl:pngdecoder:1.0" // used by `Learn Opengl - Textures.kt`
+    api "org.l33tlabs.twl:pngdecoder:1.0" // used by `Learn Opengl - Textures.kt`
+}
+
+/*run*/
+
+tasks.withType(Copy) {
+    filesMatching("**") {
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    }
+}
+
+task run(dependsOn: 'build', type: JavaExec) {
+    mainClass = "SharedKt"
+    classpath = sourceSets.examples.runtimeClasspath
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'com.huskerdev.openglfx.lwjgl.SharedKt'
+    }
+    enabled = false
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
+shadowJar {
+    archiveClassifier = null
+    classifier = null
+    exclude "**/Log4j2Plugins.dat"
+    zip64 true
 }
