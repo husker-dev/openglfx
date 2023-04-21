@@ -32,7 +32,7 @@ OpenGL implementation for JavaFX
 
 ## Example code
 
-You can use [example generator](https://huskerdev.com/?page=tools/openglfx) to mix **Java/Kotlin** and **Gradle/Maven/Sbt**.
+You can use [example generator](https://husker-dev.github.io/husker-dev/?page=tools/openglfx) to mix **Java/Kotlin** and **Gradle/Maven/Sbt**.
 
 Or expand one of the following examples:
 <details><summary>Kotlin + LWJGL</summary>
