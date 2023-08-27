@@ -1,5 +1,3 @@
-package rendering
-
 import com.huskerdev.openglfx.events.GLRenderEvent
 import com.huskerdev.openglfx.events.GLReshapeEvent
 import org.lwjgl.opengl.GL30.*

@@ -7,9 +7,9 @@ import javafx.scene.Scene
 import javafx.scene.control.SplitPane
 import javafx.scene.layout.Region
 import javafx.stage.Stage
-import rendering.ExampleRenderer
 
 fun main(){
+    System.setProperty("prism.order", "sw")
     System.setProperty("prism.vsync", "false")
     OpenGLCanvas.forceUniversal = true
 
@@ -19,7 +19,7 @@ fun main(){
 class UniversalExampleApp: Application(){
 
     override fun start(stage: Stage?) {
-        stage!!.title = "Kotlin \"Universal\" example"
+        stage!!.title = "Kotlin \"Software pipeline\" example"
         stage.width = 400.0
         stage.height = 400.0
 

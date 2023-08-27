@@ -17,7 +17,6 @@ import javafx.scene.image.PixelBuffer
 import javafx.scene.image.PixelFormat
 import javafx.scene.image.WritableImage
 import java.nio.ByteBuffer
-import java.nio.IntBuffer
 import java.util.concurrent.atomic.AtomicBoolean
 
 open class UniversalImpl(
@@ -33,13 +32,10 @@ open class UniversalImpl(
     private var initialized = false
     private var context: GLContext? = null
 
-    private val removedBuffers = arrayListOf<Pair<ByteBuffer, Long>>()
-
     private var image = WritableImage(1, 1)
 
-    private var pixelIntBuffer: IntBuffer? = null
     private var pixelByteBuffer: ByteBuffer? = null
-    private lateinit var pixelBuffer: PixelBuffer<IntBuffer>
+    private lateinit var pixelBuffer: PixelBuffer<ByteBuffer>
 
     private var texture = -1
     private var fbo = -1
@@ -56,14 +52,6 @@ open class UniversalImpl(
         object: AnimationTimer(){
             override fun handle(now: Long) {
                 try {
-                    // Garbage-collector for byte buffers
-                    removedBuffers.removeAll {
-                        return@removeAll if(System.nanoTime() - it.second > 1000000L * 1000 * 1){
-                            OpenGLFXUtils.cleanByteBuffer(it.first)
-                            true
-                        } else false
-                    }
-
                     if(needsRepaint.getAndSet(false)) {
                         NodeHelper.markDirty(this@UniversalImpl, DirtyBits.NODE_BOUNDS)
                         NodeHelper.markDirty(this@UniversalImpl, DirtyBits.REGION_SHAPE)
@@ -113,16 +101,15 @@ open class UniversalImpl(
 
         if(image.width.toInt() != renderWidth || image.height.toInt() != renderHeight){
             if(pixelByteBuffer != null)
-                removedBuffers.add(pixelByteBuffer!! to System.nanoTime())
+                OpenGLFXUtils.cleanByteBuffer(pixelByteBuffer!!)
 
             pixelByteBuffer = ByteBuffer.allocateDirect(renderWidth * renderHeight * Int.SIZE_BYTES)
-            pixelIntBuffer = pixelByteBuffer!!.asIntBuffer()
-            pixelBuffer = PixelBuffer(renderWidth, renderHeight, pixelIntBuffer, PixelFormat.getIntArgbPreInstance())
+            pixelBuffer = PixelBuffer(renderWidth, renderHeight, pixelByteBuffer!!, PixelFormat.getByteBgraPreInstance())
 
             image = WritableImage(pixelBuffer)
         }
 
-        glReadPixels(0, 0, renderWidth, renderHeight, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, pixelIntBuffer!!)
+        glReadPixels(0, 0, renderWidth, renderHeight, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, pixelByteBuffer!!)
         pixelBuffer.bufferDirty(null)
         return@run
     }

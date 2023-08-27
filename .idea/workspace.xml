@@ -5,8 +5,31 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d39d0143-d2aa-4261-8506-35cd0ece831b" name="Changes" comment="Added OJGL, Refactoring">
+      <change afterPath="$PROJECT_DIR$/.idea/kotlinc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/GLExecutor.kt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/GLExecutor.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/implementations/UniversalImpl.kt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/kotlin/com/huskerdev/openglfx/core/implementations/UniversalImpl.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/native/win_utils/win_utils.vcxproj" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/native/win_utils/win_utils.vcxproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/jogl/src/examples/java/Interop.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/jogl/src/examples/java/Shared.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/jogl/src/examples/java/Universal.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/jogl/src/examples/java/rendering/ExampleJavaRenderer.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/jogl/src/examples/kotlin/Interop.kt" beforeDir="false" afterPath="$PROJECT_DIR$/jogl/src/examples/kotlin/JOGL_D3D.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/jogl/src/examples/kotlin/Shared.kt" beforeDir="false" afterPath="$PROJECT_DIR$/jogl/src/examples/kotlin/JOGL_ES2.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/jogl/src/examples/kotlin/Universal.kt" beforeDir="false" afterPath="$PROJECT_DIR$/jogl/src/examples/kotlin/JOGL_SW.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/jogl/src/examples/kotlin/rendering/ExampleRenderer.kt" beforeDir="false" afterPath="$PROJECT_DIR$/jogl/src/examples/kotlin/ExampleRenderer.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/jogl/src/main/kotlin/com/huskerdev/openglfx/jogl/JOGLFXExecutor.kt" beforeDir="false" afterPath="$PROJECT_DIR$/jogl/src/main/kotlin/com/huskerdev/openglfx/jogl/JOGLFXExecutor.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lwjgl/src/examples/java/Interop.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lwjgl/src/examples/java/Shared.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lwjgl/src/examples/java/Universal.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lwjgl/src/examples/java/rendering/ExampleJavaRenderer.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lwjgl/src/examples/kotlin/Interop.kt" beforeDir="false" afterPath="$PROJECT_DIR$/lwjgl/src/examples/kotlin/LWJGL_D3D.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lwjgl/src/examples/kotlin/Shared.kt" beforeDir="false" afterPath="$PROJECT_DIR$/lwjgl/src/examples/kotlin/LWJGL_ES2.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lwjgl/src/examples/kotlin/Universal.kt" beforeDir="false" afterPath="$PROJECT_DIR$/lwjgl/src/examples/kotlin/LWJGL_SW.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lwjgl/src/examples/kotlin/rendering/ExampleRenderer.kt" beforeDir="false" afterPath="$PROJECT_DIR$/lwjgl/src/examples/kotlin/ExampleRenderer.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lwjgl/src/main/kotlin/com/huskerdev/openglfx/lwjgl/LWJGLExecutor.kt" beforeDir="false" afterPath="$PROJECT_DIR$/lwjgl/src/main/kotlin/com/huskerdev/openglfx/lwjgl/LWJGLExecutor.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,29 +58,7 @@
         </task>
         <projects_view>
           <tree_state>
-            <expand>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="openglfx" type="f1a62948:ProjectNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="openglfx" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="openglfx" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="build" type="c8890929:TasksNode$1" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="openglfx" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="release" type="c8890929:TasksNode$1" />
-              </path>
-            </expand>
+            <expand />
             <select />
           </tree_state>
         </projects_view>
@@ -88,22 +89,30 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 6
+}]]></component>
   <component name="ProjectId" id="28eHzyZkaRx4UprXyd7zlrVfDwZ" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">
-    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
-    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
-    <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$USER_HOME$/OpenGLFX-LWJGL-Sample" />
-    <property name="project.structure.last.edited" value="Project" />
-    <property name="project.structure.proportion" value="0.13869625" />
-    <property name="project.structure.side.proportion" value="0.2" />
-    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
-  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "master",
+    "last_opened_file_path": "D:/Projects/kotlin/openglfx",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\redfa\Desktop\openglfx\jogl\src\examples\java" />
@@ -113,11 +122,11 @@
       <recent name="C:\Users\redfa\Desktop\openglfx\lwjgl\src\main\kotlin" />
     </key>
     <key name="MoveKotlinTopLevelDeclarationsDialog.RECENTS_KEY">
+      <recent name="" />
       <recent name="com.huskerdev.openglfx.utils" />
       <recent name="com.huskerdev.openglfx.core.libs" />
       <recent name="com.huskerdev.openglfx.core.impl" />
       <recent name="com.huskerdev.openglfx.utils.d3d9" />
-      <recent name="com.huskerdev.openglfx.lwjgl.utils" />
     </key>
     <key name="CopyKotlinDeclarationDialog.RECENTS_KEY">
       <recent name="com.huskerdev.openglfx.events" />
@@ -126,56 +135,7 @@
       <recent name="" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.Build library">
-    <configuration name="JOGL Interop" type="Application" factoryName="Application">
-      <option name="MAIN_CLASS_NAME" value="Interop" />
-      <module name="openglfx.jogl.examples" />
-      <option name="VM_PARAMETERS" value="--add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism=ALL-UNNAMED --add-opens javafx.base/com.sun.javafx=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.sg.prism=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism.d3d=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED --add-opens javafx.graphics/javafx.scene.image=ALL-UNNAMED" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="JOGL Shared" type="Application" factoryName="Application">
-      <option name="MAIN_CLASS_NAME" value="Shared" />
-      <module name="openglfx.jogl.examples" />
-      <option name="VM_PARAMETERS" value="--add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism=ALL-UNNAMED --add-opens javafx.base/com.sun.javafx=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.sg.prism=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism.d3d=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED --add-opens javafx.graphics/javafx.scene.image=ALL-UNNAMED" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="JOGL Universal" type="Application" factoryName="Application">
-      <option name="MAIN_CLASS_NAME" value="Universal" />
-      <module name="openglfx.jogl.examples" />
-      <option name="VM_PARAMETERS" value="--add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism=ALL-UNNAMED --add-opens javafx.base/com.sun.javafx=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.sg.prism=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism.d3d=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED --add-opens javafx.graphics/javafx.scene.image=ALL-UNNAMED" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="LWJGL Interop" type="Application" factoryName="Application">
-      <option name="ALTERNATIVE_JRE_PATH" value="liberica-17" />
-      <option name="MAIN_CLASS_NAME" value="Interop" />
-      <module name="openglfx.lwjgl.examples" />
-      <option name="VM_PARAMETERS" value="--add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism=ALL-UNNAMED --add-opens javafx.base/com.sun.javafx=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.sg.prism=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism.d3d=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED --add-opens javafx.graphics/javafx.scene.image=ALL-UNNAMED" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="LWJGL Shared" type="Application" factoryName="Application">
-      <option name="MAIN_CLASS_NAME" value="Shared" />
-      <module name="openglfx.lwjgl.examples" />
-      <option name="VM_PARAMETERS" value="--add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism=ALL-UNNAMED --add-opens javafx.base/com.sun.javafx=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.sg.prism=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism.d3d=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED --add-opens javafx.graphics/javafx.scene.image=ALL-UNNAMED" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="LWJGL Universal" type="Application" factoryName="Application">
-      <option name="MAIN_CLASS_NAME" value="Universal" />
-      <module name="openglfx.lwjgl.examples" />
-      <option name="VM_PARAMETERS" value="--add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism=ALL-UNNAMED --add-opens javafx.base/com.sun.javafx=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.sg.prism=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism.d3d=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED --add-opens javafx.graphics/javafx.scene.image=ALL-UNNAMED" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
+  <component name="RunManager" selected="Kotlin.JOGL D3D">
     <configuration name="Build library" type="GradleRunConfiguration" factoryName="Gradle">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -195,6 +155,7 @@
       <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
       <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
       <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
     <configuration name="Compile Win utils" type="GradleRunConfiguration" factoryName="Gradle">
@@ -214,6 +175,7 @@
       <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
       <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
       <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
     <configuration name="openglfx [clean]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
@@ -235,6 +197,7 @@
       <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
       <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
       <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
     <configuration name="openglfx [compileWinUtils]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
@@ -256,6 +219,7 @@
       <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
       <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
       <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
     <configuration name="openglfx [jar]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
@@ -277,6 +241,7 @@
       <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
       <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
       <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
     <configuration name="openglfx:core [clean]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
@@ -298,6 +263,7 @@
       <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
       <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
       <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
     <configuration name="openglfx:core [testFile]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
@@ -319,82 +285,77 @@
       <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
       <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
       <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
-    <configuration name="JOGL Interop" type="JetRunConfigurationType">
-      <option name="MAIN_CLASS_NAME" value="InteropKt" />
+    <configuration name="JOGL D3D" type="JetRunConfigurationType">
+      <option name="MAIN_CLASS_NAME" value="JOGL_D3DKt" />
       <module name="openglfx.jogl.examples" />
       <shortenClasspath name="NONE" />
-      <option name="VM_PARAMETERS" value="--add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism=ALL-UNNAMED --add-opens javafx.base/com.sun.javafx=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.sg.prism=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism.d3d=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED --add-opens javafx.graphics/javafx.scene.image=ALL-UNNAMED" />
+      <option name="VM_PARAMETERS" value="-Dprism.order=d3d --add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism=ALL-UNNAMED -Dprism.order=d3d --add-opens javafx.base/com.sun.javafx=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.sg.prism=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism.d3d=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED --add-opens javafx.graphics/javafx.scene.image=ALL-UNNAMED" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="JOGL Shared" type="JetRunConfigurationType">
-      <option name="MAIN_CLASS_NAME" value="SharedKt" />
+    <configuration name="JOGL ES2" type="JetRunConfigurationType">
+      <option name="MAIN_CLASS_NAME" value="JOGL_ES2Kt" />
       <module name="openglfx.jogl.examples" />
       <shortenClasspath name="NONE" />
-      <option name="VM_PARAMETERS" value="--add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism=ALL-UNNAMED --add-opens javafx.base/com.sun.javafx=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.sg.prism=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism.d3d=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED --add-opens javafx.graphics/javafx.scene.image=ALL-UNNAMED" />
+      <option name="VM_PARAMETERS" value="-Dprism.order=es2 --add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism=ALL-UNNAMED --add-opens javafx.base/com.sun.javafx=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.sg.prism=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism.d3d=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED --add-opens javafx.graphics/javafx.scene.image=ALL-UNNAMED" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="JOGL Universal" type="JetRunConfigurationType">
-      <option name="MAIN_CLASS_NAME" value="UniversalKt" />
+    <configuration name="JOGL SW" type="JetRunConfigurationType">
+      <option name="MAIN_CLASS_NAME" value="JOGL_SWKt" />
       <module name="openglfx.jogl.examples" />
       <shortenClasspath name="NONE" />
-      <option name="VM_PARAMETERS" value="--add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism=ALL-UNNAMED --add-opens javafx.base/com.sun.javafx=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.sg.prism=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism.d3d=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED --add-opens javafx.graphics/javafx.scene.image=ALL-UNNAMED" />
+      <option name="VM_PARAMETERS" value="-Dprism.order=sw --add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism=ALL-UNNAMED --add-opens javafx.base/com.sun.javafx=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.sg.prism=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism.d3d=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED --add-opens javafx.graphics/javafx.scene.image=ALL-UNNAMED" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="LWJGL Interop" type="JetRunConfigurationType">
-      <option name="MAIN_CLASS_NAME" value="InteropKt" />
+    <configuration name="LWJGL D3D" type="JetRunConfigurationType">
+      <option name="MAIN_CLASS_NAME" value="LWJGL_D3DKt" />
       <module name="openglfx.lwjgl.examples" />
       <shortenClasspath name="NONE" />
-      <option name="VM_PARAMETERS" value="--add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism=ALL-UNNAMED --add-opens javafx.base/com.sun.javafx=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.sg.prism=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism.d3d=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED --add-opens javafx.graphics/javafx.scene.image=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism.paint=ALL-UNNAMED" />
+      <option name="VM_PARAMETERS" value="-Dprism.order=d3d --add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism=ALL-UNNAMED --add-opens javafx.base/com.sun.javafx=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.sg.prism=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism.d3d=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED --add-opens javafx.graphics/javafx.scene.image=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism.paint=ALL-UNNAMED" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="LWJGL Shared" type="JetRunConfigurationType">
-      <option name="MAIN_CLASS_NAME" value="SharedKt" />
+    <configuration name="LWJGL ES2" type="JetRunConfigurationType">
+      <option name="MAIN_CLASS_NAME" value="LWJGL_ES2Kt" />
       <module name="openglfx.lwjgl.examples" />
       <shortenClasspath name="NONE" />
-      <option name="VM_PARAMETERS" value="--add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism=ALL-UNNAMED --add-opens javafx.base/com.sun.javafx=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.sg.prism=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism.d3d=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED --add-opens javafx.graphics/javafx.scene.image=ALL-UNNAMED" />
+      <option name="VM_PARAMETERS" value="-Dprism.order=es2 --add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism=ALL-UNNAMED --add-opens javafx.base/com.sun.javafx=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.sg.prism=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism.d3d=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED --add-opens javafx.graphics/javafx.scene.image=ALL-UNNAMED" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="LWJGL Universal" type="JetRunConfigurationType">
-      <option name="MAIN_CLASS_NAME" value="UniversalKt" />
+    <configuration name="LWJGL SW" type="JetRunConfigurationType">
+      <option name="MAIN_CLASS_NAME" value="LWJGL_SWKt" />
       <module name="openglfx.lwjgl.examples" />
       <shortenClasspath name="NONE" />
-      <option name="VM_PARAMETERS" value="--add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism=ALL-UNNAMED --add-opens javafx.base/com.sun.javafx=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.sg.prism=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism.d3d=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED --add-opens javafx.graphics/javafx.scene.image=ALL-UNNAMED" />
+      <option name="VM_PARAMETERS" value="-Dprism.order=sw --add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism=ALL-UNNAMED --add-opens javafx.base/com.sun.javafx=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.sg.prism=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED --add-opens javafx.graphics/com.sun.prism.d3d=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED --add-opens javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED --add-opens javafx.graphics/javafx.scene.image=ALL-UNNAMED" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
     <list>
-      <item itemvalue="Application.LWJGL Interop" />
-      <item itemvalue="Application.LWJGL Shared" />
-      <item itemvalue="Application.LWJGL Universal" />
-      <item itemvalue="Application.JOGL Interop" />
-      <item itemvalue="Application.JOGL Shared" />
-      <item itemvalue="Application.JOGL Universal" />
       <item itemvalue="Gradle.Compile Win utils" />
       <item itemvalue="Gradle.Build library" />
-      <item itemvalue="Kotlin.LWJGL Interop" />
-      <item itemvalue="Kotlin.LWJGL Shared" />
-      <item itemvalue="Kotlin.LWJGL Universal" />
-      <item itemvalue="Kotlin.JOGL Interop" />
-      <item itemvalue="Kotlin.JOGL Shared" />
-      <item itemvalue="Kotlin.JOGL Universal" />
       <item itemvalue="Gradle.openglfx:core [testFile]" />
       <item itemvalue="Gradle.openglfx [jar]" />
       <item itemvalue="Gradle.openglfx:core [clean]" />
       <item itemvalue="Gradle.openglfx [clean]" />
       <item itemvalue="Gradle.openglfx [compileWinUtils]" />
+      <item itemvalue="Kotlin.LWJGL D3D" />
+      <item itemvalue="Kotlin.LWJGL ES2" />
+      <item itemvalue="Kotlin.LWJGL SW" />
+      <item itemvalue="Kotlin.JOGL D3D" />
+      <item itemvalue="Kotlin.JOGL ES2" />
+      <item itemvalue="Kotlin.JOGL SW" />
     </list>
     <recent_temporary>
       <list>
@@ -452,6 +413,7 @@
       <workItem from="1653991719337" duration="2513000" />
       <workItem from="1654028211307" duration="27000" />
       <workItem from="1654171613529" duration="6772000" />
+      <workItem from="1693148741714" duration="2740000" />
     </task>
     <task id="LOCAL-00001" summary="Added JavaFX events">
       <created>1651573350041</created>

@@ -1,5 +1,3 @@
-package rendering
-
 import com.huskerdev.openglfx.events.*
 import com.huskerdev.openglfx.jogl.events.*
 import com.jogamp.opengl.GL.*

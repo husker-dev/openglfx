@@ -7,7 +7,6 @@ import javafx.scene.Scene
 import javafx.scene.control.SplitPane
 import javafx.scene.layout.Region
 import javafx.stage.Stage
-import rendering.ExampleRenderer
 
 
 fun main(){
@@ -20,7 +19,7 @@ fun main(){
 class SharedExampleApp: Application(){
 
     override fun start(stage: Stage?) {
-        stage!!.title = "Java \"Shared\" example"
+        stage!!.title = "Java \"ES2 pipeline\" example"
         stage.width = 400.0
         stage.height = 400.0
 

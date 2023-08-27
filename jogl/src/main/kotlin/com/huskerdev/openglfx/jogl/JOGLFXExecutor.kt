@@ -5,7 +5,7 @@ import com.jogamp.opengl.GL2
 import com.jogamp.opengl.GLDrawableFactory
 import com.jogamp.opengl.GLProfile
 import jogamp.opengl.GLContextImpl
-import java.nio.IntBuffer
+import java.nio.ByteBuffer
 
 @JvmField
 val JOGL_MODULE = JOGLExecutor()
@@ -54,7 +54,7 @@ class JOGLExecutor: GLExecutor() {
     override fun glRenderbufferStorage(target: Int, internalformat: Int, width: Int, height: Int) = gl.glRenderbufferStorage(target, internalformat, width, height)
     override fun glFramebufferRenderbuffer(target: Int, attachment: Int, renderbufferTarget: Int, renderbuffer: Int) = gl.glFramebufferRenderbuffer(target, attachment, renderbufferTarget, renderbuffer)
 
-    override fun glReadPixels(x: Int, y: Int, width: Int, height: Int, format: Int, type: Int, pixels: IntBuffer) = gl.glReadPixels(x, y, width, height, format, type, pixels)
+    override fun glReadPixels(x: Int, y: Int, width: Int, height: Int, format: Int, type: Int, pixels: ByteBuffer) = gl.glReadPixels(x, y, width, height, format, type, pixels)
     override fun glTexImage2D(target: Int, level: Int, internalformat: Int, width: Int, height: Int, border: Int, format: Int, type: Int, pixels: Long)
         = gl.glTexImage2D(target, level, internalformat, width, height, border, format, type, null)
     override fun glTexParameteri(target: Int, pname: Int, param: Int) = gl.glTexParameteri(target, pname, param)

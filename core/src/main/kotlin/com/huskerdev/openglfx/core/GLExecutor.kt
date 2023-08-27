@@ -1,7 +1,7 @@
 package com.huskerdev.openglfx.core
 
 import com.huskerdev.openglfx.core.implementations.*
-import java.nio.IntBuffer
+import java.nio.ByteBuffer
 
 
 const val GL_BGRA = 0x80E1
@@ -39,7 +39,7 @@ abstract class GLExecutor {
     abstract fun glFramebufferTexture2D(target: Int, attachment: Int, texture: Int, texId: Int, level: Int)
     abstract fun glRenderbufferStorage(target: Int, internalformat: Int, width: Int, height: Int)
     abstract fun glFramebufferRenderbuffer(target: Int, attachment: Int, renderbufferTarget: Int, renderbuffer: Int)
-    abstract fun glReadPixels(x: Int, y: Int, width: Int, height: Int, format: Int, type: Int, pixels: IntBuffer)
+    abstract fun glReadPixels(x: Int, y: Int, width: Int, height: Int, format: Int, type: Int, pixels: ByteBuffer)
     abstract fun glTexImage2D(target: Int, level: Int, internalformat: Int, width: Int, height: Int, border: Int, format: Int, type: Int, pixels: Long)
     abstract fun glTexParameteri(target: Int, pname: Int, param: Int)
 

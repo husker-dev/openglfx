@@ -7,10 +7,9 @@ import javafx.scene.Scene
 import javafx.scene.control.SplitPane
 import javafx.scene.layout.Region
 import javafx.stage.Stage
-import rendering.ExampleRenderer
 
 fun main() {
-    System.setProperty("prism.order", "d3d,sw")
+    System.setProperty("prism.order", "d3d")
     System.setProperty("prism.vsync", "false")
 
     Application.launch(InteropExampleApp::class.java)
@@ -19,7 +18,7 @@ fun main() {
 class InteropExampleApp: Application(){
 
     override fun start(stage: Stage?) {
-        stage!!.title = "Kotlin \"Interop\" example"
+        stage!!.title = "Kotlin \"D3D pipeline\" example"
         stage.width = 400.0
         stage.height = 400.0
 

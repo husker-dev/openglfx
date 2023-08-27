@@ -2,7 +2,7 @@ package com.huskerdev.openglfx.lwjgl
 
 import com.huskerdev.openglfx.core.GLExecutor
 import org.lwjgl.opengl.*
-import java.nio.IntBuffer
+import java.nio.ByteBuffer
 
 
 class LWJGLExecutor: GLExecutor() {
@@ -32,7 +32,7 @@ class LWJGLExecutor: GLExecutor() {
     override fun glRenderbufferStorage(target: Int, internalformat: Int, width: Int, height: Int) = GL30.glRenderbufferStorage(target, internalformat, width, height)
     override fun glFramebufferRenderbuffer(target: Int, attachment: Int, renderbufferTarget: Int, renderbuffer: Int) = GL30.glFramebufferRenderbuffer(target, attachment, renderbufferTarget, renderbuffer)
 
-    override fun glReadPixels(x: Int, y: Int, width: Int, height: Int, format: Int, type: Int, pixels: IntBuffer) = GL30.glReadPixels(x, y, width, height, format, type, pixels)
+    override fun glReadPixels(x: Int, y: Int, width: Int, height: Int, format: Int, type: Int, pixels: ByteBuffer) = GL30.glReadPixels(x, y, width, height, format, type, pixels)
     override fun glTexImage2D(target: Int, level: Int, internalformat: Int, width: Int, height: Int, border: Int, format: Int, type: Int, pixels: Long)
         = GL30.glTexImage2D(target, level, internalformat, width, height, border, format, type, pixels)
     override fun glTexParameteri(target: Int, pname: Int, param: Int) = GL30.glTexParameteri(target, pname, param)
