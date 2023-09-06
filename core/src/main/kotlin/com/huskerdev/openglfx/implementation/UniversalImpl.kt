@@ -1,9 +1,23 @@
-package com.huskerdev.openglfx.core.implementations
+package com.huskerdev.openglfx.implementation
 
 import com.huskerdev.ojgl.GLContext
-import com.huskerdev.openglfx.OpenGLCanvas
-import com.huskerdev.openglfx.core.*
-import com.huskerdev.openglfx.utils.OpenGLFXUtils
+import com.huskerdev.openglfx.*
+import com.huskerdev.openglfx.GLExecutor.Companion.glBindFramebuffer
+import com.huskerdev.openglfx.GLExecutor.Companion.glBindRenderbuffer
+import com.huskerdev.openglfx.GLExecutor.Companion.glBindTexture
+import com.huskerdev.openglfx.GLExecutor.Companion.glDeleteFramebuffers
+import com.huskerdev.openglfx.GLExecutor.Companion.glDeleteRenderbuffers
+import com.huskerdev.openglfx.GLExecutor.Companion.glDeleteTextures
+import com.huskerdev.openglfx.GLExecutor.Companion.glFramebufferRenderbuffer
+import com.huskerdev.openglfx.GLExecutor.Companion.glFramebufferTexture2D
+import com.huskerdev.openglfx.GLExecutor.Companion.glGenFramebuffers
+import com.huskerdev.openglfx.GLExecutor.Companion.glGenRenderbuffers
+import com.huskerdev.openglfx.GLExecutor.Companion.glGenTextures
+import com.huskerdev.openglfx.GLExecutor.Companion.glReadPixels
+import com.huskerdev.openglfx.GLExecutor.Companion.glRenderbufferStorage
+import com.huskerdev.openglfx.GLExecutor.Companion.glTexImage2D
+import com.huskerdev.openglfx.GLExecutor.Companion.glViewport
+import com.huskerdev.openglfx.GLExecutor.Companion.initGLFunctions
 import com.sun.javafx.geom.Rectangle
 import com.sun.javafx.scene.DirtyBits
 import com.sun.javafx.scene.NodeHelper
@@ -16,17 +30,21 @@ import javafx.animation.AnimationTimer
 import javafx.scene.image.PixelBuffer
 import javafx.scene.image.PixelFormat
 import javafx.scene.image.WritableImage
+import sun.misc.Unsafe
 import java.nio.ByteBuffer
 import java.util.concurrent.atomic.AtomicBoolean
 
+
 open class UniversalImpl(
     private val executor: GLExecutor,
-    profile: Int
+    profile: GLProfile
 ) : OpenGLCanvas(profile){
 
     companion object {
         private val bufferDirtyMethod = PixelBuffer::class.java.getDeclaredMethod("bufferDirty", Rectangle::class.java).apply { isAccessible = true }
         private fun PixelBuffer<*>.bufferDirty(rectangle: Rectangle?) = bufferDirtyMethod.invoke(this, rectangle)
+
+        private val unsafe = Unsafe::class.java.getDeclaredField("theUnsafe").apply { isAccessible = true }[null] as Unsafe
     }
 
     private var initialized = false
@@ -65,10 +83,10 @@ open class UniversalImpl(
         if(!initialized){
             initialized = true
 
-            context = GLContext.create(0L, profile == CORE_PROFILE)
+            context = GLContext.create(0L, profile == GLProfile.Core)
             context!!.makeCurrent()
-            executor.initGLFunctions()
-
+            initGLFunctions()
+            executor.initGLFunctionsImpl()
             fireInitEvent()
         }
         context!!.makeCurrent()
@@ -78,14 +96,14 @@ open class UniversalImpl(
             updateFramebufferSize()
             fireReshapeEvent(lastSize.first, lastSize.second)
         }
-
-        executor.glViewport(0, 0, lastSize.first, lastSize.second)
+        glViewport(0, 0, lastSize.first, lastSize.second)
         fireRenderEvent()
         readPixels()
 
         val texture = g.resourceFactory.getCachedTexture(image.getPlatformImage() as Image, Texture.WrapMode.CLAMP_TO_EDGE)
         if(!texture.isLocked)
             texture.lock()
+
         drawResultTexture(g, texture)
         texture.unlock()
     }
@@ -101,7 +119,7 @@ open class UniversalImpl(
 
         if(image.width.toInt() != renderWidth || image.height.toInt() != renderHeight){
             if(pixelByteBuffer != null)
-                OpenGLFXUtils.cleanByteBuffer(pixelByteBuffer!!)
+                unsafe.invokeCleaner(pixelByteBuffer!!)
 
             pixelByteBuffer = ByteBuffer.allocateDirect(renderWidth * renderHeight * Int.SIZE_BYTES)
             pixelBuffer = PixelBuffer(renderWidth, renderHeight, pixelByteBuffer!!, PixelFormat.getByteBgraPreInstance())
@@ -134,6 +152,7 @@ open class UniversalImpl(
         glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer)
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, lastSize.first, lastSize.second)
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer)
+
     }
 
     override fun repaint() = needsRepaint.set(true)

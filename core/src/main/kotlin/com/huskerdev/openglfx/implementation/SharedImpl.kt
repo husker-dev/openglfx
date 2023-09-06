@@ -1,18 +1,32 @@
-package com.huskerdev.openglfx.core.implementations
+package com.huskerdev.openglfx.implementation
 
 import com.huskerdev.ojgl.GLContext
-import com.huskerdev.openglfx.OpenGLCanvas
-import com.huskerdev.openglfx.core.*
-import com.huskerdev.openglfx.utils.OpenGLFXUtils.Companion.GLTextureId
+import com.huskerdev.openglfx.*
+import com.huskerdev.openglfx.GLExecutor.Companion.glBindFramebuffer
+import com.huskerdev.openglfx.GLExecutor.Companion.glBindRenderbuffer
+import com.huskerdev.openglfx.GLExecutor.Companion.glDeleteFramebuffers
+import com.huskerdev.openglfx.GLExecutor.Companion.glDeleteRenderbuffers
+import com.huskerdev.openglfx.GLExecutor.Companion.glFinish
+import com.huskerdev.openglfx.GLExecutor.Companion.glFramebufferRenderbuffer
+import com.huskerdev.openglfx.GLExecutor.Companion.glFramebufferTexture2D
+import com.huskerdev.openglfx.GLExecutor.Companion.glGenFramebuffers
+import com.huskerdev.openglfx.GLExecutor.Companion.glGenRenderbuffers
+import com.huskerdev.openglfx.GLExecutor.Companion.glRenderbufferStorage
+import com.huskerdev.openglfx.GLExecutor.Companion.glViewport
+import com.huskerdev.openglfx.GLExecutor.Companion.initGLFunctions
+import com.huskerdev.openglfx.utils.TextureUtils.Companion.GLTextureId
 import com.sun.javafx.scene.DirtyBits
 import com.sun.javafx.scene.NodeHelper
-import com.sun.prism.*
+import com.sun.prism.Graphics
+import com.sun.prism.GraphicsPipeline
+import com.sun.prism.PixelFormat
+import com.sun.prism.Texture
 import javafx.animation.AnimationTimer
 import java.util.concurrent.atomic.AtomicBoolean
 
 open class SharedImpl(
     private val executor: GLExecutor,
-    profile: Int
+    profile: GLProfile
 ): OpenGLCanvas(profile){
 
     private var lastSize = Pair(-1, -1)
@@ -44,29 +58,30 @@ open class SharedImpl(
     }
 
     override fun onNGRender(g: Graphics) {
-        executor.apply {
-            if (context == null) {
-                executor.initGLFunctions()
 
-                fxContext = GLContext.current()
-                context = GLContext.create(fxContext!!, profile == CORE_PROFILE)
-            }
+        if (context == null) {
+            initGLFunctions()
+            executor.initGLFunctionsImpl()
 
-            context!!.makeCurrent()
-            if (scaledWidth.toInt() != lastSize.first || scaledHeight.toInt() != lastSize.second) {
-                lastSize = Pair(scaledWidth.toInt(), scaledHeight.toInt())
-
-                updateFramebufferSize()
-                fireReshapeEvent(lastSize.first, lastSize.second)
-            }
-
-            glViewport(0, 0, lastSize.first, lastSize.second)
-            fireRenderEvent()
-            glFinish()
-            fxContext!!.makeCurrent()
-
-            drawResultTexture(g, fxTexture!!)
+            fxContext = GLContext.current()
+            context = GLContext.create(fxContext!!, profile == GLProfile.Core)
         }
+
+        context!!.makeCurrent()
+        if (scaledWidth.toInt() != lastSize.first || scaledHeight.toInt() != lastSize.second) {
+            lastSize = Pair(scaledWidth.toInt(), scaledHeight.toInt())
+
+            updateFramebufferSize()
+            fireReshapeEvent(lastSize.first, lastSize.second)
+        }
+
+        glViewport(0, 0, lastSize.first, lastSize.second)
+        fireRenderEvent()
+        glFinish()
+        fxContext!!.makeCurrent()
+
+        drawResultTexture(g, fxTexture!!)
+
     }
 
     private fun updateFramebufferSize() = executor.apply {

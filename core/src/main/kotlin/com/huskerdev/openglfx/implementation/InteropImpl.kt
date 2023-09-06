@@ -1,29 +1,47 @@
-package com.huskerdev.openglfx.core.implementations
+package com.huskerdev.openglfx.implementation
 
 import com.huskerdev.ojgl.GLContext
-import com.huskerdev.openglfx.OpenGLCanvas
-import com.huskerdev.openglfx.core.*
-import com.huskerdev.openglfx.core.d3d9.D3D9Device
-import com.huskerdev.openglfx.core.d3d9.D3D9Texture
-import com.huskerdev.openglfx.utils.OpenGLFXUtils.Companion.DX9TextureResource
-import com.huskerdev.openglfx.utils.WGL_ACCESS_WRITE_DISCARD_NV
-import com.huskerdev.openglfx.utils.WinUtils
-import com.huskerdev.openglfx.utils.WinUtils.Companion.wglDXLockObjectsNV
-import com.huskerdev.openglfx.utils.WinUtils.Companion.wglDXOpenDeviceNV
-import com.huskerdev.openglfx.utils.WinUtils.Companion.wglDXRegisterObjectNV
-import com.huskerdev.openglfx.utils.WinUtils.Companion.wglDXSetResourceShareHandleNV
-import com.huskerdev.openglfx.utils.WinUtils.Companion.wglDXUnlockObjectsNV
-import com.huskerdev.openglfx.utils.WinUtils.Companion.wglDXUnregisterObjectNV
+import com.huskerdev.openglfx.*
+import com.huskerdev.openglfx.GLExecutor.Companion.glBindFramebuffer
+import com.huskerdev.openglfx.GLExecutor.Companion.glBindRenderbuffer
+import com.huskerdev.openglfx.GLExecutor.Companion.glBindTexture
+import com.huskerdev.openglfx.GLExecutor.Companion.glDeleteFramebuffers
+import com.huskerdev.openglfx.GLExecutor.Companion.glDeleteRenderbuffers
+import com.huskerdev.openglfx.GLExecutor.Companion.glDeleteTextures
+import com.huskerdev.openglfx.GLExecutor.Companion.glFramebufferRenderbuffer
+import com.huskerdev.openglfx.GLExecutor.Companion.glFramebufferTexture2D
+import com.huskerdev.openglfx.GLExecutor.Companion.glGenFramebuffers
+import com.huskerdev.openglfx.GLExecutor.Companion.glGenRenderbuffers
+import com.huskerdev.openglfx.GLExecutor.Companion.glGenTextures
+import com.huskerdev.openglfx.GLExecutor.Companion.glRenderbufferStorage
+import com.huskerdev.openglfx.GLExecutor.Companion.glTexImage2D
+import com.huskerdev.openglfx.GLExecutor.Companion.glTexParameteri
+import com.huskerdev.openglfx.GLExecutor.Companion.glViewport
+import com.huskerdev.openglfx.GLExecutor.Companion.initGLFunctions
+import com.huskerdev.openglfx.utils.TextureUtils.Companion.DX9TextureResource
+import com.huskerdev.openglfx.utils.windows.D3D9Device
+import com.huskerdev.openglfx.utils.windows.D3D9Texture
+import com.huskerdev.openglfx.utils.windows.DXInterop
+import com.huskerdev.openglfx.utils.windows.DXInterop.Companion.wglDXLockObjectsNV
+import com.huskerdev.openglfx.utils.windows.DXInterop.Companion.wglDXOpenDeviceNV
+import com.huskerdev.openglfx.utils.windows.DXInterop.Companion.wglDXRegisterObjectNV
+import com.huskerdev.openglfx.utils.windows.DXInterop.Companion.wglDXSetResourceShareHandleNV
+import com.huskerdev.openglfx.utils.windows.DXInterop.Companion.wglDXUnlockObjectsNV
+import com.huskerdev.openglfx.utils.windows.DXInterop.Companion.wglDXUnregisterObjectNV
+import com.huskerdev.openglfx.utils.windows.WGL_ACCESS_WRITE_DISCARD_NV
 import com.sun.javafx.scene.DirtyBits
 import com.sun.javafx.scene.NodeHelper
-import com.sun.prism.*
+import com.sun.prism.Graphics
+import com.sun.prism.GraphicsPipeline
+import com.sun.prism.PixelFormat
+import com.sun.prism.Texture
 import javafx.animation.AnimationTimer
 import java.util.concurrent.atomic.AtomicBoolean
 
 
 open class InteropImpl(
     private val executor: GLExecutor,
-    profile: Int
+    profile: GLProfile
 ) : OpenGLCanvas(profile){
 
     companion object {
@@ -70,9 +88,10 @@ open class InteropImpl(
         if(!initialized){
             initialized = true
 
-            context = GLContext.create(0, profile == CORE_PROFILE)
+            context = GLContext.create(0, profile == GLProfile.Core)
             context!!.makeCurrent()
-            executor.initGLFunctions()
+            initGLFunctions()
+            executor.initGLFunctionsImpl()
 
             if (interopHandle == -1L)
                 interopHandle = wglDXOpenDeviceNV(fxDevice.handle)
@@ -82,7 +101,6 @@ open class InteropImpl(
         if(scaledWidth.toInt() != lastSize.first || scaledHeight.toInt() != lastSize.second) {
             lastSize = Pair(scaledWidth.toInt(), scaledHeight.toInt())
             updateFramebufferSize()
-            context!!.makeCurrent() // For some reason the context is reset at this moment, so make it current again
 
             wglDXLockObjectsNV(interopHandle, interopTexture)
             fireReshapeEvent(lastSize.first, lastSize.second)
@@ -135,7 +153,9 @@ open class InteropImpl(
         // Create default JavaFX texture and replace native handle to custom one
         fxTexture = GraphicsPipeline.getDefaultResourceFactory().createTexture(PixelFormat.BYTE_BGRA_PRE, Texture.Usage.DYNAMIC, Texture.WrapMode.CLAMP_TO_EDGE, width, height)
         fxTexture.makePermanent()
-        WinUtils.replaceD3DTextureInResource(fxTexture.DX9TextureResource, fxD3DTexture.handle)
+        DXInterop.replaceD3DTextureInResource(fxTexture.DX9TextureResource, fxD3DTexture.handle)
+
+        context!!.makeCurrent() // For some reason the context is reset at this moment, so make it current again
     }
 
     override fun repaint() = needsRepaint.set(true)

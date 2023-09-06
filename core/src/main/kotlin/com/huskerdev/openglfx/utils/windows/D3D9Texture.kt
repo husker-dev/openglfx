@@ -1,4 +1,4 @@
-package com.huskerdev.openglfx.core.d3d9
+package com.huskerdev.openglfx.utils.windows
 
 class D3D9Texture(
     val handle: Long,

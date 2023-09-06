@@ -1,56 +1,64 @@
 package com.huskerdev.openglfx
 
-import com.huskerdev.openglfx.core.GLExecutor
+import com.huskerdev.ojgl.utils.OS
+import com.huskerdev.ojgl.utils.PlatformUtils
 import com.huskerdev.openglfx.events.GLDisposeEvent
 import com.huskerdev.openglfx.events.GLInitializeEvent
 import com.huskerdev.openglfx.events.GLRenderEvent
 import com.huskerdev.openglfx.events.GLReshapeEvent
-import com.huskerdev.openglfx.utils.*
-
+import com.huskerdev.openglfx.utils.FpsCounter
+import com.huskerdev.openglfx.utils.RegionAccessorObject
+import com.huskerdev.openglfx.utils.RegionAccessorOverrider
+import com.huskerdev.openglfx.utils.windows.DXInterop
 import com.sun.javafx.sg.prism.NGRegion
 import com.sun.prism.Graphics
+import com.sun.prism.GraphicsPipeline
 import com.sun.prism.Texture
 import javafx.scene.layout.Pane
 import java.util.function.Consumer
 
+enum class GLProfile {
+    Core, Compatibility;
+}
 
 abstract class OpenGLCanvas(
-    val profile: Int
+    val profile: GLProfile
 ): Pane() {
 
     companion object {
-
-        @JvmField var CORE_PROFILE = 0
-        @JvmField var COMPATIBILITY_PROFILE = 1
-
-        @JvmField var forceUniversal = false
-
         init {
             RegionAccessorOverrider.overwrite(object : RegionAccessorObject<OpenGLCanvas>() {
                 override fun doCreatePeer(node: OpenGLCanvas) = NGOpenGLCanvas(node)
             })
+
+            val basename = "openglfx"
+            val fileName = when(PlatformUtils.os) {
+                OS.Windows, OS.Linux    -> "$basename-${PlatformUtils.arch}.${PlatformUtils.dynamicLibExt}"
+                OS.MacOS                -> "$basename.dylib"
+                else -> throw UnsupportedOperationException("Unsupported OS")
+            }
+            PlatformUtils.loadLibraryFromResources("/com/huskerdev/openglfx/natives/$fileName")
         }
 
         /**
-         * Create
+         * Creates compatible OpenGLCanvas instance with specified GL library and profile
          *
-         * @param executor OpenGL implementation:
+         * @param executor OpenGL implementation library
          *  - LWJGL_MODULE
          *  - JOGL_MODULE
-         * @param profile
-         * @return
+         * @param profile Core/Compatibility OpenGL profile
+         *  - GLProfile.Core
+         *  - GLProfile.Compatibility
+         * @return OpenGLCanvas instance
          */
         @JvmOverloads
         @JvmStatic
-        fun create(executor: GLExecutor, profile: Int = COMPATIBILITY_PROFILE) =
-            if(forceUniversal)
-                executor.universalCanvas(profile)
-            else when (OpenGLFXUtils.pipelineName) {
-                "es2" -> executor.sharedCanvas(profile)
-                "d3d" -> if(WinUtils.hasDXInterop())
-                    executor.interopCanvas(profile) else executor.universalCanvas(profile)
-                else -> executor.universalCanvas(profile)
-            }
+        fun create(executor: GLExecutor, profile: GLProfile = GLProfile.Compatibility) =
+             when (GraphicsPipeline.getPipeline().javaClass.canonicalName.split(".")[3]) {
+                "es2" -> executor::sharedCanvas
+                "d3d" -> if (DXInterop.isSupported()) executor::interopCanvas else executor::universalCanvas
+                else -> executor::universalCanvas
+            }(profile)
     }
 
     private var onInit = arrayListOf<InitListenerContainer>()
@@ -64,9 +72,9 @@ abstract class OpenGLCanvas(
     private val fpsCounter = FpsCounter()
 
     /**
-     * Binds GLCanvasAnimator to the OpenGLCanvas.
+     *  Binds GLCanvasAnimator to the OpenGLCanvas.
      */
-    var animator: GLCanvasAnimator? = null
+    var animator: OpenGLCanvasAnimator? = null
         set(value) {
             field?.unbind()
             value?.bind(this)
@@ -141,10 +149,14 @@ abstract class OpenGLCanvas(
      *  Possibility to override events
      *  (Used by JOGL)
      */
-    protected open fun createRenderEvent(currentFps: Int, delta: Double, width: Int, height: Int) = GLRenderEvent(GLRenderEvent.ANY, currentFps, delta, width, height)
-    protected open fun createReshapeEvent(width: Int, height: Int) = GLReshapeEvent(GLReshapeEvent.ANY, width, height)
-    protected open fun createInitEvent() = GLInitializeEvent(GLInitializeEvent.ANY)
-    protected open fun createDisposeEvent() = GLDisposeEvent(GLDisposeEvent.ANY)
+    protected open fun createRenderEvent(currentFps: Int, delta: Double, width: Int, height: Int)
+        = GLRenderEvent(GLRenderEvent.ANY, currentFps, delta, width, height)
+    protected open fun createReshapeEvent(width: Int, height: Int)
+        = GLReshapeEvent(GLReshapeEvent.ANY, width, height)
+    protected open fun createInitEvent()
+        = GLInitializeEvent(GLInitializeEvent.ANY)
+    protected open fun createDisposeEvent()
+        = GLDisposeEvent(GLDisposeEvent.ANY)
 
     /**
      * Checks if there are any not initialised listeners

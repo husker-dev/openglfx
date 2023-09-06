@@ -1,16 +1,24 @@
 package com.huskerdev.openglfx.jogl
 
-import com.huskerdev.openglfx.core.GLExecutor
-import com.huskerdev.openglfx.core.implementations.*
-import com.huskerdev.openglfx.events.*
-import com.huskerdev.openglfx.jogl.events.*
+import com.huskerdev.openglfx.GLExecutor
+import com.huskerdev.openglfx.events.GLDisposeEvent
+import com.huskerdev.openglfx.events.GLInitializeEvent
+import com.huskerdev.openglfx.events.GLRenderEvent
+import com.huskerdev.openglfx.events.GLReshapeEvent
+import com.huskerdev.openglfx.implementation.InteropImpl
+import com.huskerdev.openglfx.implementation.SharedImpl
+import com.huskerdev.openglfx.implementation.UniversalImpl
+import com.huskerdev.openglfx.jogl.events.JOGLDisposeEvent
+import com.huskerdev.openglfx.jogl.events.JOGLInitializeEvent
+import com.huskerdev.openglfx.jogl.events.JOGLRenderEvent
+import com.huskerdev.openglfx.jogl.events.JOGLReshapeEvent
 import com.jogamp.opengl.GL2
 import com.jogamp.opengl.GLProfile
 import jogamp.opengl.GLDrawableFactoryImpl
 
 class JOGLUniversalCanvas(
     executor: GLExecutor,
-    profile: Int
+    profile: com.huskerdev.openglfx.GLProfile
 ): UniversalImpl(executor, profile){
 
     var gl: GL2? = null
@@ -28,7 +36,7 @@ class JOGLUniversalCanvas(
 
 class JOGLSharedCanvas(
     executor: GLExecutor,
-    profile: Int
+    profile: com.huskerdev.openglfx.GLProfile
 ): SharedImpl(executor, profile){
 
     var gl: GL2? = null
@@ -46,7 +54,7 @@ class JOGLSharedCanvas(
 
 class JOGLInteropCanvas(
     executor: GLExecutor,
-    profile: Int
+    profile: com.huskerdev.openglfx.GLProfile
 ): InteropImpl(executor, profile){
 
     var gl: GL2? = null

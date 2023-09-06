@@ -23,7 +23,7 @@ dependencies {
     compileOnly DEFAULT
     compileOnly project(':core')
 
-    compileOnly platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
+    compileOnly platform("org.lwjgl:lwjgl-bom:${project["version.lwjgl"]}")
     compileOnly "org.lwjgl:lwjgl"
     compileOnly "org.lwjgl:lwjgl-opengl"
 

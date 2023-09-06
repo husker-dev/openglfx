@@ -1,6 +1,5 @@
-package com.huskerdev.openglfx.core.d3d9
+package com.huskerdev.openglfx.utils.windows
 
-import com.huskerdev.openglfx.utils.WinUtils
 import com.sun.prism.GraphicsPipeline
 
 class D3D9Device(val handle: Long) {
@@ -19,6 +18,6 @@ class D3D9Device(val handle: Long) {
     }
 
     fun createTexture(width: Int, height: Int) =
-        WinUtils.createD3DTexture(handle, width, height).run { D3D9Texture(this[0], this[1]) }
+        DXInterop.createD3DTexture(handle, width, height).run { D3D9Texture(this[0], this[1]) }
 
 }

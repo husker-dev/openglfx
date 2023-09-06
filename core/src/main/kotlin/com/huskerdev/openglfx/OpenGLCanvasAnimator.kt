@@ -6,7 +6,7 @@ import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 
 
-class GLCanvasAnimator @JvmOverloads constructor(
+class OpenGLCanvasAnimator @JvmOverloads constructor(
     val fps: Double = UNLIMITED_FPS
 ) {
 

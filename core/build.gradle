@@ -17,6 +17,5 @@ repositories {
 dependencies {
     compileOnly DEFAULT
 
-    implementation "com.github.husker-dev:offscreen-jgl:$ojglVersion"
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib"
 }
