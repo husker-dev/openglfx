@@ -110,9 +110,6 @@ System.setProperty("prism.vsync", "false")
 
 # Under the hood
 
-### Overview
-  | Node events | Path |
-
 - ### Offscreen GL
   [husker-dev/offscreen-jgl](https://github.com/husker-dev/offscreen-jgl) is used to create offscreen thread-independent GL context on Windows, MacOS and Linux.
 
