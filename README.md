@@ -112,11 +112,6 @@ System.setProperty("prism.vsync", "false")
 
 ### Overview
   | Node events | Path |
-  | ----------- | ---- |
-  | created     | → ```New offscreen GL context``` → ```GLExecutor transforms``` → Init event |
-  | repainted   | → ```GLExecutor transforms``` → Render event → ```Share textures``` → JavaFX paint |
-  | resized     | → ```GLExecutor transforms``` → Reshape event |
-  | disposed    | → ```GLExecutor transforms``` → Dispose event |
 
 - ### Offscreen GL
   [husker-dev/offscreen-jgl](https://github.com/husker-dev/offscreen-jgl) is used to create offscreen thread-independent GL context on Windows, MacOS and Linux.
