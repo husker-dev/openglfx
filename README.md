@@ -15,7 +15,7 @@ Written on Kotlin with Java compatibility.
 
 # Usage
 
-> **NOTE:** All examples are written in Kotlin, Gradle and LWJGL. If you want to use JOGL/Java/Maven, you can use [example code generator](https://husker-dev.github.io/husker-dev/?page=tools/openglfx).
+> **NOTE:** All examples are written in Kotlin, Gradle and LWJGL. If you want to use Java/JOGL/Maven, you can use [example code generator](https://husker-dev.github.io/husker-dev/?page=tools/openglfx).
 
 ### Dependency
 ```groovy
@@ -46,7 +46,7 @@ val canvas = OpenGLCanvas.create(LWJGL_MODULE, CORE_PROFILE) // For Core OpenGL 
 
 ### Rendering
 
-```OpenGLCanvas``` uses a logic similar to JOGL. The component has events in which you need to render content.
+```OpenGLCanvas``` uses a logic similar to JOGL. The component has events where you can render content.
 
 ```kotlin
 // JOGL only: Use the following code in each event to get the GL object
