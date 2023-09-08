@@ -106,6 +106,7 @@ System.setProperty("prism.vsync", "false")
 --add-opens javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED
 --add-opens javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED
 --add-opens javafx.graphics/javafx.scene.image=ALL-UNNAMED
+--add-opens javafx.graphics/com.sun.prism.sw=ALL-UNNAMED
 ```
 
 # Under the hood
