@@ -37,10 +37,7 @@ tasks.register('runLWJGLD3D', JavaExec) {
     description = "Run the example class with LWJGL D3D"
     classpath = sourceSets.examples.runtimeClasspath
     mainClass = "LWJGL_D3DKt"
-
-    doFirst {
-        println("$rootDir/es2_win/javafx.graphics.win-es2.jar")
-    }
+    jvmArgs project["opens"].split()
 }
 
 tasks.register('runLWJGLSW', JavaExec) {
@@ -48,6 +45,7 @@ tasks.register('runLWJGLSW', JavaExec) {
     description = "Run the example class with LWJGL SW"
     classpath = sourceSets.examples.runtimeClasspath
     mainClass = "LWJGL_SWKt"
+    jvmArgs project["opens"].split()
 }
 
 tasks.register('runLWJGLES2', JavaExec) {
@@ -55,4 +53,5 @@ tasks.register('runLWJGLES2', JavaExec) {
     description = "Run the example class with LWJGL ES2"
     classpath = sourceSets.examples.runtimeClasspath
     mainClass = "LWJGL_ES2Kt"
+    jvmArgs project["opens"].split()
 }
