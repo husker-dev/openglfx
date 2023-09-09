@@ -23,7 +23,7 @@ const val GL_NEAREST = 0x2600
 abstract class GLExecutor {
 
     companion object {
-        private var isInited = false
+        private var isInitialized = false
         @JvmStatic external fun nInitGLFunctions()
 
         @JvmStatic external fun glDeleteFramebuffers(fbo: Int)
@@ -45,8 +45,8 @@ abstract class GLExecutor {
         @JvmStatic external fun glFinish()
 
         fun initGLFunctions(){
-            if(isInited) return
-            isInited = true
+            if(isInitialized) return
+            isInitialized = true
             nInitGLFunctions()
         }
     }

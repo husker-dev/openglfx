@@ -1,7 +1,10 @@
-import java.nio.file.*
-import static java.nio.file.StandardCopyOption.*
 import org.gradle.internal.os.OperatingSystem
-import java.util.stream.Collectors
+
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING
 
 plugins {
     id 'java-library'
@@ -62,58 +65,3 @@ task compileJars {
 compileJars.dependsOn 'core:jar'
 compileJars.dependsOn 'lwjgl:jar'
 compileJars.dependsOn 'jogl:jar'
-
-
-task compileWinUtils() {
-    group "release"
-
-    doLast {
-        if(OperatingSystem.current().windows) {
-            // Uses 'msbuild' to compile project
-            // and 'vswhere' to find msbuild.exe
-            String msbuildPath = runCommand("${projectDir}\\core\\src\\main\\native\\vswhere.exe -latest -requires Microsoft.Component.MSBuild -find MSBuild\\**\\Bin\\MSBuild.exe").text
-            println("Compiling win utils natives:")
-            for (i in ["x86", "x64", "ARM64"]) {
-                ConsoleOutput output = runCommand("\"${msbuildPath}\" \"${projectDir}\\core\\src\\main\\native\\win_utils\\win_utils.sln\" /t:Build /nologo /p:Configuration=Release;Platform=$i;RunCodeAnalysis=False")
-
-                String status
-                if(output.code != 0){
-                    if(output.text.contains("error MSB4126"))
-                        status = "NO MODULE"
-                    else status = "ERROR"
-                }else status = "OK"
-
-                println("\t- $i${repeat(".", 15 - i.length())}[${status}]")
-            }
-        }else
-            println("Compiling d3d9 utils is only available on Windows")
-    }
-}
-
-static String repeat(String str, int count){
-    return new String(new char[count]).replace("\0", str)
-}
-
-ConsoleOutput runCommand(String command, String context = null){
-    String suffix = (OperatingSystem.current().windows && command.contains("&&")) ? "cmd /c " : ""
-
-    Process p
-    if(context != null)
-        p = Runtime.runtime.exec("${suffix}${command}", new String[0], file(context))
-    else
-        p = Runtime.runtime.exec("${suffix}${command}")
-    String out = new BufferedReader(new InputStreamReader(p.inputStream)).lines().collect(Collectors.joining("\n"))
-    int code = p.waitFor()
-
-    return new ConsoleOutput(code, out)
-}
-
-class ConsoleOutput {
-    int code
-    String text
-
-    ConsoleOutput(int code, String text){
-        this.code = code
-        this.text = text
-    }
-}

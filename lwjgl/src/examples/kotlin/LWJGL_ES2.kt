@@ -3,34 +3,45 @@ import com.huskerdev.openglfx.OpenGLCanvasAnimator
 import com.huskerdev.openglfx.lwjgl.LWJGLExecutor.Companion.LWJGL_MODULE
 import javafx.application.Application
 import javafx.scene.Scene
-import javafx.scene.control.SplitPane
+import javafx.scene.control.Label
+import javafx.scene.layout.Pane
 import javafx.scene.layout.Region
+import javafx.scene.layout.StackPane
 import javafx.stage.Stage
+import scene.ExampleScene
 
 fun main(){
     System.setProperty("prism.order", "es2")
     System.setProperty("prism.vsync", "false")
 
-    Application.launch(SharedExampleApp::class.java)
+    Application.launch(ES2ExampleApp::class.java)
 }
 
-class SharedExampleApp: Application(){
+class ES2ExampleApp: Application(){
 
     override fun start(stage: Stage?) {
-        stage!!.title = "Kotlin \"ES2 pipeline\" example"
-        stage.width = 400.0
-        stage.height = 400.0
+        stage!!.title = "OpenGLCanvas ES2 example"
+        stage.width = 800.0
+        stage.height = 600.0
 
-        stage.scene = Scene(SplitPane(createGL(), createGL()))
+        stage.scene = Scene(StackPane(createUILayer(), createGL()))
         stage.show()
+    }
+
+    private fun createUILayer() = object: Pane(){
+        init {
+            children.add(Label("OpenGLCanvas is not opaque, so you can see this text"))
+        }
     }
 
     private fun createGL(): Region {
         val canvas = OpenGLCanvas.create(LWJGL_MODULE)
         canvas.animator = OpenGLCanvasAnimator(60.0)
 
-        canvas.addOnReshapeEvent(ExampleRenderer::reshape)
-        canvas.addOnRenderEvent(ExampleRenderer::render)
+        val renderExample = ExampleScene()
+        canvas.addOnInitEvent(renderExample::init)
+        canvas.addOnReshapeEvent(renderExample::reshape)
+        canvas.addOnRenderEvent(renderExample::render)
 
         return canvas
     }

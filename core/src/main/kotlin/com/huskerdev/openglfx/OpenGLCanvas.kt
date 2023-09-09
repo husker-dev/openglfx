@@ -1,12 +1,11 @@
 package com.huskerdev.openglfx
 
-import com.huskerdev.ojgl.utils.OS
-import com.huskerdev.ojgl.utils.PlatformUtils
 import com.huskerdev.openglfx.events.GLDisposeEvent
 import com.huskerdev.openglfx.events.GLInitializeEvent
 import com.huskerdev.openglfx.events.GLRenderEvent
 import com.huskerdev.openglfx.events.GLReshapeEvent
 import com.huskerdev.openglfx.utils.FpsCounter
+import com.huskerdev.openglfx.utils.OpenGLFXLibLoader
 import com.huskerdev.openglfx.utils.RegionAccessorObject
 import com.huskerdev.openglfx.utils.RegionAccessorOverrider
 import com.huskerdev.openglfx.utils.windows.DXInterop
@@ -27,17 +26,10 @@ abstract class OpenGLCanvas(
 
     companion object {
         init {
+            OpenGLFXLibLoader.load()
             RegionAccessorOverrider.overwrite(object : RegionAccessorObject<OpenGLCanvas>() {
                 override fun doCreatePeer(node: OpenGLCanvas) = NGOpenGLCanvas(node)
             })
-
-            val basename = "openglfx"
-            val fileName = when(PlatformUtils.os) {
-                OS.Windows, OS.Linux    -> "$basename-${PlatformUtils.arch}.${PlatformUtils.dynamicLibExt}"
-                OS.MacOS                -> "$basename.dylib"
-                else -> throw UnsupportedOperationException("Unsupported OS")
-            }
-            PlatformUtils.loadLibraryFromResources("/com/huskerdev/openglfx/natives/$fileName")
         }
 
         /**
@@ -182,7 +174,7 @@ abstract class OpenGLCanvas(
      * @param texture default JavaFX texture
      */
     protected fun drawResultTexture(g: Graphics, texture: Texture){
-        g.drawTexture(texture, 0f, 0f, width.toFloat() + 0.5f, height.toFloat() + 0.5f, 0.0f, 0.0f, scaledWidth.toFloat(), scaledHeight.toFloat())
+        g.drawTexture(texture, 0f, 0f, width.toFloat() + 0.5f, height.toFloat() + 0.5f, 0.0f, scaledHeight.toFloat(), scaledWidth.toFloat(), 0f)
     }
 
     private class NGOpenGLCanvas(val canvas: OpenGLCanvas): NGRegion() {

@@ -16,6 +16,5 @@ repositories {
 
 dependencies {
     compileOnly DEFAULT
-
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib"
 }

@@ -1,5 +1,6 @@
 plugins {
     id 'org.jetbrains.kotlin.jvm'
+    id "application"
 }
 apply from: "$rootDir/dependencies.gradle"
 
@@ -29,4 +30,29 @@ dependencies {
 
     compileOnly "org.lwjgl:lwjgl::$project.lwjglNatives"
     compileOnly "org.lwjgl:lwjgl-opengl::$project.lwjglNatives"
+}
+
+tasks.register('runLWJGLD3D', JavaExec) {
+    group = "Execution"
+    description = "Run the example class with LWJGL D3D"
+    classpath = sourceSets.examples.runtimeClasspath
+    mainClass = "LWJGL_D3DKt"
+
+    doFirst {
+        println("$rootDir/es2_win/javafx.graphics.win-es2.jar")
+    }
+}
+
+tasks.register('runLWJGLSW', JavaExec) {
+    group = "Execution"
+    description = "Run the example class with LWJGL SW"
+    classpath = sourceSets.examples.runtimeClasspath
+    mainClass = "LWJGL_SWKt"
+}
+
+tasks.register('runLWJGLES2', JavaExec) {
+    group = "Execution"
+    description = "Run the example class with LWJGL ES2"
+    classpath = sourceSets.examples.runtimeClasspath
+    mainClass = "LWJGL_ES2Kt"
 }
