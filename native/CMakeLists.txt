@@ -4,8 +4,8 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 project ("openglfx")
 
-set(BaseFiles "openglfx.cpp" "openglfx.h" "renderdoc_app.h" "renderdoc.cpp")
-set(WindowsFiles "dxinterop.cpp" )
+set(BaseFiles "src/openglfx.cpp" "src/openglfx.h" "src/renderdoc_app.h" "src/renderdoc.cpp")
+set(WindowsFiles "src/dxinterop.cpp" )
 
 find_package(JNI REQUIRED)
 include_directories(${JNI_INCLUDE_DIRS})
