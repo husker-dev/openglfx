@@ -10,7 +10,8 @@ open class GLRenderEvent(
     @JvmField val fps: Int,
     @JvmField val delta: Double,
     @JvmField val width: Int,
-    @JvmField val height: Int
+    @JvmField val height: Int,
+    @JvmField val fbo: Int,
 ) : Event(eventType) {
 
     companion object {

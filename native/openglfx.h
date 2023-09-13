@@ -5,6 +5,8 @@ typedef int GLint;
 typedef unsigned int GLuint;
 typedef int GLsizei;
 typedef unsigned char GLubyte;
+typedef unsigned char GLboolean;
+typedef unsigned int GLbitfield;
 #define GL_FALSE 0
 #define GL_TRUE 1
 
@@ -63,6 +65,9 @@ typedef void (*glTexImage2DPtr)(GLenum target, GLint level, GLint internalformat
 typedef void (*glTexParameteri)(GLenum target, GLenum pname, GLint param);
 typedef void (*glViewportPtr)(GLint x, GLint y, GLsizei width, GLsizei height);
 typedef void (*glFinishPtr)(void);
+typedef void (*glRenderbufferStorageMultisamplePtr)(GLenum target, GLsizei samples, GLint internalformat, GLsizei width, GLsizei height);
+typedef void (*glBlitFramebufferPtr)(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter);
+typedef void (*glGetIntegervPtr)(GLenum pname, GLint* data);
 
 static glViewportPtr                    a_glViewport;
 static glTexParameteri                  a_glTexParameteri;
@@ -81,3 +86,6 @@ static glDeleteTexturesPtr              a_glDeleteTextures;
 static glDeleteRenderbuffersPtr         a_glDeleteRenderbuffers;
 static glDeleteFramebuffersPtr          a_glDeleteFramebuffers;
 static glFinishPtr                      a_glFinish;
+static glRenderbufferStorageMultisamplePtr a_glRenderbufferStorageMultisample;
+static glBlitFramebufferPtr             a_glBlitFramebuffer;
+static glGetIntegervPtr                 a_glGetIntegerv;

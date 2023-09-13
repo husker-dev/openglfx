@@ -2,23 +2,11 @@ package com.huskerdev.openglfx.implementation
 
 import com.huskerdev.ojgl.GLContext
 import com.huskerdev.openglfx.*
-import com.huskerdev.openglfx.GLExecutor.Companion.glBindFramebuffer
-import com.huskerdev.openglfx.GLExecutor.Companion.glBindRenderbuffer
-import com.huskerdev.openglfx.GLExecutor.Companion.glBindTexture
-import com.huskerdev.openglfx.GLExecutor.Companion.glDeleteFramebuffers
-import com.huskerdev.openglfx.GLExecutor.Companion.glDeleteRenderbuffers
-import com.huskerdev.openglfx.GLExecutor.Companion.glDeleteTextures
-import com.huskerdev.openglfx.GLExecutor.Companion.glFramebufferRenderbuffer
-import com.huskerdev.openglfx.GLExecutor.Companion.glFramebufferTexture2D
-import com.huskerdev.openglfx.GLExecutor.Companion.glGenFramebuffers
-import com.huskerdev.openglfx.GLExecutor.Companion.glGenRenderbuffers
-import com.huskerdev.openglfx.GLExecutor.Companion.glGenTextures
-import com.huskerdev.openglfx.GLExecutor.Companion.glRenderbufferStorage
-import com.huskerdev.openglfx.GLExecutor.Companion.glTexImage2D
-import com.huskerdev.openglfx.GLExecutor.Companion.glTexParameteri
 import com.huskerdev.openglfx.GLExecutor.Companion.glViewport
 import com.huskerdev.openglfx.GLExecutor.Companion.initGLFunctions
+import com.huskerdev.openglfx.utils.fbo.MultiSampledFramebuffer
 import com.huskerdev.openglfx.utils.TextureUtils.Companion.DX9TextureResource
+import com.huskerdev.openglfx.utils.fbo.Framebuffer
 import com.huskerdev.openglfx.utils.windows.D3D9Device
 import com.huskerdev.openglfx.utils.windows.D3D9Texture
 import com.huskerdev.openglfx.utils.windows.DXInterop
@@ -41,11 +29,12 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 open class InteropImpl(
     private val executor: GLExecutor,
-    profile: GLProfile
-) : OpenGLCanvas(profile){
+    profile: GLProfile,
+    msaa: Int
+) : OpenGLCanvas(profile, msaa){
 
     companion object {
-        private var interopHandle = -1L
+        private var interopHandle = 0L
     }
 
     private var lastSize = Pair(-1, -1)
@@ -53,18 +42,16 @@ open class InteropImpl(
 
     private var needsRepaint = AtomicBoolean(false)
 
-    private var texture = -1
-    private var fbo = -1
-    private var depthBuffer = -1
-
-    private var interopTexture = -1L
+    private lateinit var fbo: Framebuffer
+    private lateinit var msaaFBO: MultiSampledFramebuffer
 
     private var context: GLContext? = null
-
     private val fxDevice = D3D9Device.fxInstance
 
     private lateinit var fxD3DTexture: D3D9Texture
     private lateinit var fxTexture: Texture
+
+    private var interopTexture = -1L
 
     init {
         visibleProperty().addListener { _, _, _ -> repaint() }
@@ -81,7 +68,7 @@ open class InteropImpl(
         }.start()
     }
 
-    override fun onNGRender(g: Graphics) = executor.run {
+    override fun onNGRender(g: Graphics) {
         if(width == 0.0 || height == 0.0)
             return
 
@@ -93,7 +80,7 @@ open class InteropImpl(
             initGLFunctions()
             executor.initGLFunctionsImpl()
 
-            if (interopHandle == -1L)
+            if (interopHandle == 0L)
                 interopHandle = wglDXOpenDeviceNV(fxDevice.handle)
         }
 
@@ -108,54 +95,52 @@ open class InteropImpl(
             wglDXLockObjectsNV(interopHandle, interopTexture)
 
         glViewport(0, 0, lastSize.first, lastSize.second)
-        fireRenderEvent()
+        fireRenderEvent(if(msaa != 0) msaaFBO.id else fbo.id)
+
+        if(msaa != 0)
+            msaaFBO.blitTo(fbo.id)
+
         wglDXUnlockObjectsNV(interopHandle, interopTexture)
 
         drawResultTexture(g, fxTexture)
     }
 
-    private fun updateFramebufferSize() = executor.run {
-        if (texture != -1) {
+    private fun updateFramebufferSize() {
+        if (::fbo.isInitialized) {
             wglDXUnregisterObjectNV(interopHandle, interopTexture)
-
             fxTexture.dispose()
 
-            glDeleteTextures(texture)
-            glDeleteFramebuffers(fbo)
-            glDeleteRenderbuffers(depthBuffer)
+            fbo.delete()
+            if(msaa != 0) msaaFBO.delete()
         }
 
         val width = lastSize.first
         val height = lastSize.second
 
-        // Create and register DX shared texture
+        // Create GL texture
+        fbo = Framebuffer(width, height)
+        fbo.bindFramebuffer()
+
+        // Create multi-sampled framebuffer
+        if(msaa != 0) {
+            msaaFBO = MultiSampledFramebuffer(msaa, width, height)
+            msaaFBO.bindFramebuffer()
+        }
+
+        // Create and register D3D9 shared texture
         fxD3DTexture = fxDevice.createTexture(width, height)
         wglDXSetResourceShareHandleNV(fxD3DTexture.handle, fxD3DTexture.sharedHandle)
 
-        // Create GL texture
-        texture = glGenTextures()
-        glBindTexture(GL_TEXTURE_2D, texture)
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
-
-        fbo = glGenFramebuffers()
-        glBindFramebuffer(GL_FRAMEBUFFER, fbo)
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0)
-
-        depthBuffer = glGenRenderbuffers()
-        glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer)
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height)
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer)
-
-        // Create interop texture
-        interopTexture = wglDXRegisterObjectNV(interopHandle, fxD3DTexture.handle, texture, GL_TEXTURE_2D, WGL_ACCESS_WRITE_DISCARD_NV)
-
-        // Create default JavaFX texture and replace native handle to custom one
+        // Create default JavaFX texture and replace native handle with custom one
         fxTexture = GraphicsPipeline.getDefaultResourceFactory().createTexture(PixelFormat.BYTE_BGRA_PRE, Texture.Usage.DYNAMIC, Texture.WrapMode.CLAMP_TO_EDGE, width, height)
         fxTexture.makePermanent()
         DXInterop.replaceD3DTextureInResource(fxTexture.DX9TextureResource, fxD3DTexture.handle)
 
-        context!!.makeCurrent() // For some reason the context is reset at this moment, so make it current again
+        // Create interop texture
+        interopTexture = wglDXRegisterObjectNV(interopHandle, fxD3DTexture.handle, fbo.texture, GL_TEXTURE_2D, WGL_ACCESS_WRITE_DISCARD_NV)
+
+        // For some reason the context resets by this time, so make it current again
+        context!!.makeCurrent()
     }
 
     override fun repaint() = needsRepaint.set(true)

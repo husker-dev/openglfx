@@ -3,21 +3,11 @@ package com.huskerdev.openglfx.implementation
 import com.huskerdev.ojgl.GLContext
 import com.huskerdev.openglfx.*
 import com.huskerdev.openglfx.GLExecutor.Companion.glBindFramebuffer
-import com.huskerdev.openglfx.GLExecutor.Companion.glBindRenderbuffer
-import com.huskerdev.openglfx.GLExecutor.Companion.glBindTexture
-import com.huskerdev.openglfx.GLExecutor.Companion.glDeleteFramebuffers
-import com.huskerdev.openglfx.GLExecutor.Companion.glDeleteRenderbuffers
-import com.huskerdev.openglfx.GLExecutor.Companion.glDeleteTextures
-import com.huskerdev.openglfx.GLExecutor.Companion.glFramebufferRenderbuffer
-import com.huskerdev.openglfx.GLExecutor.Companion.glFramebufferTexture2D
-import com.huskerdev.openglfx.GLExecutor.Companion.glGenFramebuffers
-import com.huskerdev.openglfx.GLExecutor.Companion.glGenRenderbuffers
-import com.huskerdev.openglfx.GLExecutor.Companion.glGenTextures
 import com.huskerdev.openglfx.GLExecutor.Companion.glReadPixels
-import com.huskerdev.openglfx.GLExecutor.Companion.glRenderbufferStorage
-import com.huskerdev.openglfx.GLExecutor.Companion.glTexImage2D
 import com.huskerdev.openglfx.GLExecutor.Companion.glViewport
 import com.huskerdev.openglfx.GLExecutor.Companion.initGLFunctions
+import com.huskerdev.openglfx.utils.fbo.Framebuffer
+import com.huskerdev.openglfx.utils.fbo.MultiSampledFramebuffer
 import com.sun.javafx.geom.Rectangle
 import com.sun.javafx.scene.DirtyBits
 import com.sun.javafx.scene.NodeHelper
@@ -37,8 +27,9 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 open class UniversalImpl(
     private val executor: GLExecutor,
-    profile: GLProfile
-) : OpenGLCanvas(profile){
+    profile: GLProfile,
+    msaa: Int
+) : OpenGLCanvas(profile, msaa){
 
     companion object {
         private val bufferDirtyMethod = PixelBuffer::class.java.getDeclaredMethod("bufferDirty", Rectangle::class.java).apply { isAccessible = true }
@@ -55,9 +46,8 @@ open class UniversalImpl(
     private var pixelByteBuffer: ByteBuffer? = null
     private lateinit var pixelBuffer: PixelBuffer<ByteBuffer>
 
-    private var texture = -1
-    private var fbo = -1
-    private var depthBuffer = -1
+    private lateinit var fbo: Framebuffer
+    private lateinit var msaaFBO: MultiSampledFramebuffer
 
     private var needsRepaint = AtomicBoolean(false)
     private var lastSize = Pair(10, 10)
@@ -97,7 +87,10 @@ open class UniversalImpl(
             fireReshapeEvent(lastSize.first, lastSize.second)
         }
         glViewport(0, 0, lastSize.first, lastSize.second)
-        fireRenderEvent()
+        fireRenderEvent(if(msaa != 0) msaaFBO.id else fbo.id)
+
+        if(msaa != 0)
+            msaaFBO.blitTo(fbo.id)
         readPixels()
 
         val texture = g.resourceFactory.getCachedTexture(image.getPlatformImage() as Image, Texture.WrapMode.CLAMP_TO_EDGE)
@@ -108,7 +101,7 @@ open class UniversalImpl(
         texture.unlock()
     }
 
-    private fun readPixels() = executor.run {
+    private fun readPixels() {
         if (scene == null || scene.window == null || width <= 0 || height <= 0)
             return
 
@@ -127,32 +120,34 @@ open class UniversalImpl(
             image = WritableImage(pixelBuffer)
         }
 
+        val oldDrawBuffer = GLExecutor.glGetInteger(GL_DRAW_FRAMEBUFFER_BINDING)
+        val oldReadBuffer = GLExecutor.glGetInteger(GL_READ_FRAMEBUFFER_BINDING)
+
+        fbo.bindFramebuffer()
         glReadPixels(0, 0, renderWidth, renderHeight, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, pixelByteBuffer!!)
+
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, oldDrawBuffer)
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, oldReadBuffer)
+
         pixelBuffer.bufferDirty(null)
-        return@run
     }
 
-    private fun updateFramebufferSize() = executor.run {
-        if(texture != -1)
-            glDeleteTextures(texture)
-        if(fbo != -1)
-            glDeleteFramebuffers(fbo)
-        if(depthBuffer != -1)
-            glDeleteRenderbuffers(depthBuffer)
+    private fun updateFramebufferSize() {
+        if(::fbo.isInitialized){
+            fbo.delete()
+            if(msaa != 0) msaaFBO.delete()
+        }
 
-        fbo = glGenFramebuffers()
-        glBindFramebuffer(GL_FRAMEBUFFER, fbo)
+        val width = lastSize.first
+        val height = lastSize.second
 
-        texture = glGenTextures()
-        glBindTexture(GL_TEXTURE_2D, texture)
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, lastSize.first, lastSize.second, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0)
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0)
+        fbo = Framebuffer(width, height)
+        fbo.bindFramebuffer()
 
-        depthBuffer = glGenRenderbuffers()
-        glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer)
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, lastSize.first, lastSize.second)
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer)
-
+        if(msaa != 0) {
+            msaaFBO = MultiSampledFramebuffer(msaa, lastSize.first, lastSize.second)
+            msaaFBO.bindFramebuffer()
+        }
     }
 
     override fun repaint() = needsRepaint.set(true)

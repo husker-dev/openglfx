@@ -60,6 +60,10 @@ JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_nInitGLFunctions(J
     a_glDeleteFramebuffers = (glDeleteFramebuffersPtr)a_GetProcAddress("glDeleteFramebuffers");
     a_glFinish = (glFinishPtr)a_GetProcAddress("glFinish");
 
+    a_glRenderbufferStorageMultisample = (glRenderbufferStorageMultisamplePtr)a_GetProcAddress("glRenderbufferStorageMultisample");
+    a_glBlitFramebuffer = (glBlitFramebufferPtr)a_GetProcAddress("glBlitFramebuffer");
+    a_glGetIntegerv = (glGetIntegervPtr)a_GetProcAddress("glGetIntegerv");
+
     #if defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__)
     wglChoosePixelFormatARB = (wglChoosePixelFormatARBPtr)a_GetProcAddress("wglChoosePixelFormatARB");
     wglCreateContextAttribsARB = (wglCreateContextAttribsARBPtr)a_GetProcAddress("wglCreateContextAttribsARB");
@@ -145,5 +149,19 @@ JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glViewport(JNIEnv*
 
 JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glFinish(JNIEnv* env, jobject) {
     a_glFinish();
+}
+
+JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glRenderbufferStorageMultisample(JNIEnv* env, jobject, jint target, jint samples, jint internalformat, jint width, jint height) {
+    a_glRenderbufferStorageMultisample(target, samples, internalformat, width, height);
+}
+
+JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glBlitFramebuffer(JNIEnv* env, jobject, jint srcX0, jint srcY0, jint srcX1, jint srcY1, jint dstX0, jint dstY0, jint dstX1, jint dstY1, jint mask, jint filter) {
+    a_glBlitFramebuffer(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);
+}
+
+JNIEXPORT jint JNICALL Java_com_huskerdev_openglfx_GLExecutor_glGetInteger(JNIEnv* env, jobject, jint pname) {
+    GLint data = 0;
+    a_glGetIntegerv(pname, &data);
+    return (jint)data;
 }
 }

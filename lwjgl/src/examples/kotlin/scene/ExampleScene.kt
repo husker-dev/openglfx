@@ -93,7 +93,7 @@ class ExampleScene {
 
     fun render(event: GLRenderEvent){
         RenderDoc.startFrameCapture()
-        time += event.delta.toFloat() * 5f
+        time += event.delta.toFloat() * 2f
 
         glClearColor(0f, 0f, 0f, 0f)
         glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)

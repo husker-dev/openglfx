@@ -8,6 +8,7 @@ import java.nio.ByteBuffer
 
 const val GL_BGRA = 0x80E1
 const val GL_RGBA = 0x1908
+const val GL_RGBA8 = 0x8058
 const val GL_UNSIGNED_BYTE = 0x1401
 const val GL_UNSIGNED_INT_8_8_8_8_REV = 0x8367
 const val GL_FRAMEBUFFER = 0x8D40
@@ -18,6 +19,12 @@ const val GL_DEPTH_COMPONENT = 0x1902
 const val GL_DEPTH_ATTACHMENT = 0x8D00
 const val GL_TEXTURE_MIN_FILTER = 0x2801
 const val GL_NEAREST = 0x2600
+const val GL_READ_FRAMEBUFFER = 0x8CA8
+const val GL_DRAW_FRAMEBUFFER = 0x8CA9
+const val GL_COLOR_BUFFER_BIT = 0x4000
+const val GL_DRAW_FRAMEBUFFER_BINDING = 0x8CA6
+const val GL_READ_FRAMEBUFFER_BINDING = 0x8CAA
+const val GL_MAX_SAMPLES = 0x8D57
 
 
 abstract class GLExecutor {
@@ -44,6 +51,10 @@ abstract class GLExecutor {
         @JvmStatic external fun glViewport(x: Int, y: Int, w: Int, h: Int)
         @JvmStatic external fun glFinish()
 
+        @JvmStatic external fun glRenderbufferStorageMultisample(target: Int, samples: Int, internalformat: Int, width: Int, height: Int)
+        @JvmStatic external fun glBlitFramebuffer(srcX0: Int, srcY0: Int, srcX1: Int, srcY1: Int, dstX0: Int, dstY0: Int, dstX1: Int, dstY1: Int, mask: Int, filter: Int)
+        @JvmStatic external fun glGetInteger(pname: Int): Int
+
         fun initGLFunctions(){
             if(isInitialized) return
             isInitialized = true
@@ -51,9 +62,9 @@ abstract class GLExecutor {
         }
     }
 
-    open fun universalCanvas(profile: GLProfile) = UniversalImpl(this, profile)
-    open fun sharedCanvas(profile: GLProfile) = SharedImpl(this, profile)
-    open fun interopCanvas(profile: GLProfile) = InteropImpl(this, profile)
+    open fun universalCanvas(profile: GLProfile, msaa: Int) = UniversalImpl(this, profile, msaa)
+    open fun sharedCanvas(profile: GLProfile, msaa: Int) = SharedImpl(this, profile, msaa)
+    open fun interopCanvas(profile: GLProfile, msaa: Int) = InteropImpl(this, profile, msaa)
 
     abstract fun initGLFunctionsImpl()
 

@@ -21,7 +21,8 @@ enum class GLProfile {
 }
 
 abstract class OpenGLCanvas(
-    val profile: GLProfile
+    val profile: GLProfile,
+    val msaa: Int
 ): Pane() {
 
     companion object {
@@ -41,16 +42,20 @@ abstract class OpenGLCanvas(
          * @param profile Core/Compatibility OpenGL profile
          *  - GLProfile.Core
          *  - GLProfile.Compatibility
+         *  @param msaa Multisampling quality (use -1 for maximum available samples)
          * @return OpenGLCanvas instance
          */
         @JvmOverloads
         @JvmStatic
-        fun create(executor: GLExecutor, profile: GLProfile = GLProfile.Compatibility) =
-             when (GraphicsPipeline.getPipeline().javaClass.canonicalName.split(".")[3]) {
-                "es2" -> executor::sharedCanvas
-                "d3d" -> if (DXInterop.isSupported()) executor::interopCanvas else executor::universalCanvas
-                else -> executor::universalCanvas
-            }(profile)
+        fun create(
+            executor: GLExecutor,
+            profile: GLProfile = GLProfile.Compatibility,
+            msaa: Int = 0
+        ) = when (GraphicsPipeline.getPipeline().javaClass.canonicalName.split(".")[3]) {
+            "es2" -> executor::sharedCanvas
+            "d3d" -> if (DXInterop.isSupported()) executor::interopCanvas else executor::universalCanvas
+            else -> executor::universalCanvas
+        }(profile, msaa)
     }
 
     private var onInit = arrayListOf<InitListenerContainer>()
@@ -123,10 +128,10 @@ abstract class OpenGLCanvas(
     /**
      *  These methods must be invoked from OpenGLCanvas implementations
      */
-    protected fun fireRenderEvent() {
+    protected fun fireRenderEvent(fbo: Int) {
         checkInitialization()
         fpsCounter.update()
-        onRender.dispatchEvent(createRenderEvent(fpsCounter.currentFps, fpsCounter.delta, scaledWidth.toInt(), scaledHeight.toInt()))
+        onRender.dispatchEvent(createRenderEvent(fpsCounter.currentFps, fpsCounter.delta, scaledWidth.toInt(), scaledHeight.toInt(), fbo))
     }
 
     protected fun fireReshapeEvent(width: Int, height: Int) {
@@ -141,8 +146,8 @@ abstract class OpenGLCanvas(
      *  Possibility to override events
      *  (Used by JOGL)
      */
-    protected open fun createRenderEvent(currentFps: Int, delta: Double, width: Int, height: Int)
-        = GLRenderEvent(GLRenderEvent.ANY, currentFps, delta, width, height)
+    protected open fun createRenderEvent(currentFps: Int, delta: Double, width: Int, height: Int, fbo: Int)
+        = GLRenderEvent(GLRenderEvent.ANY, currentFps, delta, width, height, fbo)
     protected open fun createReshapeEvent(width: Int, height: Int)
         = GLReshapeEvent(GLReshapeEvent.ANY, width, height)
     protected open fun createInitEvent()
