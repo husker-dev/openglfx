@@ -6,13 +6,12 @@ import com.huskerdev.openglfx.GLExecutor.Companion.glBindFramebuffer
 import com.huskerdev.openglfx.GLExecutor.Companion.glReadPixels
 import com.huskerdev.openglfx.GLExecutor.Companion.glViewport
 import com.huskerdev.openglfx.GLExecutor.Companion.initGLFunctions
+import com.huskerdev.openglfx.utils.OGLFXUtils.Companion.getPlatformImage
 import com.huskerdev.openglfx.utils.fbo.Framebuffer
 import com.huskerdev.openglfx.utils.fbo.MultiSampledFramebuffer
 import com.sun.javafx.geom.Rectangle
 import com.sun.javafx.scene.DirtyBits
 import com.sun.javafx.scene.NodeHelper
-import com.sun.javafx.tk.PlatformImage
-import com.sun.javafx.tk.Toolkit
 import com.sun.prism.Graphics
 import com.sun.prism.Image
 import com.sun.prism.Texture
@@ -28,8 +27,9 @@ import java.util.concurrent.atomic.AtomicBoolean
 open class UniversalImpl(
     private val executor: GLExecutor,
     profile: GLProfile,
+    flipY: Boolean,
     msaa: Int
-) : OpenGLCanvas(profile, msaa){
+) : OpenGLCanvas(profile, flipY, msaa){
 
     companion object {
         private val bufferDirtyMethod = PixelBuffer::class.java.getDeclaredMethod("bufferDirty", Rectangle::class.java).apply { isAccessible = true }
@@ -114,7 +114,7 @@ open class UniversalImpl(
             if(pixelByteBuffer != null)
                 unsafe.invokeCleaner(pixelByteBuffer!!)
 
-            pixelByteBuffer = ByteBuffer.allocateDirect(renderWidth * renderHeight * Int.SIZE_BYTES)
+            pixelByteBuffer = ByteBuffer.allocateDirect(renderWidth * renderHeight * 4)
             pixelBuffer = PixelBuffer(renderWidth, renderHeight, pixelByteBuffer!!, PixelFormat.getByteBgraPreInstance())
 
             image = WritableImage(pixelBuffer)
@@ -152,5 +152,4 @@ open class UniversalImpl(
 
     override fun repaint() = needsRepaint.set(true)
 
-    private fun WritableImage.getPlatformImage() = Toolkit.getImageAccessor().getPlatformImage(this) as PlatformImage
 }

@@ -5,7 +5,7 @@ import com.huskerdev.openglfx.events.GLInitializeEvent
 import com.huskerdev.openglfx.events.GLRenderEvent
 import com.huskerdev.openglfx.events.GLReshapeEvent
 import com.huskerdev.openglfx.utils.FpsCounter
-import com.huskerdev.openglfx.utils.OpenGLFXLibLoader
+import com.huskerdev.openglfx.utils.OGLFXLibLoader
 import com.huskerdev.openglfx.utils.RegionAccessorObject
 import com.huskerdev.openglfx.utils.RegionAccessorOverrider
 import com.huskerdev.openglfx.utils.windows.DXInterop
@@ -22,12 +22,13 @@ enum class GLProfile {
 
 abstract class OpenGLCanvas(
     val profile: GLProfile,
+    val flipY: Boolean,
     val msaa: Int
 ): Pane() {
 
     companion object {
         init {
-            OpenGLFXLibLoader.load()
+            OGLFXLibLoader.load()
             RegionAccessorOverrider.overwrite(object : RegionAccessorObject<OpenGLCanvas>() {
                 override fun doCreatePeer(node: OpenGLCanvas) = NGOpenGLCanvas(node)
             })
@@ -41,7 +42,10 @@ abstract class OpenGLCanvas(
          *  - JOGL_MODULE
          * @param profile Core/Compatibility OpenGL profile
          *  - GLProfile.Core
-         *  - GLProfile.Compatibility
+         *  - GLProfile.Compatibility (default)
+         * @param flipY Flip Y axis
+         *  - true - 0 is top
+         *  - false - 0 is bottom (default)
          *  @param msaa Multisampling quality (use -1 for maximum available samples)
          * @return OpenGLCanvas instance
          */
@@ -50,12 +54,13 @@ abstract class OpenGLCanvas(
         fun create(
             executor: GLExecutor,
             profile: GLProfile = GLProfile.Compatibility,
+            flipY: Boolean = false,
             msaa: Int = 0
         ) = when (GraphicsPipeline.getPipeline().javaClass.canonicalName.split(".")[3]) {
             "es2" -> executor::sharedCanvas
             "d3d" -> if (DXInterop.isSupported()) executor::interopCanvas else executor::universalCanvas
             else -> executor::universalCanvas
-        }(profile, msaa)
+        }(profile, flipY, msaa)
     }
 
     private var onInit = arrayListOf<InitListenerContainer>()
@@ -179,7 +184,10 @@ abstract class OpenGLCanvas(
      * @param texture default JavaFX texture
      */
     protected fun drawResultTexture(g: Graphics, texture: Texture){
-        g.drawTexture(texture, 0f, 0f, width.toFloat() + 0.5f, height.toFloat() + 0.5f, 0.0f, scaledHeight.toFloat(), scaledWidth.toFloat(), 0f)
+        if(flipY)
+            g.drawTexture(texture, 0f, 0f, width.toFloat() + 0.5f, height.toFloat() + 0.5f, 0.0f, 0.0f, scaledWidth.toFloat(), scaledHeight.toFloat())
+        else
+            g.drawTexture(texture, 0f, 0f, width.toFloat() + 0.5f, height.toFloat() + 0.5f, 0.0f, scaledHeight.toFloat(), scaledWidth.toFloat(), 0f)
     }
 
     private class NGOpenGLCanvas(val canvas: OpenGLCanvas): NGRegion() {

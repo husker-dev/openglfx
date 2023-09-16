@@ -11,7 +11,7 @@ class RenderDoc {
         private var isInitialized = false
 
         init {
-            OpenGLFXLibLoader.load()
+            OGLFXLibLoader.load()
         }
 
         private fun checkLoad(){

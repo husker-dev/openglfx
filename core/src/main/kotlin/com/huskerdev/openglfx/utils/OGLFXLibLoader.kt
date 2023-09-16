@@ -3,7 +3,7 @@ package com.huskerdev.openglfx.utils
 import com.huskerdev.ojgl.utils.OS
 import com.huskerdev.ojgl.utils.PlatformUtils
 
-class OpenGLFXLibLoader {
+class OGLFXLibLoader {
 
     companion object {
         private var isLoaded = false

@@ -25,6 +25,7 @@ struct D3DResource {
 wglChoosePixelFormatARBPtr       wglChoosePixelFormatARB;
 wglCreateContextAttribsARBPtr    wglCreateContextAttribsARB;
 wglDXOpenDeviceNVPtr             wglDXOpenDeviceNV;
+wglDXCloseDeviceNVPtr            wglDXCloseDeviceNV;
 wglDXRegisterObjectNVPtr         wglDXRegisterObjectNV;
 wglDXSetResourceShareHandleNVPtr wglDXSetResourceShareHandleNV;
 wglDXUnregisterObjectNVPtr       wglDXUnregisterObjectNV;
@@ -45,6 +46,10 @@ extern "C" {
 
     JNIEXPORT jlong JNICALL Java_com_huskerdev_openglfx_utils_windows_DXInterop_wglDXOpenDeviceNV(JNIEnv* env, jobject, jlong dxDevice) {
         return (jlong)wglDXOpenDeviceNV((void*)dxDevice);
+    }
+
+    JNIEXPORT jboolean JNICALL Java_com_huskerdev_openglfx_utils_windows_DXInterop_wglDXCloseDeviceNV(JNIEnv* env, jobject, jlong hDevice) {
+        return (jboolean)wglDXCloseDeviceNV((HANDLE)hDevice);
     }
 
     JNIEXPORT jlong JNICALL Java_com_huskerdev_openglfx_utils_windows_DXInterop_wglDXRegisterObjectNV(JNIEnv* env, jobject, jlong device, jlong dxResource, jint name, jint type, jint access) {
@@ -78,6 +83,14 @@ extern "C" {
         IDirect3DTexture9* texture = NULL;
         HANDLE sharedHandle = NULL;
         HRESULT h = device->CreateTexture(width, height, 0, D3DUSAGE_DYNAMIC, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &texture, &sharedHandle);
+
+
+        IDirect3DSurface9* surface = NULL;
+        texture->GetSurfaceLevel(0, &surface);
+        RECT rect = {0, 0, 100, 100};
+
+        device->ColorFill(surface, &rect, D3DCOLOR_XRGB(255,0,155));
+
 
         jlong array[] = { (jlong)texture, (jlong)sharedHandle };
         return createLongArray(env, 2, array);

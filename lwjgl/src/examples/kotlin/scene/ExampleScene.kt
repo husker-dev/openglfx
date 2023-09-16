@@ -3,7 +3,6 @@ package scene
 import com.huskerdev.openglfx.events.GLInitializeEvent
 import com.huskerdev.openglfx.events.GLRenderEvent
 import com.huskerdev.openglfx.events.GLReshapeEvent
-import com.huskerdev.openglfx.utils.RenderDoc
 import javafx.scene.paint.Color
 import org.lwjgl.opengl.GL30.*
 import scene.graphics.Mesh
@@ -92,9 +91,6 @@ class ExampleScene {
     }
 
     fun render(event: GLRenderEvent){
-        RenderDoc.startFrameCapture()
-        time += event.delta.toFloat() * 2f
-
         glClearColor(0f, 0f, 0f, 0f)
         glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
 
@@ -112,7 +108,8 @@ class ExampleScene {
 
         for(mesh in meshes)
             mesh.render(transformLocation)
-        RenderDoc.endFrameCapture()
+
+        time += event.delta.toFloat() * 2f
     }
 }
 

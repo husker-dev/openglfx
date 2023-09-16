@@ -6,7 +6,7 @@ import com.huskerdev.openglfx.GLExecutor.Companion.glFinish
 import com.huskerdev.openglfx.GLExecutor.Companion.glViewport
 import com.huskerdev.openglfx.GLExecutor.Companion.initGLFunctions
 import com.huskerdev.openglfx.utils.fbo.MultiSampledFramebuffer
-import com.huskerdev.openglfx.utils.TextureUtils.Companion.GLTextureId
+import com.huskerdev.openglfx.utils.OGLFXUtils.Companion.GLTextureId
 import com.huskerdev.openglfx.utils.fbo.Framebuffer
 import com.sun.javafx.scene.DirtyBits
 import com.sun.javafx.scene.NodeHelper
@@ -20,8 +20,9 @@ import java.util.concurrent.atomic.AtomicBoolean
 open class SharedImpl(
     private val executor: GLExecutor,
     profile: GLProfile,
+    flipY: Boolean,
     msaa: Int
-): OpenGLCanvas(profile, msaa){
+): OpenGLCanvas(profile, flipY, msaa){
 
     private var lastSize = Pair(-1, -1)
 

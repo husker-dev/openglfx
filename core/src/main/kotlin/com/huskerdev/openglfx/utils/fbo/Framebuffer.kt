@@ -17,8 +17,8 @@ import com.huskerdev.openglfx.GLExecutor.Companion.glTexImage2D
 import com.huskerdev.openglfx.GLExecutor.Companion.glTexParameteri
 
 class Framebuffer(
-    width: Int,
-    height: Int,
+    val width: Int,
+    val height: Int,
     private val existingTexture: Int = -1
 ) {
 
@@ -27,23 +27,27 @@ class Framebuffer(
     val depthRenderbuffer: Int
 
     init {
+        val oldDrawBuffer = GLExecutor.glGetInteger(GL_DRAW_FRAMEBUFFER_BINDING)
+        val oldReadBuffer = GLExecutor.glGetInteger(GL_READ_FRAMEBUFFER_BINDING)
+
         id = glGenFramebuffers()
         glBindFramebuffer(GL_FRAMEBUFFER, id)
 
         if(existingTexture == -1) {
             texture = glGenTextures()
             glBindTexture(GL_TEXTURE_2D, texture)
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0)
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, null)
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0)
         }else texture = existingTexture
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0)
 
         depthRenderbuffer = glGenRenderbuffers()
         glBindRenderbuffer(GL_RENDERBUFFER, depthRenderbuffer)
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height)
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderbuffer)
 
-        glBindFramebuffer(GL_FRAMEBUFFER, 0)
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, oldDrawBuffer)
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, oldReadBuffer)
     }
 
     fun bindFramebuffer(){

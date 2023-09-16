@@ -46,7 +46,7 @@ abstract class GLExecutor {
         @JvmStatic external fun glRenderbufferStorage(target: Int, internalformat: Int, width: Int, height: Int)
         @JvmStatic external fun glFramebufferRenderbuffer(target: Int, attachment: Int, renderbufferTarget: Int, renderbuffer: Int)
         @JvmStatic external fun glReadPixels(x: Int, y: Int, width: Int, height: Int, format: Int, type: Int, pixels: ByteBuffer)
-        @JvmStatic external fun glTexImage2D(target: Int, level: Int, internalformat: Int, width: Int, height: Int, border: Int, format: Int, type: Int, pixels: Long)
+        @JvmStatic external fun glTexImage2D(target: Int, level: Int, internalformat: Int, width: Int, height: Int, border: Int, format: Int, type: Int, pixels: ByteBuffer?)
         @JvmStatic external fun glTexParameteri(target: Int, pname: Int, param: Int)
         @JvmStatic external fun glViewport(x: Int, y: Int, w: Int, h: Int)
         @JvmStatic external fun glFinish()
@@ -62,9 +62,9 @@ abstract class GLExecutor {
         }
     }
 
-    open fun universalCanvas(profile: GLProfile, msaa: Int) = UniversalImpl(this, profile, msaa)
-    open fun sharedCanvas(profile: GLProfile, msaa: Int) = SharedImpl(this, profile, msaa)
-    open fun interopCanvas(profile: GLProfile, msaa: Int) = InteropImpl(this, profile, msaa)
+    open fun universalCanvas(profile: GLProfile, flipY: Boolean, msaa: Int) = UniversalImpl(this, profile, flipY, msaa)
+    open fun sharedCanvas(profile: GLProfile, flipY: Boolean, msaa: Int) = SharedImpl(this, profile, flipY, msaa)
+    open fun interopCanvas(profile: GLProfile, flipY: Boolean, msaa: Int) = InteropImpl(this, profile, flipY, msaa)
 
     abstract fun initGLFunctionsImpl()
 

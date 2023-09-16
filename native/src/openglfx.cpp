@@ -68,6 +68,7 @@ JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_nInitGLFunctions(J
     wglChoosePixelFormatARB = (wglChoosePixelFormatARBPtr)a_GetProcAddress("wglChoosePixelFormatARB");
     wglCreateContextAttribsARB = (wglCreateContextAttribsARBPtr)a_GetProcAddress("wglCreateContextAttribsARB");
     wglDXOpenDeviceNV = (wglDXOpenDeviceNVPtr)a_GetProcAddress("wglDXOpenDeviceNV");
+    wglDXCloseDeviceNV = (wglDXCloseDeviceNVPtr)a_GetProcAddress("wglDXCloseDeviceNV");
     wglDXRegisterObjectNV = (wglDXRegisterObjectNVPtr)a_GetProcAddress("wglDXRegisterObjectNV");
     wglDXSetResourceShareHandleNV = (wglDXSetResourceShareHandleNVPtr)a_GetProcAddress("wglDXSetResourceShareHandleNV");
     wglDXUnregisterObjectNV = (wglDXUnregisterObjectNVPtr)a_GetProcAddress("wglDXUnregisterObjectNV");
@@ -135,8 +136,9 @@ JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glReadPixels(JNIEn
     a_glReadPixels(x, y, width, height, format, type, bb);
 }
 
-JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glTexImage2D(JNIEnv* env, jobject, jint target, jint level, jint internalFormat, jint width, jint height, jint border, jint format, jint type, jlong pixels) {
-    a_glTexImage2D(target, level, internalFormat, width, height, border, format, type, (void*)pixels);
+JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glTexImage2D(JNIEnv* env, jobject, jint target, jint level, jint internalFormat, jint width, jint height, jint border, jint format, jint type, jobject pixels) {
+    char* bb = pixels ? (char*)env->GetDirectBufferAddress(pixels) : NULL;
+    a_glTexImage2D(target, level, internalFormat, width, height, border, format, type, bb);
 }
 
 JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glTexParameteri(JNIEnv* env, jobject, jint target, jint pname, jint param) {

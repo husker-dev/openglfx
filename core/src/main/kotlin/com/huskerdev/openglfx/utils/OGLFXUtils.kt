@@ -1,9 +1,12 @@
 package com.huskerdev.openglfx.utils
 
+import com.sun.javafx.tk.PlatformImage
+import com.sun.javafx.tk.Toolkit
 import com.sun.prism.Texture
+import javafx.scene.image.Image
 
 
-class TextureUtils {
+class OGLFXUtils {
 
     companion object {
         val Texture.DX9TextureResource: Long
@@ -17,5 +20,7 @@ class TextureUtils {
                 .getMethod("getNativeSourceHandle")
                 .apply { isAccessible = true }
                 .invoke(this) as Int
+
+        fun Image.getPlatformImage() = Toolkit.getImageAccessor().getPlatformImage(this) as PlatformImage
     }
 }

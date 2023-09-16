@@ -5,11 +5,12 @@ import com.huskerdev.openglfx.*
 import com.huskerdev.openglfx.GLExecutor.Companion.glViewport
 import com.huskerdev.openglfx.GLExecutor.Companion.initGLFunctions
 import com.huskerdev.openglfx.utils.fbo.MultiSampledFramebuffer
-import com.huskerdev.openglfx.utils.TextureUtils.Companion.DX9TextureResource
+import com.huskerdev.openglfx.utils.OGLFXUtils.Companion.DX9TextureResource
 import com.huskerdev.openglfx.utils.fbo.Framebuffer
 import com.huskerdev.openglfx.utils.windows.D3D9Device
 import com.huskerdev.openglfx.utils.windows.D3D9Texture
 import com.huskerdev.openglfx.utils.windows.DXInterop
+import com.huskerdev.openglfx.utils.windows.DXInterop.Companion.interopHandle
 import com.huskerdev.openglfx.utils.windows.DXInterop.Companion.wglDXLockObjectsNV
 import com.huskerdev.openglfx.utils.windows.DXInterop.Companion.wglDXOpenDeviceNV
 import com.huskerdev.openglfx.utils.windows.DXInterop.Companion.wglDXRegisterObjectNV
@@ -30,12 +31,9 @@ import java.util.concurrent.atomic.AtomicBoolean
 open class InteropImpl(
     private val executor: GLExecutor,
     profile: GLProfile,
+    flipY: Boolean,
     msaa: Int
-) : OpenGLCanvas(profile, msaa){
-
-    companion object {
-        private var interopHandle = 0L
-    }
+) : OpenGLCanvas(profile, flipY, msaa){
 
     private var lastSize = Pair(-1, -1)
     private var initialized = false
@@ -96,12 +94,10 @@ open class InteropImpl(
 
         glViewport(0, 0, lastSize.first, lastSize.second)
         fireRenderEvent(if(msaa != 0) msaaFBO.id else fbo.id)
-
         if(msaa != 0)
             msaaFBO.blitTo(fbo.id)
 
         wglDXUnlockObjectsNV(interopHandle, interopTexture)
-
         drawResultTexture(g, fxTexture)
     }
 

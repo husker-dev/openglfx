@@ -7,8 +7,11 @@ const val WGL_ACCESS_WRITE_DISCARD_NV = 0x2
 
 class DXInterop {
     companion object {
+        var interopHandle = 0L
+
         @JvmStatic private external fun nHasDXInterop(): Boolean
         @JvmStatic external fun wglDXOpenDeviceNV(dxDevice: Long): Long
+        @JvmStatic external fun wglDXCloseDeviceNV(hDevice: Long): Boolean
         @JvmStatic external fun wglDXRegisterObjectNV(device: Long, dxResource: Long, name: Int, type: Int, access: Int): Long
         @JvmStatic external fun wglDXSetResourceShareHandleNV(dxResource: Long, shareHandle: Long): Boolean
         @JvmStatic external fun wglDXUnregisterObjectNV(device: Long, obj: Long): Boolean
