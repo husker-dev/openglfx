@@ -2,6 +2,7 @@
 import com.huskerdev.openglfx.OpenGLCanvas
 import com.huskerdev.openglfx.OpenGLCanvasAnimator
 import com.huskerdev.openglfx.lwjgl.LWJGLExecutor.Companion.LWJGL_MODULE
+import com.huskerdev.openglfx.renderdoc.RenderDoc
 import javafx.application.Application
 import javafx.scene.Scene
 import javafx.scene.control.Label
@@ -12,6 +13,7 @@ import javafx.stage.Stage
 import scene.ExampleScene
 
 fun main() {
+    RenderDoc.enabled = true
     System.setProperty("prism.order", "d3d")
     System.setProperty("prism.vsync", "false")
 

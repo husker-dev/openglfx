@@ -1,6 +1,7 @@
-package com.huskerdev.openglfx.utils
+package com.huskerdev.openglfx.renderdoc
 
 import com.huskerdev.ojgl.GLContext
+import com.huskerdev.openglfx.utils.OGLFXLibLoader
 
 class RenderDoc {
     companion object {
@@ -8,25 +9,27 @@ class RenderDoc {
         @JvmStatic private external fun nStartFrameCapture(context: Long)
         @JvmStatic private external fun nEndFrameCapture(context: Long)
 
+        @JvmStatic var enabled = false
         private var isInitialized = false
 
         init {
             OGLFXLibLoader.load()
         }
 
-        private fun checkLoad(){
-            if(!isInitialized && nInitRenderDoc())
-                isInitialized = true
+        fun loadLibrary(): Boolean{
+            if(isInitialized) return true
+            isInitialized = nInitRenderDoc()
+            return isInitialized
         }
 
         fun startFrameCapture(context: GLContext = GLContext.current()) {
-            checkLoad()
-            nStartFrameCapture(context.handle)
+            if(enabled && loadLibrary())
+                nStartFrameCapture(context.handle)
         }
 
         fun endFrameCapture(context: GLContext = GLContext.current()) {
-            checkLoad()
-            nEndFrameCapture(context.handle)
+            if(enabled && loadLibrary())
+                nEndFrameCapture(context.handle)
         }
     }
 }

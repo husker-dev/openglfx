@@ -10,6 +10,8 @@ class DXInterop {
         var interopHandle = 0L
 
         @JvmStatic private external fun nHasDXInterop(): Boolean
+        @JvmStatic private external fun nHasRenderDocLib(): Boolean
+
         @JvmStatic external fun wglDXOpenDeviceNV(dxDevice: Long): Long
         @JvmStatic external fun wglDXCloseDeviceNV(hDevice: Long): Boolean
         @JvmStatic external fun wglDXRegisterObjectNV(device: Long, dxResource: Long, name: Int, type: Int, access: Int): Long
@@ -21,12 +23,17 @@ class DXInterop {
         @JvmStatic external fun createD3DTexture(device: Long, width: Int, height: Int): LongArray
         @JvmStatic external fun replaceD3DTextureInResource(resource: Long, newTexture: Long)
 
-        fun isSupported(): Boolean {
+        val isSupported by lazy {
+            if(nHasRenderDocLib()) {
+                println("[OpenGLFX] WGL_NV_DX_interop is disabled due to RenderDoc library.")
+                return@lazy false
+            }
+
             val context = GLContext.create()
             context.makeCurrent()
             val result = nHasDXInterop()
             GLContext.delete(context)
-            return result
+            return@lazy result
         }
     }
 }

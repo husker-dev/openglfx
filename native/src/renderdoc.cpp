@@ -11,7 +11,7 @@ RENDERDOC_API_1_1_2 *rdoc_api = NULL;
 
 extern "C" {
 
-JNIEXPORT jboolean JNICALL Java_com_huskerdev_openglfx_utils_RenderDoc_nInitRenderDoc(JNIEnv* env, jobject) {
+JNIEXPORT jboolean JNICALL Java_com_huskerdev_openglfx_renderdoc_RenderDoc_nInitRenderDoc(JNIEnv* env, jobject) {
     #if defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__)
     if(HMODULE mod = GetModuleHandleA("renderdoc.dll")) {
         auto GetAPI = (pRENDERDOC_GetAPI)GetProcAddress(mod, "RENDERDOC_GetAPI");
@@ -26,11 +26,11 @@ JNIEXPORT jboolean JNICALL Java_com_huskerdev_openglfx_utils_RenderDoc_nInitRend
     return false;
 }
 
-JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_utils_RenderDoc_nStartFrameCapture(JNIEnv* env, jobject, jlong context) {
+JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_renderdoc_RenderDoc_nStartFrameCapture(JNIEnv* env, jobject, jlong context) {
     if(rdoc_api) rdoc_api->StartFrameCapture((RENDERDOC_DevicePointer)context, NULL);
 }
 
-JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_utils_RenderDoc_nEndFrameCapture(JNIEnv* env, jobject, jlong context) {
+JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_renderdoc_RenderDoc_nEndFrameCapture(JNIEnv* env, jobject, jlong context) {
     if(rdoc_api) rdoc_api->EndFrameCapture((RENDERDOC_DevicePointer)context, NULL);
 }
 }

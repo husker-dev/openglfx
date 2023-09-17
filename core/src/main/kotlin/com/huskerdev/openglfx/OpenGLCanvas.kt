@@ -4,15 +4,18 @@ import com.huskerdev.openglfx.events.GLDisposeEvent
 import com.huskerdev.openglfx.events.GLInitializeEvent
 import com.huskerdev.openglfx.events.GLRenderEvent
 import com.huskerdev.openglfx.events.GLReshapeEvent
+import com.huskerdev.openglfx.renderdoc.RenderDoc
 import com.huskerdev.openglfx.utils.FpsCounter
 import com.huskerdev.openglfx.utils.OGLFXLibLoader
 import com.huskerdev.openglfx.utils.RegionAccessorObject
 import com.huskerdev.openglfx.utils.RegionAccessorOverrider
 import com.huskerdev.openglfx.utils.windows.DXInterop
+import com.sun.javafx.sg.prism.NGNode
 import com.sun.javafx.sg.prism.NGRegion
 import com.sun.prism.Graphics
 import com.sun.prism.GraphicsPipeline
 import com.sun.prism.Texture
+import javafx.scene.input.KeyCode
 import javafx.scene.layout.Pane
 import java.util.function.Consumer
 
@@ -58,7 +61,7 @@ abstract class OpenGLCanvas(
             msaa: Int = 0
         ) = when (GraphicsPipeline.getPipeline().javaClass.canonicalName.split(".")[3]) {
             "es2" -> executor::sharedCanvas
-            "d3d" -> if (DXInterop.isSupported()) executor::interopCanvas else executor::universalCanvas
+            "d3d" -> if (DXInterop.isSupported) executor::interopCanvas else executor::universalCanvas
             else -> executor::universalCanvas
         }(profile, flipY, msaa)
     }
@@ -92,8 +95,22 @@ abstract class OpenGLCanvas(
     protected val scaledHeight: Double
         get() = height * dpi
 
+    private var useRenderDoc = false
+
     protected abstract fun onNGRender(g: Graphics)
     abstract fun repaint()
+
+    private fun onSceneBound(){
+        if(RenderDoc.enabled){
+            RenderDoc.loadLibrary()
+            this.scene.setOnKeyReleased {
+                if(it.code == KeyCode.F12){
+                    useRenderDoc = true
+                    repaint()
+                }
+            }
+        }
+    }
 
     /**
      * Invokes every frame with an active GL context
@@ -136,7 +153,13 @@ abstract class OpenGLCanvas(
     protected fun fireRenderEvent(fbo: Int) {
         checkInitialization()
         fpsCounter.update()
+        if(useRenderDoc)
+            RenderDoc.startFrameCapture()
         onRender.dispatchEvent(createRenderEvent(fpsCounter.currentFps, fpsCounter.delta, scaledWidth.toInt(), scaledHeight.toInt(), fbo))
+        if(useRenderDoc){
+            RenderDoc.endFrameCapture()
+            useRenderDoc = false
+        }
     }
 
     protected fun fireReshapeEvent(width: Int, height: Int) {
@@ -191,9 +214,19 @@ abstract class OpenGLCanvas(
     }
 
     private class NGOpenGLCanvas(val canvas: OpenGLCanvas): NGRegion() {
+        private var bound = false
+
         override fun renderContent(g: Graphics) {
             canvas.onNGRender(g)
             super.renderContent(g)
+        }
+
+        override fun setParent(parent: NGNode?) {
+            super.setParent(parent)
+            if(canvas.scene != null && !bound){
+                bound = true
+                canvas.onSceneBound()
+            }
         }
     }
 
