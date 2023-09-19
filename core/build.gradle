@@ -2,6 +2,7 @@ plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.6.10'
 }
 
+apply from: "${project.rootDir}/maven-publisher.gradle"
 
 jar {
     from {
