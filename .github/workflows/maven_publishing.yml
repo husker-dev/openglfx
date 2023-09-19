@@ -17,7 +17,6 @@ jobs:
         env:
           ORG_GRADLE_PROJECT_ossrhUsername: ${{ secrets.SONATYPE_USERNAME }}
           ORG_GRADLE_PROJECT_ossrhPassword: ${{ secrets.SONATYPE_PASSWORD }}
-          ORG_GRADLE_PROJECT_signing.password: ${{ secrets.GPG_PASSPHRASE }}
         run: |
           chmod +x ./gradlew
-          ./gradlew publish closeAndReleaseRepository
+          ./gradlew publish closeAndReleaseRepository -Dorg.gradle.project.signing.password=${{ secrets.GPG_PASSPHRASE }}
