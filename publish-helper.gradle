@@ -42,6 +42,18 @@ publishing {
             }
         }
     }
+
+    repositories {
+        maven {
+            def releasesUrl = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+            def snapshotsUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+            url = version.toString().endsWith("SNAPSHOT") ? snapshotsUrl : releasesUrl
+            credentials {
+                username = project.properties["sonatypeUsername"].toString()
+                password = project.properties["sonatypePassword"].toString()
+            }
+        }
+    }
 }
 
 nexusPublishing {
@@ -50,7 +62,7 @@ nexusPublishing {
             // Uses:
             // ORG_GRADLE_PROJECT_sonatypeUsername
             // ORG_GRADLE_PROJECT_sonatypePassword
-            nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"))
+            nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
             snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
         }
     }
