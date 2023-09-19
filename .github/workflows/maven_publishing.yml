@@ -11,7 +11,7 @@ jobs:
       
       - name: "Importing GPG key"
         run: |
-          sudo gpg --import secring.gpg 
+          sudo echo ${{ secrets.GPG_PASSPHRASE }} | gpg --batch --yes --passphrase-fd 0 secring.gpg
 
       - name: "Publishing"
         env:
