@@ -1,0 +1,19 @@
+name: Native compilation
+
+on:
+  workflow_dispatch:
+
+jobs:
+  compile-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: "Receiving PGP key"
+        run: |
+          sudo gpg --keyserver keys.openpgp.org --recv-keys 31A930A7A113E5646D6A9813767BF2724358B6E0
+
+      - name: "Publishing"
+        run: |
+          chmod +x ./gradlew
+          ./gradlew publish

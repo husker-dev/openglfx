@@ -1,0 +1,61 @@
+name: Native compilation
+
+on:
+  workflow_dispatch:
+
+jobs:
+  compile-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: "Install Mesa"
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
+          sudo apt-get install mesa-common-dev:amd64 mesa-common-dev:i386
+        
+      - name: "Install GCC multilib"
+        run: sudo apt-get install gcc-multilib g++-multilib
+          
+      - name: "Compile"
+        run: |
+          chmod +x ./gradlew
+          ./gradlew compile
+      
+      - name: "Upload libraries"
+        uses: actions/upload-artifact@v2
+        with:
+          name: Linux
+          path: ./native/build/lib
+          
+  compile-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: "Compile"
+        run: |
+          ./gradlew compile
+          
+      - name: "Upload libraries"
+        uses: actions/upload-artifact@v2
+        with:
+          name: Windows
+          path: ./native/lib
+          
+  compile-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: "Compile"
+        run: |
+          chmod +x ./gradlew
+          ./gradlew compile
+          
+      - name: "Upload libraries"
+        uses: actions/upload-artifact@v2
+        with:
+          name: MacOS
+          path: ./native/build/lib
