@@ -20,4 +20,4 @@ jobs:
           ORG_GRADLE_PROJECT_signing.password: ${{ secrets.GPG_PASSPHRASE }}
         run: |
           chmod +x ./gradlew
-          ./gradlew publish closeAndReleaseSonatypeStagingRepository
+          ./gradlew publish closeAndReleaseRepository
