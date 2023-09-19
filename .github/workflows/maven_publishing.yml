@@ -9,9 +9,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
-      - name: "Receiving PGP key"
+      - name: "Importing GPG key"
         run: |
-          sudo gpg --keyserver keys.openpgp.org --recv-keys 31A930A7A113E5646D6A9813767BF2724358B6E0
+          sudo gpg --import secring.gpg 
 
       - name: "Publishing"
         env:
