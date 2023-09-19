@@ -14,6 +14,10 @@ jobs:
           sudo gpg --keyserver keys.openpgp.org --recv-keys 31A930A7A113E5646D6A9813767BF2724358B6E0
 
       - name: "Publishing"
+        env:
+          ORG_GRADLE_PROJECT_sonatypeUsername: ${{ secrets.SONATYPE_USERNAME }}
+          ORG_GRADLE_PROJECT_sonatypePassword: ${{ secrets.SONATYPE_PASSWORD }}
+          ORG_GRADLE_PROJECT_passphrase: ${{ secrets.GPG_PASSPHRASE }}
         run: |
           chmod +x ./gradlew
           ./gradlew publish
