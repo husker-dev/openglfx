@@ -42,6 +42,18 @@ publishing {
             }
         }
     }
+
+    repositories {
+        maven {
+            def releasesUrl = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+            def snapshotsUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+            url = version.toString().endsWith("SNAPSHOT") ? snapshotsUrl : releasesUrl
+            credentials {
+                username = project.properties["ossrhUsername"].toString()
+                password = project.properties["ossrhPassword"].toString()
+            }
+        }
+    }
 }
 nexusPublishing {
     repositories {
