@@ -58,6 +58,7 @@ afterEvaluate {
     }
 
     nexusStaging {
+        packageGroup = 'com.huskerdev'
         serverUrl = "https://s01.oss.sonatype.org/service/local/"
         username = project.properties["ossrhUsername"].toString()
         password = project.properties["ossrhPassword"].toString()
