@@ -1,4 +1,4 @@
-name: Native compilation
+name: Maven Central publishing
 
 on:
   workflow_dispatch:
