@@ -5,11 +5,9 @@ import java.nio.file.Paths
 plugins {
     id "maven-publish"
     id "signing"
-    id "io.github.gradle-nexus.publish-plugin" version "2.0.0-rc-1"
+    id "io.codearte.nexus-staging" version "0.30.0"
 }
 
-
-group 'com.huskerdev.openglfx'
 allprojects {
     version = "3.1"
     apply from: "$rootDir/dependencies.gradle"

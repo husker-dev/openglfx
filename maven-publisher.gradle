@@ -1,0 +1,69 @@
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+afterEvaluate {
+
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                from components.java
+
+                groupId = 'com.huskerdev'
+                artifactId = (project.mavenModuleName == "core") ? "openglfx" : "openglfx-${project.mavenModuleName}"
+
+                pom {
+                    if (project.mavenModuleName == "core") {
+                        name = 'OpenGLFX'
+                        description = 'OpenGL implementation for JavaFX'
+                    } else {
+                        name = "OpenGLFX-${project.mavenModuleName.toUpperCase()} module"
+                        description = "A ${project.mavenModuleName.toUpperCase()} module for OpenGLFX"
+                    }
+                    url = 'https://github.com/husker-dev/'
+                    licenses {
+                        license {
+                            name = 'The Apache License, Version 2.0'
+                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        }
+                    }
+                    developers {
+                        developer {
+                            id = 'husker-dev'
+                            name = 'Nikita Shtengauer'
+                            email = 'redfancoestar@gmail.com'
+                        }
+                    }
+                    scm {
+                        connection = 'scm:git:git://github.com/husker-dev/openglfx.git'
+                        developerConnection = 'scm:git:ssh://github.com/husker-dev/openglfx.git'
+                        url = 'https://github.com/husker-dev/'
+                    }
+                }
+            }
+        }
+        repositories {
+            maven {
+                def releasesUrl = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+                def snapshotsUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+                url = version.toString().endsWith("SNAPSHOT") ? snapshotsUrl : releasesUrl
+                credentials {
+                    username = project.properties["ossrhUsername"].toString()
+                    password = project.properties["ossrhPassword"].toString()
+                }
+            }
+        }
+    }
+
+    nexusStaging {
+        serverUrl = "https://s01.oss.sonatype.org/service/local/"
+        username = project.properties["ossrhUsername"].toString()
+        password = project.properties["ossrhPassword"].toString()
+    }
+
+    signing {
+        sign publishing.publications.mavenJava
+    }
+}

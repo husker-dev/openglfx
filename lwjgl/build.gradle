@@ -4,7 +4,7 @@ plugins {
 }
 
 project.ext.mavenModuleName = "lwjgl"
-apply from: '../publish-helper.gradle'
+apply from: "${project.rootDir}/maven-publisher.gradle"
 
 sourceSets{
     examples {
