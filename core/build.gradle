@@ -1,7 +1,7 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm'
+    id 'org.jetbrains.kotlin.jvm' version '1.6.10'
 }
-apply from: "$rootDir/dependencies.gradle"
+
 
 jar {
     from {
@@ -9,12 +9,6 @@ jar {
     }
 }
 
-repositories {
-    mavenCentral()
-    maven { url 'https://jitpack.io' }
-}
-
 dependencies {
     compileOnly DEFAULT
-    compileOnly "org.jetbrains.kotlin:kotlin-stdlib"
 }

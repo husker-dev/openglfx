@@ -1,13 +1,10 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm'
+    id 'org.jetbrains.kotlin.jvm' version '1.6.10'
     id "application"
 }
-apply from: "$rootDir/dependencies.gradle"
 
-repositories {
-    mavenCentral()
-    maven { url 'https://jitpack.io' }
-}
+project.ext.mavenModuleName = "lwjgl"
+apply from: '../publish-helper.gradle'
 
 sourceSets{
     examples {

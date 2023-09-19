@@ -1,22 +1,5 @@
 import org.gradle.internal.os.OperatingSystem
 
-void execute(String command, File directory = file("./")){
-    if(OperatingSystem.current().isMacOsX()){
-        def shFile = new File(directory, "compile_script.sh")
-        shFile.text = "#!/bin/sh\n" + command
-        Runtime.getRuntime().exec("chmod +x ${shFile.path}").waitFor()
-        command = "${shFile}"
-    }
-
-    def process = Runtime.getRuntime().exec(command, null, directory)
-    BufferedReader r = new BufferedReader(new InputStreamReader(process.getInputStream()))
-    String line
-    while ((line = r.readLine()) != null)
-        println(line)
-    if(process.waitFor() != 0)
-        throw new GradleException("Execution of '$command' finished with exit code: ${process.exitValue()}")
-}
-
 tasks.register('compile') {
     group 'compilation'
     doLast {
@@ -52,4 +35,21 @@ tasks.register('compile') {
             execute("cmake --build ./", file("build"))
         } else throw new Exception("Unsupported OS")
     }
+}
+
+void execute(String command, File directory = file("./")){
+    if(OperatingSystem.current().isMacOsX()){
+        def shFile = new File(directory, "compile_script.sh")
+        shFile.text = "#!/bin/sh\n" + command
+        Runtime.getRuntime().exec("chmod +x ${shFile.path}").waitFor()
+        command = "${shFile}"
+    }
+
+    def process = Runtime.getRuntime().exec(command, null, directory)
+    BufferedReader r = new BufferedReader(new InputStreamReader(process.getInputStream()))
+    String line
+    while ((line = r.readLine()) != null)
+        println(line)
+    if(process.waitFor() != 0)
+        throw new GradleException("Execution of '$command' finished with exit code: ${process.exitValue()}")
 }

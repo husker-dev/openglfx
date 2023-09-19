@@ -1,14 +1,8 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm'
-}
-apply from: "$rootDir/dependencies.gradle"
-
-repositories {
-    mavenCentral()
-    maven { url 'https://jitpack.io' }
+    id 'org.jetbrains.kotlin.jvm' version '1.6.10'
 }
 
-sourceSets{
+sourceSets {
     examples {
         resources { srcDirs "src/examples/resources" }
         java {

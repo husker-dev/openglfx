@@ -1,52 +1,32 @@
-import org.gradle.internal.os.OperatingSystem
-
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 
 plugins {
-    id 'java-library'
-    id 'org.jetbrains.kotlin.jvm' version '1.6.10'
-}
+    id 'maven-publish'
+    id 'signing'
 
-allprojects {
-    version = "3.0.4"
-}
-
-repositories {
-    mavenCentral()
+    id "io.github.gradle-nexus.publish-plugin" version "2.0.0-rc-1"
 }
 
 group 'com.huskerdev.openglfx'
+allprojects {
+    version = "3.1"
+    apply from: "$rootDir/dependencies.gradle"
 
-// Natives variables for LWJGL and JFX
-def os = OperatingSystem.current()
-def osArch = System.getProperty("os.arch")
-def arm64 = osArch.startsWith("aarch64") || osArch.startsWith("armv8")
-def arm32 = osArch.startsWith("arm") && !arm64
-def x64 = osArch.contains("64") && !arm32 && !arm64
-def x86 = !x64 && !arm32 && !arm64
-
-def lwjglArch = arm64? "-arm64" :arm32? "-arm32" :x64? "" :x86? "-x86" : ""
-def lwjglOS = os.linux? "linux" :os.macOsX? "macos" :os.windows? "windows" : os.name
-project.ext.lwjglNatives = "natives-${lwjglOS + lwjglArch}"
-
-def joglArch = arm64? "-armv6hv" :arm32? "-armv6" :x64? "-amd64" :x86? "-i586" : ""
-def joglOS = os.linux? "linux" :os.macOsX? "macosx" :os.windows? "windows" : os.name
-project.ext.joglShortOS = os.linux? "x11" :os.macOsX? "osx" :os.windows? "win" : os.name
-project.ext.joglNatives = joglOS + (os.macOsX ? "-universal" : joglArch)
-
-def jfxArch = arm64? "-aarch64" :arm32? "-arm32" :x64? "" :x86? "-x86" : ""
-def jfxOS = os.linux? "linux" :os.macOsX? "mac" :os.windows? "win" : os.name
-project.ext.jfxNatives = jfxOS + jfxArch
+    repositories {
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
+    }
+}
 
 
 // Tasks
-task compileJars {
+tasks.register('compileJars') {
     group 'release'
     doLast {
         Path out = Paths.get("$projectDir/build/libs")
-        if(Files.exists(out.parent)) {
+        if (Files.exists(out.parent)) {
             Files.walk(out.parent)
                     .sorted(Comparator.reverseOrder())
                     .map { it.toFile() }
