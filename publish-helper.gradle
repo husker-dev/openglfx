@@ -13,8 +13,13 @@ publishing {
             artifactId = (project.mavenModuleName == "core") ? "openglfx" : "openglfx-${project.mavenModuleName}"
 
             pom {
-                name = 'OpenGLFX'
-                description = 'A concise description of my library'
+                if(project.mavenModuleName == "core"){
+                    name = 'OpenGLFX'
+                    description = 'OpenGL implementation for JavaFX'
+                }else {
+                    name = "OpenGLFX-${project.mavenModuleName.toUpperCase()} module"
+                    description = "A ${project.mavenModuleName.toUpperCase()} module for OpenGLFX"
+                }
                 url = 'https://github.com/husker-dev/'
                 licenses {
                     license {
@@ -45,7 +50,7 @@ nexusPublishing {
             // Uses:
             // ORG_GRADLE_PROJECT_sonatypeUsername
             // ORG_GRADLE_PROJECT_sonatypePassword
-            nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
+            nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"))
             snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
         }
     }
