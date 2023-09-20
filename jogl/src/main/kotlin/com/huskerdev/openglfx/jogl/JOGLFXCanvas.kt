@@ -18,8 +18,10 @@ import jogamp.opengl.GLDrawableFactoryImpl
 
 class JOGLUniversalCanvas(
     executor: GLExecutor,
-    profile: com.huskerdev.openglfx.GLProfile
-): UniversalImpl(executor, profile){
+    profile: com.huskerdev.openglfx.GLProfile,
+    flipY: Boolean,
+    msaa: Int
+): UniversalImpl(executor, profile, flipY, msaa){
 
     var gl: GL2? = null
         get() {
@@ -28,16 +30,22 @@ class JOGLUniversalCanvas(
             return field
         }
 
-    override fun createRenderEvent(currentFps: Int, delta: Double, width: Int, height: Int) = JOGLRenderEvent(gl!!, GLRenderEvent.ANY, currentFps, delta, width, height)
-    override fun createReshapeEvent(width: Int, height: Int) = JOGLReshapeEvent(gl!!, GLReshapeEvent.ANY, width, height)
-    override fun createInitEvent() = JOGLInitializeEvent(gl!!, GLInitializeEvent.ANY)
-    override fun createDisposeEvent() = JOGLDisposeEvent(gl!!, GLDisposeEvent.ANY)
+    override fun createRenderEvent(currentFps: Int, delta: Double, width: Int, height: Int, fbo: Int) =
+        JOGLRenderEvent(gl!!, GLRenderEvent.ANY, currentFps, delta, width, height, fbo)
+    override fun createReshapeEvent(width: Int, height: Int) =
+        JOGLReshapeEvent(gl!!, GLReshapeEvent.ANY, width, height)
+    override fun createInitEvent() =
+        JOGLInitializeEvent(gl!!, GLInitializeEvent.ANY)
+    override fun createDisposeEvent() =
+        JOGLDisposeEvent(gl!!, GLDisposeEvent.ANY)
 }
 
 class JOGLSharedCanvas(
     executor: GLExecutor,
-    profile: com.huskerdev.openglfx.GLProfile
-): SharedImpl(executor, profile){
+    profile: com.huskerdev.openglfx.GLProfile,
+    flipY: Boolean,
+    msaa: Int
+): SharedImpl(executor, profile, flipY, msaa){
 
     var gl: GL2? = null
         get() {
@@ -46,16 +54,22 @@ class JOGLSharedCanvas(
             return field
         }
 
-    override fun createRenderEvent(currentFps: Int, delta: Double, width: Int, height: Int) = JOGLRenderEvent(gl!!, GLRenderEvent.ANY, currentFps, delta, width, height)
-    override fun createReshapeEvent(width: Int, height: Int) = JOGLReshapeEvent(gl!!, GLReshapeEvent.ANY, width, height)
-    override fun createInitEvent() = JOGLInitializeEvent(gl!!, GLInitializeEvent.ANY)
-    override fun createDisposeEvent() = JOGLDisposeEvent(gl!!, GLDisposeEvent.ANY)
+    override fun createRenderEvent(currentFps: Int, delta: Double, width: Int, height: Int, fbo: Int) =
+        JOGLRenderEvent(gl!!, GLRenderEvent.ANY, currentFps, delta, width, height, fbo)
+    override fun createReshapeEvent(width: Int, height: Int) =
+        JOGLReshapeEvent(gl!!, GLReshapeEvent.ANY, width, height)
+    override fun createInitEvent() =
+        JOGLInitializeEvent(gl!!, GLInitializeEvent.ANY)
+    override fun createDisposeEvent() =
+        JOGLDisposeEvent(gl!!, GLDisposeEvent.ANY)
 }
 
 class JOGLInteropCanvas(
     executor: GLExecutor,
-    profile: com.huskerdev.openglfx.GLProfile
-): InteropImpl(executor, profile){
+    profile: com.huskerdev.openglfx.GLProfile,
+    flipY: Boolean,
+    msaa: Int
+): InteropImpl(executor, profile, flipY, msaa){
 
     var gl: GL2? = null
         get() {
@@ -64,8 +78,12 @@ class JOGLInteropCanvas(
             return field
         }
 
-    override fun createRenderEvent(currentFps: Int, delta: Double, width: Int, height: Int) = JOGLRenderEvent(gl!!, GLRenderEvent.ANY, currentFps, delta, width, height)
-    override fun createReshapeEvent(width: Int, height: Int) = JOGLReshapeEvent(gl!!, GLReshapeEvent.ANY, width, height)
-    override fun createInitEvent() = JOGLInitializeEvent(gl!!, GLInitializeEvent.ANY)
-    override fun createDisposeEvent() = JOGLDisposeEvent(gl!!, GLDisposeEvent.ANY)
+    override fun createRenderEvent(currentFps: Int, delta: Double, width: Int, height: Int, fbo: Int) =
+        JOGLRenderEvent(gl!!, GLRenderEvent.ANY, currentFps, delta, width, height, fbo)
+    override fun createReshapeEvent(width: Int, height: Int) =
+        JOGLReshapeEvent(gl!!, GLReshapeEvent.ANY, width, height)
+    override fun createInitEvent() =
+        JOGLInitializeEvent(gl!!, GLInitializeEvent.ANY)
+    override fun createDisposeEvent() =
+        JOGLDisposeEvent(gl!!, GLDisposeEvent.ANY)
 }

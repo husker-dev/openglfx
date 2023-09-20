@@ -2,6 +2,8 @@ plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.6.10'
 }
 
+apply from: "${project.rootDir}/maven-publisher.gradle"
+
 sourceSets {
     examples {
         resources { srcDirs "src/examples/resources" }
@@ -22,4 +24,28 @@ dependencies {
 
     compileOnly "org.jogamp.jogl:jogl-all:${project["version.jogl"]}"
     compileOnly "org.jogamp.jogl:jogl-all:${project["version.jogl"]}:natives-$project.joglNatives"
+}
+
+tasks.register('runJOGLD3D', JavaExec) {
+    group = "Execution"
+    description = "Run the example class with JOGL D3D"
+    classpath = sourceSets.examples.runtimeClasspath
+    mainClass = "com.huskerdev.openglfx.jogl.example.JOGL_D3DKt"
+    jvmArgs project["opens"].split()
+}
+
+tasks.register('runJOGLSW', JavaExec) {
+    group = "Execution"
+    description = "Run the example class with JOGL SW"
+    classpath = sourceSets.examples.runtimeClasspath
+    mainClass = "com.huskerdev.openglfx.jogl.example.JOGL_SWKt"
+    jvmArgs project["opens"].split()
+}
+
+tasks.register('runJOGLES2', JavaExec) {
+    group = "Execution"
+    description = "Run the example class with JOGL ES2"
+    classpath = sourceSets.examples.runtimeClasspath
+    mainClass = "com.huskerdev.openglfx.jogl.example.JOGL_ES2Kt"
+    jvmArgs project["opens"].split()
 }

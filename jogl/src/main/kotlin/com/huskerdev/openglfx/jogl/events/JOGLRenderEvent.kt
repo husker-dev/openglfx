@@ -11,5 +11,6 @@ class JOGLRenderEvent(
     fps: Int,
     delta: Double,
     width: Int,
-    height: Int
-): GLRenderEvent(eventType, fps, delta, width, height), JOGLEvent
+    height: Int,
+    fbo: Int
+): GLRenderEvent(eventType, fps, delta, width, height, fbo), JOGLEvent

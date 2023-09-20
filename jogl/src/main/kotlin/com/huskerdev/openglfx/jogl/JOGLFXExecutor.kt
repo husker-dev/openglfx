@@ -7,10 +7,12 @@ val JOGL_MODULE = JOGLExecutor()
 
 class JOGLExecutor: GLExecutor() {
 
-    override fun universalCanvas(profile: com.huskerdev.openglfx.GLProfile) = JOGLUniversalCanvas(this, profile)
-    override fun sharedCanvas(profile: com.huskerdev.openglfx.GLProfile) = JOGLSharedCanvas(this, profile)
-    override fun interopCanvas(profile: com.huskerdev.openglfx.GLProfile) = JOGLInteropCanvas(this, profile)
+    override fun universalCanvas(profile: com.huskerdev.openglfx.GLProfile, flipY: Boolean, msaa: Int) =
+        JOGLUniversalCanvas(this, profile, flipY, msaa)
+    override fun sharedCanvas(profile: com.huskerdev.openglfx.GLProfile, flipY: Boolean, msaa: Int) =
+        JOGLSharedCanvas(this, profile, flipY, msaa)
+    override fun interopCanvas(profile: com.huskerdev.openglfx.GLProfile, flipY: Boolean, msaa: Int) =
+        JOGLInteropCanvas(this, profile, flipY, msaa)
 
     override fun initGLFunctionsImpl() {}
-
 }
