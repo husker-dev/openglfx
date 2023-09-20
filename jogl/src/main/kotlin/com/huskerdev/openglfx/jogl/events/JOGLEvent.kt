@@ -1,7 +1,7 @@
 package com.huskerdev.openglfx.jogl.events
 
-import com.jogamp.opengl.GL2
+import com.jogamp.opengl.GL3
 
 interface JOGLEvent{
-    val gl: GL2
+    val gl: GL3
 }

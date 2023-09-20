@@ -3,7 +3,7 @@ plugins {
     id "application"
 }
 
-apply from: "${project.rootDir}/maven-publisher.gradle"
+//apply from: "${project.rootDir}/maven-publisher.gradle"
 
 sourceSets{
     examples {

@@ -28,7 +28,7 @@ class ExampleScene {
     private val meshes = arrayListOf<Mesh>()
 
     fun init(event: GLInitializeEvent){
-        val gl = (event as JOGLEvent).gl.gL3!!
+        val gl = (event as JOGLEvent).gl
         val shader = Shader(gl,
             """
                 #version 330 core
@@ -84,7 +84,7 @@ class ExampleScene {
     }
 
     fun reshape(event: GLReshapeEvent){
-        val gl = (event as JOGLEvent).gl.gL3!!
+        val gl = (event as JOGLEvent).gl
         gl.glUniformMatrix4fv(projectionLocation, 1, true,
             Matrix4.perspective(
                 Math.toRadians(90.0).toFloat(),
@@ -94,7 +94,7 @@ class ExampleScene {
     }
 
     fun render(event: GLRenderEvent){
-        val gl = (event as JOGLEvent).gl.gL3!!
+        val gl = (event as JOGLEvent).gl
         gl.glClearColor(0f, 0f, 0f, 0f)
         gl.glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
 

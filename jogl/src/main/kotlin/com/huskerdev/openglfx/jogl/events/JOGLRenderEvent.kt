@@ -1,12 +1,12 @@
 package com.huskerdev.openglfx.jogl.events
 
 import com.huskerdev.openglfx.events.GLRenderEvent
-import com.jogamp.opengl.GL2
+import com.jogamp.opengl.GL3
 import javafx.beans.NamedArg
 import javafx.event.EventType
 
 class JOGLRenderEvent(
-    override val gl: GL2,
+    override val gl: GL3,
     @NamedArg("eventType") eventType: EventType<GLRenderEvent>,
     fps: Int,
     delta: Double,
