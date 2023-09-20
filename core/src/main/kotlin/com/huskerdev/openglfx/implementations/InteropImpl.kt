@@ -1,4 +1,4 @@
-package com.huskerdev.openglfx.implementation
+package com.huskerdev.openglfx.implementations
 
 import com.huskerdev.ojgl.GLContext
 import com.huskerdev.openglfx.*
@@ -77,9 +77,6 @@ open class InteropImpl(
             context!!.makeCurrent()
             initGLFunctions()
             executor.initGLFunctionsImpl()
-
-            if (interopHandle == 0L)
-                interopHandle = wglDXOpenDeviceNV(fxDevice.handle)
         }
 
         context!!.makeCurrent()

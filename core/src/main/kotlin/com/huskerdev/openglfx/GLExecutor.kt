@@ -1,8 +1,8 @@
 package com.huskerdev.openglfx
 
-import com.huskerdev.openglfx.implementation.InteropImpl
-import com.huskerdev.openglfx.implementation.SharedImpl
-import com.huskerdev.openglfx.implementation.UniversalImpl
+import com.huskerdev.openglfx.implementations.InteropImpl
+import com.huskerdev.openglfx.implementations.SharedImpl
+import com.huskerdev.openglfx.implementations.UniversalImpl
 import java.nio.ByteBuffer
 
 

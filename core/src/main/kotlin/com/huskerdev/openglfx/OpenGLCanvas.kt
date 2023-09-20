@@ -61,7 +61,7 @@ abstract class OpenGLCanvas(
             msaa: Int = 0
         ) = when (GraphicsPipeline.getPipeline().javaClass.canonicalName.split(".")[3]) {
             "es2" -> executor::sharedCanvas
-            "d3d" -> if (DXInterop.isSupported) executor::interopCanvas else executor::universalCanvas
+            "d3d" -> if (DXInterop.isSupported()) executor::interopCanvas else executor::universalCanvas
             else -> executor::universalCanvas
         }(profile, flipY, msaa)
     }

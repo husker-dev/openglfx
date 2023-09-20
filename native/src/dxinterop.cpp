@@ -1,8 +1,5 @@
 #include <jni.h>
-#include <stdio.h>
 #include <d3d9.h>
-#include <string.h>
-#include <psapi.h>
 #include "openglfx.h"
 
 // Emulate internal JavaFX's code for memory mapping
@@ -42,27 +39,6 @@ jlongArray createLongArray(JNIEnv* env, int size, jlong* elements) {
 
 extern "C" {
 
-    JNIEXPORT jboolean JNICALL Java_com_huskerdev_openglfx_utils_windows_DXInterop_nHasDXInterop(JNIEnv* env, jobject) {
-        return a_GetProcAddress("wglDXOpenDeviceNV") != 0;
-    }
-
-    JNIEXPORT jboolean JNICALL Java_com_huskerdev_openglfx_utils_windows_DXInterop_nHasRenderDocLib(JNIEnv* env, jobject) {
-        HANDLE process = GetCurrentProcess();
-        HMODULE modules[1024];
-        DWORD modulesSize;
-
-        if(EnumProcessModules(process, modules, sizeof(modules), &modulesSize)){
-            for (unsigned int i = 0; i < (modulesSize / sizeof(HMODULE)); i++){
-                TCHAR moduleName[MAX_PATH];
-
-                if (GetModuleBaseName(process, modules[i], moduleName, sizeof(moduleName) / sizeof(TCHAR)))
-                    if(strcmp(moduleName, "renderdoc.dll") == 0)
-                        return true;
-            }
-        }
-        return false;
-    }
-
     JNIEXPORT jlong JNICALL Java_com_huskerdev_openglfx_utils_windows_DXInterop_wglDXOpenDeviceNV(JNIEnv* env, jobject, jlong dxDevice) {
         return (jlong)wglDXOpenDeviceNV((void*)dxDevice);
     }
@@ -101,15 +77,7 @@ extern "C" {
         // It is important to set NULL
         IDirect3DTexture9* texture = NULL;
         HANDLE sharedHandle = NULL;
-        HRESULT h = device->CreateTexture(width, height, 0, D3DUSAGE_DYNAMIC, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &texture, &sharedHandle);
-
-
-        IDirect3DSurface9* surface = NULL;
-        texture->GetSurfaceLevel(0, &surface);
-        RECT rect = {0, 0, 100, 100};
-
-        device->ColorFill(surface, &rect, D3DCOLOR_XRGB(255,0,155));
-
+        device->CreateTexture(width, height, 0, D3DUSAGE_DYNAMIC, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &texture, &sharedHandle);
 
         jlong array[] = { (jlong)texture, (jlong)sharedHandle };
         return createLongArray(env, 2, array);

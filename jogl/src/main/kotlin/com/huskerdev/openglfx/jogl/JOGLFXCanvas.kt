@@ -5,14 +5,13 @@ import com.huskerdev.openglfx.events.GLDisposeEvent
 import com.huskerdev.openglfx.events.GLInitializeEvent
 import com.huskerdev.openglfx.events.GLRenderEvent
 import com.huskerdev.openglfx.events.GLReshapeEvent
-import com.huskerdev.openglfx.implementation.InteropImpl
-import com.huskerdev.openglfx.implementation.SharedImpl
-import com.huskerdev.openglfx.implementation.UniversalImpl
+import com.huskerdev.openglfx.implementations.InteropImpl
+import com.huskerdev.openglfx.implementations.SharedImpl
+import com.huskerdev.openglfx.implementations.UniversalImpl
 import com.huskerdev.openglfx.jogl.events.JOGLDisposeEvent
 import com.huskerdev.openglfx.jogl.events.JOGLInitializeEvent
 import com.huskerdev.openglfx.jogl.events.JOGLRenderEvent
 import com.huskerdev.openglfx.jogl.events.JOGLReshapeEvent
-import com.jogamp.opengl.GL2
 import com.jogamp.opengl.GL3
 import com.jogamp.opengl.GLProfile
 import jogamp.opengl.GLDrawableFactoryImpl

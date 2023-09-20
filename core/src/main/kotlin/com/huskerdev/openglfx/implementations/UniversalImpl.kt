@@ -1,4 +1,4 @@
-package com.huskerdev.openglfx.implementation
+package com.huskerdev.openglfx.implementations
 
 import com.huskerdev.ojgl.GLContext
 import com.huskerdev.openglfx.*
