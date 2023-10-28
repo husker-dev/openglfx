@@ -46,6 +46,7 @@ void execute(String command, File directory = file("./")){
     }
 
     def process = Runtime.getRuntime().exec(command, null, directory)
+    process.getErrorStream().transferTo(System.out)
     BufferedReader r = new BufferedReader(new InputStreamReader(process.getInputStream()))
     String line
     while ((line = r.readLine()) != null)

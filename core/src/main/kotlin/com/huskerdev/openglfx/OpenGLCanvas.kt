@@ -71,8 +71,8 @@ abstract class OpenGLCanvas(
     private var onReshape = arrayListOf<Consumer<GLReshapeEvent>>()
     private var onDispose = arrayListOf<Consumer<GLDisposeEvent>>()
 
-    private var initEventsChanged = false
     private fun <T> ArrayList<Consumer<T>>.dispatchEvent(event: T) = forEach { it.accept(event) }
+    private var initEventsChanged = false
 
     private val fpsCounter = FpsCounter()
 
@@ -116,7 +116,7 @@ abstract class OpenGLCanvas(
      * Invokes every frame with an active GL context
      *
      * @param listener
-     * @return true (as specified by Collection.add)
+     * @return true (specified by [java.util.Collection.add])
      */
     fun addOnRenderEvent(listener: Consumer<GLRenderEvent>) = onRender.add(listener)
 
@@ -124,7 +124,7 @@ abstract class OpenGLCanvas(
      * Invokes when OpenGLCanvas surface is resized, with GL context
      *
      * @param listener consumer with GLReshapeEvent
-     * @return true (as specified by Collection.add)
+     * @return true (specified by [java.util.Collection.add])
      */
     fun addOnReshapeEvent(listener: Consumer<GLReshapeEvent>) = onReshape.add(listener)
 
@@ -132,7 +132,7 @@ abstract class OpenGLCanvas(
      * Invokes once when OpenGLCanvas is destroyed
      *
      * @param listener consumer with GLDisposeEvent
-     * @return true (as specified by Collection.add)
+     * @return true (specified by [java.util.Collection.add])
      */
     fun addOnDisposeEvent(listener: Consumer<GLDisposeEvent>) = onDispose.add(listener)
 
@@ -140,11 +140,18 @@ abstract class OpenGLCanvas(
      * Invokes once before rendering, with GL context
      *
      * @param listener consumer with GLInitializeEvent
-     * @return true (as specified by Collection.add)
+     * @return true (specified by [java.util.Collection.add])
      */
     fun addOnInitEvent(listener: Consumer<GLInitializeEvent>): Boolean {
         initEventsChanged = true
         return onInit.add(InitListenerContainer(listener))
+    }
+
+    /**
+     *  Destroys all resources to free up memory
+     */
+    open fun dispose(){
+        animator = null
     }
 
     /**

@@ -137,4 +137,11 @@ open class InteropImpl(
     }
 
     override fun repaint() = needsRepaint.set(true)
+
+    override fun dispose() {
+        super.dispose()
+        fbo.delete()
+        msaaFBO.delete()
+        GLContext.delete(context!!)
+    }
 }

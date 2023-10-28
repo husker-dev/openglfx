@@ -88,6 +88,7 @@ open class SharedImpl(
         val width = lastSize.first
         val height = lastSize.second
 
+        fxContext!!.makeCurrent()
         // Create JavaFX texture
         fxTexture?.dispose()
         fxTexture = GraphicsPipeline.getDefaultResourceFactory().createTexture(PixelFormat.BYTE_BGRA_PRE, Texture.Usage.DYNAMIC, Texture.WrapMode.CLAMP_TO_EDGE, width, height)
@@ -105,4 +106,11 @@ open class SharedImpl(
     }
 
     override fun repaint() = needsRepaint.set(true)
+
+    override fun dispose() {
+        super.dispose()
+        fbo.delete()
+        msaaFBO.delete()
+        GLContext.delete(context!!)
+    }
 }
