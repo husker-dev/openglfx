@@ -44,9 +44,10 @@ void execute(String command, File directory = file("./")){
         Runtime.getRuntime().exec("chmod +x ${shFile.path}").waitFor()
         command = "${shFile}"
     }
-
-    def process = Runtime.getRuntime().exec(command, null, directory)
-    process.getErrorStream().transferTo(System.out)
+    def process = new ProcessBuilder(command.split())
+            .directory(directory)
+            .redirectErrorStream(true)
+            .start()
     BufferedReader r = new BufferedReader(new InputStreamReader(process.getInputStream()))
     String line
     while ((line = r.readLine()) != null)
