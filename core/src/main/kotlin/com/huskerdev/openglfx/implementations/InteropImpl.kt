@@ -140,8 +140,6 @@ open class InteropImpl(
 
     override fun dispose() {
         super.dispose()
-        fbo.delete()
-        msaaFBO.delete()
         GLContext.delete(context!!)
     }
 }

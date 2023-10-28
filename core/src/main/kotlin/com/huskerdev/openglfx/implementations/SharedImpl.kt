@@ -109,8 +109,6 @@ open class SharedImpl(
 
     override fun dispose() {
         super.dispose()
-        fbo.delete()
-        msaaFBO.delete()
         GLContext.delete(context!!)
     }
 }

@@ -154,8 +154,6 @@ open class UniversalImpl(
 
     override fun dispose() {
         super.dispose()
-        fbo.delete()
-        msaaFBO.delete()
         unsafe.invokeCleaner(pixelByteBuffer!!)
         GLContext.delete(context!!)
     }
