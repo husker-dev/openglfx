@@ -43,7 +43,7 @@ extern "C" {
 
 JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_nInitGLFunctions(JNIEnv* env, jobject) {
     a_glViewport = (glViewportPtr)a_GetProcAddress("glViewport");
-    a_glTexParameteri = (glTexParameteri)a_GetProcAddress("glTexParameteri");
+    a_glTexParameteri = (glTexParameteriPtr)a_GetProcAddress("glTexParameteri");
     a_glTexImage2D = (glTexImage2DPtr)a_GetProcAddress("glTexImage2D");
     a_glReadPixels = (glReadPixelsPtr)a_GetProcAddress("glReadPixels");
     a_glFramebufferRenderbuffer = (glFramebufferRenderbufferPtr)a_GetProcAddress("glFramebufferRenderbuffer");

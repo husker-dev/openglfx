@@ -64,7 +64,7 @@ typedef void (*glRenderbufferStoragePtr)(GLenum target, GLenum internalformat, G
 typedef void (*glFramebufferRenderbufferPtr)(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
 typedef void (*glReadPixelsPtr)(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void* pixels);
 typedef void (*glTexImage2DPtr)(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void* pixels);
-typedef void (*glTexParameteri)(GLenum target, GLenum pname, GLint param);
+typedef void (*glTexParameteriPtr)(GLenum target, GLenum pname, GLint param);
 typedef void (*glViewportPtr)(GLint x, GLint y, GLsizei width, GLsizei height);
 typedef void (*glFinishPtr)(void);
 typedef void (*glRenderbufferStorageMultisamplePtr)(GLenum target, GLsizei samples, GLint internalformat, GLsizei width, GLsizei height);
@@ -72,7 +72,7 @@ typedef void (*glBlitFramebufferPtr)(GLint srcX0, GLint srcY0, GLint srcX1, GLin
 typedef void (*glGetIntegervPtr)(GLenum pname, GLint* data);
 
 static glViewportPtr                    a_glViewport;
-static glTexParameteri                  a_glTexParameteri;
+static glTexParameteriPtr               a_glTexParameteri;
 static glTexImage2DPtr                  a_glTexImage2D;
 static glReadPixelsPtr                  a_glReadPixels;
 static glFramebufferRenderbufferPtr     a_glFramebufferRenderbuffer;
