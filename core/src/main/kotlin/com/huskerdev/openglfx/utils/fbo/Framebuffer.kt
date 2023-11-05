@@ -12,6 +12,7 @@ import com.huskerdev.openglfx.GLExecutor.Companion.glFramebufferTexture2D
 import com.huskerdev.openglfx.GLExecutor.Companion.glGenFramebuffers
 import com.huskerdev.openglfx.GLExecutor.Companion.glGenRenderbuffers
 import com.huskerdev.openglfx.GLExecutor.Companion.glGenTextures
+import com.huskerdev.openglfx.GLExecutor.Companion.glGetInteger
 import com.huskerdev.openglfx.GLExecutor.Companion.glRenderbufferStorage
 import com.huskerdev.openglfx.GLExecutor.Companion.glTexImage2D
 import com.huskerdev.openglfx.GLExecutor.Companion.glTexParameteri
@@ -27,8 +28,8 @@ class Framebuffer(
     val depthRenderbuffer: Int
 
     init {
-        val oldDrawBuffer = GLExecutor.glGetInteger(GL_DRAW_FRAMEBUFFER_BINDING)
-        val oldReadBuffer = GLExecutor.glGetInteger(GL_READ_FRAMEBUFFER_BINDING)
+        val oldDrawBuffer = glGetInteger(GL_DRAW_FRAMEBUFFER_BINDING)
+        val oldReadBuffer = glGetInteger(GL_READ_FRAMEBUFFER_BINDING)
 
         id = glGenFramebuffers()
         glBindFramebuffer(GL_FRAMEBUFFER, id)
