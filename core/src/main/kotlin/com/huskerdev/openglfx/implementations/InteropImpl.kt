@@ -12,7 +12,6 @@ import com.huskerdev.openglfx.utils.windows.D3D9Texture
 import com.huskerdev.openglfx.utils.windows.DXInterop
 import com.huskerdev.openglfx.utils.windows.DXInterop.Companion.interopHandle
 import com.huskerdev.openglfx.utils.windows.DXInterop.Companion.wglDXLockObjectsNV
-import com.huskerdev.openglfx.utils.windows.DXInterop.Companion.wglDXOpenDeviceNV
 import com.huskerdev.openglfx.utils.windows.DXInterop.Companion.wglDXRegisterObjectNV
 import com.huskerdev.openglfx.utils.windows.DXInterop.Companion.wglDXSetResourceShareHandleNV
 import com.huskerdev.openglfx.utils.windows.DXInterop.Companion.wglDXUnlockObjectsNV
@@ -33,7 +32,7 @@ open class InteropImpl(
     profile: GLProfile,
     flipY: Boolean,
     msaa: Int
-) : OpenGLCanvas(profile, flipY, msaa){
+) : OpenGLCanvas(profile, flipY, msaa, false){
 
     private var lastSize = Pair(-1, -1)
     private var initialized = false

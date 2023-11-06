@@ -3,8 +3,11 @@
 typedef unsigned int GLenum;
 typedef int GLint;
 typedef unsigned int GLuint;
+typedef float GLfloat;
 typedef int GLsizei;
+typedef long long int GLsizeiptr;
 typedef unsigned char GLubyte;
+typedef char GLchar;
 typedef unsigned char GLboolean;
 typedef unsigned int GLbitfield;
 #define GL_FALSE 0
@@ -67,9 +70,32 @@ typedef void (*glTexImage2DPtr)(GLenum target, GLint level, GLint internalformat
 typedef void (*glTexParameteriPtr)(GLenum target, GLenum pname, GLint param);
 typedef void (*glViewportPtr)(GLint x, GLint y, GLsizei width, GLsizei height);
 typedef void (*glFinishPtr)(void);
+
 typedef void (*glRenderbufferStorageMultisamplePtr)(GLenum target, GLsizei samples, GLint internalformat, GLsizei width, GLsizei height);
 typedef void (*glBlitFramebufferPtr)(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter);
 typedef void (*glGetIntegervPtr)(GLenum pname, GLint* data);
+
+typedef GLuint (*glCreateShaderPtr)(GLenum type);
+typedef void (*glDeleteShaderPtr)(GLuint shader);
+typedef void (*glShaderSourcePtr)(GLuint shader, GLsizei count, const GLchar *const*string, const GLint *length);
+typedef void (*glCompileShaderPtr)(GLuint shader);
+typedef GLuint (*glCreateProgramPtr)(void);
+typedef void (*glAttachShaderPtr)(GLuint program, GLuint shader);
+typedef void (*glLinkProgramPtr)(GLuint program);
+typedef void (*glUseProgramPtr)(GLuint program);
+typedef GLint (*glGetUniformLocationPtr)(GLuint program, const GLchar *name);
+typedef void (*glUniform2fPtr)(GLint location, GLfloat v0, GLfloat v1);
+
+typedef void (*glGenVertexArraysPtr)(GLsizei n, GLuint *arrays);
+typedef void (*glBindVertexArrayPtr)(GLuint array);
+typedef void (*glGenBuffersPtr)(GLsizei n, GLuint *buffers);
+typedef void (*glBindBufferPtr)(GLenum target, GLuint buffer);
+typedef void (*glBufferDataPtr)(GLenum target, GLsizeiptr size, const void *data, GLenum usage);
+typedef void (*glVertexAttribPointerPtr)(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void *pointer);
+typedef void (*glEnableVertexAttribArrayPtr)(GLuint index);
+typedef void (*glDeleteBuffersPtr)(GLsizei n, const GLuint *buffers);
+typedef void (*glDrawArraysPtr)(GLenum mode, GLint first, GLsizei count);
+
 
 static glViewportPtr                    a_glViewport;
 static glTexParameteriPtr               a_glTexParameteri;
@@ -91,3 +117,24 @@ static glFinishPtr                      a_glFinish;
 static glRenderbufferStorageMultisamplePtr a_glRenderbufferStorageMultisample;
 static glBlitFramebufferPtr             a_glBlitFramebuffer;
 static glGetIntegervPtr                 a_glGetIntegerv;
+
+static glCreateShaderPtr                a_glCreateShader;
+static glDeleteShaderPtr                a_glDeleteShader;
+static glShaderSourcePtr                a_glShaderSource;
+static glCompileShaderPtr               a_glCompileShader;
+static glCreateProgramPtr               a_glCreateProgram;
+static glAttachShaderPtr                a_glAttachShader;
+static glLinkProgramPtr                 a_glLinkProgram;
+static glUseProgramPtr                  a_glUseProgram;
+static glGetUniformLocationPtr          a_glGetUniformLocation;
+static glUniform2fPtr                   a_glUniform2f;
+
+static glGenVertexArraysPtr             a_glGenVertexArrays;
+static glBindVertexArrayPtr             a_glBindVertexArray;
+static glGenBuffersPtr                  a_glGenBuffers;
+static glBindBufferPtr                  a_glBindBuffer;
+static glBufferDataPtr                  a_glBufferData;
+static glVertexAttribPointerPtr         a_glVertexAttribPointer;
+static glEnableVertexAttribArrayPtr     a_glEnableVertexAttribArray;
+static glDeleteBuffersPtr               a_glDeleteBuffers;
+static glDrawArraysPtr                  a_glDrawArrays;

@@ -3,7 +3,10 @@ package com.huskerdev.openglfx
 import com.huskerdev.openglfx.implementations.InteropImpl
 import com.huskerdev.openglfx.implementations.SharedImpl
 import com.huskerdev.openglfx.implementations.UniversalImpl
+import com.huskerdev.openglfx.implementations.multithread.MultiThreadInteropImpl
 import java.nio.ByteBuffer
+import java.nio.ByteOrder
+import java.nio.FloatBuffer
 
 
 const val GL_BGRA = 0x80E1
@@ -25,6 +28,12 @@ const val GL_COLOR_BUFFER_BIT = 0x4000
 const val GL_DRAW_FRAMEBUFFER_BINDING = 0x8CA6
 const val GL_READ_FRAMEBUFFER_BINDING = 0x8CAA
 const val GL_MAX_SAMPLES = 0x8D57
+const val GL_VERTEX_SHADER = 0x8B31
+const val GL_FRAGMENT_SHADER = 0x8B30
+const val GL_ARRAY_BUFFER = 0x8892
+const val GL_FLOAT = 0x1406
+const val GL_STATIC_DRAW = 0x88E4
+const val GL_TRIANGLE_STRIP = 0x0005
 
 
 abstract class GLExecutor {
@@ -55,16 +64,48 @@ abstract class GLExecutor {
         @JvmStatic external fun glBlitFramebuffer(srcX0: Int, srcY0: Int, srcX1: Int, srcY1: Int, dstX0: Int, dstY0: Int, dstX1: Int, dstY1: Int, mask: Int, filter: Int)
         @JvmStatic external fun glGetInteger(pname: Int): Int
 
+        // Shaders
+        @JvmStatic external fun glCreateShader(type: Int): Int
+        @JvmStatic external fun glDeleteShader(shader: Int)
+        @JvmStatic external fun glShaderSource(shader: Int, source: String)
+        @JvmStatic external fun glCompileShader(shader: Int)
+        @JvmStatic external fun glCreateProgram(): Int
+        @JvmStatic external fun glAttachShader(program: Int, shader: Int)
+        @JvmStatic external fun glLinkProgram(program: Int)
+        @JvmStatic external fun glUseProgram(program: Int)
+        @JvmStatic external fun glGetUniformLocation(program: Int, name: String): Int
+        @JvmStatic external fun glUniform2f(location: Int, value1: Float, value2: Float)
+
+        // Buffers
+        @JvmStatic external fun glGenVertexArrays(): Int
+        @JvmStatic external fun glBindVertexArray(vao: Int)
+        @JvmStatic external fun glGenBuffers(): Int
+        @JvmStatic external fun glBindBuffer(target: Int, buffer: Int)
+        @JvmStatic external fun glBufferData(target: Int, vertices: FloatBuffer, type: Int)
+        @JvmStatic external fun glVertexAttribPointer(index: Int, size: Int, type: Int, normalized: Boolean, stride: Int, offset: Long)
+        @JvmStatic external fun glEnableVertexAttribArray(index: Int)
+        @JvmStatic external fun glDeleteBuffers(buffer: Int)
+        @JvmStatic external fun glDrawArrays(mode: Int, first: Int, count: Int)
+
         fun initGLFunctions(){
             if(isInitialized) return
             isInitialized = true
             nInitGLFunctions()
         }
+
+        fun floatBuffer(array: FloatArray): FloatBuffer{
+            return ByteBuffer.allocateDirect(array.size * Float.SIZE_BYTES)
+                .order(ByteOrder.nativeOrder()).asFloatBuffer().put(array)
+        }
     }
 
-    open fun universalCanvas(profile: GLProfile, flipY: Boolean, msaa: Int) = UniversalImpl(this, profile, flipY, msaa)
-    open fun sharedCanvas(profile: GLProfile, flipY: Boolean, msaa: Int) = SharedImpl(this, profile, flipY, msaa)
-    open fun interopCanvas(profile: GLProfile, flipY: Boolean, msaa: Int) = InteropImpl(this, profile, flipY, msaa)
+    open fun universalCanvas(profile: GLProfile, flipY: Boolean, msaa: Int, multiThread: Boolean) =
+        UniversalImpl(this, profile, flipY, msaa, multiThread)
+    open fun sharedCanvas(profile: GLProfile, flipY: Boolean, msaa: Int, multiThread: Boolean) =
+        SharedImpl(this, profile, flipY, msaa, multiThread)
+    open fun interopCanvas(profile: GLProfile, flipY: Boolean, msaa: Int, multiThread: Boolean) =
+        if(multiThread) MultiThreadInteropImpl(this, profile, flipY, msaa)
+        else InteropImpl(this, profile, flipY, msaa)
 
     abstract fun initGLFunctionsImpl()
 

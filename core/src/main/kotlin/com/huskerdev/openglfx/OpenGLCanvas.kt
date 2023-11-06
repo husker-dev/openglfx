@@ -26,7 +26,8 @@ enum class GLProfile {
 abstract class OpenGLCanvas(
     val profile: GLProfile,
     val flipY: Boolean,
-    val msaa: Int
+    val msaa: Int,
+    val multiThread: Boolean
 ): Pane() {
 
     companion object {
@@ -41,15 +42,16 @@ abstract class OpenGLCanvas(
          * Creates compatible OpenGLCanvas instance with specified GL library and profile
          *
          * @param executor OpenGL implementation library
-         *  - LWJGL_MODULE
-         *  - JOGL_MODULE
+         *  - LWJGL_MODULE;
+         *  - JOGL_MODULE.
          * @param profile Core/Compatibility OpenGL profile
-         *  - GLProfile.Core
-         *  - GLProfile.Compatibility (default)
+         *  - GLProfile.Core;
+         *  - GLProfile.Compatibility (default).
          * @param flipY Flip Y axis
-         *  - true - 0 is top
-         *  - false - 0 is bottom (default)
-         *  @param msaa Multisampling quality (use -1 for maximum available samples)
+         *  - true - 0 is top;
+         *  - false - 0 is bottom (default).
+         * @param msaa Multisampling quality (use -1 for maximum available samples)
+         * @param multiThread If true, OpenGL will render in different thread
          * @return OpenGLCanvas instance
          */
         @JvmOverloads
@@ -58,13 +60,17 @@ abstract class OpenGLCanvas(
             executor: GLExecutor,
             profile: GLProfile = GLProfile.Compatibility,
             flipY: Boolean = false,
-            msaa: Int = 0
+            msaa: Int = 0,
+            multiThread: Boolean = false
         ) = when (GraphicsPipeline.getPipeline().javaClass.canonicalName.split(".")[3]) {
             "es2" -> executor::sharedCanvas
             "d3d" -> if (DXInterop.isSupported()) executor::interopCanvas else executor::universalCanvas
             else -> executor::universalCanvas
-        }(profile, flipY, msaa)
+        }(profile, flipY, msaa, multiThread)
     }
+
+    protected var disposed = false
+        private set
 
     private var onInit = arrayListOf<InitListenerContainer>()
     private var onRender = arrayListOf<Consumer<GLRenderEvent>>()
@@ -152,6 +158,7 @@ abstract class OpenGLCanvas(
      */
     open fun dispose(){
         animator = null
+        disposed = true
     }
 
     /**

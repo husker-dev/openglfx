@@ -1,5 +1,7 @@
 #include "openglfx.h"
 
+#include <iostream>
+
 void* a_GetProcAddress(const char* name) {
 #if defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__)
     if(libGL == NULL){
@@ -59,10 +61,31 @@ JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_nInitGLFunctions(J
     a_glDeleteRenderbuffers = (glDeleteRenderbuffersPtr)a_GetProcAddress("glDeleteRenderbuffers");
     a_glDeleteFramebuffers = (glDeleteFramebuffersPtr)a_GetProcAddress("glDeleteFramebuffers");
     a_glFinish = (glFinishPtr)a_GetProcAddress("glFinish");
-
     a_glRenderbufferStorageMultisample = (glRenderbufferStorageMultisamplePtr)a_GetProcAddress("glRenderbufferStorageMultisample");
     a_glBlitFramebuffer = (glBlitFramebufferPtr)a_GetProcAddress("glBlitFramebuffer");
     a_glGetIntegerv = (glGetIntegervPtr)a_GetProcAddress("glGetIntegerv");
+
+    a_glCreateShader = (glCreateShaderPtr)a_GetProcAddress("glCreateShader");
+    a_glDeleteShader = (glDeleteShaderPtr)a_GetProcAddress("glDeleteShader");
+    a_glShaderSource = (glShaderSourcePtr)a_GetProcAddress("glShaderSource");
+    a_glCompileShader = (glCompileShaderPtr)a_GetProcAddress("glCompileShader");
+    a_glCreateProgram = (glCreateProgramPtr)a_GetProcAddress("glCreateProgram");
+    a_glAttachShader = (glAttachShaderPtr)a_GetProcAddress("glAttachShader");
+    a_glLinkProgram = (glLinkProgramPtr)a_GetProcAddress("glLinkProgram");
+    a_glUseProgram = (glUseProgramPtr)a_GetProcAddress("glUseProgram");
+    a_glUseProgram = (glUseProgramPtr)a_GetProcAddress("glUseProgram");
+    a_glGetUniformLocation = (glGetUniformLocationPtr)a_GetProcAddress("glGetUniformLocation");
+    a_glUniform2f = (glUniform2fPtr)a_GetProcAddress("glUniform2f");
+
+    a_glGenVertexArrays = (glGenVertexArraysPtr)a_GetProcAddress("glGenVertexArrays");
+    a_glBindVertexArray = (glBindVertexArrayPtr)a_GetProcAddress("glBindVertexArray");
+    a_glGenBuffers = (glGenBuffersPtr)a_GetProcAddress("glGenBuffers");
+    a_glBindBuffer = (glBindBufferPtr)a_GetProcAddress("glBindBuffer");
+    a_glBufferData = (glBufferDataPtr)a_GetProcAddress("glBufferData");
+    a_glVertexAttribPointer = (glVertexAttribPointerPtr)a_GetProcAddress("glVertexAttribPointer");
+    a_glEnableVertexAttribArray = (glEnableVertexAttribArrayPtr)a_GetProcAddress("glEnableVertexAttribArray");
+    a_glDeleteBuffers = (glDeleteBuffersPtr)a_GetProcAddress("glDeleteBuffers");
+    a_glDrawArrays = (glDrawArraysPtr)a_GetProcAddress("glDrawArrays");
 
     #if defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__)
     wglChoosePixelFormatARB = (wglChoosePixelFormatARBPtr)a_GetProcAddress("wglChoosePixelFormatARB");
@@ -165,5 +188,93 @@ JNIEXPORT jint JNICALL Java_com_huskerdev_openglfx_GLExecutor_glGetInteger(JNIEn
     GLint data = 0;
     a_glGetIntegerv(pname, &data);
     return (jint)data;
+}
+
+JNIEXPORT jint JNICALL Java_com_huskerdev_openglfx_GLExecutor_glCreateShader(JNIEnv* env, jobject, jint type) {
+    return a_glCreateShader(type);
+}
+
+JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glDeleteShader(JNIEnv* env, jobject, jint shader) {
+    a_glDeleteShader(shader);
+}
+
+JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glShaderSource(JNIEnv* env, jobject, jint shader, jstring source) {
+    const char* sourceCh = env->GetStringUTFChars(source, 0);
+    a_glShaderSource(shader, 1, &sourceCh, NULL);
+    env->ReleaseStringUTFChars(source, sourceCh);
+}
+
+JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glCompileShader(JNIEnv* env, jobject, jint shader) {
+    a_glCompileShader(shader);
+}
+
+JNIEXPORT jint JNICALL Java_com_huskerdev_openglfx_GLExecutor_glCreateProgram(JNIEnv* env, jobject) {
+    return a_glCreateProgram();
+}
+
+JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glAttachShader(JNIEnv* env, jobject, jint program, jint shader) {
+    a_glAttachShader(program, shader);
+}
+
+JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glLinkProgram(JNIEnv* env, jobject, jint program) {
+    a_glLinkProgram(program);
+}
+
+JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glUseProgram(JNIEnv* env, jobject, jint program) {
+    a_glUseProgram(program);
+}
+
+JNIEXPORT jint JNICALL Java_com_huskerdev_openglfx_GLExecutor_glGetUniformLocation(JNIEnv* env, jobject, jint program, jstring name) {
+    const char* nameCh = env->GetStringUTFChars(name, 0);
+
+    jint location = (jint)a_glGetUniformLocation(program, nameCh);
+    env->ReleaseStringUTFChars(name, nameCh);
+    return location;
+}
+
+JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glUniform2f(JNIEnv* env, jobject, jint program, jfloat value1, jfloat value2) {
+    a_glUniform2f(program, value1, value2);
+}
+
+JNIEXPORT jint JNICALL Java_com_huskerdev_openglfx_GLExecutor_glGenVertexArrays(JNIEnv* env, jobject) {
+    unsigned int vao;
+    a_glGenVertexArrays(1, &vao);
+    return vao;
+}
+
+JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glBindVertexArray(JNIEnv* env, jobject, jint vao) {
+    a_glBindVertexArray(vao);
+}
+
+JNIEXPORT jint JNICALL Java_com_huskerdev_openglfx_GLExecutor_glGenBuffers(JNIEnv* env, jobject) {
+    unsigned int vbo;
+    a_glGenBuffers(1, &vbo);
+    return vbo;
+}
+
+JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glBindBuffer(JNIEnv* env, jobject, jint target, jint buffer) {
+    a_glBindBuffer(target, buffer);
+}
+
+JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glBufferData(JNIEnv* env, jobject, jint target, jobject verticesBuffer, jint type) {
+    GLfloat* vertices = (GLfloat*)env->GetDirectBufferAddress(verticesBuffer);
+    jlong length = env->GetDirectBufferCapacity(verticesBuffer) * 4;
+    a_glBufferData(target, length, vertices, type);
+}
+
+JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glVertexAttribPointer(JNIEnv* env, jobject, jint index, jint size, jint type, jboolean normalized, jint stride, jlong offset) {
+    a_glVertexAttribPointer(index, size, type, normalized, stride, (void*)offset);
+}
+
+JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glEnableVertexAttribArray(JNIEnv* env, jobject, jint index) {
+    a_glEnableVertexAttribArray(index);
+}
+
+JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glDeleteBuffers(JNIEnv* env, jobject, jint buffer) {
+    a_glDeleteBuffers(1, (GLuint*)&buffer);
+}
+
+JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glDrawArrays(JNIEnv* env, jobject, jint mode, jint first, jint count) {
+    a_glDrawArrays(mode, first, count);
 }
 }

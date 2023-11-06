@@ -21,8 +21,9 @@ open class SharedImpl(
     private val executor: GLExecutor,
     profile: GLProfile,
     flipY: Boolean,
-    msaa: Int
-): OpenGLCanvas(profile, flipY, msaa){
+    msaa: Int,
+    multiThread: Boolean
+): OpenGLCanvas(profile, flipY, msaa, multiThread){
 
     private var lastSize = Pair(-1, -1)
 
@@ -53,11 +54,11 @@ open class SharedImpl(
 
     override fun onNGRender(g: Graphics) {
         if (context == null) {
-            initGLFunctions()
-            executor.initGLFunctionsImpl()
-
             fxContext = GLContext.current()
             context = GLContext.create(fxContext!!, profile == GLProfile.Core)
+
+            initGLFunctions()
+            executor.initGLFunctionsImpl()
         }
         context!!.makeCurrent()
 
@@ -88,12 +89,14 @@ open class SharedImpl(
         val width = lastSize.first
         val height = lastSize.second
 
+        fxContext!!.makeCurrent()
         // Create JavaFX texture
         fxTexture?.dispose()
         fxTexture = GraphicsPipeline.getDefaultResourceFactory().createTexture(PixelFormat.BYTE_BGRA_PRE, Texture.Usage.DYNAMIC, Texture.WrapMode.CLAMP_TO_EDGE, width, height)
         fxTexture!!.makePermanent()
+        context!!.makeCurrent()
 
-        // Create framebuffer that is connected to JavaFX's texture
+        // Create framebuffer that connected to JavaFX's texture
         fbo = Framebuffer(width, height, existingTexture = fxTexture!!.GLTextureId)
         fbo.bindFramebuffer()
 

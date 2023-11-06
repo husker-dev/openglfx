@@ -33,7 +33,7 @@ class ExampleApp: Application(){
     }
 
     private fun createGLCanvas(): OpenGLCanvas {
-        val canvas = OpenGLCanvas.create(LWJGLExecutor.LWJGL_MODULE, msaa = 4, profile = GLProfile.Core)
+        val canvas = OpenGLCanvas.create(LWJGLExecutor.LWJGL_MODULE, msaa = 4, profile = GLProfile.Core, multiThread = true)
         canvas.animator = OpenGLCanvasAnimator(60.0)
 
         val renderExample = ExampleScene()
@@ -46,18 +46,19 @@ class ExampleApp: Application(){
 
     private fun createDebugPanel(canvas: OpenGLCanvas) = VBox().apply{
         children.add(Label("OpenGLCanvas is not opaque, so you can see this text"))
-        children.add(Label("---------------------------------"))
+        children.add(Label("----------------------------------------"))
         arrayListOf(
             "PIPELINE" to GraphicsPipeline.getPipeline().javaClass.canonicalName.split(".")[3],
             "METHOD" to canvas::class.java.simpleName,
             "MSAA" to canvas.msaa,
             "PROFILE" to canvas.profile,
             "FLIP_Y" to canvas.flipY,
+            "MULTI_THREAD" to canvas.multiThread,
             "FPS" to "-",
             "SIZE" to "0x0"
         ).forEach {
             children.add(BorderPane().apply {
-                maxWidth = 160.0
+                maxWidth = 190.0
                 left = Label(it.first + ":")
                 right = Label(it.second.toString()).apply { id = it.first }
             })
