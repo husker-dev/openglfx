@@ -1,6 +1,7 @@
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.nio.file.StandardCopyOption;
 
 plugins {
     id "io.codearte.nexus-staging" version "0.30.0"
@@ -31,9 +32,9 @@ tasks.register('compileJars') {
         Files.createDirectory(out.parent)
         Files.createDirectory(out)
 
-        Files.copy(Paths.get("$projectDir/core/build/libs/core-${version}.jar"), Paths.get("$projectDir/build/libs/openglfx-core-${version}.jar"), REPLACE_EXISTING)
-        Files.copy(Paths.get("$projectDir/lwjgl/build/libs/lwjgl-${version}.jar"), Paths.get("$projectDir/build/libs/openglfx-lwjgl-${version}.jar"), REPLACE_EXISTING)
-        Files.copy(Paths.get("$projectDir/jogl/build/libs/jogl-${version}.jar"), Paths.get("$projectDir/build/libs/openglfx-jogl-${version}.jar"), REPLACE_EXISTING)
+        Files.copy(Paths.get("$projectDir/core/build/libs/core-${version}.jar"), Paths.get("$projectDir/build/libs/openglfx-core-${version}.jar"), StandardCopyOption.REPLACE_EXISTING)
+        Files.copy(Paths.get("$projectDir/lwjgl/build/libs/lwjgl-${version}.jar"), Paths.get("$projectDir/build/libs/openglfx-lwjgl-${version}.jar"), StandardCopyOption.REPLACE_EXISTING)
+        Files.copy(Paths.get("$projectDir/jogl/build/libs/jogl-${version}.jar"), Paths.get("$projectDir/build/libs/openglfx-jogl-${version}.jar"), StandardCopyOption.REPLACE_EXISTING)
     }
 }
 compileJars.dependsOn 'core:jar'

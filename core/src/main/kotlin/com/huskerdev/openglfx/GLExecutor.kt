@@ -100,9 +100,9 @@ abstract class GLExecutor {
     }
 
     open fun universalCanvas(profile: GLProfile, flipY: Boolean, msaa: Int, multiThread: Boolean) =
-        UniversalImpl(this, profile, flipY, msaa, multiThread)
+        UniversalImpl(this, profile, flipY, msaa)
     open fun sharedCanvas(profile: GLProfile, flipY: Boolean, msaa: Int, multiThread: Boolean) =
-        SharedImpl(this, profile, flipY, msaa, multiThread)
+        SharedImpl(this, profile, flipY, msaa)
     open fun interopCanvas(profile: GLProfile, flipY: Boolean, msaa: Int, multiThread: Boolean) =
         if(multiThread) MultiThreadInteropImpl(this, profile, flipY, msaa)
         else InteropImpl(this, profile, flipY, msaa)

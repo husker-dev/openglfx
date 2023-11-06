@@ -28,9 +28,8 @@ open class UniversalImpl(
     private val executor: GLExecutor,
     profile: GLProfile,
     flipY: Boolean,
-    msaa: Int,
-    multiThread: Boolean
-) : OpenGLCanvas(profile, flipY, msaa, multiThread){
+    msaa: Int
+) : OpenGLCanvas(profile, flipY, msaa, false){
 
     companion object {
         private val bufferDirtyMethod = PixelBuffer::class.java.getDeclaredMethod("bufferDirty", Rectangle::class.java).apply { isAccessible = true }

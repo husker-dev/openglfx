@@ -21,9 +21,8 @@ open class SharedImpl(
     private val executor: GLExecutor,
     profile: GLProfile,
     flipY: Boolean,
-    msaa: Int,
-    multiThread: Boolean
-): OpenGLCanvas(profile, flipY, msaa, multiThread){
+    msaa: Int
+): OpenGLCanvas(profile, flipY, msaa, false){
 
     private var lastSize = Pair(-1, -1)
 
