@@ -45,13 +45,17 @@ abstract class OpenGLCanvas(
          *  - LWJGL_MODULE;
          *  - JOGL_MODULE.
          * @param profile Core/Compatibility OpenGL profile
-         *  - GLProfile.Core;
          *  - GLProfile.Compatibility (default).
+         *  - GLProfile.Core;
          * @param flipY Flip Y axis
-         *  - true - 0 is top;
-         *  - false - 0 is bottom (default).
-         * @param msaa Multisampling quality (use -1 for maximum available samples)
-         * @param multiThread If true, OpenGL will render in different thread
+         *  - false – 0 is bottom (default).
+         *  - true – 0 is top;
+         * @param msaa Multisampling quality
+         *  - 0 – disabled (default);
+         *  - -1 – maximum available samples.
+         * @param multiThread Enables rendering in different thread
+         *  - false – render in JavaFX thread (default);
+         *  - true – render in a new thread and synchronise with JavaFX.
          * @return OpenGLCanvas instance
          */
         @JvmOverloads

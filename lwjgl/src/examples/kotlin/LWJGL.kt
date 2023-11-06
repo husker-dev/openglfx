@@ -1,7 +1,7 @@
 import com.huskerdev.openglfx.GLProfile
 import com.huskerdev.openglfx.OpenGLCanvas
 import com.huskerdev.openglfx.OpenGLCanvasAnimator
-import com.huskerdev.openglfx.lwjgl.LWJGLExecutor
+import com.huskerdev.openglfx.lwjgl.LWJGLExecutor.Companion.LWJGL_MODULE
 import com.sun.prism.GraphicsPipeline
 import javafx.application.Application
 import javafx.application.Platform
@@ -33,7 +33,7 @@ class ExampleApp: Application(){
     }
 
     private fun createGLCanvas(): OpenGLCanvas {
-        val canvas = OpenGLCanvas.create(LWJGLExecutor.LWJGL_MODULE, msaa = 4, profile = GLProfile.Core, multiThread = true)
+        val canvas = OpenGLCanvas.create(LWJGL_MODULE, msaa = 4, profile = GLProfile.Core, multiThread = true)
         canvas.animator = OpenGLCanvasAnimator(60.0)
 
         val renderExample = ExampleScene()
