@@ -43,7 +43,6 @@ extern wglDXUnlockObjectsNVPtr          wglDXUnlockObjectsNV;
 
 #elif defined(__linux__)
 #include <dlfcn.h>
-#include <GL/gl.h>
 #include <GL/glx.h>
 static void* libGL;
 
