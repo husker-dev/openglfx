@@ -21,7 +21,7 @@ void* a_GetProcAddress(const char* name) {
                 break;
         a_gladGetProcAddress = (glXGetProcAddressPtr)dlsym(libGL, "glXGetProcAddressARB");
     }
-    void* procAddr = (void*)a_gladGetProcAddress((GLubyte*)name);
+    void* procAddr = (void*)a_gladGetProcAddress(name);
     if(procAddr == NULL)
         procAddr = dlsym(libGL, name);
     return procAddr;
