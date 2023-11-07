@@ -1,4 +1,4 @@
-package com.huskerdev.openglfx.implementations.multithread
+package com.huskerdev.openglfx.utils
 
 import com.huskerdev.openglfx.*
 import com.huskerdev.openglfx.GLExecutor.Companion.floatBuffer

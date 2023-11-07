@@ -5,10 +5,7 @@ import com.huskerdev.openglfx.events.GLInitializeEvent
 import com.huskerdev.openglfx.events.GLRenderEvent
 import com.huskerdev.openglfx.events.GLReshapeEvent
 import com.huskerdev.openglfx.renderdoc.RenderDoc
-import com.huskerdev.openglfx.utils.FpsCounter
-import com.huskerdev.openglfx.utils.OGLFXLibLoader
-import com.huskerdev.openglfx.utils.RegionAccessorObject
-import com.huskerdev.openglfx.utils.RegionAccessorOverrider
+import com.huskerdev.openglfx.utils.*
 import com.huskerdev.openglfx.utils.windows.DXInterop
 import com.sun.javafx.sg.prism.NGNode
 import com.sun.javafx.sg.prism.NGRegion
@@ -32,7 +29,7 @@ abstract class OpenGLCanvas(
 
     companion object {
         init {
-            OGLFXLibLoader.load()
+            OGLFXUtils.loadLibrary()
             RegionAccessorOverrider.overwrite(object : RegionAccessorObject<OpenGLCanvas>() {
                 override fun doCreatePeer(node: OpenGLCanvas) = NGOpenGLCanvas(node)
             })

@@ -4,6 +4,7 @@ import com.huskerdev.openglfx.implementations.InteropImpl
 import com.huskerdev.openglfx.implementations.SharedImpl
 import com.huskerdev.openglfx.implementations.UniversalImpl
 import com.huskerdev.openglfx.implementations.multithread.MultiThreadInteropImpl
+import com.huskerdev.openglfx.implementations.multithread.MultiThreadSharedImpl
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
@@ -101,8 +102,11 @@ abstract class GLExecutor {
 
     open fun universalCanvas(profile: GLProfile, flipY: Boolean, msaa: Int, multiThread: Boolean) =
         UniversalImpl(this, profile, flipY, msaa)
+
     open fun sharedCanvas(profile: GLProfile, flipY: Boolean, msaa: Int, multiThread: Boolean) =
-        SharedImpl(this, profile, flipY, msaa)
+        if(multiThread) MultiThreadSharedImpl(this, profile, flipY, msaa)
+        else SharedImpl(this, profile, flipY, msaa)
+
     open fun interopCanvas(profile: GLProfile, flipY: Boolean, msaa: Int, multiThread: Boolean) =
         if(multiThread) MultiThreadInteropImpl(this, profile, flipY, msaa)
         else InteropImpl(this, profile, flipY, msaa)

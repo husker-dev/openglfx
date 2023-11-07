@@ -7,6 +7,7 @@ import com.huskerdev.openglfx.GLProfile
 import com.huskerdev.openglfx.GL_TEXTURE_2D
 import com.huskerdev.openglfx.OpenGLCanvas
 import com.huskerdev.openglfx.utils.OGLFXUtils.Companion.DX9TextureResource
+import com.huskerdev.openglfx.utils.PassthroughShader
 import com.huskerdev.openglfx.utils.fbo.Framebuffer
 import com.huskerdev.openglfx.utils.fbo.MultiSampledFramebuffer
 import com.huskerdev.openglfx.utils.windows.D3D9Device
@@ -31,29 +32,27 @@ class MultiThreadInteropImpl(
 ) : OpenGLCanvas(profile, flipY, msaa, true){
 
     private val paintLock = Object()
-    private val interLock = Object()
+    private val blitLock = Object()
 
-    private var lastSize = Pair(-1, -1)
+    private var lastDrawSize = Pair(-1, -1)
+    private var lastResultSize = Pair(-1, -1)
 
-    private var needsRepaint = AtomicBoolean(false)
-    private var needsBlit = AtomicBoolean(false)
-
+    private lateinit var resultFBO: Framebuffer
+    private lateinit var interThreadFBO: Framebuffer
     private lateinit var fbo: Framebuffer
     private lateinit var msaaFBO: MultiSampledFramebuffer
-    private lateinit var interThreadFBO: Framebuffer
 
     private lateinit var context: GLContext
+    private lateinit var parallelContext: GLContext
     private val fxDevice = D3D9Device.fxInstance
 
     private lateinit var fxD3DTexture: D3D9Texture
     private lateinit var fxTexture: Texture
 
+    private var needsBlit = AtomicBoolean(false)
     private var interopTexture = -1L
 
     private lateinit var passthroughShader: PassthroughShader
-    private lateinit var fxContext: GLContext
-    private lateinit var interopFBO: Framebuffer
-    private var lastDXSize = Pair(-1, -1)
 
     init {
         visibleProperty().addListener { _, _, _ -> repaint() }
@@ -62,7 +61,7 @@ class MultiThreadInteropImpl(
 
         object: AnimationTimer(){
             override fun handle(now: Long) {
-                if(needsBlit.get() || needsRepaint.getAndSet(false)) {
+                if(needsBlit.get()) {
                     NodeHelper.markDirty(this@MultiThreadInteropImpl, DirtyBits.NODE_BOUNDS)
                     NodeHelper.markDirty(this@MultiThreadInteropImpl, DirtyBits.REGION_SHAPE)
                 }
@@ -71,14 +70,14 @@ class MultiThreadInteropImpl(
 
         thread(isDaemon = true) {
             context = GLContext.create(0, profile == GLProfile.Core)
-            fxContext = GLContext.create(context.handle, profile == GLProfile.Core)
+            parallelContext = GLContext.create(context.handle, profile == GLProfile.Core)
             context.makeCurrent()
             GLExecutor.initGLFunctions()
             executor.initGLFunctionsImpl()
 
             while(!disposed){
                 paint()
-                synchronized(interLock) {
+                synchronized(blitLock) {
                     fbo.blitTo(interThreadFBO.id)
                 }
                 needsBlit.set(true)
@@ -91,14 +90,14 @@ class MultiThreadInteropImpl(
     }
 
     private fun paint(){
-        if (scaledWidth.toInt() != lastSize.first || scaledHeight.toInt() != lastSize.second) {
-            lastSize = Pair(scaledWidth.toInt(), scaledHeight.toInt())
+        if (scaledWidth.toInt() != lastDrawSize.first || scaledHeight.toInt() != lastDrawSize.second) {
+            lastDrawSize = Pair(scaledWidth.toInt(), scaledHeight.toInt())
             updateFramebufferSize()
 
-            fireReshapeEvent(lastSize.first, lastSize.second)
+            fireReshapeEvent(lastDrawSize.first, lastDrawSize.second)
         }
 
-        glViewport(0, 0, lastSize.first, lastSize.second)
+        glViewport(0, 0, lastDrawSize.first, lastDrawSize.second)
         fireRenderEvent(if (msaa != 0) msaaFBO.id else fbo.id)
         if (msaa != 0)
             msaaFBO.blitTo(fbo.id)
@@ -111,8 +110,8 @@ class MultiThreadInteropImpl(
             if(msaa != 0) msaaFBO.delete()
         }
 
-        val width = lastSize.first
-        val height = lastSize.second
+        val width = lastDrawSize.first
+        val height = lastDrawSize.second
 
         interThreadFBO = Framebuffer(width, height)
         interThreadFBO.bindFramebuffer()
@@ -134,19 +133,19 @@ class MultiThreadInteropImpl(
 
         if (needsBlit.getAndSet(false)) {
             if(!this::passthroughShader.isInitialized){
-                fxContext.makeCurrent()
+                parallelContext.makeCurrent()
                 passthroughShader = PassthroughShader()
             }
 
-            synchronized(interLock){
-                if (scaledWidth.toInt() != lastDXSize.first || scaledHeight.toInt() != lastDXSize.second) {
-                    lastDXSize = Pair(scaledWidth.toInt(), scaledHeight.toInt())
+            synchronized(blitLock){
+                if (scaledWidth.toInt() != lastResultSize.first || scaledHeight.toInt() != lastResultSize.second) {
+                    lastResultSize = Pair(scaledWidth.toInt(), scaledHeight.toInt())
                     updateInteropTexture()
                 }
-                glViewport(0, 0, lastDXSize.first, lastDXSize.second)
+                glViewport(0, 0, lastResultSize.first, lastResultSize.second)
 
                 DXInterop.wglDXLockObjectsNV(DXInterop.interopHandle, interopTexture)
-                passthroughShader.copy(interThreadFBO, interopFBO)
+                passthroughShader.copy(interThreadFBO, resultFBO)
                 DXInterop.wglDXUnlockObjectsNV(DXInterop.interopHandle, interopTexture)
             }
         }
@@ -158,14 +157,14 @@ class MultiThreadInteropImpl(
         if(this::fxTexture.isInitialized) {
             DXInterop.wglDXUnregisterObjectNV(DXInterop.interopHandle, interopTexture)
             fxTexture.dispose()
-            interopFBO.delete()
+            resultFBO.delete()
         }
 
-        val width = lastDXSize.first
-        val height = lastDXSize.second
+        val width = lastResultSize.first
+        val height = lastResultSize.second
 
-        interopFBO = Framebuffer(width, height)
-        interopFBO.bindFramebuffer()
+        resultFBO = Framebuffer(width, height)
+        resultFBO.bindFramebuffer()
 
         // Create and register D3D9 shared texture
         fxD3DTexture = fxDevice.createTexture(width, height)
@@ -177,9 +176,9 @@ class MultiThreadInteropImpl(
         DXInterop.replaceD3DTextureInResource(fxTexture.DX9TextureResource, fxD3DTexture.handle)
 
         // Create interop texture
-        interopTexture = DXInterop.wglDXRegisterObjectNV(DXInterop.interopHandle, fxD3DTexture.handle, interopFBO.texture, GL_TEXTURE_2D, WGL_ACCESS_WRITE_DISCARD_NV)
+        interopTexture = DXInterop.wglDXRegisterObjectNV(DXInterop.interopHandle, fxD3DTexture.handle, resultFBO.texture, GL_TEXTURE_2D, WGL_ACCESS_WRITE_DISCARD_NV)
 
-        fxContext.makeCurrent()
+        parallelContext.makeCurrent()
     }
 
     override fun repaint() {

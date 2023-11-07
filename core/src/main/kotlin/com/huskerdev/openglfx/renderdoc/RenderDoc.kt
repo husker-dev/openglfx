@@ -1,7 +1,7 @@
 package com.huskerdev.openglfx.renderdoc
 
 import com.huskerdev.ojgl.GLContext
-import com.huskerdev.openglfx.utils.OGLFXLibLoader
+import com.huskerdev.openglfx.utils.OGLFXUtils
 
 class RenderDoc {
     companion object {
@@ -13,7 +13,7 @@ class RenderDoc {
         private var isInitialized = false
 
         init {
-            OGLFXLibLoader.load()
+            OGLFXUtils.loadLibrary()
         }
 
         fun loadLibrary(): Boolean{
