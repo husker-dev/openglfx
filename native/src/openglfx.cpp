@@ -19,8 +19,9 @@ void* a_GetProcAddress(const char* name) {
         for(int i = 0; i < 2; i++)
             if((libGL = dlopen(NAMES[i], RTLD_NOW | RTLD_GLOBAL)) != NULL)
                 break;
+        a_gladGetProcAddress = (glXGetProcAddressPtr)dlsym(libGL, "glXGetProcAddressARB");
     }
-    void* procAddr = (void*)glXGetProcAddressARB((GLubyte*)name);
+    void* procAddr = (void*)a_gladGetProcAddress((GLubyte*)name);
     if(procAddr == NULL)
         procAddr = dlsym(libGL, name);
     return procAddr;

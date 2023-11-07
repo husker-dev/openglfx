@@ -43,8 +43,10 @@ extern wglDXUnlockObjectsNVPtr          wglDXUnlockObjectsNV;
 
 #elif defined(__linux__)
 #include <dlfcn.h>
-#include <GL/glx.h>
 static void* libGL;
+
+typedef void* (* glXGetProcAddressPtr)(const char*);
+static glXGetProcAddressPtr a_gladGetProcAddress;
 
 #elif defined(__APPLE__)
 #include <dlfcn.h>
