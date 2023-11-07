@@ -190,5 +190,6 @@ class MultiThreadInteropImpl(
     override fun dispose() {
         super.dispose()
         GLContext.delete(context)
+        GLContext.delete(parallelContext)
     }
 }

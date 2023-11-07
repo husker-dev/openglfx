@@ -74,8 +74,6 @@ class MultiThreadSharedImpl(
             GLExecutor.initGLFunctions()
             executor.initGLFunctionsImpl()
 
-
-
             while(!disposed){
                 paint()
                 synchronized(blitLock) {
@@ -181,5 +179,6 @@ class MultiThreadSharedImpl(
     override fun dispose() {
         super.dispose()
         GLContext.delete(parallelContext!!)
+        GLContext.delete(resultContext!!)
     }
 }
