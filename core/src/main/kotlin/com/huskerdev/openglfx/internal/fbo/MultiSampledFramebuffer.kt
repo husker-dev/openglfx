@@ -1,4 +1,4 @@
-package com.huskerdev.openglfx.utils.fbo
+package com.huskerdev.openglfx.internal.fbo
 
 import com.huskerdev.openglfx.*
 import com.huskerdev.openglfx.GLExecutor.Companion.glBindFramebuffer

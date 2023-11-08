@@ -1,7 +1,8 @@
 rootProject.name = 'openglfx'
 include 'core'
+include 'native'
+include 'utils'
+
 include 'jogl'
 include 'lwjgl'
 include 'panamagl'
-include 'native'
-

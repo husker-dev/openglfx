@@ -1,4 +1,4 @@
-package com.huskerdev.openglfx.utils
+package com.huskerdev.openglfx.internal
 
 class FpsCounter {
 

@@ -1,4 +1,4 @@
-package com.huskerdev.openglfx.utils.windows
+package com.huskerdev.openglfx.internal.windows
 
 import com.sun.prism.GraphicsPipeline
 

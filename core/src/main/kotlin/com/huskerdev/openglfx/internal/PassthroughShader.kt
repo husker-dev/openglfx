@@ -1,4 +1,4 @@
-package com.huskerdev.openglfx.utils
+package com.huskerdev.openglfx.internal
 
 import com.huskerdev.openglfx.*
 import com.huskerdev.openglfx.GLExecutor.Companion.floatBuffer
@@ -23,7 +23,7 @@ import com.huskerdev.openglfx.GLExecutor.Companion.glEnableVertexAttribArray
 import com.huskerdev.openglfx.GLExecutor.Companion.glGetUniformLocation
 import com.huskerdev.openglfx.GLExecutor.Companion.glUniform2f
 import com.huskerdev.openglfx.GLExecutor.Companion.glUseProgram
-import com.huskerdev.openglfx.utils.fbo.Framebuffer
+import com.huskerdev.openglfx.internal.fbo.Framebuffer
 
 class PassthroughShader {
 

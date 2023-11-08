@@ -5,9 +5,9 @@ import com.huskerdev.openglfx.*
 import com.huskerdev.openglfx.GLExecutor.Companion.glFinish
 import com.huskerdev.openglfx.GLExecutor.Companion.glViewport
 import com.huskerdev.openglfx.GLExecutor.Companion.initGLFunctions
-import com.huskerdev.openglfx.utils.fbo.MultiSampledFramebuffer
-import com.huskerdev.openglfx.utils.OGLFXUtils.Companion.GLTextureId
-import com.huskerdev.openglfx.utils.fbo.Framebuffer
+import com.huskerdev.openglfx.internal.fbo.MultiSampledFramebuffer
+import com.huskerdev.openglfx.internal.OGLFXUtils.Companion.GLTextureId
+import com.huskerdev.openglfx.internal.fbo.Framebuffer
 import com.sun.javafx.scene.DirtyBits
 import com.sun.javafx.scene.NodeHelper
 import com.sun.prism.Graphics

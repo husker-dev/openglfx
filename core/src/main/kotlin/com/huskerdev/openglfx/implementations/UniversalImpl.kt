@@ -6,9 +6,9 @@ import com.huskerdev.openglfx.GLExecutor.Companion.glBindFramebuffer
 import com.huskerdev.openglfx.GLExecutor.Companion.glReadPixels
 import com.huskerdev.openglfx.GLExecutor.Companion.glViewport
 import com.huskerdev.openglfx.GLExecutor.Companion.initGLFunctions
-import com.huskerdev.openglfx.utils.OGLFXUtils.Companion.getPlatformImage
-import com.huskerdev.openglfx.utils.fbo.Framebuffer
-import com.huskerdev.openglfx.utils.fbo.MultiSampledFramebuffer
+import com.huskerdev.openglfx.internal.OGLFXUtils.Companion.getPlatformImage
+import com.huskerdev.openglfx.internal.fbo.Framebuffer
+import com.huskerdev.openglfx.internal.fbo.MultiSampledFramebuffer
 import com.sun.javafx.geom.Rectangle
 import com.sun.javafx.scene.DirtyBits
 import com.sun.javafx.scene.NodeHelper

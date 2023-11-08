@@ -4,15 +4,12 @@ import com.huskerdev.openglfx.events.GLDisposeEvent
 import com.huskerdev.openglfx.events.GLInitializeEvent
 import com.huskerdev.openglfx.events.GLRenderEvent
 import com.huskerdev.openglfx.events.GLReshapeEvent
-import com.huskerdev.openglfx.renderdoc.RenderDoc
-import com.huskerdev.openglfx.utils.*
-import com.huskerdev.openglfx.utils.windows.DXInterop
-import com.sun.javafx.sg.prism.NGNode
-import com.sun.javafx.sg.prism.NGRegion
+import com.huskerdev.openglfx.internal.*
+import com.huskerdev.openglfx.internal.NGOpenGLCanvas
+import com.huskerdev.openglfx.internal.windows.DXInterop
 import com.sun.prism.Graphics
 import com.sun.prism.GraphicsPipeline
 import com.sun.prism.Texture
-import javafx.scene.input.KeyCode
 import javafx.scene.layout.Pane
 import java.util.function.Consumer
 
@@ -31,7 +28,7 @@ abstract class OpenGLCanvas(
         init {
             OGLFXUtils.loadLibrary()
             RegionAccessorOverrider.overwrite(object : RegionAccessorObject<OpenGLCanvas>() {
-                override fun doCreatePeer(node: OpenGLCanvas) = NGOpenGLCanvas(node)
+                override fun doCreatePeer(node: OpenGLCanvas) = NGOpenGLCanvas(node, node::onNGRender)
             })
         }
 
@@ -62,8 +59,9 @@ abstract class OpenGLCanvas(
             profile: GLProfile = GLProfile.Compatibility,
             flipY: Boolean = false,
             msaa: Int = 0,
-            multiThread: Boolean = false
-        ) = when (GraphicsPipeline.getPipeline().javaClass.canonicalName.split(".")[3]) {
+            multiThread: Boolean = false,
+            fxPipeline: String = GraphicsPipeline.getPipeline().javaClass.canonicalName.split(".")[3]
+        ) = when (fxPipeline) {
             "es2" -> executor::sharedCanvas
             "d3d" -> if (DXInterop.isSupported()) executor::interopCanvas else executor::universalCanvas
             else -> executor::universalCanvas
@@ -73,7 +71,7 @@ abstract class OpenGLCanvas(
     protected var disposed = false
         private set
 
-    private var onInit = arrayListOf<InitListenerContainer>()
+    private var onInit = arrayListOf<Consumer<GLInitializeEvent>>()
     private var onRender = arrayListOf<Consumer<GLRenderEvent>>()
     private var onReshape = arrayListOf<Consumer<GLReshapeEvent>>()
     private var onDispose = arrayListOf<Consumer<GLDisposeEvent>>()
@@ -107,18 +105,6 @@ abstract class OpenGLCanvas(
     protected abstract fun onNGRender(g: Graphics)
     abstract fun repaint()
 
-    private fun onSceneBound(){
-        if(RenderDoc.enabled){
-            RenderDoc.loadLibrary()
-            this.scene.setOnKeyReleased {
-                if(it.code == KeyCode.F12){
-                    useRenderDoc = true
-                    repaint()
-                }
-            }
-        }
-    }
-
     /**
      * Invokes every frame with an active GL context
      *
@@ -151,38 +137,32 @@ abstract class OpenGLCanvas(
      */
     fun addOnInitEvent(listener: Consumer<GLInitializeEvent>): Boolean {
         initEventsChanged = true
-        return onInit.add(InitListenerContainer(listener))
+        return onInit.add(listener)
     }
 
     /**
      *  Destroys all resources to free up memory
      */
     open fun dispose(){
-        animator = null
         disposed = true
+        animator = null
     }
 
     /**
      *  These methods must be invoked from OpenGLCanvas implementations
      */
     protected fun fireRenderEvent(fbo: Int) {
-        checkInitialization()
+        checkInitializationEvents()
         fpsCounter.update()
-        if(useRenderDoc)
-            RenderDoc.startFrameCapture()
         onRender.dispatchEvent(createRenderEvent(fpsCounter.currentFps, fpsCounter.delta, scaledWidth.toInt(), scaledHeight.toInt(), fbo))
-        if(useRenderDoc){
-            RenderDoc.endFrameCapture()
-            useRenderDoc = false
-        }
     }
 
     protected fun fireReshapeEvent(width: Int, height: Int) {
-        checkInitialization()
+        checkInitializationEvents()
         onReshape.dispatchEvent(createReshapeEvent(width, height))
     }
 
-    protected fun fireInitEvent() = checkInitialization()
+    protected fun fireInitEvent() = checkInitializationEvents()
     protected fun fireDisposeEvent() = onDispose.dispatchEvent(createDisposeEvent())
 
     /**
@@ -201,18 +181,9 @@ abstract class OpenGLCanvas(
     /**
      * Checks if there are any not initialised listeners
      */
-    private fun checkInitialization(){
-        if(initEventsChanged){
-            initEventsChanged = false
-            val event = createInitEvent()
-
-            onInit.forEach {
-                if(!it.initialized){
-                    it.initialized = true
-                    it.event.accept(event)
-                }
-            }
-        }
+    private fun checkInitializationEvents(){
+        while(onInit.size > 0)
+            onInit.removeLast().accept(createInitEvent())
     }
 
     /**
@@ -222,31 +193,8 @@ abstract class OpenGLCanvas(
      * @param texture default JavaFX texture
      */
     protected fun drawResultTexture(g: Graphics, texture: Texture){
-        if(flipY)
-            g.drawTexture(texture, 0f, 0f, width.toFloat() + 0.5f, height.toFloat() + 0.5f, 0.0f, 0.0f, scaledWidth.toFloat(), scaledHeight.toFloat())
-        else
-            g.drawTexture(texture, 0f, 0f, width.toFloat() + 0.5f, height.toFloat() + 0.5f, 0.0f, scaledHeight.toFloat(), scaledWidth.toFloat(), 0f)
+        if(flipY) g.drawTexture(texture, 0f, 0f, width.toFloat() + 0.5f, height.toFloat() + 0.5f, 0.0f, 0.0f, scaledWidth.toFloat(), scaledHeight.toFloat())
+        else      g.drawTexture(texture, 0f, 0f, width.toFloat() + 0.5f, height.toFloat() + 0.5f, 0.0f, scaledHeight.toFloat(), scaledWidth.toFloat(), 0f)
     }
 
-    private class NGOpenGLCanvas(val canvas: OpenGLCanvas): NGRegion() {
-        private var bound = false
-
-        override fun renderContent(g: Graphics) {
-            canvas.onNGRender(g)
-            super.renderContent(g)
-        }
-
-        override fun setParent(parent: NGNode?) {
-            super.setParent(parent)
-            if(canvas.scene != null && !bound){
-                bound = true
-                canvas.onSceneBound()
-            }
-        }
-    }
-
-    private class InitListenerContainer(
-        val event: Consumer<GLInitializeEvent>,
-        var initialized: Boolean = false
-    )
 }

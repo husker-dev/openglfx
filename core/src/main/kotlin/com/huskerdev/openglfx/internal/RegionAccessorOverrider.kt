@@ -1,4 +1,4 @@
-package com.huskerdev.openglfx.utils
+package com.huskerdev.openglfx.internal
 
 import com.sun.javafx.geom.BaseBounds
 import com.sun.javafx.geom.PickRay
