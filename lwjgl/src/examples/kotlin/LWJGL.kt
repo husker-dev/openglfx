@@ -1,6 +1,6 @@
-import com.huskerdev.openglfx.GLProfile
-import com.huskerdev.openglfx.OpenGLCanvas
-import com.huskerdev.openglfx.OpenGLCanvasAnimator
+import com.huskerdev.openglfx.canvas.GLProfile
+import com.huskerdev.openglfx.canvas.OpenGLCanvas
+import com.huskerdev.openglfx.canvas.GLCanvasAnimator
 import com.huskerdev.openglfx.lwjgl.LWJGLExecutor.Companion.LWJGL_MODULE
 import com.sun.prism.GraphicsPipeline
 import javafx.application.Application
@@ -21,8 +21,8 @@ fun main() {
 
 class ExampleApp: Application(){
 
-    override fun start(stage: Stage?) {
-        stage!!.title = "OpenGLCanvas example"
+    override fun start(stage: Stage) {
+        stage.title = "OpenGLCanvas example"
         stage.width = 800.0
         stage.height = 600.0
         
@@ -33,8 +33,8 @@ class ExampleApp: Application(){
     }
 
     private fun createGLCanvas(): OpenGLCanvas {
-        val canvas = OpenGLCanvas.create(LWJGL_MODULE, msaa = 4, profile = GLProfile.Core, multiThread = true)
-        canvas.animator = OpenGLCanvasAnimator(60.0)
+        val canvas = OpenGLCanvas.create(LWJGL_MODULE, msaa = 4, profile = GLProfile.Core, async = true)
+        canvas.animator = GLCanvasAnimator(60.0)
 
         val renderExample = ExampleScene()
         canvas.addOnInitEvent(renderExample::init)
@@ -49,11 +49,12 @@ class ExampleApp: Application(){
         children.add(Label("----------------------------------------"))
         arrayListOf(
             "PIPELINE" to GraphicsPipeline.getPipeline().javaClass.canonicalName.split(".")[3],
-            "METHOD" to canvas::class.java.simpleName,
+            "INTEROP" to canvas.interopType,
+            "IMPL" to canvas::class.java.simpleName,
             "MSAA" to canvas.msaa,
             "PROFILE" to canvas.profile,
             "FLIP_Y" to canvas.flipY,
-            "MULTI_THREAD" to canvas.multiThread,
+            "MULTI_THREAD" to canvas.isAsync,
             "FPS" to "-",
             "SIZE" to "0x0"
         ).forEach {

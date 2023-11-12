@@ -1,8 +1,8 @@
 package com.huskerdev.openglfx.jogl.example.scene
 
-import com.huskerdev.openglfx.events.GLInitializeEvent
-import com.huskerdev.openglfx.events.GLRenderEvent
-import com.huskerdev.openglfx.events.GLReshapeEvent
+import com.huskerdev.openglfx.canvas.events.GLInitializeEvent
+import com.huskerdev.openglfx.canvas.events.GLRenderEvent
+import com.huskerdev.openglfx.canvas.events.GLReshapeEvent
 import com.huskerdev.openglfx.jogl.events.JOGLEvent
 import com.jogamp.opengl.GL.*
 import javafx.scene.paint.Color

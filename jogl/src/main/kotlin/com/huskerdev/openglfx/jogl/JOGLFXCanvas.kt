@@ -1,13 +1,13 @@
 package com.huskerdev.openglfx.jogl
 
 import com.huskerdev.openglfx.GLExecutor
-import com.huskerdev.openglfx.events.GLDisposeEvent
-import com.huskerdev.openglfx.events.GLInitializeEvent
-import com.huskerdev.openglfx.events.GLRenderEvent
-import com.huskerdev.openglfx.events.GLReshapeEvent
-import com.huskerdev.openglfx.implementations.InteropImpl
-import com.huskerdev.openglfx.implementations.SharedImpl
-import com.huskerdev.openglfx.implementations.UniversalImpl
+import com.huskerdev.openglfx.canvas.events.GLDisposeEvent
+import com.huskerdev.openglfx.canvas.events.GLInitializeEvent
+import com.huskerdev.openglfx.canvas.events.GLRenderEvent
+import com.huskerdev.openglfx.canvas.events.GLReshapeEvent
+import com.huskerdev.openglfx.canvas.implementations.NVDXInteropCanvasImpl
+import com.huskerdev.openglfx.canvas.implementations.SharedCanvasImpl
+import com.huskerdev.openglfx.canvas.implementations.BlitCanvasImpl
 import com.huskerdev.openglfx.jogl.events.JOGLDisposeEvent
 import com.huskerdev.openglfx.jogl.events.JOGLInitializeEvent
 import com.huskerdev.openglfx.jogl.events.JOGLRenderEvent
@@ -18,10 +18,10 @@ import jogamp.opengl.GLDrawableFactoryImpl
 
 class JOGLUniversalCanvas(
     executor: GLExecutor,
-    profile: com.huskerdev.openglfx.GLProfile,
+    profile: com.huskerdev.openglfx.canvas.GLProfile,
     flipY: Boolean,
     msaa: Int
-): UniversalImpl(executor, profile, flipY, msaa){
+): BlitCanvasImpl(executor, profile, flipY, msaa){
 
     val gl: GL3 by lazy {
         GLDrawableFactoryImpl.getFactoryImpl(GLProfile.getDefault()).createExternalGLContext().gl.gL3
@@ -39,10 +39,10 @@ class JOGLUniversalCanvas(
 
 class JOGLSharedCanvas(
     executor: GLExecutor,
-    profile: com.huskerdev.openglfx.GLProfile,
+    profile: com.huskerdev.openglfx.canvas.GLProfile,
     flipY: Boolean,
     msaa: Int
-): SharedImpl(executor, profile, flipY, msaa){
+): SharedCanvasImpl(executor, profile, flipY, msaa){
 
     val gl: GL3 by lazy {
         GLDrawableFactoryImpl.getFactoryImpl(GLProfile.getDefault()).createExternalGLContext().gl.gL3
@@ -60,10 +60,10 @@ class JOGLSharedCanvas(
 
 class JOGLInteropCanvas(
     executor: GLExecutor,
-    profile: com.huskerdev.openglfx.GLProfile,
+    profile: com.huskerdev.openglfx.canvas.GLProfile,
     flipY: Boolean,
     msaa: Int
-): InteropImpl(executor, profile, flipY, msaa){
+): NVDXInteropCanvasImpl(executor, profile, flipY, msaa){
 
     val gl: GL3 by lazy {
         GLDrawableFactoryImpl.getFactoryImpl(GLProfile.getDefault()).createExternalGLContext().gl.gL3

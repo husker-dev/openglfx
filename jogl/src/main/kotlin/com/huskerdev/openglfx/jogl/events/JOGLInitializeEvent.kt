@@ -1,6 +1,6 @@
 package com.huskerdev.openglfx.jogl.events
 
-import com.huskerdev.openglfx.events.GLInitializeEvent
+import com.huskerdev.openglfx.canvas.events.GLInitializeEvent
 import com.jogamp.opengl.GL3
 import javafx.beans.NamedArg
 import javafx.event.EventType

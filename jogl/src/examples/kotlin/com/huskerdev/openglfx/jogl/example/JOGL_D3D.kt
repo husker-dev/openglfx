@@ -1,6 +1,6 @@
 package com.huskerdev.openglfx.jogl.example
-import com.huskerdev.openglfx.OpenGLCanvas
-import com.huskerdev.openglfx.OpenGLCanvasAnimator
+import com.huskerdev.openglfx.canvas.OpenGLCanvas
+import com.huskerdev.openglfx.canvas.GLCanvasAnimator
 import com.huskerdev.openglfx.jogl.JOGL_MODULE
 import javafx.application.Application
 import javafx.scene.Scene
@@ -38,7 +38,7 @@ class D3DExampleApp: Application(){
 
     private fun createGL(): Region {
         val canvas = OpenGLCanvas.create(JOGL_MODULE)
-        canvas.animator = OpenGLCanvasAnimator(60.0)
+        canvas.animator = GLCanvasAnimator(60.0)
 
         val renderExample = ExampleScene()
         canvas.addOnInitEvent(renderExample::init)

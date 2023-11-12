@@ -39,63 +39,66 @@ jlongArray createLongArray(JNIEnv* env, int size, jlong* elements) {
 
 extern "C" {
 
-    JNIEXPORT jlong JNICALL Java_com_huskerdev_openglfx_utils_windows_DXInterop_wglDXOpenDeviceNV(JNIEnv* env, jobject, jlong dxDevice) {
-        return (jlong)wglDXOpenDeviceNV((void*)dxDevice);
-    }
+nvdxfun(jlong, hasNVDXInteropFunctions)(JNIEnv* env, jobject) {
+    return wglDXOpenDeviceNV != 0;
+}
 
-    JNIEXPORT jboolean JNICALL Java_com_huskerdev_openglfx_utils_windows_DXInterop_wglDXCloseDeviceNV(JNIEnv* env, jobject, jlong hDevice) {
-        return (jboolean)wglDXCloseDeviceNV((HANDLE)hDevice);
-    }
+nvdxfun(jlong, wglDXOpenDeviceNV)(JNIEnv* env, jobject, jlong dxDevice) {
+    return (jlong)wglDXOpenDeviceNV((void*)dxDevice);
+}
 
-    JNIEXPORT jlong JNICALL Java_com_huskerdev_openglfx_utils_windows_DXInterop_wglDXRegisterObjectNV(JNIEnv* env, jobject, jlong device, jlong dxResource, jint name, jint type, jint access) {
-        return (jlong)wglDXRegisterObjectNV((HANDLE)device, (void*)dxResource, name, type, access);
-    }
+nvdxfun(jboolean, wglDXCloseDeviceNV)(JNIEnv* env, jobject, jlong hDevice) {
+    return (jboolean)wglDXCloseDeviceNV((HANDLE)hDevice);
+}
 
-    JNIEXPORT jboolean JNICALL Java_com_huskerdev_openglfx_utils_windows_DXInterop_wglDXSetResourceShareHandleNV(JNIEnv* env, jobject, jlong dxResource, jlong shareHandle) {
-        return (jboolean)wglDXSetResourceShareHandleNV((void*)dxResource, (HANDLE)shareHandle);
-    }
+nvdxfun(jlong, wglDXRegisterObjectNV)(JNIEnv* env, jobject, jlong device, jlong dxResource, jint name, jint type, jint access) {
+    return (jlong)wglDXRegisterObjectNV((HANDLE)device, (void*)dxResource, name, type, access);
+}
 
-    JNIEXPORT jboolean JNICALL Java_com_huskerdev_openglfx_utils_windows_DXInterop_wglDXUnregisterObjectNV(JNIEnv* env, jobject, jlong device, jlong object) {
-        return (jboolean)wglDXUnregisterObjectNV((HANDLE)device, (HANDLE)object);
-    }
+nvdxfun(jboolean, wglDXSetResourceShareHandleNV)(JNIEnv* env, jobject, jlong dxResource, jlong shareHandle) {
+    return (jboolean)wglDXSetResourceShareHandleNV((void*)dxResource, (HANDLE)shareHandle);
+}
 
-    JNIEXPORT jboolean JNICALL Java_com_huskerdev_openglfx_utils_windows_DXInterop_wglDXLockObjectsNV(JNIEnv* env, jobject, jlong handle, jlong textureHandle) {
-        return wglDXLockObjectsNV((HANDLE)handle, 1, (HANDLE*)&textureHandle);
-    }
+nvdxfun(jboolean, wglDXUnregisterObjectNV)(JNIEnv* env, jobject, jlong device, jlong object) {
+    return (jboolean)wglDXUnregisterObjectNV((HANDLE)device, (HANDLE)object);
+}
 
-    JNIEXPORT jboolean JNICALL Java_com_huskerdev_openglfx_utils_windows_DXInterop_wglDXUnlockObjectsNV(JNIEnv* env, jobject, jlong handle, jlong textureHandle) {
-        return wglDXUnlockObjectsNV((HANDLE)handle, 1, (HANDLE*)&textureHandle);
-    }
+nvdxfun(jboolean, wglDXLockObjectsNV)(JNIEnv* env, jobject, jlong handle, jlong textureHandle) {
+    return wglDXLockObjectsNV((HANDLE)handle, 1, (HANDLE*)&textureHandle);
+}
 
-    /*  ===========
-            D3D
-        ===========
-    */
-    JNIEXPORT jlongArray JNICALL Java_com_huskerdev_openglfx_utils_windows_DXInterop_createD3DTexture(JNIEnv* env, jobject, jlong _device, jint width, jint height) {
-        IDirect3DDevice9Ex* device = (IDirect3DDevice9Ex*)_device;
+nvdxfun(jboolean, wglDXUnlockObjectsNV)(JNIEnv* env, jobject, jlong handle, jlong textureHandle) {
+    return wglDXUnlockObjectsNV((HANDLE)handle, 1, (HANDLE*)&textureHandle);
+}
 
-        // It is important to set NULL
-        IDirect3DTexture9* texture = NULL;
-        HANDLE sharedHandle = NULL;
-        device->CreateTexture(width, height, 0, D3DUSAGE_DYNAMIC, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &texture, &sharedHandle);
+/*===========
+      D3D
+  ===========*/
+nvdxfun(jlongArray, createD3DTexture)(JNIEnv* env, jobject, jlong _device, jint width, jint height) {
+    IDirect3DDevice9Ex* device = (IDirect3DDevice9Ex*)_device;
 
-        jlong array[] = { (jlong)texture, (jlong)sharedHandle };
-        return createLongArray(env, 2, array);
-    }
+    // It is important to set NULL
+    IDirect3DTexture9* texture = NULL;
+    HANDLE sharedHandle = NULL;
+    device->CreateTexture(width, height, 0, D3DUSAGE_DYNAMIC, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &texture, &sharedHandle);
 
-    JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_utils_windows_DXInterop_replaceD3DTextureInResource(JNIEnv* env, jobject, jlong _resource, jlong newTexture) {
-        D3DResource* resource = (D3DResource*)_resource;
-        IDirect3DTexture9* texture = (IDirect3DTexture9*)newTexture;
+    jlong array[] = { (jlong)texture, (jlong)sharedHandle };
+    return createLongArray(env, 2, array);
+}
 
-        resource->pTexture->Release();
-        resource->pResource->Release();
-        resource->pSurface->Release();
+nvdxfun(void, replaceD3DTextureInResource)(JNIEnv* env, jobject, jlong _resource, jlong newTexture) {
+    D3DResource* resource = (D3DResource*)_resource;
+    IDirect3DTexture9* texture = (IDirect3DTexture9*)newTexture;
 
-        // From D3DResource in D3DResourceManager.cpp
-        resource->pResource = texture;
-        resource->pResource->AddRef();
-        resource->pTexture = (IDirect3DTexture9*)resource->pResource;
-        resource->pTexture->GetSurfaceLevel(0, &resource->pSurface);
-        resource->pSurface->GetDesc(&resource->desc);
-    }
+    resource->pTexture->Release();
+    resource->pResource->Release();
+    resource->pSurface->Release();
+
+    // From D3DResource in D3DResourceManager.cpp
+    resource->pResource = texture;
+    resource->pResource->AddRef();
+    resource->pTexture = (IDirect3DTexture9*)resource->pResource;
+    resource->pTexture->GetSurfaceLevel(0, &resource->pSurface);
+    resource->pSurface->GetDesc(&resource->desc);
+}
 }

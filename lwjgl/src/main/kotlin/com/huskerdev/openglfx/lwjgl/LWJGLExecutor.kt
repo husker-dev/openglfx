@@ -10,7 +10,8 @@ class LWJGLExecutor: GLExecutor() {
         @JvmField val LWJGL_MODULE = LWJGLExecutor()
     }
 
-    override fun initGLFunctionsImpl() {
+    override fun initGLFunctions() {
+        super.initGLFunctions()
         GL.createCapabilities()
     }
 }

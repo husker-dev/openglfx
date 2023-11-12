@@ -44,7 +44,7 @@ void* a_GetProcAddress(const char* name) {
 
 extern "C" {
 
-JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_nInitGLFunctions(JNIEnv* env, jobject) {
+glfun(void, nInitGLFunctions)(JNIEnv* env, jobject) {
     a_glViewport = (glViewportPtr)a_GetProcAddress("glViewport");
     a_glTexParameteri = (glTexParameteriPtr)a_GetProcAddress("glTexParameteri");
     a_glTexImage2D = (glTexImage2DPtr)a_GetProcAddress("glTexImage2D");
@@ -101,131 +101,131 @@ JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_nInitGLFunctions(J
     #endif
 }
 
-JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glDeleteFramebuffers(JNIEnv* env, jobject, jint fbo) {
+glfun(void, glDeleteFramebuffers)(JNIEnv* env, jobject, jint fbo) {
     a_glDeleteFramebuffers(1, (GLuint*)&fbo);
 }
 
-JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glDeleteRenderbuffers(JNIEnv* env, jobject, jint rbo) {
+glfun(void, glDeleteRenderbuffers)(JNIEnv* env, jobject, jint rbo) {
     a_glDeleteRenderbuffers(1, (GLuint*)&rbo);
 }
 
-JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glDeleteTextures(JNIEnv* env, jobject, jint texture) {
+glfun(void, glDeleteTextures)(JNIEnv* env, jobject, jint texture) {
     a_glDeleteTextures(1, (GLuint*)&texture);
 }
 
-JNIEXPORT jint JNICALL Java_com_huskerdev_openglfx_GLExecutor_glGenFramebuffers(JNIEnv* env, jobject) {
+glfun(jint, glGenFramebuffers)(JNIEnv* env, jobject) {
     GLuint framebuffer = 0;
     a_glGenFramebuffers(1, &framebuffer);
     return framebuffer;
 }
 
-JNIEXPORT jint JNICALL Java_com_huskerdev_openglfx_GLExecutor_glGenRenderbuffers(JNIEnv* env, jobject) {
+glfun(jint, glGenRenderbuffers)(JNIEnv* env, jobject) {
     GLuint renderbuffer;
     a_glGenRenderbuffers(1, &renderbuffer);
     return renderbuffer;
 }
 
-JNIEXPORT jint JNICALL Java_com_huskerdev_openglfx_GLExecutor_glGenTextures(JNIEnv* env, jobject) {
+glfun(jint, glGenTextures)(JNIEnv* env, jobject) {
     GLuint texture;
     a_glGenTextures(1, &texture);
     return texture;
 }
 
-JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glBindFramebuffer(JNIEnv* env, jobject, jint target, jint fbo) {
+glfun(void, glBindFramebuffer)(JNIEnv* env, jobject, jint target, jint fbo) {
     a_glBindFramebuffer(target, fbo);
 }
 
-JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glBindRenderbuffer(JNIEnv* env, jobject, jint target, jint rbo) {
+glfun(void, glBindRenderbuffer)(JNIEnv* env, jobject, jint target, jint rbo) {
     a_glBindRenderbuffer(target, rbo);
 }
 
-JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glBindTexture(JNIEnv* env, jobject, jint target, jint texture) {
+glfun(void, glBindTexture)(JNIEnv* env, jobject, jint target, jint texture) {
     a_glBindTexture(target, texture);
 }
 
-JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glFramebufferTexture2D(JNIEnv* env, jobject, jint target, jint attachment, jint texture, jint texId, jint level) {
+glfun(void, glFramebufferTexture2D)(JNIEnv* env, jobject, jint target, jint attachment, jint texture, jint texId, jint level) {
     a_glFramebufferTexture2D(target, attachment, texture, texId, level);
 }
 
-JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glRenderbufferStorage(JNIEnv* env, jobject, jint target, jint internalFormat, jint width, jint height) {
+glfun(void, glRenderbufferStorage)(JNIEnv* env, jobject, jint target, jint internalFormat, jint width, jint height) {
     a_glRenderbufferStorage(target, internalFormat, width, height);
 }
 
-JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glFramebufferRenderbuffer(JNIEnv* env, jobject, jint target, jint attachment, jint renderbufferTarget, jint renderbuffer) {
+glfun(void, glFramebufferRenderbuffer)(JNIEnv* env, jobject, jint target, jint attachment, jint renderbufferTarget, jint renderbuffer) {
     a_glFramebufferRenderbuffer(target, attachment, renderbufferTarget, renderbuffer);
 }
 
-JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glReadPixels(JNIEnv* env, jobject, jint x, jint y, jint width, jint height, jint format, jint type, jobject pixels) {
+glfun(void, glReadPixels)(JNIEnv* env, jobject, jint x, jint y, jint width, jint height, jint format, jint type, jobject pixels) {
     char* bb = (char*)env->GetDirectBufferAddress(pixels);
     a_glReadPixels(x, y, width, height, format, type, bb);
 }
 
-JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glTexImage2D(JNIEnv* env, jobject, jint target, jint level, jint internalFormat, jint width, jint height, jint border, jint format, jint type, jobject pixels) {
+glfun(void, glTexImage2D)(JNIEnv* env, jobject, jint target, jint level, jint internalFormat, jint width, jint height, jint border, jint format, jint type, jobject pixels) {
     char* bb = pixels ? (char*)env->GetDirectBufferAddress(pixels) : NULL;
     a_glTexImage2D(target, level, internalFormat, width, height, border, format, type, bb);
 }
 
-JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glTexParameteri(JNIEnv* env, jobject, jint target, jint pname, jint param) {
+glfun(void, glTexParameteri)(JNIEnv* env, jobject, jint target, jint pname, jint param) {
     a_glTexParameteri(target, pname, param);
 }
 
-JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glViewport(JNIEnv* env, jobject, jint x, jint y, jint w, jint h) {
+glfun(void, glViewport)(JNIEnv* env, jobject, jint x, jint y, jint w, jint h) {
     a_glViewport(x, y, w, h);
 }
 
-JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glFinish(JNIEnv* env, jobject) {
+glfun(void, glFinish)(JNIEnv* env, jobject) {
     a_glFinish();
 }
 
-JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glRenderbufferStorageMultisample(JNIEnv* env, jobject, jint target, jint samples, jint internalformat, jint width, jint height) {
+glfun(void, glRenderbufferStorageMultisample)(JNIEnv* env, jobject, jint target, jint samples, jint internalformat, jint width, jint height) {
     a_glRenderbufferStorageMultisample(target, samples, internalformat, width, height);
 }
 
-JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glBlitFramebuffer(JNIEnv* env, jobject, jint srcX0, jint srcY0, jint srcX1, jint srcY1, jint dstX0, jint dstY0, jint dstX1, jint dstY1, jint mask, jint filter) {
+glfun(void, glBlitFramebuffer)(JNIEnv* env, jobject, jint srcX0, jint srcY0, jint srcX1, jint srcY1, jint dstX0, jint dstY0, jint dstX1, jint dstY1, jint mask, jint filter) {
     a_glBlitFramebuffer(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);
 }
 
-JNIEXPORT jint JNICALL Java_com_huskerdev_openglfx_GLExecutor_glGetInteger(JNIEnv* env, jobject, jint pname) {
+glfun(jint, glGetInteger)(JNIEnv* env, jobject, jint pname) {
     GLint data = 0;
     a_glGetIntegerv(pname, &data);
     return (jint)data;
 }
 
-JNIEXPORT jint JNICALL Java_com_huskerdev_openglfx_GLExecutor_glCreateShader(JNIEnv* env, jobject, jint type) {
+glfun(jint, glCreateShader)(JNIEnv* env, jobject, jint type) {
     return a_glCreateShader(type);
 }
 
-JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glDeleteShader(JNIEnv* env, jobject, jint shader) {
+glfun(void, glDeleteShader)(JNIEnv* env, jobject, jint shader) {
     a_glDeleteShader(shader);
 }
 
-JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glShaderSource(JNIEnv* env, jobject, jint shader, jstring source) {
+glfun(void, glShaderSource)(JNIEnv* env, jobject, jint shader, jstring source) {
     const char* sourceCh = env->GetStringUTFChars(source, 0);
     a_glShaderSource(shader, 1, &sourceCh, NULL);
     env->ReleaseStringUTFChars(source, sourceCh);
 }
 
-JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glCompileShader(JNIEnv* env, jobject, jint shader) {
+glfun(void, glCompileShader)(JNIEnv* env, jobject, jint shader) {
     a_glCompileShader(shader);
 }
 
-JNIEXPORT jint JNICALL Java_com_huskerdev_openglfx_GLExecutor_glCreateProgram(JNIEnv* env, jobject) {
+glfun(jint, glCreateProgram)(JNIEnv* env, jobject) {
     return a_glCreateProgram();
 }
 
-JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glAttachShader(JNIEnv* env, jobject, jint program, jint shader) {
+glfun(void, glAttachShader)(JNIEnv* env, jobject, jint program, jint shader) {
     a_glAttachShader(program, shader);
 }
 
-JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glLinkProgram(JNIEnv* env, jobject, jint program) {
+glfun(void, glLinkProgram)(JNIEnv* env, jobject, jint program) {
     a_glLinkProgram(program);
 }
 
-JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glUseProgram(JNIEnv* env, jobject, jint program) {
+glfun(void, glUseProgram)(JNIEnv* env, jobject, jint program) {
     a_glUseProgram(program);
 }
 
-JNIEXPORT jint JNICALL Java_com_huskerdev_openglfx_GLExecutor_glGetUniformLocation(JNIEnv* env, jobject, jint program, jstring name) {
+glfun(jint, glGetUniformLocation)(JNIEnv* env, jobject, jint program, jstring name) {
     const char* nameCh = env->GetStringUTFChars(name, 0);
 
     jint location = (jint)a_glGetUniformLocation(program, nameCh);
@@ -233,49 +233,49 @@ JNIEXPORT jint JNICALL Java_com_huskerdev_openglfx_GLExecutor_glGetUniformLocati
     return location;
 }
 
-JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glUniform2f(JNIEnv* env, jobject, jint program, jfloat value1, jfloat value2) {
+glfun(void, glUniform2f)(JNIEnv* env, jobject, jint program, jfloat value1, jfloat value2) {
     a_glUniform2f(program, value1, value2);
 }
 
-JNIEXPORT jint JNICALL Java_com_huskerdev_openglfx_GLExecutor_glGenVertexArrays(JNIEnv* env, jobject) {
+glfun(jint, glGenVertexArrays)(JNIEnv* env, jobject) {
     unsigned int vao;
     a_glGenVertexArrays(1, &vao);
     return vao;
 }
 
-JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glBindVertexArray(JNIEnv* env, jobject, jint vao) {
+glfun(void, glBindVertexArray)(JNIEnv* env, jobject, jint vao) {
     a_glBindVertexArray(vao);
 }
 
-JNIEXPORT jint JNICALL Java_com_huskerdev_openglfx_GLExecutor_glGenBuffers(JNIEnv* env, jobject) {
+glfun(jint, glGenBuffers)(JNIEnv* env, jobject) {
     unsigned int vbo;
     a_glGenBuffers(1, &vbo);
     return vbo;
 }
 
-JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glBindBuffer(JNIEnv* env, jobject, jint target, jint buffer) {
+glfun(void, glBindBuffer)(JNIEnv* env, jobject, jint target, jint buffer) {
     a_glBindBuffer(target, buffer);
 }
 
-JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glBufferData(JNIEnv* env, jobject, jint target, jobject verticesBuffer, jint type) {
+glfun(void, glBufferData)(JNIEnv* env, jobject, jint target, jobject verticesBuffer, jint type) {
     GLfloat* vertices = (GLfloat*)env->GetDirectBufferAddress(verticesBuffer);
     jlong length = env->GetDirectBufferCapacity(verticesBuffer) * 4;
     a_glBufferData(target, length, vertices, type);
 }
 
-JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glVertexAttribPointer(JNIEnv* env, jobject, jint index, jint size, jint type, jboolean normalized, jint stride, jlong offset) {
+glfun(void, glVertexAttribPointer)(JNIEnv* env, jobject, jint index, jint size, jint type, jboolean normalized, jint stride, jlong offset) {
     a_glVertexAttribPointer(index, size, type, normalized, stride, (void*)offset);
 }
 
-JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glEnableVertexAttribArray(JNIEnv* env, jobject, jint index) {
+glfun(void, glEnableVertexAttribArray)(JNIEnv* env, jobject, jint index) {
     a_glEnableVertexAttribArray(index);
 }
 
-JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glDeleteBuffers(JNIEnv* env, jobject, jint buffer) {
+glfun(void, glDeleteBuffers)(JNIEnv* env, jobject, jint buffer) {
     a_glDeleteBuffers(1, (GLuint*)&buffer);
 }
 
-JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_GLExecutor_glDrawArrays(JNIEnv* env, jobject, jint mode, jint first, jint count) {
+glfun(void, glDrawArrays)(JNIEnv* env, jobject, jint mode, jint first, jint count) {
     a_glDrawArrays(mode, first, count);
 }
 }

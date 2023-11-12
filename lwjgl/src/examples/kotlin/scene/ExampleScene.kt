@@ -1,8 +1,8 @@
 package scene
 
-import com.huskerdev.openglfx.events.GLInitializeEvent
-import com.huskerdev.openglfx.events.GLRenderEvent
-import com.huskerdev.openglfx.events.GLReshapeEvent
+import com.huskerdev.openglfx.canvas.events.GLInitializeEvent
+import com.huskerdev.openglfx.canvas.events.GLRenderEvent
+import com.huskerdev.openglfx.canvas.events.GLReshapeEvent
 import javafx.scene.paint.Color
 import org.lwjgl.opengl.GL30.*
 import scene.graphics.Mesh

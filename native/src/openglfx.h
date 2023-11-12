@@ -1,5 +1,8 @@
 #include <jni.h>
 
+#define glfun(returnType, fun) JNIEXPORT returnType JNICALL Java_com_huskerdev_openglfx_GLExecutor_##fun
+#define nvdxfun(returnType, fun) JNIEXPORT returnType JNICALL Java_com_huskerdev_openglfx_internal_d3d9_NVDXInterop_##fun
+
 typedef unsigned int GLenum;
 typedef int GLint;
 typedef unsigned int GLuint;

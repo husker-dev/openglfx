@@ -1,10 +1,12 @@
 package com.huskerdev.openglfx
 
-import com.huskerdev.openglfx.implementations.InteropImpl
-import com.huskerdev.openglfx.implementations.SharedImpl
-import com.huskerdev.openglfx.implementations.UniversalImpl
-import com.huskerdev.openglfx.implementations.multithread.MultiThreadInteropImpl
-import com.huskerdev.openglfx.implementations.multithread.MultiThreadSharedImpl
+import com.huskerdev.ojgl.GLContext
+import com.huskerdev.openglfx.canvas.GLProfile
+import com.huskerdev.openglfx.canvas.implementations.NVDXInteropCanvasImpl
+import com.huskerdev.openglfx.canvas.implementations.SharedCanvasImpl
+import com.huskerdev.openglfx.canvas.implementations.BlitCanvasImpl
+import com.huskerdev.openglfx.canvas.implementations.async.AsyncNVDXInteropCanvasImpl
+import com.huskerdev.openglfx.canvas.implementations.async.AsyncSharedCanvasImpl
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
@@ -37,7 +39,7 @@ const val GL_STATIC_DRAW = 0x88E4
 const val GL_TRIANGLE_STRIP = 0x0005
 
 
-abstract class GLExecutor {
+open class GLExecutor {
 
     companion object {
         private var isInitialized = false
@@ -88,29 +90,36 @@ abstract class GLExecutor {
         @JvmStatic external fun glDeleteBuffers(buffer: Int)
         @JvmStatic external fun glDrawArrays(mode: Int, first: Int, count: Int)
 
-        fun initGLFunctions(){
-            if(isInitialized) return
-            isInitialized = true
-            nInitGLFunctions()
-        }
-
-        fun floatBuffer(array: FloatArray): FloatBuffer{
+        fun floatBuffer(array: FloatArray): FloatBuffer {
             return ByteBuffer.allocateDirect(array.size * Float.SIZE_BYTES)
                 .order(ByteOrder.nativeOrder()).asFloatBuffer().put(array)
         }
+
+        fun loadBasicFunctionPointers(){
+            if(isInitialized) return
+            isInitialized = true
+            if(GLContext.current().handle == 0L) {
+                val context = GLContext.create()
+                context.makeCurrent()
+                nInitGLFunctions()
+                GLContext.delete(context)
+            } else nInitGLFunctions()
+        }
     }
 
-    open fun universalCanvas(profile: GLProfile, flipY: Boolean, msaa: Int, multiThread: Boolean) =
-        UniversalImpl(this, profile, flipY, msaa)
+    open fun blitCanvas(profile: GLProfile, flipY: Boolean, msaa: Int, async: Boolean) =
+        BlitCanvasImpl(this, profile, flipY, msaa)
 
-    open fun sharedCanvas(profile: GLProfile, flipY: Boolean, msaa: Int, multiThread: Boolean) =
-        if(multiThread) MultiThreadSharedImpl(this, profile, flipY, msaa)
-        else SharedImpl(this, profile, flipY, msaa)
+    open fun sharedCanvas(profile: GLProfile, flipY: Boolean, msaa: Int, async: Boolean) =
+        if(async) AsyncSharedCanvasImpl(this, profile, flipY, msaa)
+        else SharedCanvasImpl(this, profile, flipY, msaa)
 
-    open fun interopCanvas(profile: GLProfile, flipY: Boolean, msaa: Int, multiThread: Boolean) =
-        if(multiThread) MultiThreadInteropImpl(this, profile, flipY, msaa)
-        else InteropImpl(this, profile, flipY, msaa)
+    open fun interopCanvas(profile: GLProfile, flipY: Boolean, msaa: Int, async: Boolean) =
+        if(async) AsyncNVDXInteropCanvasImpl(this, profile, flipY, msaa)
+        else NVDXInteropCanvasImpl(this, profile, flipY, msaa)
 
-    abstract fun initGLFunctionsImpl()
+    open fun initGLFunctions() {
+        loadBasicFunctionPointers()
+    }
 
 }
