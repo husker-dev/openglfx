@@ -16,13 +16,10 @@ import com.huskerdev.openglfx.internal.d3d9.D3D9Device
 import com.huskerdev.openglfx.internal.d3d9.D3D9Texture
 import com.huskerdev.openglfx.internal.d3d9.NVDXInterop
 import com.huskerdev.openglfx.internal.d3d9.WGL_ACCESS_WRITE_DISCARD_NV
-import com.sun.javafx.scene.DirtyBits
-import com.sun.javafx.scene.NodeHelper
 import com.sun.prism.Graphics
 import com.sun.prism.GraphicsPipeline
 import com.sun.prism.PixelFormat
 import com.sun.prism.Texture
-import javafx.animation.AnimationTimer
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
@@ -111,7 +108,7 @@ class AsyncNVDXInteropCanvasImpl(
     }
 
     override fun onNGRender(g: Graphics) {
-        if(width == 0.0 || height == 0.0)
+        if(scaledWidth == 0 || scaledHeight == 0)
             return
 
         if (needsBlit.getAndSet(false)) {

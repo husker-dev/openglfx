@@ -12,13 +12,10 @@ import com.huskerdev.openglfx.internal.PassthroughShader
 import com.huskerdev.openglfx.internal.Size
 import com.huskerdev.openglfx.internal.fbo.Framebuffer
 import com.huskerdev.openglfx.internal.fbo.MultiSampledFramebuffer
-import com.sun.javafx.scene.DirtyBits
-import com.sun.javafx.scene.NodeHelper
 import com.sun.prism.Graphics
 import com.sun.prism.GraphicsPipeline
 import com.sun.prism.PixelFormat
 import com.sun.prism.Texture
-import javafx.animation.AnimationTimer
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
@@ -50,7 +47,7 @@ class AsyncSharedCanvasImpl(
 
     private lateinit var passthroughShader: PassthroughShader
 
-    private fun initializeGL(){
+    private fun initializeThread(){
         fxContext = GLContext.current()
         parallelContext = GLContext.create(fxContext!!, profile == GLProfile.Core)
         resultContext = GLContext.create(fxContext!!, profile == GLProfile.Core)
@@ -87,8 +84,11 @@ class AsyncSharedCanvasImpl(
     }
 
     override fun onNGRender(g: Graphics) {
+        if(scaledWidth == 0 || scaledHeight == 0)
+            return
+
         if (fxContext == null)
-            initializeGL()
+            initializeThread()
 
         if (needsBlit.getAndSet(false)) {
             resultContext!!.makeCurrent()

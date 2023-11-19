@@ -91,6 +91,9 @@ class AsyncBlitCanvasImpl(
     }
 
     override fun onNGRender(g: Graphics){
+        if(scaledWidth == 0 || scaledHeight == 0)
+            return
+
         if(!this::context.isInitialized)
             initializeThread()
 
