@@ -32,7 +32,7 @@ tasks.register('compile') {
         } else if (os.isMacOsX()) {
             file('build').mkdirs()
             execute("cmake ../ -DCMAKE_OSX_ARCHITECTURES=\"arm64;x86_64\"", file("build"))
-            execute("cmake --build ./", file("build"))
+            execute("cmake --build ../", file("build"))
         } else throw new Exception("Unsupported OS")
     }
 }
