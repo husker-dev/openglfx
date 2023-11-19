@@ -44,7 +44,7 @@ class AsyncNVDXInteropCanvasImpl(
     private lateinit var msaaFBO: MultiSampledFramebuffer
 
     private lateinit var context: GLContext
-    private lateinit var parallelContext: GLContext
+    private lateinit var resultContext: GLContext
     private val fxDevice = D3D9Device.fxInstance
 
     private lateinit var fxD3DTexture: D3D9Texture
@@ -71,7 +71,7 @@ class AsyncNVDXInteropCanvasImpl(
 
         thread(isDaemon = true) {
             context = GLContext.create(0, profile == GLProfile.Core)
-            parallelContext = GLContext.create(context.handle, profile == GLProfile.Core)
+            resultContext = GLContext.create(context.handle, profile == GLProfile.Core)
             context.makeCurrent()
             executor.initGLFunctions()
 
@@ -133,7 +133,7 @@ class AsyncNVDXInteropCanvasImpl(
 
         if (needsBlit.getAndSet(false)) {
             if(!this::passthroughShader.isInitialized){
-                parallelContext.makeCurrent()
+                resultContext.makeCurrent()
                 passthroughShader = PassthroughShader()
             }
 
@@ -178,7 +178,7 @@ class AsyncNVDXInteropCanvasImpl(
         // Create interop texture
         interopTexture = NVDXInterop.wglDXRegisterObjectNV(NVDXInterop.interopHandle, fxD3DTexture.handle, resultFBO.texture, GL_TEXTURE_2D, WGL_ACCESS_WRITE_DISCARD_NV)
 
-        parallelContext.makeCurrent()
+        resultContext.makeCurrent()
     }
 
     override fun repaint() {
@@ -190,6 +190,6 @@ class AsyncNVDXInteropCanvasImpl(
     override fun dispose() {
         super.dispose()
         GLContext.delete(context)
-        GLContext.delete(parallelContext)
+        GLContext.delete(resultContext)
     }
 }

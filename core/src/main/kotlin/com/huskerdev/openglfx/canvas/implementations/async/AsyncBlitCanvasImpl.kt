@@ -2,10 +2,13 @@ package com.huskerdev.openglfx.canvas.implementations.async
 
 import com.huskerdev.ojgl.GLContext
 import com.huskerdev.openglfx.*
+import com.huskerdev.openglfx.GLExecutor.Companion.glReadPixels
+import com.huskerdev.openglfx.GLExecutor.Companion.glViewport
 import com.huskerdev.openglfx.canvas.GLProfile
 import com.huskerdev.openglfx.canvas.OpenGLCanvas
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.getPlatformImage
 import com.huskerdev.openglfx.internal.GLInteropType
+import com.huskerdev.openglfx.internal.PassthroughShader
 import com.huskerdev.openglfx.internal.fbo.Framebuffer
 import com.huskerdev.openglfx.internal.fbo.MultiSampledFramebuffer
 import com.sun.javafx.geom.Rectangle
@@ -21,6 +24,7 @@ import javafx.scene.image.WritableImage
 import sun.misc.Unsafe
 import java.nio.ByteBuffer
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.concurrent.thread
 
 class AsyncBlitCanvasImpl(
     private val executor: GLExecutor,
@@ -36,19 +40,27 @@ class AsyncBlitCanvasImpl(
         private val unsafe = Unsafe::class.java.getDeclaredField("theUnsafe").apply { isAccessible = true }[null] as Unsafe
     }
 
-    private var initialized = false
-    private var context: GLContext? = null
+    private val paintLock = Object()
+    private val blitLock = Object()
 
-    private var image = WritableImage(1, 1)
+    private var needsBlit = AtomicBoolean(false)
 
-    private var pixelByteBuffer: ByteBuffer? = null
-    private lateinit var pixelBuffer: PixelBuffer<ByteBuffer>
+    private var lastDrawSize = Pair(-1, -1)
+    private var lastResultSize = Pair(-1, -1)
 
+    private lateinit var resultFBO: Framebuffer
+    private lateinit var interThreadFBO: Framebuffer
     private lateinit var fbo: Framebuffer
     private lateinit var msaaFBO: MultiSampledFramebuffer
 
-    private var needsRepaint = AtomicBoolean(false)
-    private var lastSize = Pair(10, 10)
+    private lateinit var context: GLContext
+    private lateinit var resultContext: GLContext
+
+    private var pixelByteBuffer: ByteBuffer? = null
+    private lateinit var pixelBuffer: PixelBuffer<ByteBuffer>
+    private var image = WritableImage(1, 1)
+
+    private lateinit var passthroughShader: PassthroughShader
 
     init{
         visibleProperty().addListener { _, _, _ -> repaint() }
@@ -57,109 +69,133 @@ class AsyncBlitCanvasImpl(
 
         object: AnimationTimer(){
             override fun handle(now: Long) {
-                try {
-                    if(needsRepaint.getAndSet(false)) {
-                        NodeHelper.markDirty(this@AsyncBlitCanvasImpl, DirtyBits.NODE_BOUNDS)
-                        NodeHelper.markDirty(this@AsyncBlitCanvasImpl, DirtyBits.REGION_SHAPE)
-                    }
-                } catch (_: Exception){}
+                if(needsBlit.get()) {
+                    NodeHelper.markDirty(this@AsyncBlitCanvasImpl, DirtyBits.NODE_BOUNDS)
+                    NodeHelper.markDirty(this@AsyncBlitCanvasImpl, DirtyBits.REGION_SHAPE)
+                }
             }
         }.start()
     }
 
-    override fun onNGRender(g: Graphics){
-        if(!initialized){
-            initialized = true
+    private fun initializeThread(){
+        context = GLContext.create(0L, profile == GLProfile.Core)
+        resultContext = GLContext.create(context, profile == GLProfile.Core)
+        resultContext.makeCurrent()
+        executor.initGLFunctions()
 
-            context = GLContext.create(0L, profile == GLProfile.Core)
-            context!!.makeCurrent()
+        thread(isDaemon = true) {
+            context.makeCurrent()
             executor.initGLFunctions()
             fireInitEvent()
+
+            while(!disposed){
+                paint()
+                synchronized(blitLock) {
+                    fbo.blitTo(interThreadFBO.id)
+                }
+                needsBlit.set(true)
+
+                synchronized(paintLock){
+                    paintLock.wait()
+                }
+            }
         }
-        context!!.makeCurrent()
-
-        if(scaledWidth.toInt() != lastSize.first || scaledHeight.toInt() != lastSize.second){
-            lastSize = Pair(scaledWidth.toInt(), scaledHeight.toInt())
-            updateFramebufferSize()
-            fireReshapeEvent(lastSize.first, lastSize.second)
-        }
-        GLExecutor.glViewport(0, 0, lastSize.first, lastSize.second)
-        fireRenderEvent(if(msaa != 0) msaaFBO.id else fbo.id)
-
-        if(msaa != 0)
-            msaaFBO.blitTo(fbo.id)
-        readPixels()
-
-        val texture = g.resourceFactory.getCachedTexture(image.getPlatformImage() as Image, Texture.WrapMode.CLAMP_TO_EDGE)
-        if(!texture.isLocked)
-            texture.lock()
-
-        drawResultTexture(g, texture)
-        texture.unlock()
     }
 
-    private fun readPixels() {
-        if (scene == null || scene.window == null || width <= 0 || height <= 0)
-            return
+    private fun paint(){
+        if (scaledWidth.toInt() != lastDrawSize.first || scaledHeight.toInt() != lastDrawSize.second) {
+            lastDrawSize = Pair(scaledWidth.toInt(), scaledHeight.toInt())
+            updateFramebufferSize()
 
-        val renderWidth = lastSize.first
-        val renderHeight = lastSize.second
-        if(renderWidth <= 0 || renderHeight <= 0)
-            return
-
-        if(image.width.toInt() != renderWidth || image.height.toInt() != renderHeight){
-            if(pixelByteBuffer != null)
-                unsafe.invokeCleaner(pixelByteBuffer!!)
-
-            pixelByteBuffer = ByteBuffer.allocateDirect(renderWidth * renderHeight * 4)
-            pixelBuffer = PixelBuffer(renderWidth, renderHeight, pixelByteBuffer!!, PixelFormat.getByteBgraPreInstance())
-
-            image = WritableImage(pixelBuffer)
+            fireReshapeEvent(lastDrawSize.first, lastDrawSize.second)
         }
 
-        val oldDrawBuffer = GLExecutor.glGetInteger(GL_DRAW_FRAMEBUFFER_BINDING)
-        val oldReadBuffer = GLExecutor.glGetInteger(GL_READ_FRAMEBUFFER_BINDING)
+        glViewport(0, 0, lastDrawSize.first, lastDrawSize.second)
+        fireRenderEvent(if (msaa != 0) msaaFBO.id else fbo.id)
+        if (msaa != 0)
+            msaaFBO.blitTo(fbo.id)
+    }
 
-        fbo.bindFramebuffer()
-        GLExecutor.glReadPixels(
-            0,
-            0,
-            renderWidth,
-            renderHeight,
-            GL_BGRA,
-            GL_UNSIGNED_INT_8_8_8_8_REV,
-            pixelByteBuffer!!
-        )
+    override fun onNGRender(g: Graphics){
+        if(!this::context.isInitialized)
+            initializeThread()
 
-        GLExecutor.glBindFramebuffer(GL_DRAW_FRAMEBUFFER, oldDrawBuffer)
-        GLExecutor.glBindFramebuffer(GL_READ_FRAMEBUFFER, oldReadBuffer)
+        if(width == 0.0 || height == 0.0)
+            return
 
-        pixelBuffer.bufferDirty(null)
+        if (needsBlit.getAndSet(false)) {
+            synchronized(blitLock){
+                if(!::passthroughShader.isInitialized)
+                    passthroughShader = PassthroughShader()
+
+                if (scaledWidth.toInt() != lastResultSize.first || scaledHeight.toInt() != lastResultSize.second) {
+                    lastResultSize = Pair(scaledWidth.toInt(), scaledHeight.toInt())
+                    updateResultTextureSize()
+                }
+
+                passthroughShader.copy(interThreadFBO, resultFBO)
+
+                glViewport(0, 0, lastResultSize.first, lastResultSize.second)
+                glReadPixels(0, 0, lastResultSize.first, lastResultSize.second, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, pixelByteBuffer!!)
+                pixelBuffer.bufferDirty(null)
+
+                val texture = g.resourceFactory.getCachedTexture(image.getPlatformImage() as Image, Texture.WrapMode.CLAMP_TO_EDGE)
+                if(!texture.isLocked)
+                    texture.lock()
+                drawResultTexture(g, texture)
+                texture.unlock()
+            }
+        }
+    }
+
+    private fun updateResultTextureSize(){
+        if(::resultFBO.isInitialized)
+            resultFBO.delete()
+
+        val width = lastResultSize.first
+        val height = lastResultSize.second
+
+        if(pixelByteBuffer != null)
+            unsafe.invokeCleaner(pixelByteBuffer!!)
+
+        pixelByteBuffer = ByteBuffer.allocateDirect(width * height * 4)
+        pixelBuffer = PixelBuffer(width, height, pixelByteBuffer!!, PixelFormat.getByteBgraPreInstance())
+        image = WritableImage(pixelBuffer)
+
+        resultFBO = Framebuffer(width, height)
     }
 
     private fun updateFramebufferSize() {
         if(::fbo.isInitialized){
+            interThreadFBO.delete()
             fbo.delete()
             if(msaa != 0) msaaFBO.delete()
         }
 
-        val width = lastSize.first
-        val height = lastSize.second
+        val width = lastDrawSize.first
+        val height = lastDrawSize.second
+
+        interThreadFBO = Framebuffer(width, height)
 
         fbo = Framebuffer(width, height)
         fbo.bindFramebuffer()
 
         if(msaa != 0) {
-            msaaFBO = MultiSampledFramebuffer(msaa, lastSize.first, lastSize.second)
+            msaaFBO = MultiSampledFramebuffer(msaa, width, height)
             msaaFBO.bindFramebuffer()
         }
     }
 
-    override fun repaint() = needsRepaint.set(true)
+    override fun repaint() {
+        synchronized(paintLock){
+            paintLock.notifyAll()
+        }
+    }
 
     override fun dispose() {
         super.dispose()
         unsafe.invokeCleaner(pixelByteBuffer!!)
-        GLContext.delete(context!!)
+        GLContext.delete(context)
+        GLContext.delete(resultContext)
     }
 }
