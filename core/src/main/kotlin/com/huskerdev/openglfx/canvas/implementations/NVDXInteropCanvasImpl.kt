@@ -8,6 +8,7 @@ import com.huskerdev.openglfx.canvas.OpenGLCanvas
 import com.huskerdev.openglfx.internal.fbo.MultiSampledFramebuffer
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.D3DTextureResource
 import com.huskerdev.openglfx.internal.GLInteropType
+import com.huskerdev.openglfx.internal.Size
 import com.huskerdev.openglfx.internal.fbo.Framebuffer
 import com.huskerdev.openglfx.internal.d3d9.D3D9Device
 import com.huskerdev.openglfx.internal.d3d9.D3D9Texture
@@ -36,7 +37,7 @@ open class NVDXInteropCanvasImpl(
     msaa: Int
 ) : OpenGLCanvas(GLInteropType.NVDXInterop, profile, flipY, msaa, false){
 
-    private var lastSize = Pair(-1, -1)
+    private var lastSize = Size(-1, -1)
     private var initialized = false
 
     private var needsRepaint = AtomicBoolean(false)
@@ -52,21 +53,6 @@ open class NVDXInteropCanvasImpl(
 
     private var interopTexture = -1L
 
-    init {
-        visibleProperty().addListener { _, _, _ -> repaint() }
-        widthProperty().addListener { _, _, _ -> repaint() }
-        heightProperty().addListener { _, _, _ -> repaint() }
-
-        object: AnimationTimer(){
-            override fun handle(now: Long) {
-                if(needsRepaint.getAndSet(false)) {
-                    NodeHelper.markDirty(this@NVDXInteropCanvasImpl, DirtyBits.NODE_BOUNDS)
-                    NodeHelper.markDirty(this@NVDXInteropCanvasImpl, DirtyBits.REGION_SHAPE)
-                }
-            }
-        }.start()
-    }
-
     override fun onNGRender(g: Graphics) {
         if(width == 0.0 || height == 0.0)
             return
@@ -78,18 +64,17 @@ open class NVDXInteropCanvasImpl(
             context!!.makeCurrent()
             executor.initGLFunctions()
         }
-
         context!!.makeCurrent()
-        if(scaledWidth.toInt() != lastSize.first || scaledHeight.toInt() != lastSize.second) {
-            lastSize = Pair(scaledWidth.toInt(), scaledHeight.toInt())
-            updateFramebufferSize()
+
+        lastSize.onDifference(scaledWidth, scaledHeight) {
+            updateFramebufferSize(scaledWidth, scaledHeight)
 
             wglDXLockObjectsNV(interopHandle, interopTexture)
-            fireReshapeEvent(lastSize.first, lastSize.second)
-        }else
-            wglDXLockObjectsNV(interopHandle, interopTexture)
+            fireReshapeEvent(scaledWidth, scaledHeight)
+        }
+        wglDXLockObjectsNV(interopHandle, interopTexture)
 
-        glViewport(0, 0, lastSize.first, lastSize.second)
+        glViewport(0, 0, lastSize.width, lastSize.height)
         fireRenderEvent(if(msaa != 0) msaaFBO.id else fbo.id)
         if(msaa != 0)
             msaaFBO.blitTo(fbo.id)
@@ -98,7 +83,7 @@ open class NVDXInteropCanvasImpl(
         drawResultTexture(g, fxTexture)
     }
 
-    private fun updateFramebufferSize() {
+    private fun updateFramebufferSize(width: Int, height: Int) {
         if (::fbo.isInitialized) {
             wglDXUnregisterObjectNV(interopHandle, interopTexture)
             fxTexture.dispose()
@@ -106,9 +91,6 @@ open class NVDXInteropCanvasImpl(
             fbo.delete()
             if(msaa != 0) msaaFBO.delete()
         }
-
-        val width = lastSize.first
-        val height = lastSize.second
 
         // Create GL texture
         fbo = Framebuffer(width, height)
@@ -137,6 +119,11 @@ open class NVDXInteropCanvasImpl(
     }
 
     override fun repaint() = needsRepaint.set(true)
+
+    override fun timerTick() {
+        if(needsRepaint.getAndSet(false))
+            markDirty()
+    }
 
     override fun dispose() {
         super.dispose()

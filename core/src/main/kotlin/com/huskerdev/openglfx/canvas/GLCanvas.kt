@@ -8,8 +8,11 @@ import com.huskerdev.openglfx.canvas.events.GLReshapeEvent
 import com.huskerdev.openglfx.internal.*
 import com.huskerdev.openglfx.internal.NGGLCanvas
 import com.huskerdev.openglfx.internal.GLInteropType.*
+import com.sun.javafx.scene.DirtyBits
+import com.sun.javafx.scene.NodeHelper
 import com.sun.prism.Graphics
 import com.sun.prism.Texture
+import javafx.animation.AnimationTimer
 import javafx.scene.layout.Pane
 import java.util.function.Consumer
 
@@ -95,16 +98,34 @@ abstract class OpenGLCanvas(
     private val dpi: Double
         get() = scene?.window?.outputScaleX ?: 1.0
 
-    protected val scaledWidth: Double
-        get() = width * dpi
+    protected val scaledWidth: Int
+        get() = (width * dpi).toInt()
 
-    protected val scaledHeight: Double
-        get() = height * dpi
+    protected val scaledHeight: Int
+        get() = (height * dpi).toInt()
 
     private var useRenderDoc = false
 
+    init {
+        visibleProperty().addListener { _, _, _ -> repaint() }
+        widthProperty().addListener { _, _, _ -> repaint() }
+        heightProperty().addListener { _, _, _ -> repaint() }
+
+        object: AnimationTimer(){
+            override fun handle(now: Long) {
+                timerTick()
+            }
+        }.start()
+    }
+
+    protected abstract fun timerTick()
     protected abstract fun onNGRender(g: Graphics)
     abstract fun repaint()
+
+    protected fun markDirty(){
+        NodeHelper.markDirty(this, DirtyBits.NODE_BOUNDS)
+        NodeHelper.markDirty(this, DirtyBits.REGION_SHAPE)
+    }
 
     /**
      * Invokes every frame with an active GL context

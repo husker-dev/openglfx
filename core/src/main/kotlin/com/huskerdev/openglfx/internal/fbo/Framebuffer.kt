@@ -14,9 +14,11 @@ import com.huskerdev.openglfx.GLExecutor.Companion.glGenFramebuffers
 import com.huskerdev.openglfx.GLExecutor.Companion.glGenRenderbuffers
 import com.huskerdev.openglfx.GLExecutor.Companion.glGenTextures
 import com.huskerdev.openglfx.GLExecutor.Companion.glGetInteger
+import com.huskerdev.openglfx.GLExecutor.Companion.glReadPixels
 import com.huskerdev.openglfx.GLExecutor.Companion.glRenderbufferStorage
 import com.huskerdev.openglfx.GLExecutor.Companion.glTexImage2D
 import com.huskerdev.openglfx.GLExecutor.Companion.glTexParameteri
+import java.nio.ByteBuffer
 
 class Framebuffer(
     val width: Int,
@@ -69,6 +71,14 @@ class Framebuffer(
         )
 
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, oldDrawBuffer)
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, oldReadBuffer)
+    }
+
+    fun readPixels(x: Int, y: Int, width: Int, height: Int, format: Int, type: Int, targetBuffer: ByteBuffer){
+        val oldReadBuffer = glGetInteger(GL_READ_FRAMEBUFFER_BINDING)
+
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, id)
+        glReadPixels(x, y, width, height, format, type, targetBuffer)
         glBindFramebuffer(GL_READ_FRAMEBUFFER, oldReadBuffer)
     }
 

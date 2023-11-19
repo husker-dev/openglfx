@@ -9,6 +9,7 @@ import com.huskerdev.openglfx.canvas.OpenGLCanvas
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.D3DTextureResource
 import com.huskerdev.openglfx.internal.GLInteropType
 import com.huskerdev.openglfx.internal.PassthroughShader
+import com.huskerdev.openglfx.internal.Size
 import com.huskerdev.openglfx.internal.fbo.Framebuffer
 import com.huskerdev.openglfx.internal.fbo.MultiSampledFramebuffer
 import com.huskerdev.openglfx.internal.d3d9.D3D9Device
@@ -35,8 +36,8 @@ class AsyncNVDXInteropCanvasImpl(
     private val paintLock = Object()
     private val blitLock = Object()
 
-    private var lastDrawSize = Pair(-1, -1)
-    private var lastResultSize = Pair(-1, -1)
+    private var lastDrawSize = Size(-1, -1)
+    private var lastResultSize = Size(-1, -1)
 
     private lateinit var resultFBO: Framebuffer
     private lateinit var interThreadFBO: Framebuffer
@@ -56,19 +57,6 @@ class AsyncNVDXInteropCanvasImpl(
     private lateinit var passthroughShader: PassthroughShader
 
     init {
-        visibleProperty().addListener { _, _, _ -> repaint() }
-        widthProperty().addListener { _, _, _ -> repaint() }
-        heightProperty().addListener { _, _, _ -> repaint() }
-
-        object: AnimationTimer(){
-            override fun handle(now: Long) {
-                if(needsBlit.get()) {
-                    NodeHelper.markDirty(this@AsyncNVDXInteropCanvasImpl, DirtyBits.NODE_BOUNDS)
-                    NodeHelper.markDirty(this@AsyncNVDXInteropCanvasImpl, DirtyBits.REGION_SHAPE)
-                }
-            }
-        }.start()
-
         thread(isDaemon = true) {
             context = GLContext.create(0, profile == GLProfile.Core)
             resultContext = GLContext.create(context.handle, profile == GLProfile.Core)
@@ -90,28 +78,23 @@ class AsyncNVDXInteropCanvasImpl(
     }
 
     private fun paint(){
-        if (scaledWidth.toInt() != lastDrawSize.first || scaledHeight.toInt() != lastDrawSize.second) {
-            lastDrawSize = Pair(scaledWidth.toInt(), scaledHeight.toInt())
-            updateFramebufferSize()
-
-            fireReshapeEvent(lastDrawSize.first, lastDrawSize.second)
+        lastDrawSize.onDifference(scaledWidth, scaledHeight){
+            updateFramebufferSize(scaledWidth, scaledHeight)
+            fireReshapeEvent(scaledWidth, scaledHeight)
         }
 
-        glViewport(0, 0, lastDrawSize.first, lastDrawSize.second)
+        glViewport(0, 0, lastDrawSize.width, lastDrawSize.height)
         fireRenderEvent(if (msaa != 0) msaaFBO.id else fbo.id)
         if (msaa != 0)
             msaaFBO.blitTo(fbo.id)
     }
 
-    private fun updateFramebufferSize() {
+    private fun updateFramebufferSize(width: Int, height: Int) {
         if (::fbo.isInitialized) {
             interThreadFBO.delete()
             fbo.delete()
             if(msaa != 0) msaaFBO.delete()
         }
-
-        val width = lastDrawSize.first
-        val height = lastDrawSize.second
 
         interThreadFBO = Framebuffer(width, height)
         interThreadFBO.bindFramebuffer()
@@ -138,11 +121,10 @@ class AsyncNVDXInteropCanvasImpl(
             }
 
             synchronized(blitLock){
-                if (scaledWidth.toInt() != lastResultSize.first || scaledHeight.toInt() != lastResultSize.second) {
-                    lastResultSize = Pair(scaledWidth.toInt(), scaledHeight.toInt())
-                    updateInteropTexture()
+                lastResultSize.onDifference(scaledWidth, scaledHeight){
+                    updateInteropTexture(scaledWidth, scaledHeight)
                 }
-                glViewport(0, 0, lastResultSize.first, lastResultSize.second)
+                glViewport(0, 0, lastResultSize.width, lastResultSize.height)
 
                 NVDXInterop.wglDXLockObjectsNV(NVDXInterop.interopHandle, interopTexture)
                 passthroughShader.copy(interThreadFBO, resultFBO)
@@ -153,15 +135,12 @@ class AsyncNVDXInteropCanvasImpl(
             drawResultTexture(g, fxTexture)
     }
 
-    private fun updateInteropTexture(){
+    private fun updateInteropTexture(width: Int, height: Int){
         if(this::fxTexture.isInitialized) {
             NVDXInterop.wglDXUnregisterObjectNV(NVDXInterop.interopHandle, interopTexture)
             fxTexture.dispose()
             resultFBO.delete()
         }
-
-        val width = lastResultSize.first
-        val height = lastResultSize.second
 
         resultFBO = Framebuffer(width, height)
         resultFBO.bindFramebuffer()
@@ -187,8 +166,16 @@ class AsyncNVDXInteropCanvasImpl(
         }
     }
 
+    override fun timerTick() {
+        if(needsBlit.get())
+            markDirty()
+    }
+
     override fun dispose() {
         super.dispose()
+        synchronized(paintLock){
+            paintLock.notifyAll()
+        }
         GLContext.delete(context)
         GLContext.delete(resultContext)
     }

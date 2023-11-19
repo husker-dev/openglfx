@@ -5,6 +5,7 @@ import com.huskerdev.openglfx.canvas.GLProfile
 import com.huskerdev.openglfx.canvas.implementations.NVDXInteropCanvasImpl
 import com.huskerdev.openglfx.canvas.implementations.SharedCanvasImpl
 import com.huskerdev.openglfx.canvas.implementations.BlitCanvasImpl
+import com.huskerdev.openglfx.canvas.implementations.async.AsyncBlitCanvasImpl
 import com.huskerdev.openglfx.canvas.implementations.async.AsyncNVDXInteropCanvasImpl
 import com.huskerdev.openglfx.canvas.implementations.async.AsyncSharedCanvasImpl
 import java.nio.ByteBuffer
@@ -108,7 +109,8 @@ open class GLExecutor {
     }
 
     open fun blitCanvas(profile: GLProfile, flipY: Boolean, msaa: Int, async: Boolean) =
-        BlitCanvasImpl(this, profile, flipY, msaa)
+        if(async) AsyncBlitCanvasImpl(this, profile, flipY, msaa)
+        else BlitCanvasImpl(this, profile, flipY, msaa)
 
     open fun sharedCanvas(profile: GLProfile, flipY: Boolean, msaa: Int, async: Boolean) =
         if(async) AsyncSharedCanvasImpl(this, profile, flipY, msaa)

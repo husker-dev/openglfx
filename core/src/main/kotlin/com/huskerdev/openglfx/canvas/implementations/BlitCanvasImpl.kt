@@ -9,6 +9,7 @@ import com.huskerdev.openglfx.canvas.GLProfile
 import com.huskerdev.openglfx.canvas.OpenGLCanvas
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.getPlatformImage
 import com.huskerdev.openglfx.internal.GLInteropType
+import com.huskerdev.openglfx.internal.Size
 import com.huskerdev.openglfx.internal.fbo.Framebuffer
 import com.huskerdev.openglfx.internal.fbo.MultiSampledFramebuffer
 import com.sun.javafx.geom.Rectangle
@@ -52,24 +53,7 @@ open class BlitCanvasImpl(
     private lateinit var msaaFBO: MultiSampledFramebuffer
 
     private var needsRepaint = AtomicBoolean(false)
-    private var lastSize = Pair(10, 10)
-
-    init{
-        visibleProperty().addListener { _, _, _ -> repaint() }
-        widthProperty().addListener { _, _, _ -> repaint() }
-        heightProperty().addListener { _, _, _ -> repaint() }
-
-        object: AnimationTimer(){
-            override fun handle(now: Long) {
-                try {
-                    if(needsRepaint.getAndSet(false)) {
-                        NodeHelper.markDirty(this@BlitCanvasImpl, DirtyBits.NODE_BOUNDS)
-                        NodeHelper.markDirty(this@BlitCanvasImpl, DirtyBits.REGION_SHAPE)
-                    }
-                } catch (_: Exception){}
-            }
-        }.start()
-    }
+    private var lastSize = Size(-1, -1)
 
     override fun onNGRender(g: Graphics){
         if(!initialized){
@@ -82,12 +66,11 @@ open class BlitCanvasImpl(
         }
         context!!.makeCurrent()
 
-        if(scaledWidth.toInt() != lastSize.first || scaledHeight.toInt() != lastSize.second){
-            lastSize = Pair(scaledWidth.toInt(), scaledHeight.toInt())
-            updateFramebufferSize()
-            fireReshapeEvent(lastSize.first, lastSize.second)
+        lastSize.onDifference(scaledWidth, scaledHeight){
+            updateFramebufferSize(scaledWidth, scaledHeight)
+            fireReshapeEvent(scaledWidth, scaledHeight)
         }
-        glViewport(0, 0, lastSize.first, lastSize.second)
+        glViewport(0, 0, lastSize.width, lastSize.height)
         fireRenderEvent(if(msaa != 0) msaaFBO.id else fbo.id)
 
         if(msaa != 0)
@@ -106,8 +89,8 @@ open class BlitCanvasImpl(
         if (scene == null || scene.window == null || width <= 0 || height <= 0)
             return
 
-        val renderWidth = lastSize.first
-        val renderHeight = lastSize.second
+        val renderWidth = lastSize.width
+        val renderHeight = lastSize.height
         if(renderWidth <= 0 || renderHeight <= 0)
             return
 
@@ -133,25 +116,27 @@ open class BlitCanvasImpl(
         pixelBuffer.bufferDirty(null)
     }
 
-    private fun updateFramebufferSize() {
+    private fun updateFramebufferSize(width: Int, height: Int) {
         if(::fbo.isInitialized){
             fbo.delete()
             if(msaa != 0) msaaFBO.delete()
         }
 
-        val width = lastSize.first
-        val height = lastSize.second
-
         fbo = Framebuffer(width, height)
         fbo.bindFramebuffer()
 
         if(msaa != 0) {
-            msaaFBO = MultiSampledFramebuffer(msaa, lastSize.first, lastSize.second)
+            msaaFBO = MultiSampledFramebuffer(msaa, lastSize.width, lastSize.height)
             msaaFBO.bindFramebuffer()
         }
     }
 
     override fun repaint() = needsRepaint.set(true)
+
+    override fun timerTick() {
+        if(needsRepaint.getAndSet(false))
+            markDirty()
+    }
 
     override fun dispose() {
         super.dispose()

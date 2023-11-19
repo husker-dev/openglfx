@@ -9,6 +9,7 @@ import com.huskerdev.openglfx.canvas.OpenGLCanvas
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.GLTextureId
 import com.huskerdev.openglfx.internal.GLInteropType
 import com.huskerdev.openglfx.internal.PassthroughShader
+import com.huskerdev.openglfx.internal.Size
 import com.huskerdev.openglfx.internal.fbo.Framebuffer
 import com.huskerdev.openglfx.internal.fbo.MultiSampledFramebuffer
 import com.sun.javafx.scene.DirtyBits
@@ -31,8 +32,8 @@ class AsyncSharedCanvasImpl(
     private val paintLock = Object()
     private val blitLock = Object()
 
-    private var lastDrawSize = Pair(-1, -1)
-    private var lastResultSize = Pair(-1, -1)
+    private var lastDrawSize = Size(-1, -1)
+    private var lastResultSize = Size(-1, -1)
 
     private var parallelContext: GLContext? = null
     private var resultContext: GLContext? = null
@@ -48,21 +49,6 @@ class AsyncSharedCanvasImpl(
     private var needsBlit = AtomicBoolean(false)
 
     private lateinit var passthroughShader: PassthroughShader
-
-    init {
-        visibleProperty().addListener { _, _, _ -> repaint() }
-        widthProperty().addListener { _, _, _ -> repaint() }
-        heightProperty().addListener { _, _, _ -> repaint() }
-
-        object: AnimationTimer(){
-            override fun handle(now: Long) {
-                if(needsBlit.get()) {
-                    NodeHelper.markDirty(this@AsyncSharedCanvasImpl, DirtyBits.NODE_BOUNDS)
-                    NodeHelper.markDirty(this@AsyncSharedCanvasImpl, DirtyBits.REGION_SHAPE)
-                }
-            }
-        }.start()
-    }
 
     private fun initializeGL(){
         fxContext = GLContext.current()
@@ -88,14 +74,12 @@ class AsyncSharedCanvasImpl(
     }
 
     private fun paint(){
-        if (scaledWidth.toInt() != lastDrawSize.first || scaledHeight.toInt() != lastDrawSize.second) {
-            lastDrawSize = Pair(scaledWidth.toInt(), scaledHeight.toInt())
-
-            updateDrawFramebufferSize()
-            fireReshapeEvent(lastDrawSize.first, lastDrawSize.second)
+        lastDrawSize.onDifference(scaledWidth, scaledHeight) {
+            updateDrawFramebufferSize(scaledWidth, scaledHeight)
+            fireReshapeEvent(scaledWidth, scaledHeight)
         }
 
-        glViewport(0, 0, lastDrawSize.first, lastDrawSize.second)
+        glViewport(0, 0, lastDrawSize.width, lastDrawSize.height)
         fireRenderEvent(if(msaa != 0) msaaFBO.id else fbo.id)
         if(msaa != 0)
             msaaFBO.blitTo(fbo.id)
@@ -112,11 +96,10 @@ class AsyncSharedCanvasImpl(
             if(!::passthroughShader.isInitialized)
                 passthroughShader = PassthroughShader()
 
-            if (scaledWidth.toInt() != lastResultSize.first || scaledHeight.toInt() != lastResultSize.second) {
-                lastResultSize = Pair(scaledWidth.toInt(), scaledHeight.toInt())
-                updateResultFramebufferSize()
+            lastResultSize.onDifference(scaledWidth, scaledHeight) {
+                updateResultFramebufferSize(scaledWidth, scaledHeight)
             }
-            glViewport(0, 0, lastResultSize.first, lastResultSize.second)
+            glViewport(0, 0, lastResultSize.width, lastResultSize.height)
 
             synchronized(blitLock){
                 passthroughShader.copy(interThreadFBO, resultFBO)
@@ -128,12 +111,9 @@ class AsyncSharedCanvasImpl(
             drawResultTexture(g, fxTexture)
     }
 
-    private fun updateResultFramebufferSize() {
+    private fun updateResultFramebufferSize(width: Int, height: Int) {
         if(::resultFBO.isInitialized)
             resultFBO.delete()
-
-        val width = lastResultSize.first
-        val height = lastResultSize.second
 
         // Create JavaFX texture
         if(::fxTexture.isInitialized)
@@ -146,14 +126,11 @@ class AsyncSharedCanvasImpl(
         resultFBO = Framebuffer(width, height, existingTexture = fxTexture.GLTextureId)
     }
 
-    private fun updateDrawFramebufferSize() {
+    private fun updateDrawFramebufferSize(width: Int, height: Int) {
         if(::fbo.isInitialized){
             fbo.delete()
             if(msaa != 0) msaaFBO.delete()
         }
-
-        val width = lastDrawSize.first
-        val height = lastDrawSize.second
 
         // Create 'buffer' framebuffer
         interThreadFBO = Framebuffer(width, height)
@@ -175,8 +152,16 @@ class AsyncSharedCanvasImpl(
         }
     }
 
+    override fun timerTick() {
+        if(needsBlit.get())
+            markDirty()
+    }
+
     override fun dispose() {
         super.dispose()
+        synchronized(paintLock){
+            paintLock.notifyAll()
+        }
         GLContext.delete(parallelContext!!)
         GLContext.delete(resultContext!!)
     }
