@@ -7,6 +7,7 @@ import com.huskerdev.openglfx.canvas.implementations.SharedCanvasImpl
 import com.huskerdev.openglfx.canvas.implementations.BlitCanvasImpl
 import com.huskerdev.openglfx.canvas.implementations.IOSurfaceCanvasImpl
 import com.huskerdev.openglfx.canvas.implementations.async.AsyncBlitCanvasImpl
+import com.huskerdev.openglfx.canvas.implementations.async.AsyncIOSurfaceCanvasImpl
 import com.huskerdev.openglfx.canvas.implementations.async.AsyncNVDXInteropCanvasImpl
 import com.huskerdev.openglfx.canvas.implementations.async.AsyncSharedCanvasImpl
 import java.nio.ByteBuffer
@@ -123,7 +124,8 @@ open class GLExecutor {
         else NVDXInteropCanvasImpl(this, profile, flipY, msaa)
 
     open fun ioSurfaceCanvas(profile: GLProfile, flipY: Boolean, msaa: Int, async: Boolean) =
-        IOSurfaceCanvasImpl(this, profile, flipY, msaa)
+        if(async) AsyncIOSurfaceCanvasImpl(this, profile, flipY, msaa)
+        else IOSurfaceCanvasImpl(this, profile, flipY, msaa)
 
     open fun initGLFunctions() {
         loadBasicFunctionPointers()

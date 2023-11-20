@@ -118,4 +118,11 @@ class IOSurfaceCanvasImpl(
         if(needsRepaint.getAndSet(false))
             markDirty()
     }
+
+    override fun dispose() {
+        super.dispose()
+        GLContext.delete(context)
+        ioSurface.dispose()
+        fxTexture.dispose()
+    }
 }
