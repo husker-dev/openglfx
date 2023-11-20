@@ -20,7 +20,7 @@ import com.sun.prism.PixelFormat
 import com.sun.prism.Texture
 import java.util.concurrent.atomic.AtomicBoolean
 
-class IOSurfaceCanvasImpl(
+internal class IOSurfaceCanvasImpl(
     private val executor: GLExecutor,
     profile: GLProfile,
     flipY: Boolean,

@@ -27,7 +27,7 @@ import com.sun.prism.Texture
 import java.util.concurrent.atomic.AtomicBoolean
 
 
-open class NVDXInteropCanvasImpl(
+internal class NVDXInteropCanvasImpl(
     private val executor: GLExecutor,
     profile: GLProfile,
     flipY: Boolean,

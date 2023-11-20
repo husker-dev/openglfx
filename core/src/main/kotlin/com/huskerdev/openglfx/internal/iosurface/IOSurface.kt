@@ -2,7 +2,7 @@ package com.huskerdev.openglfx.internal.iosurface
 
 import com.huskerdev.ojgl.GLContext
 
-class IOSurface(val width: Int, val height: Int) {
+internal class IOSurface(val width: Int, val height: Int) {
 
     companion object {
         @JvmStatic private external fun nCreateIOSurface(width: Int, height: Int): Long

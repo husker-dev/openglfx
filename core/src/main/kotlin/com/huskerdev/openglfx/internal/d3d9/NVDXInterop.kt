@@ -3,11 +3,11 @@ package com.huskerdev.openglfx.internal.d3d9
 import com.huskerdev.openglfx.GLExecutor
 
 
-const val WGL_ACCESS_WRITE_DISCARD_NV = 0x2
+internal const val WGL_ACCESS_WRITE_DISCARD_NV = 0x2
 
-class NVDXInterop {
+internal class NVDXInterop {
     companion object {
-        @JvmStatic external fun hasNVDXInteropFunctions(): Boolean
+        @JvmStatic private external fun hasNVDXInteropFunctions(): Boolean
 
         @JvmStatic external fun wglDXOpenDeviceNV(dxDevice: Long): Long
         @JvmStatic external fun wglDXCloseDeviceNV(hDevice: Long): Boolean

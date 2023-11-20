@@ -9,7 +9,7 @@ import com.sun.javafx.sg.prism.NGNode
 import javafx.geometry.Bounds
 import javafx.scene.Node
 
-class RegionAccessorOverrider {
+internal class RegionAccessorOverrider {
 
     companion object{
         inline fun <reified T: Node> overwrite(obj: RegionAccessorObject<T>){

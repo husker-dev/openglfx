@@ -1,6 +1,6 @@
 package com.huskerdev.openglfx.internal
 
-class FPSCounter {
+internal class FPSCounter {
 
     // Delta
     private var lastDeltaTime = System.nanoTime()

@@ -19,7 +19,7 @@ import com.sun.prism.Texture
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
-class AsyncSharedCanvasImpl(
+internal class AsyncSharedCanvasImpl(
     private val executor: GLExecutor,
     profile: GLProfile,
     flipY: Boolean,
@@ -53,10 +53,6 @@ class AsyncSharedCanvasImpl(
         parallelContext = GLContext.create(fxContext!!, profile == GLProfile.Core)
         resultContext = GLContext.create(fxContext!!, profile == GLProfile.Core)
         fxContext!!.makeCurrent()
-
-        println("fxContext: ${fxContext!!.handle}")
-        println("parallelContext: ${parallelContext!!.handle}")
-        println("resultContext: ${resultContext!!.handle}")
 
         thread(isDaemon = true) {
             parallelContext!!.makeCurrent()

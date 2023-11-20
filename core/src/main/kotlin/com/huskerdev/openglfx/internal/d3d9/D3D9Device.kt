@@ -2,7 +2,7 @@ package com.huskerdev.openglfx.internal.d3d9
 
 import com.sun.prism.GraphicsPipeline
 
-class D3D9Device(val handle: Long) {
+internal class D3D9Device(val handle: Long) {
 
     companion object {
 

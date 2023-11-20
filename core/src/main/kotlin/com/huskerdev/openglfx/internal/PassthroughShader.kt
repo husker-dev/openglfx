@@ -25,7 +25,7 @@ import com.huskerdev.openglfx.GLExecutor.Companion.glUniform2f
 import com.huskerdev.openglfx.GLExecutor.Companion.glUseProgram
 import com.huskerdev.openglfx.internal.fbo.Framebuffer
 
-class PassthroughShader {
+internal class PassthroughShader {
 
     private val vertexSource = """
         #version 330 core

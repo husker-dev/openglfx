@@ -45,7 +45,7 @@ class RenderDoc {
             if(canvas is NVDXInteropCanvasImpl || canvas is AsyncNVDXInteropCanvasImpl)
                 println("""
                     WARNING: RenderDoc doesn't support WGL_NV_DX_interop. 
-                             Please, use 'OpenGLCanvas.create(..., fxPipeline = "sw")'.
+                             Please, use 'OpenGLCanvas.create(..., interopType = GLInteropType.Blit)'.
                              More at: https://github.com/husker-dev/openglfx/issues/39
                 """.trimIndent())
 

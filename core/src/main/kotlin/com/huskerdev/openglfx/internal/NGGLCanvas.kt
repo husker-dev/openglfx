@@ -6,7 +6,7 @@ import com.sun.javafx.sg.prism.NGRegion
 import com.sun.prism.Graphics
 import javafx.scene.Scene
 
-class NGGLCanvas(
+internal class NGGLCanvas(
     val canvas: GLCanvas,
     val renderCallback: (Graphics) -> Unit
 ): NGRegion() {

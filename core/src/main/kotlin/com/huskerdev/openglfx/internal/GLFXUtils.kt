@@ -8,7 +8,7 @@ import com.sun.prism.Texture
 import javafx.scene.image.Image
 
 
-class GLFXUtils {
+internal class GLFXUtils {
 
     companion object {
         private var isLibLoaded = false

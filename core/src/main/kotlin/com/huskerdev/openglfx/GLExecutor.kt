@@ -15,32 +15,32 @@ import java.nio.ByteOrder
 import java.nio.FloatBuffer
 
 
-const val GL_BGRA = 0x80E1
-const val GL_RGBA = 0x1908
-const val GL_RGBA8 = 0x8058
-const val GL_UNSIGNED_BYTE = 0x1401
-const val GL_UNSIGNED_INT_8_8_8_8_REV = 0x8367
-const val GL_FRAMEBUFFER = 0x8D40
-const val GL_TEXTURE_2D = 0xDE1
-const val GL_TEXTURE_RECTANGLE = 0x84F5
-const val GL_RENDERBUFFER = 0x8D41
-const val GL_COLOR_ATTACHMENT0 = 0x8CE0
-const val GL_DEPTH_COMPONENT = 0x1902
-const val GL_DEPTH_ATTACHMENT = 0x8D00
-const val GL_TEXTURE_MIN_FILTER = 0x2801
-const val GL_NEAREST = 0x2600
-const val GL_READ_FRAMEBUFFER = 0x8CA8
-const val GL_DRAW_FRAMEBUFFER = 0x8CA9
-const val GL_COLOR_BUFFER_BIT = 0x4000
-const val GL_DRAW_FRAMEBUFFER_BINDING = 0x8CA6
-const val GL_READ_FRAMEBUFFER_BINDING = 0x8CAA
-const val GL_MAX_SAMPLES = 0x8D57
-const val GL_VERTEX_SHADER = 0x8B31
-const val GL_FRAGMENT_SHADER = 0x8B30
-const val GL_ARRAY_BUFFER = 0x8892
-const val GL_FLOAT = 0x1406
-const val GL_STATIC_DRAW = 0x88E4
-const val GL_TRIANGLE_STRIP = 0x0005
+internal const val GL_BGRA = 0x80E1
+internal const val GL_RGBA = 0x1908
+internal const val GL_RGBA8 = 0x8058
+internal const val GL_UNSIGNED_BYTE = 0x1401
+internal const val GL_UNSIGNED_INT_8_8_8_8_REV = 0x8367
+internal const val GL_FRAMEBUFFER = 0x8D40
+internal const val GL_TEXTURE_2D = 0xDE1
+internal const val GL_TEXTURE_RECTANGLE = 0x84F5
+internal const val GL_RENDERBUFFER = 0x8D41
+internal const val GL_COLOR_ATTACHMENT0 = 0x8CE0
+internal const val GL_DEPTH_COMPONENT = 0x1902
+internal const val GL_DEPTH_ATTACHMENT = 0x8D00
+internal const val GL_TEXTURE_MIN_FILTER = 0x2801
+internal const val GL_NEAREST = 0x2600
+internal const val GL_READ_FRAMEBUFFER = 0x8CA8
+internal const val GL_DRAW_FRAMEBUFFER = 0x8CA9
+internal const val GL_COLOR_BUFFER_BIT = 0x4000
+internal const val GL_DRAW_FRAMEBUFFER_BINDING = 0x8CA6
+internal const val GL_READ_FRAMEBUFFER_BINDING = 0x8CAA
+internal const val GL_MAX_SAMPLES = 0x8D57
+internal const val GL_VERTEX_SHADER = 0x8B31
+internal const val GL_FRAGMENT_SHADER = 0x8B30
+internal const val GL_ARRAY_BUFFER = 0x8892
+internal const val GL_FLOAT = 0x1406
+internal const val GL_STATIC_DRAW = 0x88E4
+internal const val GL_TRIANGLE_STRIP = 0x0005
 
 
 open class GLExecutor {
@@ -94,12 +94,12 @@ open class GLExecutor {
         @JvmStatic external fun glDeleteBuffers(buffer: Int)
         @JvmStatic external fun glDrawArrays(mode: Int, first: Int, count: Int)
 
-        fun floatBuffer(array: FloatArray): FloatBuffer {
+        internal fun floatBuffer(array: FloatArray): FloatBuffer {
             return ByteBuffer.allocateDirect(array.size * Float.SIZE_BYTES)
                 .order(ByteOrder.nativeOrder()).asFloatBuffer().put(array)
         }
 
-        fun loadBasicFunctionPointers(){
+        internal fun loadBasicFunctionPointers(){
             if(isInitialized) return
             isInitialized = true
             if(GLContext.current().handle == 0L) {
