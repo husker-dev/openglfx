@@ -23,7 +23,8 @@ import java.nio.ByteBuffer
 class Framebuffer(
     val width: Int,
     val height: Int,
-    private val existingTexture: Int = -1
+    private val existingTexture: Int = -1,
+    existingTextureType: Int = GL_TEXTURE_2D
 ) {
 
     val id: Int
@@ -43,7 +44,7 @@ class Framebuffer(
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, null)
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
         }else texture = existingTexture
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0)
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, existingTextureType, texture, 0)
 
         depthRenderbuffer = glGenRenderbuffers()
         glBindRenderbuffer(GL_RENDERBUFFER, depthRenderbuffer)

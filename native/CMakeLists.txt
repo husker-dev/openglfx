@@ -6,6 +6,7 @@ project ("openglfx")
 
 set(BaseFiles "src/openglfx.cpp" "src/openglfx.h" "src/renderdoc_app.h" "src/renderdoc.cpp")
 set(WindowsFiles "src/dxinterop.cpp" )
+set(MacOSFiles "src/iosurface.cpp" )
 
 set(JAVA_AWT_LIBRARY NotNeeded)
 set(JAVA_JVM_LIBRARY NotNeeded)
@@ -46,13 +47,11 @@ endif()
 
 # MacOS
 if (APPLE)
-    add_library(openglfx SHARED ${BaseFiles})
-
-    include_directories(/System/Library/Frameworks)
-    find_library(OpenGL_LIBRARY OpenGL)
-
+    add_library(openglfx SHARED ${BaseFiles} ${MacOSFiles})
+    target_link_libraries(openglfx "-framework CoreFoundation")
+    target_link_libraries(openglfx "-framework IOSurface")
+    target_link_libraries(openglfx "-framework OpenGL")
     set_target_properties(openglfx PROPERTIES PREFIX "")
-    target_link_libraries(openglfx ${OpenGL_LIBRARY})
 endif()
 
 

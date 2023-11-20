@@ -42,7 +42,6 @@ void* a_GetProcAddress(const char* name) {
 #endif
 }
 
-extern "C" {
 
 glfun(void, nInitGLFunctions)(JNIEnv* env, jobject) {
     a_glViewport = (glViewportPtr)a_GetProcAddress("glViewport");
@@ -277,5 +276,4 @@ glfun(void, glDeleteBuffers)(JNIEnv* env, jobject, jint buffer) {
 
 glfun(void, glDrawArrays)(JNIEnv* env, jobject, jint mode, jint first, jint count) {
     a_glDrawArrays(mode, first, count);
-}
 }

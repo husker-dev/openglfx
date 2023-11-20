@@ -37,8 +37,6 @@ jlongArray createLongArray(JNIEnv* env, int size, jlong* elements) {
     return result;
 }
 
-extern "C" {
-
 nvdxfun(jlong, hasNVDXInteropFunctions)(JNIEnv* env, jobject) {
     return wglDXOpenDeviceNV != 0;
 }
@@ -100,5 +98,4 @@ nvdxfun(void, replaceD3DTextureInResource)(JNIEnv* env, jobject, jlong _resource
     resource->pTexture = (IDirect3DTexture9*)resource->pResource;
     resource->pTexture->GetSurfaceLevel(0, &resource->pSurface);
     resource->pSurface->GetDesc(&resource->desc);
-}
 }

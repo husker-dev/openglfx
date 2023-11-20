@@ -5,7 +5,7 @@ import com.huskerdev.openglfx.*
 import com.huskerdev.openglfx.GLExecutor.Companion.glFinish
 import com.huskerdev.openglfx.GLExecutor.Companion.glViewport
 import com.huskerdev.openglfx.canvas.GLProfile
-import com.huskerdev.openglfx.canvas.OpenGLCanvas
+import com.huskerdev.openglfx.canvas.GLCanvas
 import com.huskerdev.openglfx.internal.fbo.MultiSampledFramebuffer
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.GLTextureId
 import com.huskerdev.openglfx.internal.GLInteropType
@@ -15,7 +15,6 @@ import com.sun.prism.Graphics
 import com.sun.prism.GraphicsPipeline
 import com.sun.prism.PixelFormat
 import com.sun.prism.Texture
-import javafx.animation.AnimationTimer
 import java.util.concurrent.atomic.AtomicBoolean
 
 open class SharedCanvasImpl(
@@ -23,7 +22,7 @@ open class SharedCanvasImpl(
     profile: GLProfile,
     flipY: Boolean,
     msaa: Int
-): OpenGLCanvas(GLInteropType.TextureSharing, profile, flipY, msaa, false){
+): GLCanvas(GLInteropType.TextureSharing, profile, flipY, msaa, false){
 
     private var lastSize = Size(-1, -1)
 

@@ -1,5 +1,7 @@
 package com.huskerdev.openglfx.internal
 
+import com.huskerdev.ojgl.utils.OS
+import com.huskerdev.ojgl.utils.PlatformUtils
 import com.sun.prism.GraphicsPipeline
 
 enum class GLInteropType {
@@ -20,14 +22,21 @@ enum class GLInteropType {
     /**
      *  Creates context that is shared with JavaFX's one. After rendering, shared texture is displayed in JavaFX frame.
      *
-     *  - Supported platforms: **Linux**, **macOS**
+     *  - Supported platforms: **Linux**
      */
-    TextureSharing;
+    TextureSharing,
+
+    /**
+    *  Creates memory block in VRAM that can be used in different OpenGL contexts.
+    *
+    *  - Supported platforms: **macOS**
+    */
+    IOSurface;
 
     companion object {
-        val mostEfficient: GLInteropType
+        val supported: GLInteropType
             get() = when (GraphicsPipeline.getPipeline().javaClass.canonicalName.split(".")[3]) {
-                "es2" -> TextureSharing
+                "es2" -> if(PlatformUtils.os == OS.MacOS) IOSurface else TextureSharing
                 "d3d" -> if (com.huskerdev.openglfx.internal.d3d9.NVDXInterop.isSupported()) NVDXInterop else Blit
                 else -> Blit
             }

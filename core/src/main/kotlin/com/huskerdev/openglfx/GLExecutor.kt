@@ -5,6 +5,7 @@ import com.huskerdev.openglfx.canvas.GLProfile
 import com.huskerdev.openglfx.canvas.implementations.NVDXInteropCanvasImpl
 import com.huskerdev.openglfx.canvas.implementations.SharedCanvasImpl
 import com.huskerdev.openglfx.canvas.implementations.BlitCanvasImpl
+import com.huskerdev.openglfx.canvas.implementations.IOSurfaceCanvasImpl
 import com.huskerdev.openglfx.canvas.implementations.async.AsyncBlitCanvasImpl
 import com.huskerdev.openglfx.canvas.implementations.async.AsyncNVDXInteropCanvasImpl
 import com.huskerdev.openglfx.canvas.implementations.async.AsyncSharedCanvasImpl
@@ -20,6 +21,7 @@ const val GL_UNSIGNED_BYTE = 0x1401
 const val GL_UNSIGNED_INT_8_8_8_8_REV = 0x8367
 const val GL_FRAMEBUFFER = 0x8D40
 const val GL_TEXTURE_2D = 0xDE1
+const val GL_TEXTURE_RECTANGLE = 0x84F5
 const val GL_RENDERBUFFER = 0x8D41
 const val GL_COLOR_ATTACHMENT0 = 0x8CE0
 const val GL_DEPTH_COMPONENT = 0x1902
@@ -119,6 +121,9 @@ open class GLExecutor {
     open fun interopCanvas(profile: GLProfile, flipY: Boolean, msaa: Int, async: Boolean) =
         if(async) AsyncNVDXInteropCanvasImpl(this, profile, flipY, msaa)
         else NVDXInteropCanvasImpl(this, profile, flipY, msaa)
+
+    open fun ioSurfaceCanvas(profile: GLProfile, flipY: Boolean, msaa: Int, async: Boolean) =
+        IOSurfaceCanvasImpl(this, profile, flipY, msaa)
 
     open fun initGLFunctions() {
         loadBasicFunctionPointers()

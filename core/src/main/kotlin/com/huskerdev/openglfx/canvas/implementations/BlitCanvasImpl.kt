@@ -6,19 +6,16 @@ import com.huskerdev.openglfx.GLExecutor.Companion.glBindFramebuffer
 import com.huskerdev.openglfx.GLExecutor.Companion.glReadPixels
 import com.huskerdev.openglfx.GLExecutor.Companion.glViewport
 import com.huskerdev.openglfx.canvas.GLProfile
-import com.huskerdev.openglfx.canvas.OpenGLCanvas
+import com.huskerdev.openglfx.canvas.GLCanvas
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.getPlatformImage
 import com.huskerdev.openglfx.internal.GLInteropType
 import com.huskerdev.openglfx.internal.Size
 import com.huskerdev.openglfx.internal.fbo.Framebuffer
 import com.huskerdev.openglfx.internal.fbo.MultiSampledFramebuffer
 import com.sun.javafx.geom.Rectangle
-import com.sun.javafx.scene.DirtyBits
-import com.sun.javafx.scene.NodeHelper
 import com.sun.prism.Graphics
 import com.sun.prism.Image
 import com.sun.prism.Texture
-import javafx.animation.AnimationTimer
 import javafx.scene.image.PixelBuffer
 import javafx.scene.image.PixelFormat
 import javafx.scene.image.WritableImage
@@ -32,7 +29,7 @@ open class BlitCanvasImpl(
     profile: GLProfile,
     flipY: Boolean,
     msaa: Int
-) : OpenGLCanvas(GLInteropType.Blit, profile, flipY, msaa, false){
+) : GLCanvas(GLInteropType.Blit, profile, flipY, msaa, false){
 
     companion object {
         private val bufferDirtyMethod = PixelBuffer::class.java.getDeclaredMethod("bufferDirty", Rectangle::class.java).apply { isAccessible = true }

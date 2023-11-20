@@ -1,7 +1,7 @@
 package com.huskerdev.openglfx.renderdoc
 
 import com.huskerdev.ojgl.GLContext
-import com.huskerdev.openglfx.canvas.OpenGLCanvas
+import com.huskerdev.openglfx.canvas.GLCanvas
 import com.huskerdev.openglfx.canvas.implementations.NVDXInteropCanvasImpl
 import com.huskerdev.openglfx.canvas.implementations.async.AsyncNVDXInteropCanvasImpl
 import com.huskerdev.openglfx.internal.NGGLCanvas
@@ -41,7 +41,7 @@ class RenderDoc {
         }
 
         @JvmStatic
-        fun bind(canvas: OpenGLCanvas, keyCode: KeyCode = KeyCode.F12){
+        fun bind(canvas: GLCanvas, keyCode: KeyCode = KeyCode.F12){
             if(canvas is NVDXInteropCanvasImpl || canvas is AsyncNVDXInteropCanvasImpl)
                 println("""
                     WARNING: RenderDoc doesn't support WGL_NV_DX_interop. 

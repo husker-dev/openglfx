@@ -5,7 +5,7 @@ import com.huskerdev.openglfx.GLExecutor
 import com.huskerdev.openglfx.GLExecutor.Companion.glFinish
 import com.huskerdev.openglfx.GLExecutor.Companion.glViewport
 import com.huskerdev.openglfx.canvas.GLProfile
-import com.huskerdev.openglfx.canvas.OpenGLCanvas
+import com.huskerdev.openglfx.canvas.GLCanvas
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.GLTextureId
 import com.huskerdev.openglfx.internal.GLInteropType
 import com.huskerdev.openglfx.internal.PassthroughShader
@@ -24,7 +24,7 @@ class AsyncSharedCanvasImpl(
     profile: GLProfile,
     flipY: Boolean,
     msaa: Int
-): OpenGLCanvas(GLInteropType.TextureSharing, profile, flipY, msaa, false){
+): GLCanvas(GLInteropType.TextureSharing, profile, flipY, msaa, true){
 
     private val paintLock = Object()
     private val blitLock = Object()
@@ -49,8 +49,14 @@ class AsyncSharedCanvasImpl(
 
     private fun initializeThread(){
         fxContext = GLContext.current()
+        GLContext.clear()
         parallelContext = GLContext.create(fxContext!!, profile == GLProfile.Core)
         resultContext = GLContext.create(fxContext!!, profile == GLProfile.Core)
+        fxContext!!.makeCurrent()
+
+        println("fxContext: ${fxContext!!.handle}")
+        println("parallelContext: ${parallelContext!!.handle}")
+        println("resultContext: ${resultContext!!.handle}")
 
         thread(isDaemon = true) {
             parallelContext!!.makeCurrent()

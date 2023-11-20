@@ -4,7 +4,7 @@ import com.huskerdev.ojgl.GLContext
 import com.huskerdev.openglfx.*
 import com.huskerdev.openglfx.GLExecutor.Companion.glViewport
 import com.huskerdev.openglfx.canvas.GLProfile
-import com.huskerdev.openglfx.canvas.OpenGLCanvas
+import com.huskerdev.openglfx.canvas.GLCanvas
 import com.huskerdev.openglfx.internal.fbo.MultiSampledFramebuffer
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.D3DTextureResource
 import com.huskerdev.openglfx.internal.GLInteropType
@@ -20,13 +20,10 @@ import com.huskerdev.openglfx.internal.d3d9.NVDXInterop.Companion.wglDXSetResour
 import com.huskerdev.openglfx.internal.d3d9.NVDXInterop.Companion.wglDXUnlockObjectsNV
 import com.huskerdev.openglfx.internal.d3d9.NVDXInterop.Companion.wglDXUnregisterObjectNV
 import com.huskerdev.openglfx.internal.d3d9.WGL_ACCESS_WRITE_DISCARD_NV
-import com.sun.javafx.scene.DirtyBits
-import com.sun.javafx.scene.NodeHelper
 import com.sun.prism.Graphics
 import com.sun.prism.GraphicsPipeline
 import com.sun.prism.PixelFormat
 import com.sun.prism.Texture
-import javafx.animation.AnimationTimer
 import java.util.concurrent.atomic.AtomicBoolean
 
 
@@ -35,7 +32,7 @@ open class NVDXInteropCanvasImpl(
     profile: GLProfile,
     flipY: Boolean,
     msaa: Int
-) : OpenGLCanvas(GLInteropType.NVDXInterop, profile, flipY, msaa, false){
+) : GLCanvas(GLInteropType.NVDXInterop, profile, flipY, msaa, false){
 
     private var lastSize = Size(-1, -1)
     private var initialized = false

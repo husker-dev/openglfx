@@ -20,7 +20,7 @@ enum class GLProfile {
     Core, Compatibility;
 }
 
-abstract class OpenGLCanvas(
+abstract class GLCanvas(
     val interopType: GLInteropType,
     val profile: GLProfile,
     val flipY: Boolean,
@@ -31,8 +31,8 @@ abstract class OpenGLCanvas(
     companion object {
         init {
             GLFXUtils.loadLibrary()
-            RegionAccessorOverrider.overwrite(object : RegionAccessorObject<OpenGLCanvas>() {
-                override fun doCreatePeer(node: OpenGLCanvas) = NGGLCanvas(node, node::onNGRender)
+            RegionAccessorOverrider.overwrite(object : RegionAccessorObject<GLCanvas>() {
+                override fun doCreatePeer(node: GLCanvas) = NGGLCanvas(node, node::onNGRender)
             })
         }
 
@@ -64,8 +64,9 @@ abstract class OpenGLCanvas(
             flipY: Boolean = false,
             msaa: Int = 0,
             async: Boolean = false,
-            interopType: GLInteropType = GLInteropType.mostEfficient
+            interopType: GLInteropType = GLInteropType.supported
         ) = when (interopType) {
+            IOSurface -> executor::ioSurfaceCanvas
             TextureSharing -> executor::sharedCanvas
             NVDXInterop -> executor::interopCanvas
             Blit -> executor::blitCanvas
@@ -176,7 +177,7 @@ abstract class OpenGLCanvas(
     protected fun fireRenderEvent(fbo: Int) {
         checkInitializationEvents()
         fpsCounter.update()
-        onRender.dispatchEvent(createRenderEvent(fpsCounter.currentFps, fpsCounter.delta, scaledWidth.toInt(), scaledHeight.toInt(), fbo))
+        onRender.dispatchEvent(createRenderEvent(fpsCounter.currentFps, fpsCounter.delta, scaledWidth, scaledHeight, fbo))
     }
 
     protected fun fireReshapeEvent(width: Int, height: Int) {

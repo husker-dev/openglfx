@@ -1,5 +1,5 @@
 import com.huskerdev.openglfx.canvas.GLProfile
-import com.huskerdev.openglfx.canvas.OpenGLCanvas
+import com.huskerdev.openglfx.canvas.GLCanvas
 import com.huskerdev.openglfx.canvas.GLCanvasAnimator
 import com.huskerdev.openglfx.lwjgl.LWJGLExecutor.Companion.LWJGL_MODULE
 import com.sun.prism.GraphicsPipeline
@@ -22,7 +22,7 @@ fun main() {
 class ExampleApp: Application(){
 
     override fun start(stage: Stage) {
-        stage.title = "OpenGLCanvas example"
+        stage.title = "GLCanvas example"
         stage.width = 800.0
         stage.height = 600.0
         
@@ -32,8 +32,8 @@ class ExampleApp: Application(){
         stage.show()
     }
 
-    private fun createGLCanvas(): OpenGLCanvas {
-        val canvas = OpenGLCanvas.create(LWJGL_MODULE, msaa = 4, profile = GLProfile.Core, async = true)
+    private fun createGLCanvas(): GLCanvas {
+        val canvas = GLCanvas.create(LWJGL_MODULE, msaa = 4, profile = GLProfile.Core, async = true)
         canvas.animator = GLCanvasAnimator(60.0)
 
         val renderExample = ExampleScene()
@@ -44,7 +44,7 @@ class ExampleApp: Application(){
         return canvas
     }
 
-    private fun createDebugPanel(canvas: OpenGLCanvas) = VBox().apply{
+    private fun createDebugPanel(canvas: GLCanvas) = VBox().apply{
         children.add(Label("OpenGLCanvas is not opaque, so you can see this text"))
         children.add(Label("----------------------------------------"))
         arrayListOf(
@@ -54,7 +54,7 @@ class ExampleApp: Application(){
             "MSAA" to canvas.msaa,
             "PROFILE" to canvas.profile,
             "FLIP_Y" to canvas.flipY,
-            "MULTI_THREAD" to canvas.isAsync,
+            "IS_ASYNC" to canvas.isAsync,
             "FPS" to "-",
             "SIZE" to "0x0"
         ).forEach {

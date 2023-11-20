@@ -5,7 +5,7 @@ import com.huskerdev.openglfx.GLExecutor
 import com.huskerdev.openglfx.GLExecutor.Companion.glViewport
 import com.huskerdev.openglfx.canvas.GLProfile
 import com.huskerdev.openglfx.GL_TEXTURE_2D
-import com.huskerdev.openglfx.canvas.OpenGLCanvas
+import com.huskerdev.openglfx.canvas.GLCanvas
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.D3DTextureResource
 import com.huskerdev.openglfx.internal.GLInteropType
 import com.huskerdev.openglfx.internal.PassthroughShader
@@ -28,7 +28,7 @@ class AsyncNVDXInteropCanvasImpl(
     profile: GLProfile,
     flipY: Boolean,
     msaa: Int
-) : OpenGLCanvas(GLInteropType.NVDXInterop, profile, flipY, msaa, true){
+) : GLCanvas(GLInteropType.NVDXInterop, profile, flipY, msaa, true){
 
     private val paintLock = Object()
     private val blitLock = Object()

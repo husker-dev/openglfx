@@ -1,13 +1,13 @@
 package com.huskerdev.openglfx.internal
 
-import com.huskerdev.openglfx.canvas.OpenGLCanvas
+import com.huskerdev.openglfx.canvas.GLCanvas
 import com.sun.javafx.sg.prism.NGNode
 import com.sun.javafx.sg.prism.NGRegion
 import com.sun.prism.Graphics
 import javafx.scene.Scene
 
 class NGGLCanvas(
-    val canvas: OpenGLCanvas,
+    val canvas: GLCanvas,
     val renderCallback: (Graphics) -> Unit
 ): NGRegion() {
     private val sceneBoundListeners = arrayListOf<(Scene) -> Unit>()

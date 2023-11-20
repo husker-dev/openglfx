@@ -4,7 +4,7 @@ import com.huskerdev.ojgl.GLContext
 import com.huskerdev.openglfx.*
 import com.huskerdev.openglfx.GLExecutor.Companion.glViewport
 import com.huskerdev.openglfx.canvas.GLProfile
-import com.huskerdev.openglfx.canvas.OpenGLCanvas
+import com.huskerdev.openglfx.canvas.GLCanvas
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.getPlatformImage
 import com.huskerdev.openglfx.internal.GLInteropType
 import com.huskerdev.openglfx.internal.Size
@@ -27,7 +27,7 @@ class AsyncBlitCanvasImpl(
     profile: GLProfile,
     flipY: Boolean,
     msaa: Int
-) : OpenGLCanvas(GLInteropType.Blit, profile, flipY, msaa, false){
+) : GLCanvas(GLInteropType.Blit, profile, flipY, msaa, true){
 
     companion object {
         private val bufferDirtyMethod = PixelBuffer::class.java.getDeclaredMethod("bufferDirty", Rectangle::class.java).apply { isAccessible = true }

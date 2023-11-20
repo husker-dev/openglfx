@@ -17,7 +17,7 @@ class GLCanvasAnimator @JvmOverloads constructor(
     private lateinit var executor: ScheduledExecutorService
     private lateinit var timer: ScheduledFuture<*>
 
-    var boundCanvas: OpenGLCanvas? = null
+    var boundCanvas: GLCanvas? = null
         internal set(value) {
             field = value
 
@@ -34,7 +34,7 @@ class GLCanvasAnimator @JvmOverloads constructor(
             }
         }
 
-    internal fun bind(canvas: OpenGLCanvas?){
+    internal fun bind(canvas: GLCanvas?){
         boundCanvas = canvas
     }
 
