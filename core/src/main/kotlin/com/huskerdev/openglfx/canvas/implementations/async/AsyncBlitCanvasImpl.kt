@@ -22,7 +22,7 @@ import java.nio.ByteBuffer
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
-internal class AsyncBlitCanvasImpl(
+open class AsyncBlitCanvasImpl(
     private val executor: GLExecutor,
     profile: GLProfile,
     flipY: Boolean,

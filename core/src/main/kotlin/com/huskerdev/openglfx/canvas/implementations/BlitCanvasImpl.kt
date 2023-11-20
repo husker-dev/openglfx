@@ -24,7 +24,7 @@ import java.nio.ByteBuffer
 import java.util.concurrent.atomic.AtomicBoolean
 
 
-internal class BlitCanvasImpl(
+open class BlitCanvasImpl(
     private val executor: GLExecutor,
     profile: GLProfile,
     flipY: Boolean,

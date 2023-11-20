@@ -17,7 +17,7 @@ import com.sun.prism.PixelFormat
 import com.sun.prism.Texture
 import java.util.concurrent.atomic.AtomicBoolean
 
-internal class SharedCanvasImpl(
+open class SharedCanvasImpl(
     private val executor: GLExecutor,
     profile: GLProfile,
     flipY: Boolean,

@@ -19,7 +19,7 @@ import com.sun.prism.Texture
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
-internal class AsyncSharedCanvasImpl(
+open class AsyncSharedCanvasImpl(
     private val executor: GLExecutor,
     profile: GLProfile,
     flipY: Boolean,

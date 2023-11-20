@@ -23,7 +23,7 @@ import com.sun.prism.Texture
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
-internal class AsyncNVDXInteropCanvasImpl(
+open class AsyncNVDXInteropCanvasImpl(
     private val executor: GLExecutor,
     profile: GLProfile,
     flipY: Boolean,
