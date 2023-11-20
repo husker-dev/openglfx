@@ -21,7 +21,7 @@ import com.sun.prism.Texture
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
-internal class AsyncIOSurfaceCanvasImpl(
+open class AsyncIOSurfaceCanvasImpl(
     private val executor: GLExecutor,
     profile: GLProfile,
     flipY: Boolean,
