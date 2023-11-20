@@ -47,6 +47,8 @@ import com.huskerdev.openglfx.lwjgl.LWJGLExecutor.Companion.LWJGL_MODULE
 val canvas = GLCanvas.create(LWJGL_MODULE)
 ```
 
+After GLCanvas is not needed anymore, call ```dispose()``` to free the allocated memory.
+
 ### Rendering events
 
 ```GLCanvas``` uses a logic similar to JOGL. The component has events where you can render the content.
