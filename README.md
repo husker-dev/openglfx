@@ -18,6 +18,7 @@ This library adds a new element to the JavaFX for rendering OpenGL graphics. It 
   - [OpenGL profile](#opengl-profile)
   - [Auto repaint](#auto-repaint)
   - [Image transfering](#image-transfering)
+  - [Renderdoc](#renderdoc)
 - [Notes](#notes)
   - [Reflection opens](#reflection-opens)
 - [Under the hood](#under-the-hood)
@@ -124,6 +125,27 @@ val fbo = GLImageManager.toGL(image)
 
 val image = GLImageManager.fromGL(fbo, width, height)
 ```
+
+### Renderdoc
+```openglfx``` supports Renderdoc integration. Unfortunately, java and javaFX limit how this tool can be used, so the following features have been made.
+
+- You can take a screenshot of the following frame using the hotkey:
+```kotlin
+RenderDoc.bind(canvas)  // F12 by default
+// or
+RenderDoc.bind(canvas, keyCode = KeyCode.F11)
+```
+
+- You can insert the **beginning** and **ending** of capturing into the code:
+```kotlin
+RenderDoc.startFrameCapture()
+// Renders here...
+RenderDoc.endFrameCapture()
+```
+
+It is better not to mix these two recording methods.
+
+To view a scene in the Renderdoc application, you need to select one of the processes. It may change depending on the launch settings.
 
 # Notes
 - Async canvas blinks at resizing;
