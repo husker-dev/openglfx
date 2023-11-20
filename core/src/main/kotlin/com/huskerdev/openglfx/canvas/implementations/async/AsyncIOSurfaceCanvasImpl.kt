@@ -112,13 +112,14 @@ class AsyncIOSurfaceCanvasImpl(
         }
         ioSurface = IOSurface(width, height)
 
-        // Create shared texture
+        // Create GL-side shared texture
         val ioGLTexture = glGenTextures()
         glBindTexture(GL_TEXTURE_RECTANGLE, ioGLTexture)
         ioSurface.cglTexImageIOSurface2D(context, GL_TEXTURE_RECTANGLE, GL_RGBA, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, 0)
         glBindTexture(GL_TEXTURE_RECTANGLE, 0)
         sharedFboGL = Framebuffer(width, height, existingTexture = ioGLTexture, existingTextureType = GL_TEXTURE_RECTANGLE)
 
+        // Create simple framebuffer
         fboGL = Framebuffer(width, height)
 
         // Create multi-sampled framebuffer
@@ -137,7 +138,6 @@ class AsyncIOSurfaceCanvasImpl(
         }
 
         // Create JavaFX texture
-        fxContext.makeCurrent()
         fxTexture = GraphicsPipeline.getDefaultResourceFactory().createTexture(PixelFormat.BYTE_BGRA_PRE, Texture.Usage.DYNAMIC, Texture.WrapMode.CLAMP_TO_EDGE, width, height)
         fxTexture.makePermanent()
 
