@@ -4,9 +4,7 @@ import com.huskerdev.openglfx.GLExecutor
 
 internal const val WGL_ACCESS_WRITE_DISCARD_NV = 0x2
 
-fun isNVDXInteropSupported() = NVDXInterop.hasNVDXInteropFunctions()
-
-internal class NVDXInterop {
+class NVDXInterop {
     companion object {
         @JvmStatic external fun hasNVDXInteropFunctions(): Boolean
 
@@ -28,5 +26,7 @@ internal class NVDXInterop {
         val interopHandle by lazy {
             wglDXOpenDeviceNV(D3D9Device.fxInstance.handle)
         }
+
+        fun isSupported() = hasNVDXInteropFunctions()
     }
 }
