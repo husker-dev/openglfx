@@ -2,6 +2,7 @@ package com.huskerdev.openglfx.internal
 
 import com.huskerdev.ojgl.utils.OS
 import com.huskerdev.ojgl.utils.PlatformUtils
+import com.huskerdev.openglfx.internal.d3d9.isNVDXInteropSupported
 import com.sun.prism.GraphicsPipeline
 
 enum class GLInteropType {
@@ -37,7 +38,7 @@ enum class GLInteropType {
         val supported: GLInteropType
             get() = when (GraphicsPipeline.getPipeline().javaClass.canonicalName.split(".")[3]) {
                 "es2" -> if(PlatformUtils.os == OS.MacOS) IOSurface else TextureSharing
-                "d3d" -> if (com.huskerdev.openglfx.internal.d3d9.NVDXInterop.isSupported()) NVDXInterop else Blit
+                "d3d" -> if (isNVDXInteropSupported()) NVDXInterop else Blit
                 else -> Blit
             }
     }

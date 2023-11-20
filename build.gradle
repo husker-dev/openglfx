@@ -8,7 +8,7 @@ plugins {
 }
 
 allprojects {
-    version = "4.0"
+    version = "4.0.1"
     apply from: "$rootDir/dependencies.gradle"
 
     repositories {
