@@ -1,6 +1,6 @@
 ![Безымянный](https://github.com/husker-dev/openglfx/assets/31825139/3968c34e-ad83-4613-a5ce-1524aa79aa83)
 
-### [Buy a coffee](https://www.buymeacoffee.com/huskerdev) for developer.
+### [Buy coffee](https://www.buymeacoffee.com/huskerdev) for the developer.
 
 <a href="LICENSE"><img src="https://img.shields.io/github/license/husker-dev/openglfx?style=flat-square"></a>
 <a href="https://github.com/husker-dev/openglfx/releases/latest"><img src="https://img.shields.io/github/v/release/husker-dev/openglfx?style=flat-square"></a>
@@ -46,6 +46,8 @@ import com.huskerdev.openglfx.lwjgl.LWJGLExecutor.Companion.LWJGL_MODULE
 
 val canvas = GLCanvas.create(LWJGL_MODULE)
 ```
+
+After GLCanvas is not needed anymore, call ```dispose()``` to free the allocated memory.
 
 ### Rendering events
 
