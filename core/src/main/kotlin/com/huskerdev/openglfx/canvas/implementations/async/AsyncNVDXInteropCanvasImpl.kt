@@ -15,6 +15,7 @@ import com.huskerdev.openglfx.internal.fbo.MultiSampledFramebuffer
 import com.huskerdev.openglfx.internal.d3d9.D3D9Device
 import com.huskerdev.openglfx.internal.d3d9.D3D9Texture
 import com.huskerdev.openglfx.internal.d3d9.NVDXInterop
+import com.huskerdev.openglfx.internal.d3d9.NVDXInterop.Companion.interopDevice
 import com.huskerdev.openglfx.internal.d3d9.WGL_ACCESS_WRITE_DISCARD_NV
 import com.sun.prism.Graphics
 import com.sun.prism.GraphicsPipeline
@@ -49,7 +50,7 @@ open class AsyncNVDXInteropCanvasImpl(
     private lateinit var fxTexture: Texture
 
     private var needsBlit = AtomicBoolean(false)
-    private var interopTexture = -1L
+    private lateinit var interopObject: NVDXInterop.NVDXObject
 
     private lateinit var passthroughShader: PassthroughShader
 
@@ -123,9 +124,9 @@ open class AsyncNVDXInteropCanvasImpl(
                 }
                 glViewport(0, 0, lastResultSize.width, lastResultSize.height)
 
-                NVDXInterop.wglDXLockObjectsNV(NVDXInterop.interopHandle, interopTexture)
+                interopObject.lock()
                 passthroughShader.copy(interThreadFBO, resultFBO)
-                NVDXInterop.wglDXUnlockObjectsNV(NVDXInterop.interopHandle, interopTexture)
+                interopObject.unlock()
             }
         }
         if(this::fxTexture.isInitialized)
@@ -134,7 +135,7 @@ open class AsyncNVDXInteropCanvasImpl(
 
     private fun updateInteropTexture(width: Int, height: Int){
         if(this::fxTexture.isInitialized) {
-            NVDXInterop.wglDXUnregisterObjectNV(NVDXInterop.interopHandle, interopTexture)
+            interopObject.dispose()
             fxTexture.dispose()
             resultFBO.delete()
         }
@@ -144,17 +145,15 @@ open class AsyncNVDXInteropCanvasImpl(
 
         // Create and register D3D9 shared texture
         fxD3DTexture = fxDevice.createTexture(width, height)
-        NVDXInterop.wglDXSetResourceShareHandleNV(fxD3DTexture.handle, fxD3DTexture.sharedHandle)
+        NVDXInterop.linkShareHandle(fxD3DTexture.handle, fxD3DTexture.sharedHandle)
 
         // Create default JavaFX texture and replace a native handle with custom one.
         fxTexture = GraphicsPipeline.getDefaultResourceFactory().createTexture(PixelFormat.BYTE_BGRA_PRE, Texture.Usage.DYNAMIC, Texture.WrapMode.CLAMP_TO_EDGE, width, height)
         fxTexture.makePermanent()
-        NVDXInterop.replaceD3DTextureInResource(fxTexture.D3DTextureResource, fxD3DTexture.handle)
+        D3D9Device.replaceD3DTextureInResource(fxTexture.D3DTextureResource, fxD3DTexture.handle)
 
         // Create interop texture
-        interopTexture = NVDXInterop.wglDXRegisterObjectNV(NVDXInterop.interopHandle, fxD3DTexture.handle, resultFBO.texture, GL_TEXTURE_2D, WGL_ACCESS_WRITE_DISCARD_NV)
-
-        resultContext.makeCurrent()
+        interopObject = interopDevice.registerObject(fxD3DTexture.handle, resultFBO.texture, GL_TEXTURE_2D, WGL_ACCESS_WRITE_DISCARD_NV)
     }
 
     override fun repaint() {
@@ -173,7 +172,9 @@ open class AsyncNVDXInteropCanvasImpl(
         synchronized(paintLock){
             paintLock.notifyAll()
         }
-        GLContext.delete(context)
-        GLContext.delete(resultContext)
+        if(::fxTexture.isInitialized) fxTexture.dispose()
+        if(::interopObject.isInitialized) interopObject.dispose()
+        if(::context.isInitialized) GLContext.delete(context)
+        if(::resultContext.isInitialized) GLContext.delete(resultContext)
     }
 }

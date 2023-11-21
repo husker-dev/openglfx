@@ -49,7 +49,7 @@ open class AsyncBlitCanvasImpl(
 
     private lateinit var context: GLContext
 
-    private var pixelByteBuffer: ByteBuffer? = null
+    private lateinit var pixelByteBuffer: ByteBuffer
     private lateinit var pixelBuffer: PixelBuffer<ByteBuffer>
     private lateinit var image: WritableImage
 
@@ -66,7 +66,7 @@ open class AsyncBlitCanvasImpl(
                     lastResultSize.onDifference(lastDrawSize.width, lastDrawSize.height){
                         updateResultTextureSize(lastDrawSize.width, lastDrawSize.height)
                     }
-                    fbo.readPixels(0, 0, lastResultSize.width, lastResultSize.height, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, pixelByteBuffer!!)
+                    fbo.readPixels(0, 0, lastResultSize.width, lastResultSize.height, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, pixelByteBuffer)
                     pixelBuffer.bufferDirty(null)
                 }
                 needsBlit.set(true)
@@ -122,10 +122,10 @@ open class AsyncBlitCanvasImpl(
     }
 
     private fun updateResultTextureSize(width: Int, height: Int) {
-        if(pixelByteBuffer != null)
-            unsafe.invokeCleaner(pixelByteBuffer!!)
+        if(::pixelByteBuffer.isInitialized)
+            unsafe.invokeCleaner(pixelByteBuffer)
         pixelByteBuffer = ByteBuffer.allocateDirect(width * height * 4)
-        pixelBuffer = PixelBuffer(width, height, pixelByteBuffer!!, PixelFormat.getByteBgraPreInstance())
+        pixelBuffer = PixelBuffer(width, height, pixelByteBuffer, PixelFormat.getByteBgraPreInstance())
         image = WritableImage(pixelBuffer)
     }
 
@@ -145,7 +145,7 @@ open class AsyncBlitCanvasImpl(
         synchronized(paintLock){
             paintLock.notifyAll()
         }
-        unsafe.invokeCleaner(pixelByteBuffer!!)
-        GLContext.delete(context)
+        if(::pixelByteBuffer.isInitialized) unsafe.invokeCleaner(pixelByteBuffer)
+        if(::context.isInitialized) GLContext.delete(context)
     }
 }

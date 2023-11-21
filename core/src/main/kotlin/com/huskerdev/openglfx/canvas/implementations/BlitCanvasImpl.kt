@@ -39,11 +39,11 @@ open class BlitCanvasImpl(
     }
 
     private var initialized = false
-    private var context: GLContext? = null
+    private lateinit var context: GLContext
 
     private var image = WritableImage(1, 1)
 
-    private var pixelByteBuffer: ByteBuffer? = null
+    private lateinit var pixelByteBuffer: ByteBuffer
     private lateinit var pixelBuffer: PixelBuffer<ByteBuffer>
 
     private lateinit var fbo: Framebuffer
@@ -57,11 +57,10 @@ open class BlitCanvasImpl(
             initialized = true
 
             context = GLContext.create(0L, profile == GLProfile.Core)
-            context!!.makeCurrent()
+            context.makeCurrent()
             executor.initGLFunctions()
             fireInitEvent()
         }
-        context!!.makeCurrent()
 
         lastSize.onDifference(scaledWidth, scaledHeight){
             updateFramebufferSize(scaledWidth, scaledHeight)
@@ -92,11 +91,11 @@ open class BlitCanvasImpl(
             return
 
         if(image.width.toInt() != renderWidth || image.height.toInt() != renderHeight){
-            if(pixelByteBuffer != null)
-                unsafe.invokeCleaner(pixelByteBuffer!!)
+            if(::pixelByteBuffer.isInitialized)
+                unsafe.invokeCleaner(pixelByteBuffer)
 
             pixelByteBuffer = ByteBuffer.allocateDirect(renderWidth * renderHeight * 4)
-            pixelBuffer = PixelBuffer(renderWidth, renderHeight, pixelByteBuffer!!, PixelFormat.getByteBgraPreInstance())
+            pixelBuffer = PixelBuffer(renderWidth, renderHeight, pixelByteBuffer, PixelFormat.getByteBgraPreInstance())
 
             image = WritableImage(pixelBuffer)
         }
@@ -105,7 +104,7 @@ open class BlitCanvasImpl(
         val oldReadBuffer = GLExecutor.glGetInteger(GL_READ_FRAMEBUFFER_BINDING)
 
         fbo.bindFramebuffer()
-        glReadPixels(0, 0, renderWidth, renderHeight, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, pixelByteBuffer!!)
+        glReadPixels(0, 0, renderWidth, renderHeight, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, pixelByteBuffer)
 
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, oldDrawBuffer)
         glBindFramebuffer(GL_READ_FRAMEBUFFER, oldReadBuffer)
@@ -137,7 +136,7 @@ open class BlitCanvasImpl(
 
     override fun dispose() {
         super.dispose()
-        unsafe.invokeCleaner(pixelByteBuffer!!)
-        GLContext.delete(context!!)
+        if(::pixelByteBuffer.isInitialized) unsafe.invokeCleaner(pixelByteBuffer)
+        if(::context.isInitialized) GLContext.delete(context)
     }
 }

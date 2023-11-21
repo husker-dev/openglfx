@@ -169,6 +169,7 @@ abstract class GLCanvas(
     open fun dispose(){
         disposed = true
         animator = null
+        onDispose.dispatchEvent(createDisposeEvent())
     }
 
     /**

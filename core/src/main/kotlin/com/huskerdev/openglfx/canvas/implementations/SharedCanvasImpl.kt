@@ -26,23 +26,23 @@ open class SharedCanvasImpl(
 
     private var lastSize = Size(-1, -1)
 
-    private var context: GLContext? = null
-    private var fxContext: GLContext? = null
+    private lateinit var context: GLContext
+    private lateinit var fxContext: GLContext
 
     private lateinit var fbo: Framebuffer
     private lateinit var msaaFBO: MultiSampledFramebuffer
 
-    private var fxTexture: Texture? = null
+    private lateinit var fxTexture: Texture
 
     private var needsRepaint = AtomicBoolean(false)
 
     override fun onNGRender(g: Graphics) {
-        if (context == null) {
+        if (!::context.isInitialized) {
             fxContext = GLContext.current()
-            context = GLContext.create(fxContext!!, profile == GLProfile.Core)
+            context = GLContext.create(fxContext, profile == GLProfile.Core)
             executor.initGLFunctions()
         }
-        context!!.makeCurrent()
+        context.makeCurrent()
 
         lastSize.onDifference(scaledWidth, scaledHeight){
             updateFramebufferSize(scaledWidth, scaledHeight)
@@ -55,9 +55,9 @@ open class SharedCanvasImpl(
             msaaFBO.blitTo(fbo.id)
 
         glFinish()
-        fxContext!!.makeCurrent()
+        fxContext.makeCurrent()
 
-        drawResultTexture(g, fxTexture!!)
+        drawResultTexture(g, fxTexture)
     }
 
     private fun updateFramebufferSize(width: Int, height: Int) {
@@ -66,15 +66,16 @@ open class SharedCanvasImpl(
             if(msaa != 0) msaaFBO.delete()
         }
 
-        fxContext!!.makeCurrent()
+        fxContext.makeCurrent()
         // Create JavaFX texture
-        fxTexture?.dispose()
+        if(::fxTexture.isInitialized)
+            fxTexture.dispose()
         fxTexture = GraphicsPipeline.getDefaultResourceFactory().createTexture(PixelFormat.BYTE_BGRA_PRE, Texture.Usage.DYNAMIC, Texture.WrapMode.CLAMP_TO_EDGE, width, height)
-        fxTexture!!.makePermanent()
-        context!!.makeCurrent()
+        fxTexture.makePermanent()
+        context.makeCurrent()
 
         // Create framebuffer that connected to JavaFX's texture
-        fbo = Framebuffer(width, height, existingTexture = fxTexture!!.GLTextureId)
+        fbo = Framebuffer(width, height, existingTexture = fxTexture.GLTextureId)
         fbo.bindFramebuffer()
 
         // Create multi-sampled framebuffer
@@ -93,6 +94,7 @@ open class SharedCanvasImpl(
 
     override fun dispose() {
         super.dispose()
-        GLContext.delete(context!!)
+        if(::fxTexture.isInitialized) fxTexture.dispose()
+        if(::context.isInitialized) GLContext.delete(context)
     }
 }

@@ -2,6 +2,7 @@
 
 #define glfun(returnType, fun) extern "C" JNIEXPORT returnType JNICALL Java_com_huskerdev_openglfx_GLExecutor_##fun
 #define nvdxfun(returnType, fun) extern "C" JNIEXPORT returnType JNICALL Java_com_huskerdev_openglfx_internal_d3d9_NVDXInterop_##fun
+#define d3dfun(returnType, fun) extern "C" JNIEXPORT returnType JNICALL Java_com_huskerdev_openglfx_internal_d3d9_D3D9Device_##fun
 #define iosfun(returnType, fun) extern "C" JNIEXPORT returnType JNICALL Java_com_huskerdev_openglfx_internal_iosurface_IOSurface_##fun
 
 typedef unsigned int GLenum;
@@ -9,7 +10,11 @@ typedef int GLint;
 typedef unsigned int GLuint;
 typedef float GLfloat;
 typedef int GLsizei;
-typedef long GLsizeiptr;
+#if defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__)
+    typedef long long int GLsizeiptr;
+#else
+    typedef long GLsizeiptr;
+#endif
 typedef unsigned char GLubyte;
 typedef char GLchar;
 typedef unsigned char GLboolean;

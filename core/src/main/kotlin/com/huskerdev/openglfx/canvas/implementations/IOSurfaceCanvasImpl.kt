@@ -121,8 +121,11 @@ open class IOSurfaceCanvasImpl(
 
     override fun dispose() {
         super.dispose()
-        GLContext.delete(context)
-        ioSurface.dispose()
-        fxTexture.dispose()
+        if(::sharedFboFX.isInitialized) sharedFboFX.delete()
+        if(::fboFX.isInitialized) fboFX.delete()
+        if(::fxTexture.isInitialized) fxTexture.dispose()
+
+        if(::context.isInitialized) GLContext.delete(context)
+        if(::ioSurface.isInitialized) ioSurface.dispose()
     }
 }

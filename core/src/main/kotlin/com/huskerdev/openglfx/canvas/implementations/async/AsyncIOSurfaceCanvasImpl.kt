@@ -50,7 +50,7 @@ open class AsyncIOSurfaceCanvasImpl(
 
     private fun initializeThread(){
         fxContext = GLContext.current()
-        thread {
+        thread(isDaemon = true) {
             context = GLContext.create(0, profile == GLProfile.Core)
             context.makeCurrent()
             executor.initGLFunctions()
@@ -168,8 +168,11 @@ open class AsyncIOSurfaceCanvasImpl(
         synchronized(paintLock){
             paintLock.notifyAll()
         }
-        GLContext.delete(context)
-        ioSurface.dispose()
-        fxTexture.dispose()
+        if(::sharedFboFX.isInitialized) sharedFboFX.delete()
+        if(::fboFX.isInitialized) fboFX.delete()
+        if(::fxTexture.isInitialized) fxTexture.dispose()
+
+        if(::context.isInitialized) GLContext.delete(context)
+        if(::ioSurface.isInitialized) ioSurface.dispose()
     }
 }

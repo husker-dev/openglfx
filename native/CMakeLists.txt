@@ -5,7 +5,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 project ("openglfx")
 
 set(BaseFiles "src/openglfx.cpp" "src/openglfx.h" "src/renderdoc_app.h" "src/renderdoc.cpp")
-set(WindowsFiles "src/dxinterop.cpp" )
+set(WindowsFiles "src/d3d.cpp" "src/dxinterop.cpp" )
 set(MacOSFiles "src/iosurface.cpp" )
 
 set(JAVA_AWT_LIBRARY NotNeeded)

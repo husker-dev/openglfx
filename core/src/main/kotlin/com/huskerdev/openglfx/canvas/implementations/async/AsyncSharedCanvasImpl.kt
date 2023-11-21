@@ -32,9 +32,9 @@ open class AsyncSharedCanvasImpl(
     private var lastDrawSize = Size(-1, -1)
     private var lastResultSize = Size(-1, -1)
 
-    private var parallelContext: GLContext? = null
-    private var resultContext: GLContext? = null
-    private var fxContext: GLContext? = null
+    private lateinit var parallelContext: GLContext
+    private lateinit var resultContext: GLContext
+    private lateinit var fxContext: GLContext
 
     private lateinit var resultFBO: Framebuffer
     private lateinit var interThreadFBO: Framebuffer
@@ -50,12 +50,12 @@ open class AsyncSharedCanvasImpl(
     private fun initializeThread(){
         fxContext = GLContext.current()
         GLContext.clear()
-        parallelContext = GLContext.create(fxContext!!, profile == GLProfile.Core)
-        resultContext = GLContext.create(fxContext!!, profile == GLProfile.Core)
-        fxContext!!.makeCurrent()
+        parallelContext = GLContext.create(fxContext, profile == GLProfile.Core)
+        resultContext = GLContext.create(fxContext, profile == GLProfile.Core)
+        fxContext.makeCurrent()
 
         thread(isDaemon = true) {
-            parallelContext!!.makeCurrent()
+            parallelContext.makeCurrent()
             executor.initGLFunctions()
 
             while(!disposed){
@@ -89,11 +89,11 @@ open class AsyncSharedCanvasImpl(
         if(scaledWidth == 0 || scaledHeight == 0)
             return
 
-        if (fxContext == null)
+        if (!::fxContext.isInitialized)
             initializeThread()
 
         if (needsBlit.getAndSet(false)) {
-            resultContext!!.makeCurrent()
+            resultContext.makeCurrent()
 
             if(!::passthroughShader.isInitialized)
                 passthroughShader = PassthroughShader()
@@ -106,7 +106,7 @@ open class AsyncSharedCanvasImpl(
             synchronized(blitLock){
                 passthroughShader.copy(interThreadFBO, resultFBO)
             }
-            fxContext!!.makeCurrent()
+            fxContext.makeCurrent()
         }
 
         if(this::fxTexture.isInitialized)
@@ -164,7 +164,8 @@ open class AsyncSharedCanvasImpl(
         synchronized(paintLock){
             paintLock.notifyAll()
         }
-        GLContext.delete(parallelContext!!)
-        GLContext.delete(resultContext!!)
+        if(::fxTexture.isInitialized) fxTexture.dispose()
+        if(::parallelContext.isInitialized) GLContext.delete(parallelContext)
+        if(::resultContext.isInitialized) GLContext.delete(resultContext)
     }
 }
