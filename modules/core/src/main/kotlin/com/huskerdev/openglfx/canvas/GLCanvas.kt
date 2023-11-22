@@ -105,8 +105,6 @@ abstract class GLCanvas(
     protected val scaledHeight: Int
         get() = (height * dpi).toInt()
 
-    private var useRenderDoc = false
-
     private val animationTimer = object : AnimationTimer() {
         override fun handle(now: Long) {
             timerTick()
