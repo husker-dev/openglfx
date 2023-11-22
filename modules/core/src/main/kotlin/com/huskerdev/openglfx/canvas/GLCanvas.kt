@@ -107,16 +107,18 @@ abstract class GLCanvas(
 
     private var useRenderDoc = false
 
+    private val animationTimer = object : AnimationTimer() {
+        override fun handle(now: Long) {
+            timerTick()
+        }
+    }
+
     init {
         visibleProperty().addListener { _, _, _ -> repaint() }
         widthProperty().addListener { _, _, _ -> repaint() }
         heightProperty().addListener { _, _, _ -> repaint() }
 
-        object: AnimationTimer(){
-            override fun handle(now: Long) {
-                timerTick()
-            }
-        }.start()
+        animationTimer.start()
     }
 
     protected abstract fun timerTick()
@@ -169,6 +171,7 @@ abstract class GLCanvas(
     open fun dispose(){
         disposed = true
         animator = null
+        animationTimer.stop()
         onDispose.dispatchEvent(createDisposeEvent())
     }
 
