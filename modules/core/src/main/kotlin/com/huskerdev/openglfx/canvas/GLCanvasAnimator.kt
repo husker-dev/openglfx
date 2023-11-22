@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit
 
 
 class GLCanvasAnimator @JvmOverloads constructor(
-    val fps: Double = UNLIMITED_FPS
+    private val fps: Double = UNLIMITED_FPS
 ) {
 
     companion object {
@@ -17,8 +17,8 @@ class GLCanvasAnimator @JvmOverloads constructor(
     private lateinit var executor: ScheduledExecutorService
     private lateinit var timer: ScheduledFuture<*>
 
-    var boundCanvas: GLCanvas? = null
-        internal set(value) {
+    private var boundCanvas: GLCanvas? = null
+        set(value) {
             field = value
 
             if(this::executor.isInitialized){

@@ -37,7 +37,7 @@ abstract class GLCanvas(
         }
 
         /**
-         * Creates compatible OpenGLCanvas instance with specified GL library and profile
+         * Creates compatible GLCanvas instance with the specified configuration
          *
          * @param executor OpenGL implementation library
          *  - LWJGL_MODULE;
@@ -218,8 +218,8 @@ abstract class GLCanvas(
      * @param texture default JavaFX texture
      */
     protected fun drawResultTexture(g: Graphics, texture: Texture){
-        if(flipY) g.drawTexture(texture, 0f, 0f, width.toFloat() + 0.5f, height.toFloat() + 0.5f, 0.0f, 0.0f, scaledWidth.toFloat(), scaledHeight.toFloat())
-        else      g.drawTexture(texture, 0f, 0f, width.toFloat() + 0.5f, height.toFloat() + 0.5f, 0.0f, scaledHeight.toFloat(), scaledWidth.toFloat(), 0f)
+        if(flipY) g.drawTexture(texture, 0f, 0f, width.toFloat() + 0.5f, height.toFloat() + 0.5f, 0f, 0f, scaledWidth.toFloat(), scaledHeight.toFloat())
+        else      g.drawTexture(texture, 0f, 0f, width.toFloat() + 0.5f, height.toFloat() + 0.5f, 0f, scaledHeight.toFloat(), scaledWidth.toFloat(), 0f)
     }
 
 }
