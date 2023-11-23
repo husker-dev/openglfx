@@ -73,7 +73,7 @@ abstract class GLCanvas(
         }(profile, flipY, msaa, async)
     }
 
-    var disposed = false
+    @Volatile var disposed = false
         private set
 
     private var onInit = arrayListOf<Consumer<GLInitializeEvent>>()
