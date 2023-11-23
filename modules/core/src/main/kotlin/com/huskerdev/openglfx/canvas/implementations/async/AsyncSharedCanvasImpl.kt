@@ -29,8 +29,9 @@ open class AsyncSharedCanvasImpl(
     private val paintLock = Object()
     private val blitLock = Object()
 
-    private var lastDrawSize = Size(-1, -1)
-    private var lastResultSize = Size(-1, -1)
+    private var drawSize = Size(-1, -1)
+    private var interopTextureSize = Size(-1, -1)
+    private var resultSize = Size(-1, -1)
 
     private lateinit var parallelContext: GLContext
     private lateinit var resultContext: GLContext
@@ -61,6 +62,9 @@ open class AsyncSharedCanvasImpl(
             while(!disposed){
                 paint()
                 synchronized(blitLock) {
+                    interopTextureSize.changeOnDifference(drawSize){
+                        updateInterTextureSize(sizeWidth, sizeHeight)
+                    }
                     fbo.blitTo(interThreadFBO.id)
                 }
                 needsBlit.set(true)
@@ -73,12 +77,12 @@ open class AsyncSharedCanvasImpl(
     }
 
     private fun paint(){
-        lastDrawSize.onDifference(scaledWidth, scaledHeight) {
-            updateDrawFramebufferSize(scaledWidth, scaledHeight)
+        drawSize.changeOnDifference(scaledWidth, scaledHeight) {
+            updateFramebufferSize(scaledWidth, scaledHeight)
             fireReshapeEvent(scaledWidth, scaledHeight)
         }
 
-        glViewport(0, 0, lastDrawSize.width, lastDrawSize.height)
+        glViewport(0, 0, drawSize.sizeWidth, drawSize.sizeHeight)
         fireRenderEvent(if(msaa != 0) msaaFBO.id else fbo.id)
         if(msaa != 0)
             msaaFBO.blitTo(fbo.id)
@@ -98,10 +102,10 @@ open class AsyncSharedCanvasImpl(
             if(!::passthroughShader.isInitialized)
                 passthroughShader = PassthroughShader()
 
-            lastResultSize.onDifference(scaledWidth, scaledHeight) {
-                updateResultFramebufferSize(scaledWidth, scaledHeight)
+            resultSize.changeOnDifference(interopTextureSize) {
+                updateResultFramebufferSize(sizeWidth, sizeHeight)
             }
-            glViewport(0, 0, lastResultSize.width, lastResultSize.height)
+            glViewport(0, 0, resultSize.sizeWidth, resultSize.sizeHeight)
 
             synchronized(blitLock){
                 passthroughShader.copy(interThreadFBO, resultFBO)
@@ -128,14 +132,17 @@ open class AsyncSharedCanvasImpl(
         resultFBO = Framebuffer(width, height, existingTexture = fxTexture.GLTextureId)
     }
 
-    private fun updateDrawFramebufferSize(width: Int, height: Int) {
+    private fun updateInterTextureSize(width: Int, height: Int) {
+        if(::interThreadFBO.isInitialized)
+            interThreadFBO.delete()
+        interThreadFBO = Framebuffer(width, height)
+    }
+
+    private fun updateFramebufferSize(width: Int, height: Int) {
         if(::fbo.isInitialized){
             fbo.delete()
             if(msaa != 0) msaaFBO.delete()
         }
-
-        // Create 'buffer' framebuffer
-        interThreadFBO = Framebuffer(width, height)
 
         // Create framebuffer
         fbo = Framebuffer(width, height)

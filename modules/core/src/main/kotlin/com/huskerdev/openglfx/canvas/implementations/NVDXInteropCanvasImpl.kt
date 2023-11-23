@@ -54,7 +54,7 @@ open class NVDXInteropCanvasImpl(
             executor.initGLFunctions()
         }
 
-        lastSize.onDifference(scaledWidth, scaledHeight) {
+        lastSize.changeOnDifference(scaledWidth, scaledHeight) {
             updateFramebufferSize(scaledWidth, scaledHeight)
 
             interopObject.lock()
@@ -62,7 +62,7 @@ open class NVDXInteropCanvasImpl(
         }
         interopObject.lock()
 
-        glViewport(0, 0, lastSize.width, lastSize.height)
+        glViewport(0, 0, lastSize.sizeWidth, lastSize.sizeHeight)
         fireRenderEvent(if(msaa != 0) msaaFBO.id else fbo.id)
         if(msaa != 0)
             msaaFBO.blitTo(fbo.id)
@@ -101,6 +101,9 @@ open class NVDXInteropCanvasImpl(
 
         // Create interop texture
         interopObject = interopDevice.registerObject(fxD3DTexture.handle, fbo.texture, GL_TEXTURE_2D, WGL_ACCESS_WRITE_DISCARD_NV)
+
+        // For some reason the context resets by this time, so make it current again.
+        context.makeCurrent()
     }
 
     override fun repaint() = needsRepaint.set(true)
@@ -113,10 +116,7 @@ open class NVDXInteropCanvasImpl(
     override fun dispose() {
         super.dispose()
         if(::interopObject.isInitialized) interopObject.dispose()
-        if(::fxTexture.isInitialized) {
-            fxTexture.contentsNotUseful()
-            fxTexture.dispose()
-        }
+        if(::fxTexture.isInitialized) fxTexture.dispose()
         if(::context.isInitialized) GLContext.delete(context)
     }
 }

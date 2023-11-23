@@ -2,6 +2,7 @@ package com.huskerdev.openglfx.canvas.implementations.async
 
 import com.huskerdev.ojgl.GLContext
 import com.huskerdev.openglfx.GLExecutor
+import com.huskerdev.openglfx.GLExecutor.Companion.glFinish
 import com.huskerdev.openglfx.GLExecutor.Companion.glViewport
 import com.huskerdev.openglfx.canvas.GLProfile
 import com.huskerdev.openglfx.GL_TEXTURE_2D
@@ -34,8 +35,9 @@ open class AsyncNVDXInteropCanvasImpl(
     private val paintLock = Object()
     private val blitLock = Object()
 
-    private var lastDrawSize = Size(-1, -1)
-    private var lastResultSize = Size(-1, -1)
+    private var drawSize = Size(-1, -1)
+    private var interopTextureSize = Size(-1, -1)
+    private var resultSize = Size(-1, -1)
 
     private lateinit var resultFBO: Framebuffer
     private lateinit var interThreadFBO: Framebuffer
@@ -64,7 +66,11 @@ open class AsyncNVDXInteropCanvasImpl(
             while(!disposed){
                 paint()
                 synchronized(blitLock) {
+                    interopTextureSize.changeOnDifference(drawSize){
+                        updateInterTextureSize(sizeWidth, sizeHeight)
+                    }
                     fbo.blitTo(interThreadFBO.id)
+                    glFinish()
                 }
                 needsBlit.set(true)
 
@@ -76,12 +82,12 @@ open class AsyncNVDXInteropCanvasImpl(
     }
 
     private fun paint(){
-        lastDrawSize.onDifference(scaledWidth, scaledHeight){
-            updateFramebufferSize(scaledWidth, scaledHeight)
-            fireReshapeEvent(scaledWidth, scaledHeight)
+        drawSize.changeOnDifference(scaledWidth, scaledHeight){
+            updateFramebufferSize(sizeWidth, sizeHeight)
+            fireReshapeEvent(sizeWidth, sizeHeight)
         }
 
-        glViewport(0, 0, lastDrawSize.width, lastDrawSize.height)
+        glViewport(0, 0, drawSize.sizeWidth, drawSize.sizeHeight)
         fireRenderEvent(if (msaa != 0) msaaFBO.id else fbo.id)
         if (msaa != 0)
             msaaFBO.blitTo(fbo.id)
@@ -89,13 +95,9 @@ open class AsyncNVDXInteropCanvasImpl(
 
     private fun updateFramebufferSize(width: Int, height: Int) {
         if (::fbo.isInitialized) {
-            interThreadFBO.delete()
             fbo.delete()
             if(msaa != 0) msaaFBO.delete()
         }
-
-        interThreadFBO = Framebuffer(width, height)
-        interThreadFBO.bindFramebuffer()
 
         // Create GL texture
         fbo = Framebuffer(width, height)
@@ -106,6 +108,12 @@ open class AsyncNVDXInteropCanvasImpl(
             msaaFBO = MultiSampledFramebuffer(msaa, width, height)
             msaaFBO.bindFramebuffer()
         }
+    }
+
+    private fun updateInterTextureSize(width: Int, height: Int){
+        if(::interThreadFBO.isInitialized)
+            interThreadFBO.delete()
+        interThreadFBO = Framebuffer(width, height)
     }
 
     override fun onNGRender(g: Graphics) {
@@ -119,10 +127,10 @@ open class AsyncNVDXInteropCanvasImpl(
             }
 
             synchronized(blitLock){
-                lastResultSize.onDifference(scaledWidth, scaledHeight){
-                    updateInteropTexture(scaledWidth, scaledHeight)
+                resultSize.changeOnDifference(interopTextureSize){
+                    updateInteropTextureSize(sizeWidth, sizeHeight)
+                    glViewport(0, 0, sizeWidth, sizeHeight)
                 }
-                glViewport(0, 0, lastResultSize.width, lastResultSize.height)
 
                 interopObject.lock()
                 passthroughShader.copy(interThreadFBO, resultFBO)
@@ -133,7 +141,7 @@ open class AsyncNVDXInteropCanvasImpl(
             drawResultTexture(g, fxTexture)
     }
 
-    private fun updateInteropTexture(width: Int, height: Int){
+    private fun updateInteropTextureSize(width: Int, height: Int){
         if(this::fxTexture.isInitialized) {
             interopObject.dispose()
             fxTexture.dispose()

@@ -44,12 +44,12 @@ open class SharedCanvasImpl(
         }
         context.makeCurrent()
 
-        lastSize.onDifference(scaledWidth, scaledHeight){
+        lastSize.changeOnDifference(scaledWidth, scaledHeight){
             updateFramebufferSize(scaledWidth, scaledHeight)
             fireReshapeEvent(scaledWidth, scaledHeight)
         }
 
-        glViewport(0, 0, lastSize.width, lastSize.height)
+        glViewport(0, 0, lastSize.sizeWidth, lastSize.sizeHeight)
         fireRenderEvent(if(msaa != 0) msaaFBO.id else fbo.id)
         if(msaa != 0)
             msaaFBO.blitTo(fbo.id)
@@ -80,7 +80,7 @@ open class SharedCanvasImpl(
 
         // Create multi-sampled framebuffer
         if(msaa != 0){
-            msaaFBO = MultiSampledFramebuffer(msaa, lastSize.width, lastSize.height)
+            msaaFBO = MultiSampledFramebuffer(msaa, lastSize.sizeWidth, lastSize.sizeHeight)
             msaaFBO.bindFramebuffer()
         }
     }

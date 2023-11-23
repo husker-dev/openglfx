@@ -51,12 +51,12 @@ open class IOSurfaceCanvasImpl(
         }
         context.makeCurrent()
 
-        lastSize.onDifference(scaledWidth, scaledHeight){
+        lastSize.changeOnDifference(scaledWidth, scaledHeight){
             updateFramebufferSize(scaledWidth, scaledHeight)
             fireReshapeEvent(scaledWidth, scaledHeight)
         }
 
-        glViewport(0, 0, lastSize.width, lastSize.height)
+        glViewport(0, 0, lastSize.sizeWidth, lastSize.sizeHeight)
         fireRenderEvent(if(msaa != 0) msaaFBO.id else sharedFboGL.id)
         if(msaa != 0)
             msaaFBO.blitTo(sharedFboGL.id)

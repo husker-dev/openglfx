@@ -31,8 +31,9 @@ open class AsyncIOSurfaceCanvasImpl(
     private val paintLock = Object()
     private val blitLock = Object()
 
-    private var lastDrawSize = Size(-1, -1)
-    private var lastResultSize = Size(-1, -1)
+    private var drawSize = Size(-1, -1)
+    private var interopTextureSize = Size(-1, -1)
+    private var resultSize = Size(-1, -1)
 
     private lateinit var ioSurface: IOSurface
     private lateinit var fxTexture: Texture
@@ -58,6 +59,9 @@ open class AsyncIOSurfaceCanvasImpl(
             while (!disposed){
                 paint()
                 synchronized(blitLock) {
+                    interopTextureSize.changeOnDifference(drawSize){
+                        updateSurfaceSize(sizeWidth, sizeHeight)
+                    }
                     fboGL.blitTo(sharedFboGL.id)
                 }
                 needsBlit.set(true)
@@ -70,12 +74,12 @@ open class AsyncIOSurfaceCanvasImpl(
     }
 
     private fun paint(){
-        lastDrawSize.onDifference(scaledWidth, scaledHeight){
-            updateSurfaceSize(scaledWidth, scaledHeight)
+        drawSize.changeOnDifference(scaledWidth, scaledHeight){
+            updateFramebufferSize(scaledWidth, scaledHeight)
             fireReshapeEvent(scaledWidth, scaledHeight)
         }
 
-        glViewport(0, 0, lastDrawSize.width, lastDrawSize.height)
+        glViewport(0, 0, drawSize.sizeWidth, drawSize.sizeHeight)
         fireRenderEvent(if(msaa != 0) msaaFBO.id else fboGL.id)
         if(msaa != 0)
             msaaFBO.blitTo(fboGL.id)
@@ -90,10 +94,10 @@ open class AsyncIOSurfaceCanvasImpl(
 
         if (needsBlit.getAndSet(false)) {
             synchronized(blitLock){
-                lastResultSize.onDifference(scaledWidth, scaledHeight){
-                    updateResultTextureSize(scaledWidth, scaledHeight)
+                resultSize.changeOnDifference(interopTextureSize){
+                    updateResultTextureSize(sizeWidth, scaledHeight)
                 }
-                glViewport(0, 0, lastResultSize.width, lastResultSize.height)
+                glViewport(0, 0, resultSize.sizeWidth, resultSize.sizeHeight)
 
                 sharedFboFX.blitTo(fboFX.id)
             }
@@ -102,22 +106,11 @@ open class AsyncIOSurfaceCanvasImpl(
             drawResultTexture(g, fxTexture)
     }
 
-    private fun updateSurfaceSize(width: Int, height: Int) {
-        if (::ioSurface.isInitialized) {
-            ioSurface.dispose()
-
-            sharedFboGL.delete()
+    private fun updateFramebufferSize(width: Int, height: Int) {
+        if (::fboGL.isInitialized) {
             fboGL.delete()
             if(msaa != 0) msaaFBO.delete()
         }
-        ioSurface = IOSurface(width, height)
-
-        // Create GL-side shared texture
-        val ioGLTexture = glGenTextures()
-        glBindTexture(GL_TEXTURE_RECTANGLE, ioGLTexture)
-        ioSurface.cglTexImageIOSurface2D(context, GL_TEXTURE_RECTANGLE, GL_RGBA, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, 0)
-        glBindTexture(GL_TEXTURE_RECTANGLE, 0)
-        sharedFboGL = Framebuffer(width, height, existingTexture = ioGLTexture, existingTextureType = GL_TEXTURE_RECTANGLE)
 
         // Create simple framebuffer
         fboGL = Framebuffer(width, height)
@@ -127,6 +120,21 @@ open class AsyncIOSurfaceCanvasImpl(
             msaaFBO = MultiSampledFramebuffer(msaa, width, height)
             msaaFBO.bindFramebuffer()
         } else fboGL.bindFramebuffer()
+    }
+
+    private fun updateSurfaceSize(width: Int, height: Int){
+        if (::ioSurface.isInitialized) {
+            sharedFboGL.delete()
+            ioSurface.dispose()
+        }
+        ioSurface = IOSurface(width, height)
+
+        // Create GL-side shared texture
+        val ioGLTexture = glGenTextures()
+        glBindTexture(GL_TEXTURE_RECTANGLE, ioGLTexture)
+        ioSurface.cglTexImageIOSurface2D(context, GL_TEXTURE_RECTANGLE, GL_RGBA, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, 0)
+        glBindTexture(GL_TEXTURE_RECTANGLE, 0)
+        sharedFboGL = Framebuffer(width, height, existingTexture = ioGLTexture, existingTextureType = GL_TEXTURE_RECTANGLE)
     }
 
     private fun updateResultTextureSize(width: Int, height: Int){

@@ -62,11 +62,11 @@ open class BlitCanvasImpl(
             fireInitEvent()
         }
 
-        lastSize.onDifference(scaledWidth, scaledHeight){
+        lastSize.changeOnDifference(scaledWidth, scaledHeight){
             updateFramebufferSize(scaledWidth, scaledHeight)
             fireReshapeEvent(scaledWidth, scaledHeight)
         }
-        glViewport(0, 0, lastSize.width, lastSize.height)
+        glViewport(0, 0, lastSize.sizeWidth, lastSize.sizeHeight)
         fireRenderEvent(if(msaa != 0) msaaFBO.id else fbo.id)
 
         if(msaa != 0)
@@ -85,8 +85,8 @@ open class BlitCanvasImpl(
         if (scene == null || scene.window == null || width <= 0 || height <= 0)
             return
 
-        val renderWidth = lastSize.width
-        val renderHeight = lastSize.height
+        val renderWidth = lastSize.sizeWidth
+        val renderHeight = lastSize.sizeHeight
         if(renderWidth <= 0 || renderHeight <= 0)
             return
 
@@ -122,7 +122,7 @@ open class BlitCanvasImpl(
         fbo.bindFramebuffer()
 
         if(msaa != 0) {
-            msaaFBO = MultiSampledFramebuffer(msaa, lastSize.width, lastSize.height)
+            msaaFBO = MultiSampledFramebuffer(msaa, lastSize.sizeWidth, lastSize.sizeHeight)
             msaaFBO.bindFramebuffer()
         }
     }

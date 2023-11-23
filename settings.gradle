@@ -4,4 +4,4 @@ include 'modules:native'
 
 include 'modules:jogl'
 include 'modules:lwjgl'
-include 'modules:panamagl'
+include 'modules:libgdx'

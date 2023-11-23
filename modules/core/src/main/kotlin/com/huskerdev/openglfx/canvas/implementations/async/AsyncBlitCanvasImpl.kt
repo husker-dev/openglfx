@@ -41,8 +41,8 @@ open class AsyncBlitCanvasImpl(
 
     private var needsBlit = AtomicBoolean(false)
 
-    private var lastDrawSize = Size(-1, -1)
-    private var lastResultSize = Size(-1, -1)
+    private var drawSize = Size(-1, -1)
+    private var resultSize = Size(-1, -1)
 
     private lateinit var fbo: Framebuffer
     private lateinit var msaaFBO: MultiSampledFramebuffer
@@ -63,10 +63,10 @@ open class AsyncBlitCanvasImpl(
             while(!disposed){
                 paint()
                 synchronized(blitLock) {
-                    lastResultSize.onDifference(lastDrawSize.width, lastDrawSize.height){
-                        updateResultTextureSize(lastDrawSize.width, lastDrawSize.height)
+                    resultSize.changeOnDifference(drawSize){
+                        updateResultTextureSize(sizeWidth, sizeHeight)
                     }
-                    fbo.readPixels(0, 0, lastResultSize.width, lastResultSize.height, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, pixelByteBuffer)
+                    fbo.readPixels(0, 0, resultSize.sizeWidth, resultSize.sizeHeight, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, pixelByteBuffer)
                     pixelBuffer.bufferDirty(null)
                 }
                 needsBlit.set(true)
@@ -79,12 +79,12 @@ open class AsyncBlitCanvasImpl(
     }
 
     private fun paint(){
-        lastDrawSize.onDifference(scaledWidth, scaledHeight) {
+        drawSize.changeOnDifference(scaledWidth, scaledHeight) {
             updateFramebufferSize(scaledWidth, scaledHeight)
             fireReshapeEvent(scaledWidth, scaledHeight)
         }
 
-        glViewport(0, 0, lastDrawSize.width, lastDrawSize.height)
+        glViewport(0, 0, drawSize.sizeWidth, drawSize.sizeHeight)
         fireRenderEvent(if (msaa != 0) msaaFBO.id else fbo.id)
         if (msaa != 0)
             msaaFBO.blitTo(fbo.id)

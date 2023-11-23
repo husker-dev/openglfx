@@ -73,7 +73,7 @@ abstract class GLCanvas(
         }(profile, flipY, msaa, async)
     }
 
-    var disposed = false
+    @Volatile var disposed = false
         private set
 
     private var onInit = arrayListOf<Consumer<GLInitializeEvent>>()
@@ -84,7 +84,7 @@ abstract class GLCanvas(
     private fun <T> ArrayList<Consumer<T>>.dispatchEvent(event: T) = forEach { it.accept(event) }
     private var initEventsChanged = false
 
-    private val fpsCounter = FPSCounter()
+    val fpsCounter = FPSCounter()
 
     /**
      *  Binds GLCanvasAnimator to the OpenGLCanvas.
@@ -96,13 +96,13 @@ abstract class GLCanvas(
             field = value
         }
 
-    private val dpi: Double
+    val dpi: Double
         get() = scene?.window?.outputScaleX ?: 1.0
 
-    protected val scaledWidth: Int
+    val scaledWidth: Int
         get() = (width * dpi).toInt()
 
-    protected val scaledHeight: Int
+    val scaledHeight: Int
         get() = (height * dpi).toInt()
 
     private var useRenderDoc = false
