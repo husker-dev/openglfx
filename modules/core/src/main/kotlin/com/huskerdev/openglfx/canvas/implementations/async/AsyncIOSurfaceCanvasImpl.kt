@@ -95,10 +95,8 @@ open class AsyncIOSurfaceCanvasImpl(
         if (needsBlit.getAndSet(false)) {
             synchronized(blitLock){
                 resultSize.changeOnDifference(interopTextureSize){
-                    updateResultTextureSize(sizeWidth, scaledHeight)
+                    updateResultTextureSize(sizeWidth, sizeHeight)
                 }
-                glViewport(0, 0, resultSize.sizeWidth, resultSize.sizeHeight)
-
                 sharedFboFX.blitTo(fboFX.id)
             }
         }
