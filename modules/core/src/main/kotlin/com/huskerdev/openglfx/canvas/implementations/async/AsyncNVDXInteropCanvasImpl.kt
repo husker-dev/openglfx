@@ -56,10 +56,14 @@ open class AsyncNVDXInteropCanvasImpl(
 
     private lateinit var passthroughShader: PassthroughShader
 
-    init {
+    private fun initializeGLThread(){
+        resultContext = GLContext.create(0, profile == GLProfile.Core)
+        resultContext.makeCurrent()
+        passthroughShader = PassthroughShader()
+        GLContext.clear()
+
         thread(isDaemon = true) {
-            context = GLContext.create(0, profile == GLProfile.Core)
-            resultContext = GLContext.create(context.handle, profile == GLProfile.Core)
+            context = GLContext.create(resultContext.handle, profile == GLProfile.Core)
             context.makeCurrent()
             executor.initGLFunctions()
 
@@ -78,6 +82,11 @@ open class AsyncNVDXInteropCanvasImpl(
                     paintLock.wait()
                 }
             }
+
+            GLContext.delete(context)
+            if(::resultContext.isInitialized) GLContext.delete(resultContext)
+            if(::interopObject.isInitialized) interopObject.dispose()
+            if(::fxTexture.isInitialized) fxTexture.dispose()
         }
     }
 
@@ -120,11 +129,11 @@ open class AsyncNVDXInteropCanvasImpl(
         if(scaledWidth == 0 || scaledHeight == 0)
             return
 
+        if(!::resultContext.isInitialized)
+            initializeGLThread()
+
         if (needsBlit.getAndSet(false)) {
-            if(!this::passthroughShader.isInitialized){
-                resultContext.makeCurrent()
-                passthroughShader = PassthroughShader()
-            }
+            resultContext.makeCurrent()
 
             synchronized(blitLock){
                 resultSize.changeOnDifference(interopTextureSize){
@@ -136,6 +145,8 @@ open class AsyncNVDXInteropCanvasImpl(
                 passthroughShader.copy(interThreadFBO, resultFBO)
                 interopObject.unlock()
             }
+
+            GLContext.clear()
         }
         if(this::fxTexture.isInitialized)
             drawResultTexture(g, fxTexture)
@@ -177,12 +188,6 @@ open class AsyncNVDXInteropCanvasImpl(
 
     override fun dispose() {
         super.dispose()
-        synchronized(paintLock){
-            paintLock.notifyAll()
-        }
-        if(::fxTexture.isInitialized) fxTexture.dispose()
-        if(::interopObject.isInitialized) interopObject.dispose()
-        if(::context.isInitialized) GLContext.delete(context)
-        if(::resultContext.isInitialized) GLContext.delete(resultContext)
+        repaint()
     }
 }
