@@ -7,15 +7,13 @@ import com.huskerdev.openglfx.GLExecutor.Companion.glViewport
 import com.huskerdev.openglfx.canvas.GLProfile
 import com.huskerdev.openglfx.canvas.GLCanvas
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.GLTextureId
+import com.huskerdev.openglfx.internal.GLFXUtils.Companion.disposeManually
 import com.huskerdev.openglfx.internal.GLInteropType
 import com.huskerdev.openglfx.internal.PassthroughShader
 import com.huskerdev.openglfx.internal.Size
 import com.huskerdev.openglfx.internal.fbo.Framebuffer
 import com.huskerdev.openglfx.internal.fbo.MultiSampledFramebuffer
-import com.sun.prism.Graphics
-import com.sun.prism.GraphicsPipeline
-import com.sun.prism.PixelFormat
-import com.sun.prism.Texture
+import com.sun.prism.*
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
@@ -30,17 +28,17 @@ open class AsyncSharedCanvasImpl(
     private val blitLock = Object()
 
     private var drawSize = Size(-1, -1)
-    private var interopTextureSize = Size(-1, -1)
+    private var transferSize = Size(-1, -1)
     private var resultSize = Size(-1, -1)
 
-    private lateinit var parallelContext: GLContext
-    private lateinit var resultContext: GLContext
+    private lateinit var context: GLContext
+    private lateinit var fxWrapperContext: GLContext
     private lateinit var fxContext: GLContext
 
-    private lateinit var resultFBO: Framebuffer
-    private lateinit var interThreadFBO: Framebuffer
     private lateinit var fbo: Framebuffer
     private lateinit var msaaFBO: MultiSampledFramebuffer
+    private lateinit var transferFBO: Framebuffer
+    private lateinit var resultFBO: Framebuffer
 
     private lateinit var fxTexture: Texture
 
@@ -51,34 +49,47 @@ open class AsyncSharedCanvasImpl(
     private fun initializeThread(){
         fxContext = GLContext.current()
         GLContext.clear()
-        parallelContext = GLContext.create(fxContext, profile == GLProfile.Core)
-        resultContext = GLContext.create(fxContext, profile == GLProfile.Core)
+        context = GLContext.create(fxContext, profile == GLProfile.Core)
+
+        fxWrapperContext = GLContext.create(fxContext, profile == GLProfile.Core)
+        fxWrapperContext.makeCurrent()
+        GLExecutor.loadBasicFunctionPointers()
+        passthroughShader = PassthroughShader()
+
         fxContext.makeCurrent()
 
         thread(isDaemon = true) {
-            parallelContext.makeCurrent()
+            context.makeCurrent()
             executor.initGLFunctions()
 
             while(!disposed){
                 paint()
                 synchronized(blitLock) {
-                    interopTextureSize.changeOnDifference(drawSize){
-                        updateInterTextureSize(sizeWidth, sizeHeight)
+                    transferSize.changeOnDifference(drawSize){
+                        updateTransferTextureSize(sizeWidth, sizeHeight)
                     }
-                    fbo.blitTo(interThreadFBO.id)
+                    fbo.blitTo(transferFBO.id)
                 }
                 needsBlit.set(true)
 
                 synchronized(paintLock){
-                    paintLock.wait()
+                    if(!disposed) paintLock.wait()
                 }
             }
+
+            if(::fxTexture.isInitialized) fxTexture.disposeManually(false)
+            if(::resultFBO.isInitialized) resultFBO.delete()
+            if(::transferFBO.isInitialized) transferFBO.delete()
+            if(::fbo.isInitialized) fbo.delete()
+            if(::msaaFBO.isInitialized) msaaFBO.delete()
+            GLContext.delete(context)
+            GLContext.delete(fxWrapperContext)
         }
     }
 
     private fun paint(){
         drawSize.changeOnDifference(scaledWidth, scaledHeight) {
-            updateFramebufferSize(scaledWidth, scaledHeight)
+            updateRenderFramebufferSize(scaledWidth, scaledHeight)
             fireReshapeEvent(scaledWidth, scaledHeight)
         }
 
@@ -90,25 +101,22 @@ open class AsyncSharedCanvasImpl(
     }
 
     override fun onNGRender(g: Graphics) {
-        if(scaledWidth == 0 || scaledHeight == 0)
+        if(scaledWidth == 0 || scaledHeight == 0 || disposed)
             return
 
-        if (!::fxContext.isInitialized)
+        if (!::context.isInitialized)
             initializeThread()
 
         if (needsBlit.getAndSet(false)) {
-            resultContext.makeCurrent()
+            fxWrapperContext.makeCurrent()
 
-            if(!::passthroughShader.isInitialized)
-                passthroughShader = PassthroughShader()
-
-            resultSize.changeOnDifference(interopTextureSize) {
+            resultSize.changeOnDifference(transferSize) {
                 updateResultFramebufferSize(sizeWidth, sizeHeight)
             }
             glViewport(0, 0, resultSize.sizeWidth, resultSize.sizeHeight)
 
             synchronized(blitLock){
-                passthroughShader.copy(interThreadFBO, resultFBO)
+                passthroughShader.copy(transferFBO, resultFBO)
             }
             fxContext.makeCurrent()
         }
@@ -118,12 +126,12 @@ open class AsyncSharedCanvasImpl(
     }
 
     private fun updateResultFramebufferSize(width: Int, height: Int) {
-        if(::resultFBO.isInitialized)
+        if(::resultFBO.isInitialized) {
             resultFBO.delete()
+            fxTexture.disposeManually()
+        }
 
         // Create JavaFX texture
-        if(::fxTexture.isInitialized)
-            fxTexture.dispose()
         fxTexture = GraphicsPipeline.getDefaultResourceFactory()
             .createTexture(PixelFormat.BYTE_BGRA_PRE, Texture.Usage.DYNAMIC, Texture.WrapMode.CLAMP_TO_EDGE, width, height)
         fxTexture.makePermanent()
@@ -132,13 +140,13 @@ open class AsyncSharedCanvasImpl(
         resultFBO = Framebuffer(width, height, existingTexture = fxTexture.GLTextureId)
     }
 
-    private fun updateInterTextureSize(width: Int, height: Int) {
-        if(::interThreadFBO.isInitialized)
-            interThreadFBO.delete()
-        interThreadFBO = Framebuffer(width, height)
+    private fun updateTransferTextureSize(width: Int, height: Int) {
+        if(::transferFBO.isInitialized)
+            transferFBO.delete()
+        transferFBO = Framebuffer(width, height)
     }
 
-    private fun updateFramebufferSize(width: Int, height: Int) {
+    private fun updateRenderFramebufferSize(width: Int, height: Int) {
         if(::fbo.isInitialized){
             fbo.delete()
             if(msaa != 0) msaaFBO.delete()
@@ -168,11 +176,6 @@ open class AsyncSharedCanvasImpl(
 
     override fun dispose() {
         super.dispose()
-        synchronized(paintLock){
-            paintLock.notifyAll()
-        }
-        if(::fxTexture.isInitialized) fxTexture.dispose()
-        if(::parallelContext.isInitialized) GLContext.delete(parallelContext)
-        if(::resultContext.isInitialized) GLContext.delete(resultContext)
+        repaint()
     }
 }
