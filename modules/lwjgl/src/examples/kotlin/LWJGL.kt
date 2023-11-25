@@ -8,6 +8,7 @@ import javafx.application.Platform
 import javafx.event.EventHandler
 import javafx.scene.Scene
 import javafx.scene.control.Label
+import javafx.scene.control.SplitPane
 import javafx.scene.input.KeyCode
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.StackPane
@@ -41,10 +42,22 @@ class ExampleApp: Application(){
        if(::canvas.isInitialized)
            canvas.dispose()
         canvas = createGLCanvasInstance()
-        stage.scene = Scene(StackPane(createDebugPanel(canvas), canvas)).apply {
+        val splitPane = SplitPane(canvas).apply {
+            style = """
+                    .split-pane-divider {
+                        -fx-border-color: transparent transparent transparent transparent;
+                        -fx-background-color: transparent, transparent;
+                        -fx-background-insets: 0, 0 1 0 1;
+                    }
+                    """.trimIndent()
+        }
+        val debugPane = createDebugPanel(canvas)
+        stage.scene = Scene(StackPane(debugPane, splitPane)).apply {
             onKeyPressed = EventHandler {
                 if(it.code == KeyCode.F2)
                     recreateGLCanvas()
+                if(it.code == KeyCode.F3)
+                    splitPane.items.add(createGLCanvasInstance())
             }
         }
         iteration++
@@ -67,6 +80,7 @@ class ExampleApp: Application(){
         children.add(Label("OpenGLCanvas is not opaque, so you can see this text"))
         children.add(Label("----------------------------------------"))
         children.add(Label("Press F2 to recreate canvas"))
+        children.add(Label("Press F3 to add canvas"))
         children.add(Label("----------------------------------------"))
         arrayListOf(
             "PIPELINE" to GraphicsPipeline.getPipeline().javaClass.canonicalName.split(".")[3],
