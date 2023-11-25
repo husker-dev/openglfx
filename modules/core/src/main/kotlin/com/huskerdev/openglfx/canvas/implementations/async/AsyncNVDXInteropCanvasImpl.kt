@@ -8,6 +8,7 @@ import com.huskerdev.openglfx.canvas.GLProfile
 import com.huskerdev.openglfx.GL_TEXTURE_2D
 import com.huskerdev.openglfx.canvas.GLCanvas
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.D3DTextureResource
+import com.huskerdev.openglfx.internal.GLFXUtils.Companion.disposeManually
 import com.huskerdev.openglfx.internal.GLInteropType
 import com.huskerdev.openglfx.internal.PassthroughShader
 import com.huskerdev.openglfx.internal.Size
@@ -79,14 +80,14 @@ open class AsyncNVDXInteropCanvasImpl(
                 needsBlit.set(true)
 
                 synchronized(paintLock){
-                    paintLock.wait()
+                    if(!disposed) paintLock.wait()
                 }
             }
 
+            if(::fxTexture.isInitialized) fxTexture.disposeManually(false)
             GLContext.delete(context)
-            if(::resultContext.isInitialized) GLContext.delete(resultContext)
+            GLContext.delete(resultContext)
             if(::interopObject.isInitialized) interopObject.dispose()
-            if(::fxTexture.isInitialized) fxTexture.dispose()
         }
     }
 
@@ -126,7 +127,7 @@ open class AsyncNVDXInteropCanvasImpl(
     }
 
     override fun onNGRender(g: Graphics) {
-        if(scaledWidth == 0 || scaledHeight == 0)
+        if(scaledWidth == 0 || scaledHeight == 0 || disposed)
             return
 
         if(!::resultContext.isInitialized)
@@ -155,8 +156,8 @@ open class AsyncNVDXInteropCanvasImpl(
     private fun updateInteropTextureSize(width: Int, height: Int){
         if(this::fxTexture.isInitialized) {
             interopObject.dispose()
-            fxTexture.dispose()
             resultFBO.delete()
+            fxTexture.disposeManually()
         }
 
         resultFBO = Framebuffer(width, height)

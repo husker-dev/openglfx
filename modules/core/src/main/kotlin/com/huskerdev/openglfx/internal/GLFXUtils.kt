@@ -5,6 +5,8 @@ import com.huskerdev.ojgl.utils.PlatformUtils
 import com.sun.javafx.tk.PlatformImage
 import com.sun.javafx.tk.Toolkit
 import com.sun.prism.Texture
+import com.sun.prism.impl.BaseTexture
+import com.sun.prism.impl.ManagedResource
 import javafx.scene.image.Image
 
 
@@ -39,5 +41,33 @@ internal class GLFXUtils {
                 .invoke(this) as Int
 
         fun Image.getPlatformImage() = Toolkit.getImageAccessor().getPlatformImage(this) as PlatformImage
+
+        fun Texture.disposeManually(isManagedThread: Boolean = true){
+            if(isManagedThread){
+                this.dispose()
+                return
+            }
+
+            // Override Texture.dispose() to use outside Managed thread
+            if(this is BaseTexture<*>){
+                val managedResource = this.getDeclaredField("resource", BaseTexture::class.java) as ManagedResource<*>
+
+                val resourceField = managedResource.declaredField("resource", ManagedResource::class.java)
+                val resource = resourceField[managedResource]
+
+                if(resource != null){
+                    managedResource.free()
+                    managedResource.declaredField("disposalRequested", ManagedResource::class.java).set(managedResource, false)
+                    resourceField.set(managedResource, null)
+                    managedResource.pool::class.java.getMethod("resourceFreed", ManagedResource::class.java).invoke(managedResource.pool, managedResource)
+                }
+            }
+        }
+
+        private fun Any.declaredField(name: String, clazz: Class<*> = this::class.java) =
+            clazz.getDeclaredField(name).apply { isAccessible = true }
+
+        private fun Any.getDeclaredField(name: String, clazz: Class<*> = this::class.java) =
+            clazz.getDeclaredField(name).apply { isAccessible = true }[this]
     }
 }

@@ -54,10 +54,9 @@ class ExampleApp: Application(){
         val debugPane = createDebugPanel(canvas)
         stage.scene = Scene(StackPane(debugPane, splitPane)).apply {
             onKeyPressed = EventHandler {
-                if(it.code == KeyCode.F2)
-                    recreateGLCanvas()
-                if(it.code == KeyCode.F3)
-                    splitPane.items.add(createGLCanvasInstance())
+                if(it.code == KeyCode.F1) System.gc()
+                if(it.code == KeyCode.F2) recreateGLCanvas()
+                if(it.code == KeyCode.F3) splitPane.items.add(createGLCanvasInstance())
             }
         }
         iteration++
@@ -79,6 +78,7 @@ class ExampleApp: Application(){
     private fun createDebugPanel(canvas: GLCanvas) = VBox().apply{
         children.add(Label("OpenGLCanvas is not opaque, so you can see this text"))
         children.add(Label("----------------------------------------"))
+        children.add(Label("Press F1 to invoke GC"))
         children.add(Label("Press F2 to recreate canvas"))
         children.add(Label("Press F3 to add canvas"))
         children.add(Label("----------------------------------------"))

@@ -218,6 +218,7 @@ abstract class GLCanvas(
      * @param texture default JavaFX texture
      */
     protected fun drawResultTexture(g: Graphics, texture: Texture){
+        if(disposed) return
         if(flipY) g.drawTexture(texture, 0f, 0f, width.toFloat() + 0.5f, height.toFloat() + 0.5f, 0f, 0f, scaledWidth.toFloat(), scaledHeight.toFloat())
         else      g.drawTexture(texture, 0f, 0f, width.toFloat() + 0.5f, height.toFloat() + 0.5f, 0f, scaledHeight.toFloat(), scaledWidth.toFloat(), 0f)
     }
