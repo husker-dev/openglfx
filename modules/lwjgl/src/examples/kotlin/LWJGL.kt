@@ -5,8 +5,10 @@ import com.huskerdev.openglfx.lwjgl.LWJGLExecutor.Companion.LWJGL_MODULE
 import com.sun.prism.GraphicsPipeline
 import javafx.application.Application
 import javafx.application.Platform
+import javafx.event.EventHandler
 import javafx.scene.Scene
 import javafx.scene.control.Label
+import javafx.scene.input.KeyCode
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.StackPane
 import javafx.scene.layout.VBox
@@ -21,22 +23,39 @@ fun main() {
 
 class ExampleApp: Application(){
 
+    private lateinit var stage: Stage
+    private lateinit var canvas: GLCanvas
+    private var iteration = 1
+
     override fun start(stage: Stage) {
+        this.stage = stage
         stage.title = "GLCanvas example"
         stage.width = 800.0
         stage.height = 600.0
-        
-        val glCanvas = createGLCanvas()
-
-        stage.scene = Scene(StackPane(createDebugPanel(glCanvas), glCanvas))
+        recreateGLCanvas()
         stage.show()
+        stage.toFront()
     }
 
-    private fun createGLCanvas(): GLCanvas {
+    private fun recreateGLCanvas(){
+       if(::canvas.isInitialized)
+           canvas.dispose()
+        canvas = createGLCanvasInstance()
+        stage.scene = Scene(StackPane(createDebugPanel(canvas), canvas)).apply {
+            onKeyPressed = EventHandler {
+                if(it.code == KeyCode.F2)
+                    recreateGLCanvas()
+            }
+        }
+        iteration++
+    }
+
+    private fun createGLCanvasInstance(): GLCanvas {
         val canvas = GLCanvas.create(LWJGL_MODULE, msaa = 4, profile = GLProfile.Core, async = true)
         canvas.animator = GLCanvasAnimator(60.0)
 
         val renderExample = ExampleScene()
+
         canvas.addOnInitEvent(renderExample::init)
         canvas.addOnReshapeEvent(renderExample::reshape)
         canvas.addOnRenderEvent(renderExample::render)
@@ -47,6 +66,8 @@ class ExampleApp: Application(){
     private fun createDebugPanel(canvas: GLCanvas) = VBox().apply{
         children.add(Label("OpenGLCanvas is not opaque, so you can see this text"))
         children.add(Label("----------------------------------------"))
+        children.add(Label("Press F2 to recreate canvas"))
+        children.add(Label("----------------------------------------"))
         arrayListOf(
             "PIPELINE" to GraphicsPipeline.getPipeline().javaClass.canonicalName.split(".")[3],
             "INTEROP" to canvas.interopType,
@@ -56,7 +77,9 @@ class ExampleApp: Application(){
             "FLIP_Y" to canvas.flipY,
             "IS_ASYNC" to canvas.isAsync,
             "FPS" to "-",
-            "SIZE" to "0x0"
+            "SIZE" to "0x0",
+            "MEMORY_USAGE" to "0",
+            "ITERATION" to iteration
         ).forEach {
             children.add(BorderPane().apply {
                 maxWidth = 190.0
@@ -68,6 +91,8 @@ class ExampleApp: Application(){
             Platform.runLater {
                 (scene.lookup("#FPS") as Label).text = "${e.fps}/${(1000 / (e.delta * 1000)).toInt()}"
                 (scene.lookup("#SIZE") as Label).text = "${e.width}x${e.height}"
+                (scene.lookup("#MEMORY_USAGE") as Label).text =
+                    "${(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024 / 1024} Mb"
             }
         }
     }
