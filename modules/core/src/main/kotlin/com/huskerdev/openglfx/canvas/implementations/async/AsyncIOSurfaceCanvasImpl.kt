@@ -44,12 +44,14 @@ open class AsyncIOSurfaceCanvasImpl(
     private lateinit var msaaFBO: MultiSampledFramebuffer
 
     private lateinit var fxContext: GLContext
+    private lateinit var fxWrapperContext: GLContext
     private lateinit var context: GLContext
 
     private var needsBlit = AtomicBoolean(false)
 
     private fun initializeThread(){
         fxContext = GLContext.current()
+        fxWrapperContext = GLContext.create(fxContext, false)
         thread(isDaemon = true) {
             context = GLContext.create(0, profile == GLProfile.Core)
             context.makeCurrent()
@@ -101,7 +103,10 @@ open class AsyncIOSurfaceCanvasImpl(
         if (needsBlit.getAndSet(false)) {
             synchronized(blitLock){
                 resultSize.executeOnDifferenceWith(interopTextureSize, ::updateResultTextureSize)
+                fxWrapperContext.makeCurrent()
+                glViewport(0, 0, scaledWidth, scaledHeight)
                 sharedFboFX.blitTo(fboFX)
+                fxContext.makeCurrent()
             }
         }
         if(this::fxTexture.isInitialized)
