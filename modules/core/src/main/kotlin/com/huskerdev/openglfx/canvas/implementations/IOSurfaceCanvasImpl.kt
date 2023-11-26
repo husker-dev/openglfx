@@ -37,6 +37,7 @@ open class IOSurfaceCanvasImpl(
     private lateinit var msaaFBO: MultiSampledFramebuffer
 
     private lateinit var fxContext: GLContext
+    private lateinit var fxWrapperContext: GLContext
     private lateinit var context: GLContext
 
     private var needsRepaint = AtomicBoolean(false)
@@ -47,6 +48,7 @@ open class IOSurfaceCanvasImpl(
 
         if(!::context.isInitialized){
             fxContext = GLContext.current()
+            fxWrapperContext = GLContext.create(fxContext, false)
             context = GLContext.create(0, profile == GLProfile.Core)
             context.makeCurrent()
             executor.initGLFunctions()
@@ -60,8 +62,10 @@ open class IOSurfaceCanvasImpl(
         if(msaa != 0)
             msaaFBO.blitTo(sharedFboGL)
 
-        fxContext.makeCurrent()
+        fxWrapperContext.makeCurrent()
+        glViewport(0, 0, lastSize.width, lastSize.height)
         sharedFboFX.blitTo(fboFX)
+        fxContext.makeCurrent()
 
         drawResultTexture(g, fxTexture)
     }
