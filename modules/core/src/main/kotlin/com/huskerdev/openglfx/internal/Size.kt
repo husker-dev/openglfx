@@ -1,15 +1,27 @@
 package com.huskerdev.openglfx.internal
 
-internal data class Size<A>(var sizeWidth: A, var sizeHeight: A) {
+internal data class Size(
+    var width: Int = Integer.MIN_VALUE,
+    var height: Int = Integer.MIN_VALUE
+) {
 
-    inline fun changeOnDifference(newWidth: A, newHeight: A, consumer: Size<A>.() -> Unit){
-        if(sizeWidth != newWidth || sizeHeight != newHeight){
-            sizeWidth = newWidth
-            sizeHeight = newHeight
-            consumer(this)
+    inline fun executeOnDifferenceWith(newWidth: Int, newHeight: Int, consumer: (sizeWidth: Int, sizeHeight: Int) -> Unit){
+        if(width != newWidth || height != newHeight){
+            width = newWidth
+            height = newHeight
+            consumer(width, height)
         }
     }
 
-    inline fun changeOnDifference(size: Size<A>, consumer: Size<A>.() -> Unit) =
-        changeOnDifference(size.sizeWidth, size.sizeHeight, consumer)
+    inline fun executeOnDifferenceWith(size: Size, consumer: (sizeWidth: Int, sizeHeight: Int) -> Unit) =
+        this.executeOnDifferenceWith(size.width, size.height, consumer)
+
+    fun executeOnDifferenceWith(size: Size, vararg consumers: (sizeWidth: Int, sizeHeight: Int) -> Unit) {
+        if(width != size.width || height != size.height){
+            width = size.width
+            height = size.height
+            consumers.forEach { it(width, height) }
+        }
+    }
+
 }

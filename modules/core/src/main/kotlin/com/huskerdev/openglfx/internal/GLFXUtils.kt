@@ -2,18 +2,24 @@ package com.huskerdev.openglfx.internal
 
 import com.huskerdev.ojgl.utils.OS
 import com.huskerdev.ojgl.utils.PlatformUtils
-import com.sun.javafx.tk.PlatformImage
+import com.sun.javafx.tk.RenderJob
 import com.sun.javafx.tk.Toolkit
+import com.sun.prism.GraphicsPipeline
+import com.sun.prism.PixelFormat
 import com.sun.prism.Texture
-import com.sun.prism.impl.BaseTexture
-import com.sun.prism.impl.ManagedResource
-import javafx.scene.image.Image
+import sun.misc.Unsafe
+import java.nio.Buffer
+import java.nio.ByteBuffer
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.FutureTask
 
 
 internal class GLFXUtils {
 
     companion object {
         private var isLibLoaded = false
+
+        private val unsafe = Unsafe::class.java.getDeclaredField("theUnsafe").apply { isAccessible = true }[null] as Unsafe
 
         fun loadLibrary(){
             if(isLibLoaded) return
@@ -40,34 +46,35 @@ internal class GLFXUtils {
                 .apply { isAccessible = true }
                 .invoke(this) as Int
 
-        fun Image.getPlatformImage() = Toolkit.getImageAccessor().getPlatformImage(this) as PlatformImage
-
-        fun Texture.disposeManually(isManagedThread: Boolean = true){
-            if(isManagedThread){
-                this.dispose()
-                return
-            }
-
-            // Override Texture.dispose() to use outside Managed thread
-            if(this is BaseTexture<*>){
-                val managedResource = this.getDeclaredField("resource", BaseTexture::class.java) as ManagedResource<*>
-
-                val resourceField = managedResource.declaredField("resource", ManagedResource::class.java)
-                val resource = resourceField[managedResource]
-
-                if(resource != null){
-                    managedResource.free()
-                    managedResource.declaredField("disposalRequested", ManagedResource::class.java).set(managedResource, false)
-                    resourceField.set(managedResource, null)
-                    managedResource.pool::class.java.getMethod("resourceFreed", ManagedResource::class.java).invoke(managedResource.pool, managedResource)
-                }
-            }
+        fun createPermanentFXTexture(width: Int, height: Int): Texture {
+            val texture = GraphicsPipeline.getDefaultResourceFactory()
+                .createTexture(
+                    PixelFormat.BYTE_BGRA_PRE, Texture.Usage.DYNAMIC, Texture.WrapMode.CLAMP_TO_EDGE,
+                    width, height
+                )
+            texture.makePermanent()
+            return texture
         }
 
-        private fun Any.declaredField(name: String, clazz: Class<*> = this::class.java) =
-            clazz.getDeclaredField(name).apply { isAccessible = true }
+        fun Texture.updateData(buffer: Buffer, width: Int, height: Int) =
+            this.update(buffer, PixelFormat.BYTE_BGRA_PRE,
+                0, 0, 0, 0, width, height, width * 4, true)
 
-        private fun Any.getDeclaredField(name: String, clazz: Class<*> = this::class.java) =
-            clazz.getDeclaredField(name).apply { isAccessible = true }[this]
+        fun ByteBuffer.dispose() =
+            unsafe.invokeCleaner(this)
+
+        fun runOnRenderThread(runnable: () -> Unit) {
+            if (Thread.currentThread().name.startsWith("QuantumRenderer")) {
+                runnable()
+            } else {
+                val task = FutureTask<Void?>(runnable, null)
+                Toolkit.getToolkit().addRenderJob(RenderJob(task))
+                try {
+                    task.get()
+                } catch (ex: ExecutionException) {
+                    throw AssertionError(ex)
+                } catch (_: InterruptedException) {}
+            }
+        }
     }
 }

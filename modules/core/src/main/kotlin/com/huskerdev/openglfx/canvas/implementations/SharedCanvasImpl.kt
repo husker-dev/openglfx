@@ -6,14 +6,13 @@ import com.huskerdev.openglfx.GLExecutor.Companion.glFinish
 import com.huskerdev.openglfx.GLExecutor.Companion.glViewport
 import com.huskerdev.openglfx.canvas.GLProfile
 import com.huskerdev.openglfx.canvas.GLCanvas
+import com.huskerdev.openglfx.internal.GLFXUtils
 import com.huskerdev.openglfx.internal.fbo.MultiSampledFramebuffer
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.GLTextureId
 import com.huskerdev.openglfx.internal.GLInteropType
 import com.huskerdev.openglfx.internal.Size
 import com.huskerdev.openglfx.internal.fbo.Framebuffer
 import com.sun.prism.Graphics
-import com.sun.prism.GraphicsPipeline
-import com.sun.prism.PixelFormat
 import com.sun.prism.Texture
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -24,7 +23,7 @@ open class SharedCanvasImpl(
     msaa: Int
 ): GLCanvas(GLInteropType.TextureSharing, profile, flipY, msaa, false){
 
-    private var lastSize = Size(-1, -1)
+    private var lastSize = Size()
 
     private lateinit var context: GLContext
     private lateinit var fxContext: GLContext
@@ -44,15 +43,12 @@ open class SharedCanvasImpl(
         }
         context.makeCurrent()
 
-        lastSize.changeOnDifference(scaledWidth, scaledHeight){
-            updateFramebufferSize(scaledWidth, scaledHeight)
-            fireReshapeEvent(scaledWidth, scaledHeight)
-        }
+        lastSize.executeOnDifferenceWith(scaledSize, ::updateFramebufferSize, ::fireReshapeEvent)
 
-        glViewport(0, 0, lastSize.sizeWidth, lastSize.sizeHeight)
+        glViewport(0, 0, lastSize.width, lastSize.height)
         fireRenderEvent(if(msaa != 0) msaaFBO.id else fbo.id)
         if(msaa != 0)
-            msaaFBO.blitTo(fbo.id)
+            msaaFBO.blitTo(fbo)
 
         glFinish()
         fxContext.makeCurrent()
@@ -70,8 +66,7 @@ open class SharedCanvasImpl(
         // Create JavaFX texture
         if(::fxTexture.isInitialized)
             fxTexture.dispose()
-        fxTexture = GraphicsPipeline.getDefaultResourceFactory().createTexture(PixelFormat.BYTE_BGRA_PRE, Texture.Usage.DYNAMIC, Texture.WrapMode.CLAMP_TO_EDGE, width, height)
-        fxTexture.makePermanent()
+        fxTexture = GLFXUtils.createPermanentFXTexture(width, height)
         context.makeCurrent()
 
         // Create framebuffer that connected to JavaFX's texture
@@ -80,7 +75,7 @@ open class SharedCanvasImpl(
 
         // Create multi-sampled framebuffer
         if(msaa != 0){
-            msaaFBO = MultiSampledFramebuffer(msaa, lastSize.sizeWidth, lastSize.sizeHeight)
+            msaaFBO = MultiSampledFramebuffer(msaa, lastSize.width, lastSize.height)
             msaaFBO.bindFramebuffer()
         }
     }
@@ -94,7 +89,9 @@ open class SharedCanvasImpl(
 
     override fun dispose() {
         super.dispose()
-        if(::fxTexture.isInitialized) fxTexture.dispose()
-        if(::context.isInitialized) GLContext.delete(context)
+        GLFXUtils.runOnRenderThread {
+            if(::fxTexture.isInitialized) fxTexture.dispose()
+            if(::context.isInitialized) GLContext.delete(context)
+        }
     }
 }

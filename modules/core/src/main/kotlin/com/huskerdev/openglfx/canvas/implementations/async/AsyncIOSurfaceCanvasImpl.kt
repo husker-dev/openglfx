@@ -7,6 +7,7 @@ import com.huskerdev.openglfx.GLExecutor.Companion.glGenTextures
 import com.huskerdev.openglfx.GLExecutor.Companion.glViewport
 import com.huskerdev.openglfx.canvas.GLCanvas
 import com.huskerdev.openglfx.canvas.GLProfile
+import com.huskerdev.openglfx.internal.GLFXUtils
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.GLTextureId
 import com.huskerdev.openglfx.internal.GLInteropType
 import com.huskerdev.openglfx.internal.Size
@@ -15,8 +16,6 @@ import com.huskerdev.openglfx.internal.fbo.Framebuffer
 import com.huskerdev.openglfx.internal.fbo.MultiSampledFramebuffer
 import com.huskerdev.openglfx.internal.iosurface.IOSurface
 import com.sun.prism.Graphics
-import com.sun.prism.GraphicsPipeline
-import com.sun.prism.PixelFormat
 import com.sun.prism.Texture
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
@@ -31,9 +30,9 @@ open class AsyncIOSurfaceCanvasImpl(
     private val paintLock = Object()
     private val blitLock = Object()
 
-    private var drawSize = Size(-1, -1)
-    private var interopTextureSize = Size(-1, -1)
-    private var resultSize = Size(-1, -1)
+    private var drawSize = Size()
+    private var interopTextureSize = Size()
+    private var resultSize = Size()
 
     private lateinit var ioSurface: IOSurface
     private lateinit var fxTexture: Texture
@@ -59,10 +58,8 @@ open class AsyncIOSurfaceCanvasImpl(
             while (!disposed){
                 paint()
                 synchronized(blitLock) {
-                    interopTextureSize.changeOnDifference(drawSize){
-                        updateSurfaceSize(sizeWidth, sizeHeight)
-                    }
-                    fboGL.blitTo(sharedFboGL.id)
+                    interopTextureSize.executeOnDifferenceWith(drawSize, ::updateSurfaceSize)
+                    fboGL.blitTo(sharedFboGL)
                 }
                 needsBlit.set(true)
 
@@ -70,34 +67,41 @@ open class AsyncIOSurfaceCanvasImpl(
                     paintLock.wait()
                 }
             }
+
+            // Dispose
+            GLContext.clear()
+            GLFXUtils.runOnRenderThread {
+                if(::sharedFboFX.isInitialized) sharedFboFX.delete()
+                if(::fboFX.isInitialized) fboFX.delete()
+
+                if(::fxTexture.isInitialized) fxTexture.dispose()
+                if(::ioSurface.isInitialized) ioSurface.dispose()
+
+                if(::context.isInitialized) GLContext.delete(context)
+            }
         }
     }
 
     private fun paint(){
-        drawSize.changeOnDifference(scaledWidth, scaledHeight){
-            updateFramebufferSize(scaledWidth, scaledHeight)
-            fireReshapeEvent(scaledWidth, scaledHeight)
-        }
+        drawSize.executeOnDifferenceWith(scaledSize, ::updateFramebufferSize, ::fireReshapeEvent)
 
-        glViewport(0, 0, drawSize.sizeWidth, drawSize.sizeHeight)
+        glViewport(0, 0, drawSize.width, drawSize.height)
         fireRenderEvent(if(msaa != 0) msaaFBO.id else fboGL.id)
         if(msaa != 0)
-            msaaFBO.blitTo(fboGL.id)
+            msaaFBO.blitTo(fboGL)
     }
 
     override fun onNGRender(g: Graphics) {
-        if(scaledWidth == 0 || scaledHeight == 0)
+        if(scaledWidth == 0 || scaledHeight == 0 || disposed)
             return
 
-        if(!::context.isInitialized)
+        if(!::fxContext.isInitialized)
             initializeThread()
 
         if (needsBlit.getAndSet(false)) {
             synchronized(blitLock){
-                resultSize.changeOnDifference(interopTextureSize){
-                    updateResultTextureSize(sizeWidth, sizeHeight)
-                }
-                sharedFboFX.blitTo(fboFX.id)
+                resultSize.executeOnDifferenceWith(interopTextureSize, ::updateResultTextureSize)
+                sharedFboFX.blitTo(fboFX)
             }
         }
         if(this::fxTexture.isInitialized)
@@ -144,8 +148,7 @@ open class AsyncIOSurfaceCanvasImpl(
         }
 
         // Create JavaFX texture
-        fxTexture = GraphicsPipeline.getDefaultResourceFactory().createTexture(PixelFormat.BYTE_BGRA_PRE, Texture.Usage.DYNAMIC, Texture.WrapMode.CLAMP_TO_EDGE, width, height)
-        fxTexture.makePermanent()
+        fxTexture = GLFXUtils.createPermanentFXTexture(width, height)
 
         // Create FX-side shared texture
         val ioFXTexture = glGenTextures()
@@ -171,14 +174,6 @@ open class AsyncIOSurfaceCanvasImpl(
 
     override fun dispose() {
         super.dispose()
-        synchronized(paintLock){
-            paintLock.notifyAll()
-        }
-        if(::sharedFboFX.isInitialized) sharedFboFX.delete()
-        if(::fboFX.isInitialized) fboFX.delete()
-        if(::fxTexture.isInitialized) fxTexture.dispose()
-
-        if(::context.isInitialized) GLContext.delete(context)
-        if(::ioSurface.isInitialized) ioSurface.dispose()
+        repaint()
     }
 }

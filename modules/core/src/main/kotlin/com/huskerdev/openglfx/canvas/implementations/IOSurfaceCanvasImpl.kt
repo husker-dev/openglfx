@@ -7,6 +7,7 @@ import com.huskerdev.openglfx.GLExecutor.Companion.glGenTextures
 import com.huskerdev.openglfx.GLExecutor.Companion.glViewport
 import com.huskerdev.openglfx.canvas.GLCanvas
 import com.huskerdev.openglfx.canvas.GLProfile
+import com.huskerdev.openglfx.internal.GLFXUtils
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.GLTextureId
 import com.huskerdev.openglfx.internal.GLInteropType
 import com.huskerdev.openglfx.internal.Size
@@ -15,8 +16,6 @@ import com.huskerdev.openglfx.internal.fbo.Framebuffer
 import com.huskerdev.openglfx.internal.fbo.MultiSampledFramebuffer
 import com.huskerdev.openglfx.internal.iosurface.IOSurface
 import com.sun.prism.Graphics
-import com.sun.prism.GraphicsPipeline
-import com.sun.prism.PixelFormat
 import com.sun.prism.Texture
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -30,7 +29,7 @@ open class IOSurfaceCanvasImpl(
     private lateinit var ioSurface: IOSurface
     private lateinit var fxTexture: Texture
 
-    private val lastSize = Size(-1, -1)
+    private val lastSize = Size()
 
     private lateinit var fboFX: Framebuffer
     private lateinit var sharedFboFX: Framebuffer
@@ -43,6 +42,9 @@ open class IOSurfaceCanvasImpl(
     private var needsRepaint = AtomicBoolean(false)
 
     override fun onNGRender(g: Graphics) {
+        if(scaledWidth == 0 || scaledHeight == 0 || disposed)
+            return
+
         if(!::context.isInitialized){
             fxContext = GLContext.current()
             context = GLContext.create(0, profile == GLProfile.Core)
@@ -51,18 +53,15 @@ open class IOSurfaceCanvasImpl(
         }
         context.makeCurrent()
 
-        lastSize.changeOnDifference(scaledWidth, scaledHeight){
-            updateFramebufferSize(scaledWidth, scaledHeight)
-            fireReshapeEvent(scaledWidth, scaledHeight)
-        }
+        lastSize.executeOnDifferenceWith(scaledSize, ::updateFramebufferSize, ::fireReshapeEvent)
 
-        glViewport(0, 0, lastSize.sizeWidth, lastSize.sizeHeight)
+        glViewport(0, 0, lastSize.width, lastSize.height)
         fireRenderEvent(if(msaa != 0) msaaFBO.id else sharedFboGL.id)
         if(msaa != 0)
-            msaaFBO.blitTo(sharedFboGL.id)
+            msaaFBO.blitTo(sharedFboGL)
 
         fxContext.makeCurrent()
-        sharedFboFX.blitTo(fboFX.id)
+        sharedFboFX.blitTo(fboFX)
 
         drawResultTexture(g, fxTexture)
     }
@@ -82,8 +81,7 @@ open class IOSurfaceCanvasImpl(
 
         // Create JavaFX texture
         fxContext.makeCurrent()
-        fxTexture = GraphicsPipeline.getDefaultResourceFactory().createTexture(PixelFormat.BYTE_BGRA_PRE, Texture.Usage.DYNAMIC, Texture.WrapMode.CLAMP_TO_EDGE, width, height)
-        fxTexture.makePermanent()
+        fxTexture = GLFXUtils.createPermanentFXTexture(width, height)
 
         // Create FX-side shared texture
         val ioFXTexture = glGenTextures()
@@ -121,11 +119,14 @@ open class IOSurfaceCanvasImpl(
 
     override fun dispose() {
         super.dispose()
-        if(::sharedFboFX.isInitialized) sharedFboFX.delete()
-        if(::fboFX.isInitialized) fboFX.delete()
-        if(::fxTexture.isInitialized) fxTexture.dispose()
+        GLFXUtils.runOnRenderThread {
+            if(::sharedFboFX.isInitialized) sharedFboFX.delete()
+            if(::fboFX.isInitialized) fboFX.delete()
 
-        if(::context.isInitialized) GLContext.delete(context)
-        if(::ioSurface.isInitialized) ioSurface.dispose()
+            if(::fxTexture.isInitialized) fxTexture.dispose()
+            if(::ioSurface.isInitialized) ioSurface.dispose()
+
+            if(::context.isInitialized) GLContext.delete(context)
+        }
     }
 }

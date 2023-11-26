@@ -52,6 +52,8 @@ class MultiSampledFramebuffer(
         glDeleteRenderbuffers(colorRenderBuffer)
     }
 
+    fun blitTo(fbo: Framebuffer) = blitTo(fbo.id)
+
     fun blitTo(fbo: Int){
         val oldDrawBuffer = glGetInteger(GL_DRAW_FRAMEBUFFER_BINDING)
         val oldReadBuffer = glGetInteger(GL_READ_FRAMEBUFFER_BINDING)

@@ -75,6 +75,8 @@ class Framebuffer(
         glBindFramebuffer(GL_READ_FRAMEBUFFER, oldReadBuffer)
     }
 
+    fun blitTo(fbo: Framebuffer) = blitTo(fbo.id)
+
     fun readPixels(x: Int, y: Int, width: Int, height: Int, format: Int, type: Int, targetBuffer: ByteBuffer){
         val oldReadBuffer = glGetInteger(GL_READ_FRAMEBUFFER_BINDING)
 
