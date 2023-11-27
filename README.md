@@ -31,8 +31,8 @@ This library adds a new element to the JavaFX for rendering OpenGL graphics. It 
 ```groovy
 dependencies {
     // ...JavaFX and LWJGL libraries...
-    implementation 'com.huskerdev:openglfx:4.0'
-    implementation 'com.huskerdev:openglfx-lwjgl:4.0'
+    implementation 'com.huskerdev:openglfx:4.0.1'
+    implementation 'com.huskerdev:openglfx-lwjgl:4.0.1'
 }
 ```
 
