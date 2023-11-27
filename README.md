@@ -207,5 +207,6 @@ To view a scene in the Renderdoc application, you need to select one of the proc
 
 # Thanks to
 
+- [streamingdv](https://github.com/streamingdv) - big donation, debugging
 - [James H Ball](https://github.com/jameshball) - macOS tester
 - [Andrew Hamilton](https://github.com/orange451) - macOS tester, suggested new additions
