@@ -1,4 +1,4 @@
-package com.huskerdev.openglfx.canvas.implementations
+package com.huskerdev.openglfx.internal.canvas
 
 import com.huskerdev.ojgl.GLContext
 import com.huskerdev.openglfx.*
@@ -9,6 +9,7 @@ import com.huskerdev.openglfx.internal.GLFXUtils
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.dispose
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.updateData
 import com.huskerdev.openglfx.internal.GLInteropType
+import com.huskerdev.openglfx.internal.NGGLCanvas
 import com.huskerdev.openglfx.internal.Size
 import com.huskerdev.openglfx.internal.fbo.Framebuffer
 import com.huskerdev.openglfx.internal.fbo.MultiSampledFramebuffer
@@ -19,11 +20,12 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 
 open class BlitCanvasImpl(
-    private val executor: GLExecutor,
+    canvas: GLCanvas,
+    executor: GLExecutor,
     profile: GLProfile,
     flipY: Boolean,
     msaa: Int
-) : GLCanvas(GLInteropType.Blit, profile, flipY, msaa, false){
+) : NGGLCanvas(canvas, executor, profile, flipY, msaa){
 
     private var needsRepaint = AtomicBoolean(false)
 
@@ -37,7 +39,7 @@ open class BlitCanvasImpl(
     private lateinit var dataBuffer: ByteBuffer
     private lateinit var texture: Texture
 
-    override fun onNGRender(g: Graphics){
+    override fun renderContent(g: Graphics){
         if(scaledWidth == 0 || scaledHeight == 0 || disposed)
             return
 
@@ -45,16 +47,16 @@ open class BlitCanvasImpl(
             context = GLContext.create(0L, profile == GLProfile.Core)
             context.makeCurrent()
             executor.initGLFunctions()
-            fireInitEvent()
+            canvas.fireInitEvent()
         }
         context.makeCurrent()
 
         resultSize.executeOnDifferenceWith(scaledSize){ width, height ->
             resizeTextures(width, height)
-            fireReshapeEvent(width, height)
+            canvas.fireReshapeEvent(width, height)
             glViewport(0, 0, resultSize.width, resultSize.height)
         }
-        fireRenderEvent(if(msaa != 0) msaaFBO.id else fbo.id)
+        canvas.fireRenderEvent(if(msaa != 0) msaaFBO.id else fbo.id)
 
         if(msaa != 0)
             msaaFBO.blitTo(fbo)
@@ -62,6 +64,7 @@ open class BlitCanvasImpl(
         texture.updateData(dataBuffer, resultSize.width, resultSize.height)
 
         drawResultTexture(g, texture)
+        super.renderContent(g)
     }
 
     private fun resizeTextures(width: Int, height: Int) {

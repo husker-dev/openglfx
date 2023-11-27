@@ -2,8 +2,8 @@ package com.huskerdev.openglfx.renderdoc
 
 import com.huskerdev.ojgl.GLContext
 import com.huskerdev.openglfx.canvas.GLCanvas
-import com.huskerdev.openglfx.canvas.implementations.NVDXInteropCanvasImpl
-import com.huskerdev.openglfx.canvas.implementations.async.AsyncNVDXInteropCanvasImpl
+import com.huskerdev.openglfx.internal.canvas.NVDXInteropCanvasImpl
+import com.huskerdev.openglfx.internal.canvas.async.AsyncNVDXInteropCanvasImpl
 import com.huskerdev.openglfx.internal.NGGLCanvas
 import com.huskerdev.openglfx.internal.GLFXUtils
 import com.sun.javafx.scene.layout.RegionHelper

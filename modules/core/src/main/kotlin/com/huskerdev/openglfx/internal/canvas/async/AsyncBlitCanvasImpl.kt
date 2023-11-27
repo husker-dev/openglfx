@@ -1,4 +1,4 @@
-package com.huskerdev.openglfx.canvas.implementations.async
+package com.huskerdev.openglfx.internal.canvas.async
 
 import com.huskerdev.ojgl.GLContext
 import com.huskerdev.openglfx.*

@@ -2,14 +2,14 @@ package com.huskerdev.openglfx
 
 import com.huskerdev.ojgl.GLContext
 import com.huskerdev.openglfx.canvas.GLProfile
-import com.huskerdev.openglfx.canvas.implementations.NVDXInteropCanvasImpl
-import com.huskerdev.openglfx.canvas.implementations.SharedCanvasImpl
-import com.huskerdev.openglfx.canvas.implementations.BlitCanvasImpl
-import com.huskerdev.openglfx.canvas.implementations.IOSurfaceCanvasImpl
-import com.huskerdev.openglfx.canvas.implementations.async.AsyncBlitCanvasImpl
-import com.huskerdev.openglfx.canvas.implementations.async.AsyncIOSurfaceCanvasImpl
-import com.huskerdev.openglfx.canvas.implementations.async.AsyncNVDXInteropCanvasImpl
-import com.huskerdev.openglfx.canvas.implementations.async.AsyncSharedCanvasImpl
+import com.huskerdev.openglfx.internal.canvas.NVDXInteropCanvasImpl
+import com.huskerdev.openglfx.internal.canvas.SharedCanvasImpl
+import com.huskerdev.openglfx.internal.canvas.BlitCanvasImpl
+import com.huskerdev.openglfx.internal.canvas.IOSurfaceCanvasImpl
+import com.huskerdev.openglfx.internal.canvas.async.AsyncBlitCanvasImpl
+import com.huskerdev.openglfx.internal.canvas.async.AsyncIOSurfaceCanvasImpl
+import com.huskerdev.openglfx.internal.canvas.async.AsyncNVDXInteropCanvasImpl
+import com.huskerdev.openglfx.internal.canvas.async.AsyncSharedCanvasImpl
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer

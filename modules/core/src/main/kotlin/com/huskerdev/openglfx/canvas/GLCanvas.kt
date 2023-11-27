@@ -6,10 +6,13 @@ import com.huskerdev.openglfx.canvas.events.GLInitializeEvent
 import com.huskerdev.openglfx.canvas.events.GLRenderEvent
 import com.huskerdev.openglfx.canvas.events.GLReshapeEvent
 import com.huskerdev.openglfx.internal.*
+import com.huskerdev.openglfx.internal.GLFXUtils.Companion.dispatchEvent
 import com.huskerdev.openglfx.internal.NGGLCanvas
 import com.huskerdev.openglfx.internal.GLInteropType.*
 import com.sun.javafx.scene.DirtyBits
 import com.sun.javafx.scene.NodeHelper
+import com.sun.javafx.scene.layout.RegionHelper
+import com.sun.javafx.sg.prism.NGNode
 import com.sun.prism.Graphics
 import com.sun.prism.Texture
 import javafx.animation.AnimationTimer
@@ -21,6 +24,7 @@ enum class GLProfile {
 }
 
 abstract class GLCanvas(
+    val executor: GLExecutor,
     val interopType: GLInteropType,
     val profile: GLProfile,
     val flipY: Boolean,
@@ -73,16 +77,12 @@ abstract class GLCanvas(
         }(profile, flipY, msaa, async)
     }
 
-    @Volatile var disposed = false
-        private set
-
     private var onInit = arrayListOf<Consumer<GLInitializeEvent>>()
     private var onRender = arrayListOf<Consumer<GLRenderEvent>>()
     private var onReshape = arrayListOf<Consumer<GLReshapeEvent>>()
     private var onDispose = arrayListOf<Consumer<GLDisposeEvent>>()
 
-    private fun <T> ArrayList<Consumer<T>>.dispatchEvent(event: T) = forEach { it.accept(event) }
-    private var initEventsChanged = false
+
 
     val fpsCounter = FPSCounter()
 
@@ -105,31 +105,21 @@ abstract class GLCanvas(
     val scaledHeight: Int
         get() = (height * dpi).toInt()
 
-    internal val scaledSize: Size
-        get() = Size(scaledWidth, scaledHeight)
 
-    private val animationTimer = object : AnimationTimer() {
-        override fun handle(now: Long) {
-            timerTick()
-        }
-    }
+
 
     init {
+        /*
         visibleProperty().addListener { _, _, _ -> repaint() }
         widthProperty().addListener { _, _, _ -> repaint() }
         heightProperty().addListener { _, _, _ -> repaint() }
 
-        animationTimer.start()
+         */
+
+        
     }
 
-    protected abstract fun timerTick()
-    protected abstract fun onNGRender(g: Graphics)
-    abstract fun repaint()
 
-    protected fun markDirty(){
-        NodeHelper.markDirty(this, DirtyBits.NODE_BOUNDS)
-        NodeHelper.markDirty(this, DirtyBits.REGION_SHAPE)
-    }
 
     /**
      * Invokes every frame with an active GL context
@@ -161,50 +151,42 @@ abstract class GLCanvas(
      * @param listener consumer with GLInitializeEvent
      * @return true (specified by [java.util.Collection.add])
      */
-    fun addOnInitEvent(listener: Consumer<GLInitializeEvent>): Boolean {
-        initEventsChanged = true
-        return onInit.add(listener)
-    }
+    fun addOnInitEvent(listener: Consumer<GLInitializeEvent>) = onInit.add(listener)
 
     /**
-     *  Destroys all resources to free up memory
+     *  These methods must be invoked from NGGLCanvas implementations
      */
-    open fun dispose(){
-        disposed = true
-        animator = null
-        animationTimer.stop()
-        onDispose.dispatchEvent(createDisposeEvent())
-    }
-
-    /**
-     *  These methods must be invoked from OpenGLCanvas implementations
-     */
-    protected fun fireRenderEvent(fbo: Int) {
+    internal fun fireRenderEvent(fbo: Int) {
         checkInitializationEvents()
         fpsCounter.update()
-        onRender.dispatchEvent(createRenderEvent(fpsCounter.currentFps, fpsCounter.delta, scaledWidth, scaledHeight, fbo))
+        preRenderListeners.dispatchEvent()
+        onRender.dispatchEvent(createRenderEvent(
+            fpsCounter.currentFps,
+            fpsCounter.delta,
+            scaledWidth, scaledHeight, fbo))
+        postRenderListeners.dispatchEvent()
     }
 
-    protected fun fireReshapeEvent(width: Int, height: Int) {
+    internal fun fireReshapeEvent(width: Int, height: Int) {
         checkInitializationEvents()
         onReshape.dispatchEvent(createReshapeEvent(width, height))
     }
 
-    protected fun fireInitEvent() = checkInitializationEvents()
-    protected fun fireDisposeEvent() = onDispose.dispatchEvent(createDisposeEvent())
+    internal fun fireInitEvent() = checkInitializationEvents()
+    internal fun fireDisposeEvent() = onDispose.dispatchEvent(createDisposeEvent())
 
     /**
      *  Possibility to override events
      *  (Used by JOGL)
      */
     protected open fun createRenderEvent(currentFps: Int, delta: Double, width: Int, height: Int, fbo: Int)
-        = GLRenderEvent(GLRenderEvent.ANY, currentFps, delta, width, height, fbo)
+            = GLRenderEvent(GLRenderEvent.ANY, currentFps, delta, width, height, fbo)
     protected open fun createReshapeEvent(width: Int, height: Int)
-        = GLReshapeEvent(GLReshapeEvent.ANY, width, height)
+            = GLReshapeEvent(GLReshapeEvent.ANY, width, height)
     protected open fun createInitEvent()
-        = GLInitializeEvent(GLInitializeEvent.ANY)
+            = GLInitializeEvent(GLInitializeEvent.ANY)
     protected open fun createDisposeEvent()
-        = GLDisposeEvent(GLDisposeEvent.ANY)
+            = GLDisposeEvent(GLDisposeEvent.ANY)
 
     /**
      * Checks if there are any not initialised listeners
@@ -215,15 +197,16 @@ abstract class GLCanvas(
     }
 
     /**
-     * Fills node by texture
-     *
-     * @param g Node's graphics
-     * @param texture default JavaFX texture
+     *  Destroys all resources to free up memory
      */
-    protected fun drawResultTexture(g: Graphics, texture: Texture){
-        if(disposed) return
-        if(flipY) g.drawTexture(texture, 0f, 0f, width.toFloat() + 0.5f, height.toFloat() + 0.5f, 0f, 0f, scaledWidth.toFloat(), scaledHeight.toFloat())
-        else      g.drawTexture(texture, 0f, 0f, width.toFloat() + 0.5f, height.toFloat() + 0.5f, 0f, scaledHeight.toFloat(), scaledWidth.toFloat(), 0f)
-    }
+    open fun dispose() = RegionHelper.getPeer<NGGLCanvas>(this).dispose()
+
+    protected fun doCreatePeer() =
+        when (interopType) {
+            IOSurface -> executor::ioSurfaceCanvas
+            TextureSharing -> executor::sharedCanvas
+            NVDXInterop -> executor::interopCanvas
+            Blit -> executor::blitCanvas
+        }(this, executor, profile, flipY, msaa, isAsync)
 
 }
