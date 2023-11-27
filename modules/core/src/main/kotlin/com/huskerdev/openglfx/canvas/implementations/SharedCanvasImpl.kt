@@ -90,6 +90,9 @@ open class SharedCanvasImpl(
     override fun dispose() {
         super.dispose()
         GLFXUtils.runOnRenderThread {
+            context.makeCurrent()
+            fireDisposeEvent()
+            fxContext.makeCurrent()
             if(::fxTexture.isInitialized) fxTexture.dispose()
             if(::context.isInitialized) GLContext.delete(context)
         }

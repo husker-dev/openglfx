@@ -115,6 +115,8 @@ open class NVDXInteropCanvasImpl(
     override fun dispose() {
         super.dispose()
         GLFXUtils.runOnRenderThread {
+            context.makeCurrent()
+            fireDisposeEvent()
             if(::interopObject.isInitialized) interopObject.dispose()
             if(::fxTexture.isInitialized) fxTexture.dispose()
             if(::context.isInitialized) GLContext.delete(context)

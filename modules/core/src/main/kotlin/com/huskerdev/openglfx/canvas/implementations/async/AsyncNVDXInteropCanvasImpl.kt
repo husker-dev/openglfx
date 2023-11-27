@@ -82,6 +82,7 @@ open class AsyncNVDXInteropCanvasImpl(
             }
 
             // Dispose
+            fireDisposeEvent()
             GLContext.clear()
             GLFXUtils.runOnRenderThread {
                 if(::fxTexture.isInitialized) fxTexture.dispose()

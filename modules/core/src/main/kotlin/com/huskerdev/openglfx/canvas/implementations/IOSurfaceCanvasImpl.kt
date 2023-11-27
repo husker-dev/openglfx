@@ -124,6 +124,10 @@ open class IOSurfaceCanvasImpl(
     override fun dispose() {
         super.dispose()
         GLFXUtils.runOnRenderThread {
+            context.makeCurrent()
+            fireDisposeEvent()
+            fxContext.makeCurrent()
+
             if(::sharedFboFX.isInitialized) sharedFboFX.delete()
             if(::fboFX.isInitialized) fboFX.delete()
 

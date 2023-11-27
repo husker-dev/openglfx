@@ -92,6 +92,9 @@ open class BlitCanvasImpl(
     override fun dispose() {
         super.dispose()
         GLFXUtils.runOnRenderThread {
+            context.makeCurrent()
+            fireDisposeEvent()
+
             if(::dataBuffer.isInitialized) dataBuffer.dispose()
             if(::texture.isInitialized) texture.dispose()
             if(::context.isInitialized) GLContext.delete(context)

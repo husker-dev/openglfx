@@ -170,10 +170,10 @@ abstract class GLCanvas(
      *  Destroys all resources to free up memory
      */
     open fun dispose(){
+        if(disposed) return
         disposed = true
         animator = null
         animationTimer.stop()
-        onDispose.dispatchEvent(createDisposeEvent())
     }
 
     /**

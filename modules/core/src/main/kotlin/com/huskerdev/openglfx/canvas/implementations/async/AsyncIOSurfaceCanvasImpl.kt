@@ -71,6 +71,7 @@ open class AsyncIOSurfaceCanvasImpl(
             }
 
             // Dispose
+            fireDisposeEvent()
             GLContext.clear()
             GLFXUtils.runOnRenderThread {
                 if(::sharedFboFX.isInitialized) sharedFboFX.delete()

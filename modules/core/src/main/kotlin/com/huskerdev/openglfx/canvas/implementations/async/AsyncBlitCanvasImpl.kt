@@ -77,6 +77,7 @@ open class AsyncBlitCanvasImpl(
             }
 
             // Dispose
+            fireDisposeEvent()
             GLContext.clear()
             GLFXUtils.runOnRenderThread {
                 if (::texture.isInitialized) texture.dispose()
