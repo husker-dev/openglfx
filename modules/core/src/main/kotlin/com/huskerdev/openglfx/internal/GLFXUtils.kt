@@ -12,6 +12,7 @@ import java.nio.Buffer
 import java.nio.ByteBuffer
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.FutureTask
+import java.util.function.Consumer
 
 
 internal class GLFXUtils {
@@ -76,5 +77,9 @@ internal class GLFXUtils {
                 } catch (_: InterruptedException) {}
             }
         }
+
+        fun <T> List<Consumer<T>>.dispatchEvent(event: T) = forEach { it.accept(event) }
+        fun <T> List<(T) -> Unit>.dispatchEvent(event: T) = forEach { it(event) }
+        fun List<() -> Unit>.dispatchEvent() = forEach { it() }
     }
 }
