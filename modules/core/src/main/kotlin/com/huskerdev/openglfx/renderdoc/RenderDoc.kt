@@ -42,7 +42,8 @@ class RenderDoc {
 
         @JvmStatic
         fun bind(canvas: GLCanvas, keyCode: KeyCode = KeyCode.F12){
-            if(canvas is NVDXInteropCanvasImpl || canvas is AsyncNVDXInteropCanvasImpl)
+            val peer = RegionHelper.getPeer<NGGLCanvas>(canvas)
+            if(peer is NVDXInteropCanvasImpl || peer is AsyncNVDXInteropCanvasImpl)
                 println("""
                     WARNING: RenderDoc doesn't support WGL_NV_DX_interop. 
                              Please, use 'OpenGLCanvas.create(..., interopType = GLInteropType.Blit)'.
@@ -50,18 +51,17 @@ class RenderDoc {
                 """.trimIndent())
 
             var captureNextFrame = false
-            val peer = RegionHelper.getPeer<NGGLCanvas>(canvas)
-            peer.addPreRenderListener {
+            canvas.addOnRenderBegin {
                 if(captureNextFrame)
                     startFrameCapture()
             }
-            peer.addPostRenderListener {
+            canvas.addOnRenderEnd {
                 if(captureNextFrame) {
                     endFrameCapture()
                     captureNextFrame = false
                 }
             }
-            peer.addSceneConnectedListener {
+            canvas.addOnSceneConnected {
                 canvas.scene.setOnKeyReleased { event: KeyEvent ->
                     if(event.code == keyCode){
                         captureNextFrame = true

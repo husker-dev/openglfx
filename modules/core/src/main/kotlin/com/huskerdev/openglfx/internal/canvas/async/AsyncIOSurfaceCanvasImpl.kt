@@ -9,7 +9,7 @@ import com.huskerdev.openglfx.canvas.GLCanvas
 import com.huskerdev.openglfx.canvas.GLProfile
 import com.huskerdev.openglfx.internal.GLFXUtils
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.GLTextureId
-import com.huskerdev.openglfx.internal.GLInteropType
+import com.huskerdev.openglfx.internal.NGGLCanvas
 import com.huskerdev.openglfx.internal.Size
 
 import com.huskerdev.openglfx.internal.fbo.Framebuffer
@@ -21,11 +21,12 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
 open class AsyncIOSurfaceCanvasImpl(
-    private val executor: GLExecutor,
+    canvas: GLCanvas,
+    executor: GLExecutor,
     profile: GLProfile,
     flipY: Boolean,
     msaa: Int
-): GLCanvas(GLInteropType.IOSurface, profile, flipY, msaa, true) {
+): NGGLCanvas(canvas, executor, profile, flipY, msaa) {
 
     private val paintLock = Object()
     private val blitLock = Object()
@@ -71,7 +72,7 @@ open class AsyncIOSurfaceCanvasImpl(
             }
 
             // Dispose
-            fireDisposeEvent()
+            canvas.fireDisposeEvent()
             GLContext.clear()
             GLFXUtils.runOnRenderThread {
                 if(::sharedFboFX.isInitialized) sharedFboFX.delete()
@@ -86,15 +87,15 @@ open class AsyncIOSurfaceCanvasImpl(
     }
 
     private fun paint(){
-        drawSize.executeOnDifferenceWith(scaledSize, ::updateFramebufferSize, ::fireReshapeEvent)
+        drawSize.executeOnDifferenceWith(scaledSize, ::updateFramebufferSize, canvas::fireReshapeEvent)
 
         glViewport(0, 0, drawSize.width, drawSize.height)
-        fireRenderEvent(if(msaa != 0) msaaFBO.id else fboGL.id)
+        canvas.fireRenderEvent(if(msaa != 0) msaaFBO.id else fboGL.id)
         if(msaa != 0)
             msaaFBO.blitTo(fboGL)
     }
 
-    override fun onNGRender(g: Graphics) {
+    override fun renderContent(g: Graphics) {
         if(scaledWidth == 0 || scaledHeight == 0 || disposed)
             return
 

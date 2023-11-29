@@ -9,7 +9,7 @@ import com.huskerdev.openglfx.canvas.GLCanvas
 import com.huskerdev.openglfx.canvas.GLProfile
 import com.huskerdev.openglfx.internal.GLFXUtils
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.GLTextureId
-import com.huskerdev.openglfx.internal.GLInteropType
+import com.huskerdev.openglfx.internal.NGGLCanvas
 import com.huskerdev.openglfx.internal.Size
 
 import com.huskerdev.openglfx.internal.fbo.Framebuffer
@@ -20,11 +20,12 @@ import com.sun.prism.Texture
 import java.util.concurrent.atomic.AtomicBoolean
 
 open class IOSurfaceCanvasImpl(
-    private val executor: GLExecutor,
+    canvas: GLCanvas,
+    executor: GLExecutor,
     profile: GLProfile,
     flipY: Boolean,
     msaa: Int
-): GLCanvas(GLInteropType.IOSurface, profile, flipY, msaa, false) {
+): NGGLCanvas(canvas, executor, profile, flipY, msaa) {
 
     private lateinit var ioSurface: IOSurface
     private lateinit var fxTexture: Texture
@@ -42,7 +43,7 @@ open class IOSurfaceCanvasImpl(
 
     private var needsRepaint = AtomicBoolean(false)
 
-    override fun onNGRender(g: Graphics) {
+    override fun renderContent(g: Graphics) {
         if(scaledWidth == 0 || scaledHeight == 0 || disposed)
             return
 
@@ -55,10 +56,10 @@ open class IOSurfaceCanvasImpl(
         }
         context.makeCurrent()
 
-        lastSize.executeOnDifferenceWith(scaledSize, ::updateFramebufferSize, ::fireReshapeEvent)
+        lastSize.executeOnDifferenceWith(scaledSize, ::updateFramebufferSize, canvas::fireReshapeEvent)
 
         glViewport(0, 0, lastSize.width, lastSize.height)
-        fireRenderEvent(if(msaa != 0) msaaFBO.id else sharedFboGL.id)
+        canvas.fireRenderEvent(if(msaa != 0) msaaFBO.id else sharedFboGL.id)
         if(msaa != 0)
             msaaFBO.blitTo(sharedFboGL)
 
@@ -125,7 +126,7 @@ open class IOSurfaceCanvasImpl(
         super.dispose()
         GLFXUtils.runOnRenderThread {
             context.makeCurrent()
-            fireDisposeEvent()
+            canvas.fireDisposeEvent()
             fxContext.makeCurrent()
 
             if(::sharedFboFX.isInitialized) sharedFboFX.delete()

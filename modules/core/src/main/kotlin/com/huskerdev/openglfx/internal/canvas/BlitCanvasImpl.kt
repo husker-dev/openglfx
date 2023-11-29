@@ -8,7 +8,6 @@ import com.huskerdev.openglfx.canvas.GLCanvas
 import com.huskerdev.openglfx.internal.GLFXUtils
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.dispose
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.updateData
-import com.huskerdev.openglfx.internal.GLInteropType
 import com.huskerdev.openglfx.internal.NGGLCanvas
 import com.huskerdev.openglfx.internal.Size
 import com.huskerdev.openglfx.internal.fbo.Framebuffer
@@ -25,7 +24,7 @@ open class BlitCanvasImpl(
     profile: GLProfile,
     flipY: Boolean,
     msaa: Int
-) : NGGLCanvas(canvas, executor, profile, flipY, msaa){
+): NGGLCanvas(canvas, executor, profile, flipY, msaa){
 
     private var needsRepaint = AtomicBoolean(false)
 
@@ -96,7 +95,7 @@ open class BlitCanvasImpl(
         super.dispose()
         GLFXUtils.runOnRenderThread {
             context.makeCurrent()
-            fireDisposeEvent()
+            canvas.fireDisposeEvent()
 
             if(::dataBuffer.isInitialized) dataBuffer.dispose()
             if(::texture.isInitialized) texture.dispose()

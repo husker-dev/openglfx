@@ -6,10 +6,10 @@ import com.huskerdev.openglfx.GLExecutor.Companion.glFinish
 import com.huskerdev.openglfx.GLExecutor.Companion.glViewport
 import com.huskerdev.openglfx.canvas.GLProfile
 import com.huskerdev.openglfx.canvas.GLCanvas
+import com.huskerdev.openglfx.internal.*
 import com.huskerdev.openglfx.internal.GLFXUtils
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.dispose
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.updateData
-import com.huskerdev.openglfx.internal.GLInteropType
 import com.huskerdev.openglfx.internal.PassthroughShader
 import com.huskerdev.openglfx.internal.Size
 import com.huskerdev.openglfx.internal.fbo.Framebuffer
@@ -21,11 +21,12 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
 open class AsyncBlitCanvasImpl(
-    private val executor: GLExecutor,
+    canvas: GLCanvas,
+    executor: GLExecutor,
     profile: GLProfile,
     flipY: Boolean,
     msaa: Int
-) : GLCanvas(GLInteropType.Blit, profile, flipY, msaa, true){
+): NGGLCanvas(canvas, executor, profile, flipY, msaa){
 
     private val paintLock = Object()
     private val blitLock = Object()
@@ -60,7 +61,7 @@ open class AsyncBlitCanvasImpl(
         thread(isDaemon = true) {
             context.makeCurrent()
             executor.initGLFunctions()
-            fireInitEvent()
+            canvas.fireInitEvent()
 
             while(!disposed){
                 paint()
@@ -77,7 +78,7 @@ open class AsyncBlitCanvasImpl(
             }
 
             // Dispose
-            fireDisposeEvent()
+            canvas.fireDisposeEvent()
             GLContext.clear()
             GLFXUtils.runOnRenderThread {
                 if (::texture.isInitialized) texture.dispose()
@@ -89,15 +90,15 @@ open class AsyncBlitCanvasImpl(
     }
 
     private fun paint(){
-        drawSize.executeOnDifferenceWith(scaledSize, ::resizeDrawFramebuffer, ::fireReshapeEvent)
+        drawSize.executeOnDifferenceWith(scaledSize, ::resizeDrawFramebuffer, canvas::fireReshapeEvent)
 
         glViewport(0, 0, drawSize.width, drawSize.height)
-        fireRenderEvent(if (msaa != 0) msaaFBO.id else fbo.id)
+        canvas.fireRenderEvent(if (msaa != 0) msaaFBO.id else fbo.id)
         if (msaa != 0)
             msaaFBO.blitTo(fbo)
     }
 
-    override fun onNGRender(g: Graphics){
+    override fun renderContent(g: Graphics){
         if(scaledWidth == 0 || scaledHeight == 0 || disposed)
             return
 
