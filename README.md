@@ -31,8 +31,8 @@ This library adds a new element to the JavaFX for rendering OpenGL graphics. It 
 ```groovy
 dependencies {
     // ...JavaFX and LWJGL libraries...
-    implementation 'com.huskerdev:openglfx:4.0.1'
-    implementation 'com.huskerdev:openglfx-lwjgl:4.0.1'
+    implementation 'com.huskerdev:openglfx:4.0.2'
+    implementation 'com.huskerdev:openglfx-lwjgl:4.0.2'
 }
 ```
 
@@ -207,5 +207,6 @@ To view a scene in the Renderdoc application, you need to select one of the proc
 
 # Thanks to
 
+- [streamingdv](https://github.com/streamingdv) - big donation, debugging
 - [James H Ball](https://github.com/jameshball) - macOS tester
 - [Andrew Hamilton](https://github.com/orange451) - macOS tester, suggested new additions
