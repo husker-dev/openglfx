@@ -100,15 +100,6 @@ open class GLCanvas
     val scaledHeight: Int
         get() = (height * dpi).toInt()
 
-
-    init {
-        /*
-        visibleProperty().addListener { _, _, _ -> repaint() }
-        widthProperty().addListener { _, _, _ -> repaint() }
-        heightProperty().addListener { _, _, _ -> repaint() }
-         */
-    }
-
     /*===========================================*\
     |                 Listeners                   |
     \*===========================================*/

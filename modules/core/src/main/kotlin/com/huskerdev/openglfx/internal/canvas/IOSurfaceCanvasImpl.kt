@@ -119,7 +119,7 @@ open class IOSurfaceCanvasImpl(
 
     override fun timerTick() {
         if(needsRepaint.getAndSet(false))
-            markDirty()
+            dirty()
     }
 
     override fun dispose() {

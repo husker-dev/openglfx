@@ -77,7 +77,7 @@ open class AsyncSharedCanvasImpl(
             }
 
             // Dispose
-            fireDisposeEvent()
+            canvas.fireDisposeEvent()
             GLContext.clear()
             GLFXUtils.runOnRenderThread {
                 if(::fxTexture.isInitialized) fxTexture.dispose()
@@ -170,7 +170,7 @@ open class AsyncSharedCanvasImpl(
 
     override fun timerTick() {
         if(needsBlit.get())
-            markDirty()
+            dirty()
     }
 
     override fun dispose() {

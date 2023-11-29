@@ -83,7 +83,7 @@ open class AsyncNVDXInteropCanvasImpl(
             }
 
             // Dispose
-            fireDisposeEvent()
+            canvas.fireDisposeEvent()
             GLContext.clear()
             GLFXUtils.runOnRenderThread {
                 if(::fxTexture.isInitialized) fxTexture.dispose()
@@ -181,7 +181,7 @@ open class AsyncNVDXInteropCanvasImpl(
 
     override fun timerTick() {
         if(needsBlit.get())
-            markDirty()
+            dirty()
     }
 
     override fun dispose() {

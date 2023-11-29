@@ -88,7 +88,7 @@ open class BlitCanvasImpl(
 
     override fun timerTick() {
         if(needsRepaint.getAndSet(false))
-            markDirty()
+            dirty()
     }
 
     override fun dispose() {

@@ -176,7 +176,7 @@ open class AsyncIOSurfaceCanvasImpl(
 
     override fun timerTick() {
         if(needsBlit.get())
-            markDirty()
+            dirty()
     }
 
     override fun dispose() {

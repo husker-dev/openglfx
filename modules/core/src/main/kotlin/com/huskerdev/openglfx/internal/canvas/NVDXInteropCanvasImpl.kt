@@ -110,7 +110,7 @@ open class NVDXInteropCanvasImpl(
 
     override fun timerTick() {
         if(needsRepaint.getAndSet(false))
-            markDirty()
+            dirty()
     }
 
     override fun dispose() {

@@ -3,6 +3,8 @@ package com.huskerdev.openglfx.internal
 import com.huskerdev.openglfx.GLExecutor
 import com.huskerdev.openglfx.canvas.GLCanvas
 import com.huskerdev.openglfx.canvas.GLProfile
+import com.sun.javafx.scene.DirtyBits
+import com.sun.javafx.scene.NodeHelper
 import com.sun.javafx.sg.prism.NGNode
 import com.sun.javafx.sg.prism.NGRegion
 import com.sun.prism.Graphics
@@ -34,6 +36,14 @@ abstract class NGGLCanvas(
         }
     }.apply { start() }
 
+    init {
+        canvas.visibleProperty().addListener { _, _, _ -> repaint() }
+        canvas.widthProperty().addListener { _, _, _ -> repaint() }
+        canvas.heightProperty().addListener { _, _, _ -> repaint() }
+    }
+
+    protected abstract fun timerTick()
+    abstract fun repaint()
 
     override fun setParent(parent: NGNode?) {
         super.setParent(parent)
@@ -41,22 +51,11 @@ abstract class NGGLCanvas(
             canvas.fireSceneBoundEvent()
     }
 
-    /*
-    protected fun markDirty(){
+    protected fun dirty(){
         NodeHelper.markDirty(canvas, DirtyBits.NODE_BOUNDS)
         NodeHelper.markDirty(canvas, DirtyBits.REGION_SHAPE)
     }
-     */
 
-    protected abstract fun timerTick()
-    abstract fun repaint()
-
-    /**
-     * Fills node by texture
-     *
-     * @param g Node's graphics
-     * @param texture default JavaFX texture
-     */
     protected fun drawResultTexture(g: Graphics, texture: Texture){
         if(disposed) return
         if(flipY) g.drawTexture(texture, 0f, 0f, width.toFloat() + 0.5f, height.toFloat() + 0.5f, 0f, 0f, scaledWidth.toFloat(), scaledHeight.toFloat())

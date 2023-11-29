@@ -160,7 +160,7 @@ open class AsyncBlitCanvasImpl(
 
     override fun timerTick() {
         if(needsBlit.get())
-            markDirty()
+            dirty()
     }
 
     override fun dispose() {
