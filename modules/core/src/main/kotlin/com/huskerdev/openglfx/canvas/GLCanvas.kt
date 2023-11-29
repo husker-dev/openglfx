@@ -7,15 +7,11 @@ import com.huskerdev.openglfx.canvas.events.GLRenderEvent
 import com.huskerdev.openglfx.canvas.events.GLReshapeEvent
 import com.huskerdev.openglfx.internal.*
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.dispatchEvent
+import com.huskerdev.openglfx.internal.GLFXUtils.Companion.dispatchJavaEvent
 import com.huskerdev.openglfx.internal.NGGLCanvas
 import com.huskerdev.openglfx.internal.GLInteropType.*
-import com.sun.javafx.scene.DirtyBits
-import com.sun.javafx.scene.NodeHelper
 import com.sun.javafx.scene.layout.RegionHelper
-import com.sun.javafx.sg.prism.NGNode
-import com.sun.prism.Graphics
-import com.sun.prism.Texture
-import javafx.animation.AnimationTimer
+import javafx.scene.Scene
 import javafx.scene.layout.Pane
 import java.util.function.Consumer
 
@@ -23,58 +19,43 @@ enum class GLProfile {
     Core, Compatibility;
 }
 
-abstract class GLCanvas(
+/**
+ * Hardware-accelerated OpenGL canvas.
+ *
+ * @param executor OpenGL implementation library:
+ *  - LWJGL_MODULE;
+ *  - JOGL_MODULE;
+ *  - NONE_MODULE.
+ * @param profile Core/Compatibility OpenGL profile:
+ *  - GLProfile.Compatibility (default);
+ *  - GLProfile.Core.
+ * @param flipY Flip Y axis:
+ *  - false – 0 is bottom (default);
+ *  - true – 0 is top.
+ * @param msaa Multisampling quality:
+ *  - 0 – disabled (default);
+ *  - -1 – maximum available samples.
+ * @param async Enables rendering in parallel thread:
+ *  - false – render in JavaFX thread (default);
+ *  - true – render in a new thread and synchronise with JavaFX.
+ */
+open class GLCanvas
+@JvmOverloads constructor(
     val executor: GLExecutor,
-    val interopType: GLInteropType,
-    val profile: GLProfile,
-    val flipY: Boolean,
-    val msaa: Int,
-    val isAsync: Boolean
+    val profile: GLProfile = GLProfile.Compatibility,
+    val flipY: Boolean = false,
+    val msaa: Int = 0,
+    val async: Boolean = false,
+    val interopType: GLInteropType = GLInteropType.supported
 ): Pane() {
 
     companion object {
         init {
             GLFXUtils.loadLibrary()
             RegionAccessorOverrider.overwrite(object : RegionAccessorObject<GLCanvas>() {
-                override fun doCreatePeer(node: GLCanvas) = NGGLCanvas(node, node::onNGRender)
+                override fun doCreatePeer(node: GLCanvas) = node.doCreatePeer()
             })
         }
-
-        /**
-         * Creates compatible GLCanvas instance with the specified configuration
-         *
-         * @param executor OpenGL implementation library
-         *  - LWJGL_MODULE;
-         *  - JOGL_MODULE.
-         * @param profile Core/Compatibility OpenGL profile
-         *  - GLProfile.Compatibility (default).
-         *  - GLProfile.Core;
-         * @param flipY Flip Y axis
-         *  - false – 0 is bottom (default).
-         *  - true – 0 is top;
-         * @param msaa Multisampling quality
-         *  - 0 – disabled (default);
-         *  - -1 – maximum available samples.
-         * @param async Enables rendering in different thread
-         *  - false – render in JavaFX thread (default);
-         *  - true – render in a new thread and synchronise with JavaFX.
-         * @return OpenGLCanvas instance
-         */
-        @JvmOverloads
-        @JvmStatic
-        fun create(
-            executor: GLExecutor,
-            profile: GLProfile = GLProfile.Compatibility,
-            flipY: Boolean = false,
-            msaa: Int = 0,
-            async: Boolean = false,
-            interopType: GLInteropType = GLInteropType.supported
-        ) = when (interopType) {
-            IOSurface -> executor::ioSurfaceCanvas
-            TextureSharing -> executor::sharedCanvas
-            NVDXInterop -> executor::interopCanvas
-            Blit -> executor::blitCanvas
-        }(profile, flipY, msaa, async)
     }
 
     private var onInit = arrayListOf<Consumer<GLInitializeEvent>>()
@@ -82,8 +63,13 @@ abstract class GLCanvas(
     private var onReshape = arrayListOf<Consumer<GLReshapeEvent>>()
     private var onDispose = arrayListOf<Consumer<GLDisposeEvent>>()
 
+    private val onRenderBegin = arrayListOf<() -> Unit>()
+    private val onRenderEnd = arrayListOf<() -> Unit>()
+    private val onSceneBound = arrayListOf<(Scene) -> Unit>()
 
-
+    /**
+     * Store current FPS, delta time and frame id.
+     */
     val fpsCounter = FPSCounter()
 
     /**
@@ -96,16 +82,23 @@ abstract class GLCanvas(
             field = value
         }
 
+    /**
+     * A current window dpi, used to scale output width and height.
+     */
     val dpi: Double
         get() = scene?.window?.outputScaleX ?: 1.0
 
+    /**
+     * Current node width, considering DPI scaling.
+     */
     val scaledWidth: Int
         get() = (width * dpi).toInt()
 
+    /**
+     * Current node height, considering DPI scaling.
+     */
     val scaledHeight: Int
         get() = (height * dpi).toInt()
-
-
 
 
     init {
@@ -113,13 +106,12 @@ abstract class GLCanvas(
         visibleProperty().addListener { _, _, _ -> repaint() }
         widthProperty().addListener { _, _, _ -> repaint() }
         heightProperty().addListener { _, _, _ -> repaint() }
-
          */
-
-        
     }
 
-
+    /*===========================================*\
+    |                 Listeners                   |
+    \*===========================================*/
 
     /**
      * Invokes every frame with an active GL context
@@ -154,26 +146,82 @@ abstract class GLCanvas(
     fun addOnInitEvent(listener: Consumer<GLInitializeEvent>) = onInit.add(listener)
 
     /**
-     *  These methods must be invoked from NGGLCanvas implementations
+     * Internal method. Invokes BEFORE rendering frame.
+     *
+     * @param listener
+     */
+    internal fun addOnRenderBegin(listener: () -> Unit) = onRenderBegin.add(listener)
+
+    /**
+     * Internal method. Invokes AFTER rendering frame.
+     *
+     * @param listener
+     */
+    internal fun addOnRenderEnd(listener: () -> Unit) = onRenderEnd.add(listener)
+
+    /**
+     * Internal method for listening bound scene.
+     * If the scene is already connected, then listener invokes immediately.
+     *
+     * @param listener invokes when scene is connected to the node
+     */
+    internal fun addOnSceneConnected(listener: (Scene) -> Unit){
+        if(scene != null) listener(scene)
+        else onSceneBound.add(listener)
+    }
+
+    /*===========================================*\
+    |                Events firing                |
+    \*===========================================*/
+
+    /**
+     *  Internal method. Invokes every rendering listener.
+     *
+     *  @param fbo result framebuffer that is bound to Node
      */
     internal fun fireRenderEvent(fbo: Int) {
-        checkInitializationEvents()
+        fireInitEvent()
         fpsCounter.update()
-        preRenderListeners.dispatchEvent()
-        onRender.dispatchEvent(createRenderEvent(
+        onRenderBegin.dispatchEvent()
+        onRender.dispatchJavaEvent(createRenderEvent(
             fpsCounter.currentFps,
             fpsCounter.delta,
             scaledWidth, scaledHeight, fbo))
-        postRenderListeners.dispatchEvent()
+        onRenderEnd.dispatchEvent()
     }
 
+    /**
+     *  Internal method. Invokes every resizing listener.
+     *
+     *  @param width new framebuffer width
+     *  @param height new framebuffer height
+     */
     internal fun fireReshapeEvent(width: Int, height: Int) {
-        checkInitializationEvents()
-        onReshape.dispatchEvent(createReshapeEvent(width, height))
+        fireInitEvent()
+        onReshape.dispatchJavaEvent(createReshapeEvent(width, height))
     }
 
-    internal fun fireInitEvent() = checkInitializationEvents()
-    internal fun fireDisposeEvent() = onDispose.dispatchEvent(createDisposeEvent())
+    /**
+     *  Internal method. Invokes every initialization listener.
+     */
+    internal fun fireInitEvent() {
+        while(onInit.size > 0)
+            onInit.removeLast().accept(createInitEvent())
+    }
+
+    /**
+     *  Internal method. Invokes every disposing listener.
+     */
+    internal fun fireDisposeEvent() = onDispose.dispatchJavaEvent(createDisposeEvent())
+
+    /**
+     *  Internal method. Invokes every scene binding listener.
+     */
+    internal fun fireSceneBoundEvent() = onSceneBound.dispatchEvent(scene)
+
+    /*===========================================*\
+    |               Events creation               |
+    \*===========================================*/
 
     /**
      *  Possibility to override events
@@ -188,25 +236,25 @@ abstract class GLCanvas(
     protected open fun createDisposeEvent()
             = GLDisposeEvent(GLDisposeEvent.ANY)
 
-    /**
-     * Checks if there are any not initialised listeners
-     */
-    private fun checkInitializationEvents(){
-        while(onInit.size > 0)
-            onInit.removeLast().accept(createInitEvent())
-    }
+    /*===========================================*\
+    |                     Peer                    |
+    \*===========================================*/
+
+    internal fun doCreatePeer() =
+        when (interopType) {
+            IOSurface -> executor::ioSurfaceNGCanvas
+            TextureSharing -> executor::sharedNGCanvas
+            NVDXInterop -> executor::interopNGCanvas
+            Blit -> executor::blitNGCanvas
+        }(this, executor, profile, flipY, msaa, async)
 
     /**
      *  Destroys all resources to free up memory
      */
-    open fun dispose() = RegionHelper.getPeer<NGGLCanvas>(this).dispose()
+    fun dispose() {
+        animator = null
+        RegionHelper.getPeer<NGGLCanvas>(this).dispose()
+    }
 
-    protected fun doCreatePeer() =
-        when (interopType) {
-            IOSurface -> executor::ioSurfaceCanvas
-            TextureSharing -> executor::sharedCanvas
-            NVDXInterop -> executor::interopCanvas
-            Blit -> executor::blitCanvas
-        }(this, executor, profile, flipY, msaa, isAsync)
-
+    fun repaint() = RegionHelper.getPeer<NGGLCanvas>(this).repaint()
 }

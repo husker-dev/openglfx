@@ -1,6 +1,7 @@
 package com.huskerdev.openglfx
 
 import com.huskerdev.ojgl.GLContext
+import com.huskerdev.openglfx.canvas.GLCanvas
 import com.huskerdev.openglfx.canvas.GLProfile
 import com.huskerdev.openglfx.internal.canvas.NVDXInteropCanvasImpl
 import com.huskerdev.openglfx.internal.canvas.SharedCanvasImpl
@@ -46,6 +47,9 @@ internal const val GL_TRIANGLE_STRIP = 0x0005
 open class GLExecutor {
 
     companion object {
+
+        @JvmStatic val NONE_MODULE = object: GLExecutor(){}
+
         private var isInitialized = false
         @JvmStatic external fun nInitGLFunctions()
 
@@ -111,24 +115,22 @@ open class GLExecutor {
         }
     }
 
-    open fun blitCanvas(profile: GLProfile, flipY: Boolean, msaa: Int, async: Boolean) =
-        if(async) AsyncBlitCanvasImpl(this, profile, flipY, msaa)
-        else BlitCanvasImpl(this, profile, flipY, msaa)
+    open fun blitNGCanvas(canvas: GLCanvas, executor: GLExecutor, profile: GLProfile, flipY: Boolean, msaa: Int, async: Boolean) =
+        if(async) AsyncBlitCanvasImpl(canvas, executor, profile, flipY, msaa)
+        else BlitCanvasImpl(canvas, executor, profile, flipY, msaa)
 
-    open fun sharedCanvas(profile: GLProfile, flipY: Boolean, msaa: Int, async: Boolean) =
-        if(async) AsyncSharedCanvasImpl(this, profile, flipY, msaa)
-        else SharedCanvasImpl(this, profile, flipY, msaa)
+    open fun sharedNGCanvas(canvas: GLCanvas, executor: GLExecutor, profile: GLProfile, flipY: Boolean, msaa: Int, async: Boolean) =
+        if(async) AsyncSharedCanvasImpl(canvas, executor, profile, flipY, msaa)
+        else SharedCanvasImpl(canvas, executor, profile, flipY, msaa)
 
-    open fun interopCanvas(profile: GLProfile, flipY: Boolean, msaa: Int, async: Boolean) =
-        if(async) AsyncNVDXInteropCanvasImpl(this, profile, flipY, msaa)
-        else NVDXInteropCanvasImpl(this, profile, flipY, msaa)
+    open fun interopNGCanvas(canvas: GLCanvas, executor: GLExecutor, profile: GLProfile, flipY: Boolean, msaa: Int, async: Boolean) =
+        if(async) AsyncNVDXInteropCanvasImpl(canvas, executor, profile, flipY, msaa)
+        else NVDXInteropCanvasImpl(canvas, executor, profile, flipY, msaa)
 
-    open fun ioSurfaceCanvas(profile: GLProfile, flipY: Boolean, msaa: Int, async: Boolean) =
-        if(async) AsyncIOSurfaceCanvasImpl(this, profile, flipY, msaa)
-        else IOSurfaceCanvasImpl(this, profile, flipY, msaa)
+    open fun ioSurfaceNGCanvas(canvas: GLCanvas, executor: GLExecutor, profile: GLProfile, flipY: Boolean, msaa: Int, async: Boolean) =
+        if(async) AsyncIOSurfaceCanvasImpl(canvas, executor, profile, flipY, msaa)
+        else IOSurfaceCanvasImpl(canvas, executor, profile, flipY, msaa)
 
-    open fun initGLFunctions() {
-        loadBasicFunctionPointers()
-    }
+    open fun initGLFunctions() = loadBasicFunctionPointers()
 
 }

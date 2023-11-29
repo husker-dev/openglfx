@@ -8,7 +8,7 @@ import com.huskerdev.openglfx.canvas.GLCanvas
 import com.huskerdev.openglfx.internal.GLFXUtils
 import com.huskerdev.openglfx.internal.fbo.MultiSampledFramebuffer
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.D3DTextureResource
-import com.huskerdev.openglfx.internal.GLInteropType
+import com.huskerdev.openglfx.internal.NGGLCanvas
 import com.huskerdev.openglfx.internal.Size
 import com.huskerdev.openglfx.internal.fbo.Framebuffer
 import com.huskerdev.openglfx.internal.d3d9.D3D9Device
@@ -22,11 +22,12 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 
 open class NVDXInteropCanvasImpl(
-    private val executor: GLExecutor,
+    canvas: GLCanvas,
+    executor: GLExecutor,
     profile: GLProfile,
     flipY: Boolean,
     msaa: Int
-) : GLCanvas(GLInteropType.NVDXInterop, profile, flipY, msaa, false){
+): NGGLCanvas(canvas, executor, profile, flipY, msaa){
 
     private var lastSize = Size()
 
@@ -43,7 +44,7 @@ open class NVDXInteropCanvasImpl(
 
     private lateinit var interopObject: NVDXInterop.NVDXObject
 
-    override fun onNGRender(g: Graphics) {
+    override fun renderContent(g: Graphics) {
         if(width == 0.0 || height == 0.0)
             return
 
@@ -58,12 +59,12 @@ open class NVDXInteropCanvasImpl(
             updateFramebufferSize(width, height)
 
             interopObject.lock()
-            fireReshapeEvent(width, height)
+            canvas.fireReshapeEvent(width, height)
         }
         interopObject.lock()
 
         glViewport(0, 0, lastSize.width, lastSize.height)
-        fireRenderEvent(if(msaa != 0) msaaFBO.id else fbo.id)
+        canvas.fireRenderEvent(if(msaa != 0) msaaFBO.id else fbo.id)
         if(msaa != 0)
             msaaFBO.blitTo(fbo)
 
@@ -115,6 +116,9 @@ open class NVDXInteropCanvasImpl(
     override fun dispose() {
         super.dispose()
         GLFXUtils.runOnRenderThread {
+            context.makeCurrent()
+            canvas.fireDisposeEvent()
+
             if(::interopObject.isInitialized) interopObject.dispose()
             if(::fxTexture.isInitialized) fxTexture.dispose()
             if(::context.isInitialized) GLContext.delete(context)

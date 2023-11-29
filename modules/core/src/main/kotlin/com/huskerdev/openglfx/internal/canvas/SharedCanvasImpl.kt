@@ -9,7 +9,7 @@ import com.huskerdev.openglfx.canvas.GLCanvas
 import com.huskerdev.openglfx.internal.GLFXUtils
 import com.huskerdev.openglfx.internal.fbo.MultiSampledFramebuffer
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.GLTextureId
-import com.huskerdev.openglfx.internal.GLInteropType
+import com.huskerdev.openglfx.internal.NGGLCanvas
 import com.huskerdev.openglfx.internal.Size
 import com.huskerdev.openglfx.internal.fbo.Framebuffer
 import com.sun.prism.Graphics
@@ -17,11 +17,12 @@ import com.sun.prism.Texture
 import java.util.concurrent.atomic.AtomicBoolean
 
 open class SharedCanvasImpl(
-    private val executor: GLExecutor,
+    canvas: GLCanvas,
+    executor: GLExecutor,
     profile: GLProfile,
     flipY: Boolean,
     msaa: Int
-): GLCanvas(GLInteropType.TextureSharing, profile, flipY, msaa, false){
+): NGGLCanvas(canvas, executor, profile, flipY, msaa){
 
     private var lastSize = Size()
 
@@ -35,7 +36,7 @@ open class SharedCanvasImpl(
 
     private var needsRepaint = AtomicBoolean(false)
 
-    override fun onNGRender(g: Graphics) {
+    override fun renderContent(g: Graphics) {
         if (!::context.isInitialized) {
             fxContext = GLContext.current()
             context = GLContext.create(fxContext, profile == GLProfile.Core)
@@ -43,10 +44,10 @@ open class SharedCanvasImpl(
         }
         context.makeCurrent()
 
-        lastSize.executeOnDifferenceWith(scaledSize, ::updateFramebufferSize, ::fireReshapeEvent)
+        lastSize.executeOnDifferenceWith(scaledSize, ::updateFramebufferSize, canvas::fireReshapeEvent)
 
         glViewport(0, 0, lastSize.width, lastSize.height)
-        fireRenderEvent(if(msaa != 0) msaaFBO.id else fbo.id)
+        canvas.fireRenderEvent(if(msaa != 0) msaaFBO.id else fbo.id)
         if(msaa != 0)
             msaaFBO.blitTo(fbo)
 
@@ -90,6 +91,10 @@ open class SharedCanvasImpl(
     override fun dispose() {
         super.dispose()
         GLFXUtils.runOnRenderThread {
+            context.makeCurrent()
+            canvas.fireDisposeEvent()
+            fxContext.makeCurrent()
+
             if(::fxTexture.isInitialized) fxTexture.dispose()
             if(::context.isInitialized) GLContext.delete(context)
         }

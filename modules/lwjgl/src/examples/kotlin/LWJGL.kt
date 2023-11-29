@@ -1,7 +1,9 @@
 import com.huskerdev.openglfx.canvas.GLProfile
 import com.huskerdev.openglfx.canvas.GLCanvas
 import com.huskerdev.openglfx.canvas.GLCanvasAnimator
+import com.huskerdev.openglfx.internal.NGGLCanvas
 import com.huskerdev.openglfx.lwjgl.LWJGLExecutor.Companion.LWJGL_MODULE
+import com.sun.javafx.scene.layout.RegionHelper
 import com.sun.prism.GraphicsPipeline
 import javafx.application.Application
 import javafx.application.Platform
@@ -63,7 +65,7 @@ class ExampleApp: Application(){
     }
 
     private fun createGLCanvasInstance(): GLCanvas {
-        val canvas = GLCanvas.create(LWJGL_MODULE, msaa = 4, profile = GLProfile.Core, async = true)
+        val canvas = GLCanvas(LWJGL_MODULE, msaa = 4, profile = GLProfile.Core, async = true)
         canvas.animator = GLCanvasAnimator(60.0)
 
         val renderExample = ExampleScene()
@@ -85,11 +87,11 @@ class ExampleApp: Application(){
         arrayListOf(
             "PIPELINE" to GraphicsPipeline.getPipeline().javaClass.canonicalName.split(".")[3],
             "INTEROP" to canvas.interopType,
-            "IMPL" to canvas::class.java.simpleName,
+            "IMPL" to RegionHelper.getPeer<NGGLCanvas>(canvas)::class.java.simpleName,
             "MSAA" to canvas.msaa,
             "PROFILE" to canvas.profile,
             "FLIP_Y" to canvas.flipY,
-            "IS_ASYNC" to canvas.isAsync,
+            "IS_ASYNC" to canvas.async,
             "FPS" to "-",
             "SIZE" to "0x0",
             "MEMORY_USAGE" to "0",
