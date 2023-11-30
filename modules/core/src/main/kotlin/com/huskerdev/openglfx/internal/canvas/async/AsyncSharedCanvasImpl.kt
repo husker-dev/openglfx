@@ -68,6 +68,7 @@ open class AsyncSharedCanvasImpl(
                 synchronized(blitLock) {
                     transferSize.executeOnDifferenceWith(drawSize, ::updateTransferTextureSize)
                     fbo.blitTo(transferFBO)
+                    glFinish()
                 }
                 needsBlit.set(true)
 
