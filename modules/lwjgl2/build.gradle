@@ -1,0 +1,56 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.6.10'
+    id "application"
+}
+
+apply from: "${project.rootDir}/maven-publisher.gradle"
+
+sourceSets{
+    examples {
+        resources { srcDirs "src/examples/resources" }
+        java {
+            srcDirs 'src/examples/kotlin', 'src/examples/java'
+            compileClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.compileClasspath
+            runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.compileClasspath
+        }
+    }
+}
+
+dependencies {
+    implementation DEFAULT
+    implementation project(':modules:core')
+
+    implementation "org.lwjgl.lwjgl:lwjgl:${project["version.lwjgl2"]}"
+}
+
+tasks.register('runLWJGL2', JavaExec) {
+    group = "Execution"
+    description = "Run the example class with LWJGL2"
+    classpath = sourceSets.examples.runtimeClasspath
+    mainClass = "LWJGL2Kt"
+    jvmArgs project["opens"].split()
+}
+
+tasks.register('runLWJGL2_D3D', JavaExec) {
+    group = "Execution"
+    description = "Run the example class with LWJGL2 D3D"
+    classpath = sourceSets.examples.runtimeClasspath
+    mainClass = "LWJGL2_D3DKt"
+    jvmArgs project["opens"].split()
+}
+
+tasks.register('runLWJGL2_SW', JavaExec) {
+    group = "Execution"
+    description = "Run the example class with LWJGL2 SW"
+    classpath = sourceSets.examples.runtimeClasspath
+    mainClass = "LWJGL2_SWKt"
+    jvmArgs project["opens"].split()
+}
+
+tasks.register('runLWJGL2_ES2', JavaExec) {
+    group = "Execution"
+    description = "Run the example class with LWJGL2 ES2"
+    classpath = sourceSets.examples.runtimeClasspath
+    mainClass = "LWJGL2_ES2Kt"
+    jvmArgs project["opens"].split()
+}
