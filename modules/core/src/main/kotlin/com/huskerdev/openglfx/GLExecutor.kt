@@ -3,6 +3,10 @@ package com.huskerdev.openglfx
 import com.huskerdev.ojgl.GLContext
 import com.huskerdev.openglfx.canvas.GLCanvas
 import com.huskerdev.openglfx.canvas.GLProfile
+import com.huskerdev.openglfx.canvas.events.GLDisposeEvent
+import com.huskerdev.openglfx.canvas.events.GLInitializeEvent
+import com.huskerdev.openglfx.canvas.events.GLRenderEvent
+import com.huskerdev.openglfx.canvas.events.GLReshapeEvent
 import com.huskerdev.openglfx.internal.canvas.NVDXInteropCanvasImpl
 import com.huskerdev.openglfx.internal.canvas.SharedCanvasImpl
 import com.huskerdev.openglfx.internal.canvas.BlitCanvasImpl
@@ -130,6 +134,15 @@ open class GLExecutor {
     open fun ioSurfaceNGCanvas(canvas: GLCanvas, executor: GLExecutor, profile: GLProfile, flipY: Boolean, msaa: Int, async: Boolean) =
         if(async) AsyncIOSurfaceCanvasImpl(canvas, executor, profile, flipY, msaa)
         else IOSurfaceCanvasImpl(canvas, executor, profile, flipY, msaa)
+
+    open fun createRenderEvent(canvas: GLCanvas, currentFps: Int, delta: Double, width: Int, height: Int, fbo: Int)
+            = GLRenderEvent(GLRenderEvent.ANY, currentFps, delta, width, height, fbo)
+    open fun createReshapeEvent(canvas: GLCanvas, width: Int, height: Int)
+            = GLReshapeEvent(GLReshapeEvent.ANY, width, height)
+    open fun createInitEvent(canvas: GLCanvas)
+            = GLInitializeEvent(GLInitializeEvent.ANY)
+    open fun createDisposeEvent(canvas: GLCanvas)
+            = GLDisposeEvent(GLDisposeEvent.ANY)
 
     open fun initGLFunctions() = loadBasicFunctionPointers()
 

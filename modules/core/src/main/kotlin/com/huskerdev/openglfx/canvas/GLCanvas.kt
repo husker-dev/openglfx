@@ -174,7 +174,8 @@ open class GLCanvas
         fireInitEvent()
         fpsCounter.update()
         onRenderBegin.dispatchEvent()
-        onRender.dispatchJavaEvent(createRenderEvent(
+        onRender.dispatchJavaEvent(executor.createRenderEvent(
+            this,
             fpsCounter.currentFps,
             fpsCounter.delta,
             scaledWidth, scaledHeight, fbo))
@@ -189,7 +190,7 @@ open class GLCanvas
      */
     internal fun fireReshapeEvent(width: Int, height: Int) {
         fireInitEvent()
-        onReshape.dispatchJavaEvent(createReshapeEvent(width, height))
+        onReshape.dispatchJavaEvent(executor.createReshapeEvent(this, width, height))
     }
 
     /**
@@ -197,35 +198,18 @@ open class GLCanvas
      */
     internal fun fireInitEvent() {
         while(onInit.size > 0)
-            onInit.removeLast().accept(createInitEvent())
+            onInit.removeLast().accept(executor.createInitEvent(this))
     }
 
     /**
      *  Internal method. Invokes every disposing listener.
      */
-    internal fun fireDisposeEvent() = onDispose.dispatchJavaEvent(createDisposeEvent())
+    internal fun fireDisposeEvent() = onDispose.dispatchJavaEvent(executor.createDisposeEvent(this))
 
     /**
      *  Internal method. Invokes every scene binding listener.
      */
     internal fun fireSceneBoundEvent() = onSceneBound.dispatchEvent(scene)
-
-    /*===========================================*\
-    |               Events creation               |
-    \*===========================================*/
-
-    /**
-     *  Possibility to override events
-     *  (Used by JOGL)
-     */
-    protected open fun createRenderEvent(currentFps: Int, delta: Double, width: Int, height: Int, fbo: Int)
-            = GLRenderEvent(GLRenderEvent.ANY, currentFps, delta, width, height, fbo)
-    protected open fun createReshapeEvent(width: Int, height: Int)
-            = GLReshapeEvent(GLReshapeEvent.ANY, width, height)
-    protected open fun createInitEvent()
-            = GLInitializeEvent(GLInitializeEvent.ANY)
-    protected open fun createDisposeEvent()
-            = GLDisposeEvent(GLDisposeEvent.ANY)
 
     /*===========================================*\
     |                     Peer                    |
