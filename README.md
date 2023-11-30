@@ -31,20 +31,20 @@ This library adds a new element to the JavaFX for rendering OpenGL graphics. It 
 ```groovy
 dependencies {
     // ...JavaFX and LWJGL libraries...
-    implementation 'com.huskerdev:openglfx:4.0.2'
-    implementation 'com.huskerdev:openglfx-lwjgl:4.0.2'
+    implementation 'com.huskerdev:openglfx:4.0.3'
+    implementation 'com.huskerdev:openglfx-lwjgl:4.0.3'
 }
 ```
 
 # Usage
 
-This library adds only one component - ```OpenGLCanvas```, that can be used like a regular element in JavaFX.
+This library adds only one component - ```GLCanvas```, that can be used like a regular element in JavaFX.
 
 ```kotlin
 import com.huskerdev.openglfx.canvas.GLCanvas
 import com.huskerdev.openglfx.lwjgl.LWJGLExecutor.Companion.LWJGL_MODULE
 
-val canvas = GLCanvas.create(LWJGL_MODULE)
+val canvas = GLCanvas(LWJGL_MODULE)
 ```
 
 After GLCanvas is not needed anymore, call ```dispose()``` to free the allocated memory.
