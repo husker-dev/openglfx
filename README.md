@@ -7,7 +7,7 @@
 
 # About
 
-This library adds a new element to the JavaFX for rendering OpenGL graphics. It is optimized for each platform. Also, this library includes some auxiliary functions for working with OpenGL from JavaFX.
+This library adds a new element to the JavaFX for rendering OpenGL graphics using LWJGL, JOGL, LWJGL2 or LibGDX. It is optimized for each platform and includes some auxiliary functions for working with OpenGL from JavaFX.
 
 - [Dependency](#dependency)
 - [Usage](#usage)
@@ -31,8 +31,8 @@ This library adds a new element to the JavaFX for rendering OpenGL graphics. It 
 ```groovy
 dependencies {
     // ...JavaFX and LWJGL libraries...
-    implementation 'com.huskerdev:openglfx:4.0.3'
-    implementation 'com.huskerdev:openglfx-lwjgl:4.0.3'
+    implementation 'com.huskerdev:openglfx:4.0.4'
+    implementation 'com.huskerdev:openglfx-lwjgl:4.0.4'
 }
 ```
 
@@ -46,6 +46,13 @@ import com.huskerdev.openglfx.lwjgl.LWJGLExecutor.Companion.LWJGL_MODULE
 
 val canvas = GLCanvas(LWJGL_MODULE)
 ```
+
+Available modules:
+  - LWJGL_MODULE (openglfx-lwjgl)
+  - LWJGL2_MODULE (openglfx-lwjgl2)
+  - JOGL_MODULE (openglfx-jogl)
+  - LIBGDX_MODULE (openglfx-libgdx)
+  
 
 After GLCanvas is not needed anymore, call ```dispose()``` to free the allocated memory.
 
