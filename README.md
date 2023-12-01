@@ -18,7 +18,7 @@ This library adds a new element to the JavaFX for rendering OpenGL graphics usin
   - [OpenGL profile](#opengl-profile)
   - [Auto repaint](#auto-repaint)
   - [Image transfering](#image-transfering)
-  - [Renderdoc](#renderdoc)
+  - [RenderDoc](#renderdoc)
 - [Notes](#notes)
   - [Reflection opens](#reflection-opens)
 - [Under the hood](#under-the-hood)
@@ -30,15 +30,25 @@ This library adds a new element to the JavaFX for rendering OpenGL graphics usin
 # Dependency
 ```groovy
 dependencies {
-    // ...JavaFX and LWJGL libraries...
-    implementation 'com.huskerdev:openglfx:4.0.4'
-    implementation 'com.huskerdev:openglfx-lwjgl:4.0.4'
+    // implementation JavaFX
+    // implementation LWJGL
+    // implementation ...
+    
+    implementation 'com.huskerdev:openglfx-lwjgl:4.0.5'
 }
 ```
+
+Available modules:
+  - ```openglfx-lwjgl```
+  - ```openglfx-lwjgl2```
+  - ```openglfx-jogl```
+  - ```openglfx-libgdx```
 
 # Usage
 
 This library adds only one component - ```GLCanvas```, that can be used like a regular element in JavaFX.
+
+After canvas is not needed anymore, call ```dispose()``` to free the allocated memory.
 
 ```kotlin
 import com.huskerdev.openglfx.canvas.GLCanvas
@@ -48,13 +58,11 @@ val canvas = GLCanvas(LWJGL_MODULE)
 ```
 
 Available modules:
-  - LWJGL_MODULE (openglfx-lwjgl)
-  - LWJGL2_MODULE (openglfx-lwjgl2)
-  - JOGL_MODULE (openglfx-jogl)
-  - LIBGDX_MODULE (openglfx-libgdx)
+  - ```LWJGL_MODULE```
+  - ```LWJGL2_MODULE```
+  - ```JOGL_MODULE```
+  - ```LIBGDX_MODULE```
   
-
-After GLCanvas is not needed anymore, call ```dispose()``` to free the allocated memory.
 
 ### Rendering events
 
@@ -83,21 +91,21 @@ canvas.addOnDisposeEvent { event ->
 For maximum possible MSAA level, specify -1.
 
 ```kotlin
-GLCanvas.create(LWJGL_MODULE, msaa = 4)
+GLCanvas(.., msaa = 4)
 ```
 
 ### Async rendering
 ```GLCanvas``` can render graphics in a separated thread. This feature can either improve or decrease performance. Test it on your applications.
 
 ```kotlin
-GLCanvas.create(LWJGL_MODULE, async = true)
+GLCanvas(.., async = true)
 ```
 
 ### Y-flipping
 By default, OpenGL draws the image upside down. ```GLCanvas``` has the ability to flip it without loss of performance. To do this, specify the parameter at startup.
 
 ```kotlin
-GLCanvas.create(LWJGL_MODULE, flipY = true)
+GLCanvas(.., flipY = true)
 ```
 
 ### OpenGL profile
@@ -107,8 +115,8 @@ In GLCanvas you can specify the desired option. I advise you to always choose Co
 To do this, you need to specify a parameter when creating.
 
 ```kotlin
-GLCanvas.create(LWJGL_MODULE, profile = GLProfile.Core)
-GLCanvas.create(LWJGL_MODULE, profile = GLProfile.Compatibility)
+GLCanvas(.., profile = GLProfile.Core)
+GLCanvas(.., profile = GLProfile.Compatibility)
 ```
 
 ### Auto repaint
@@ -135,8 +143,8 @@ val fbo = GLImageManager.toGL(image)
 val image = GLImageManager.fromGL(fbo, width, height)
 ```
 
-### Renderdoc
-```openglfx``` supports Renderdoc integration. Unfortunately, java and javaFX limit how this tool can be used, so the following features have been made.
+### RenderDoc
+```openglfx``` supports RenderDoc integration. Unfortunately, java and javaFX limit how this tool can be used, so the following features have been made.
 
 - You can take a screenshot of the following frame using the hotkey:
 ```kotlin
