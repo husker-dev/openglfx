@@ -1,4 +1,4 @@
-![Безымянный](https://github.com/husker-dev/openglfx/assets/31825139/3968c34e-ad83-4613-a5ce-1524aa79aa83)
+![Logo](https://github.com/husker-dev/openglfx/assets/31825139/3968c34e-ad83-4613-a5ce-1524aa79aa83)
 
 ### [Buy coffee](https://www.buymeacoffee.com/huskerdev) for the developer.
 

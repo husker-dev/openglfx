@@ -24,7 +24,9 @@ enum class GLProfile {
  *
  * @param executor OpenGL implementation library:
  *  - LWJGL_MODULE;
+ *  - LWJGL2_MODULE (legacy);
  *  - JOGL_MODULE;
+ *  - LIBGDX_MODULE (beta);
  *  - NONE_MODULE.
  * @param profile Core/Compatibility OpenGL profile:
  *  - GLProfile.Compatibility (default);
@@ -166,11 +168,11 @@ open class GLCanvas
     \*===========================================*/
 
     /**
-     *  Internal method. Invokes every rendering listener.
+     *  Invokes every rendering listener.
      *
      *  @param fbo result framebuffer that is bound to Node
      */
-    internal fun fireRenderEvent(fbo: Int) {
+    fun fireRenderEvent(fbo: Int) {
         fireInitEvent()
         fpsCounter.update()
         onRenderBegin.dispatchEvent()
@@ -183,28 +185,28 @@ open class GLCanvas
     }
 
     /**
-     *  Internal method. Invokes every resizing listener.
+     *  Invokes every resizing listener.
      *
      *  @param width new framebuffer width
      *  @param height new framebuffer height
      */
-    internal fun fireReshapeEvent(width: Int, height: Int) {
+    fun fireReshapeEvent(width: Int, height: Int) {
         fireInitEvent()
         onReshape.dispatchJavaEvent(executor.createReshapeEvent(this, width, height))
     }
 
     /**
-     *  Internal method. Invokes every initialization listener.
+     *  Invokes every initialization listener.
      */
-    internal fun fireInitEvent() {
+    fun fireInitEvent() {
         while(onInit.size > 0)
             onInit.removeLast().accept(executor.createInitEvent(this))
     }
 
     /**
-     *  Internal method. Invokes every disposing listener.
+     *  Invokes every disposing listener.
      */
-    internal fun fireDisposeEvent() = onDispose.dispatchJavaEvent(executor.createDisposeEvent(this))
+    fun fireDisposeEvent() = onDispose.dispatchJavaEvent(executor.createDisposeEvent(this))
 
     /**
      *  Internal method. Invokes every scene binding listener.

@@ -5,23 +5,45 @@ import com.badlogic.gdx.backends.lwjgl3.*
 import com.badlogic.gdx.backends.lwjgl3.audio.Lwjgl3Audio
 import com.badlogic.gdx.backends.lwjgl3.audio.OpenALLwjgl3Audio
 import com.badlogic.gdx.backends.lwjgl3.audio.mock.MockAudio
-import com.badlogic.gdx.utils.Clipboard
+import com.badlogic.gdx.utils.ObjectMap
+import com.huskerdev.openglfx.canvas.GLCanvas
+import com.huskerdev.openglfx.libgdx.LibGDXExecutor
 import com.huskerdev.openglfx.libgdx.OGLFXApplicationConfiguration
+import java.io.File
 
-class OGLFXApplication(val config: OGLFXApplicationConfiguration): Application {
+class OGLFXApplication(
+    val config: OGLFXApplicationConfiguration,
+    val canvas: GLCanvas,
+    val executor: LibGDXExecutor
+): Application {
     companion object {
         init {
             Lwjgl3NativesLoader.load()
         }
     }
 
+    private val preferences = ObjectMap<String, Preferences>()
+
     private val audio: Lwjgl3Audio
     private val files: Files
     private val net: Net
     private val clipboard: Lwjgl3Clipboard
+    private val graphics: Graphics
+    private val input: OGLFXInput
+    private var logger: ApplicationLogger
+    private var logLevel = Application.LOG_INFO
+
+    private val defaultListener = object: ApplicationListener{
+        override fun create() = canvas.fireInitEvent()
+        override fun resize(width: Int, height: Int) = canvas.fireReshapeEvent(width, height)
+        override fun render() = canvas.fireRenderEvent(0)
+        override fun dispose() = canvas.fireDisposeEvent()
+        override fun pause() {}
+        override fun resume() {}
+    }
 
     init {
-        applicationLogger = Lwjgl3ApplicationLogger()
+        logger = Lwjgl3ApplicationLogger()
 
         this.audio = if (!config.disableAudio) {
             try {
@@ -38,7 +60,9 @@ class OGLFXApplication(val config: OGLFXApplicationConfiguration): Application {
 
         files = Lwjgl3Files()
         net = Lwjgl3Net(Lwjgl3ApplicationConfiguration().apply { setMaxNetThreads(config.maxNetThreads) })
-        this.clipboard = Lwjgl3Clipboard()
+        clipboard = Lwjgl3Clipboard()
+        graphics = OGLFXGraphics(canvas)
+        input = OGLFXInput(canvas)
 
         Gdx.app = this
         Gdx.audio = audio
@@ -46,98 +70,82 @@ class OGLFXApplication(val config: OGLFXApplicationConfiguration): Application {
         Gdx.net = net
     }
 
+    override fun getApplicationListener() = defaultListener
 
-    override fun getApplicationListener(): ApplicationListener {
-        TODO("Not yet implemented")
-    }
-
-    override fun getGraphics(): Graphics {
-        TODO("Not yet implemented")
-    }
-
+    override fun getGraphics() = graphics
     override fun getAudio() = audio
-
-    override fun getInput(): Input {
-        TODO("Not yet implemented")
-    }
-
+    override fun getInput() = input
     override fun getFiles() = files
-
     override fun getNet() = net
 
-    override fun log(tag: String?, message: String?) {
-        TODO("Not yet implemented")
-    }
-
-    override fun log(tag: String?, message: String?, exception: Throwable?) {
-        TODO("Not yet implemented")
-    }
-
-    override fun error(tag: String?, message: String?) {
-        TODO("Not yet implemented")
-    }
-
-    override fun error(tag: String?, message: String?, exception: Throwable?) {
-        TODO("Not yet implemented")
-    }
-
     override fun debug(tag: String?, message: String?) {
-        TODO("Not yet implemented")
+        if (logLevel >= Application.LOG_DEBUG) logger.debug(tag, message)
     }
 
     override fun debug(tag: String?, message: String?, exception: Throwable?) {
-        TODO("Not yet implemented")
+        if (logLevel >= Application.LOG_DEBUG) logger.debug(tag, message, exception)
+    }
+
+    override fun log(tag: String?, message: String?) {
+        if (logLevel >= Application.LOG_INFO) logger.log(tag, message)
+    }
+
+    override fun log(tag: String?, message: String?, exception: Throwable?) {
+        if (logLevel >= Application.LOG_INFO) logger.log(tag, message, exception)
+    }
+
+    override fun error(tag: String?, message: String?) {
+        if (logLevel >= Application.LOG_ERROR) logger.error(tag, message)
+    }
+
+    override fun error(tag: String?, message: String?, exception: Throwable?) {
+        if (logLevel >= Application.LOG_ERROR) logger.error(tag, message, exception)
     }
 
     override fun setLogLevel(logLevel: Int) {
-        TODO("Not yet implemented")
+        this.logLevel = logLevel
     }
 
-    override fun getLogLevel(): Int {
-        TODO("Not yet implemented")
+    override fun getLogLevel() = logLevel
+
+    override fun setApplicationLogger(applicationLogger: ApplicationLogger) {
+        logger = applicationLogger
     }
 
-    override fun setApplicationLogger(applicationLogger: ApplicationLogger?) {
-        TODO("Not yet implemented")
-    }
+    override fun getApplicationLogger() = logger
 
-    override fun getApplicationLogger(): ApplicationLogger {
-        TODO("Not yet implemented")
-    }
+    override fun getType() = Application.ApplicationType.Desktop
 
-    override fun getType(): Application.ApplicationType {
-        TODO("Not yet implemented")
-    }
+    override fun getVersion() = 1
 
-    override fun getVersion(): Int {
-        TODO("Not yet implemented")
-    }
+    override fun getJavaHeap() = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()
 
-    override fun getJavaHeap(): Long {
-        TODO("Not yet implemented")
-    }
+    override fun getNativeHeap() = javaHeap
 
-    override fun getNativeHeap(): Long {
-        TODO("Not yet implemented")
-    }
-
-    override fun getPreferences(name: String?): Preferences {
-        TODO("Not yet implemented")
-    }
+    override fun getPreferences(name: String): Preferences =
+        if (preferences.containsKey(name)) {
+            preferences.get(name)
+        } else {
+            val prefs = Lwjgl3Preferences(Lwjgl3FileHandle(File(config.preferencesDirectory, name), config.preferencesFileType))
+            preferences.put(name, prefs)
+            prefs
+        }
 
     override fun getClipboard() = clipboard
 
-    override fun postRunnable(runnable: Runnable?) {
-        TODO("Not yet implemented")
+    override fun postRunnable(runnable: Runnable) {
+        synchronized(executor.invokeLater){
+            executor.invokeLater.add(runnable)
+        }
     }
 
     override fun exit() {}
 
     override fun addLifecycleListener(listener: LifecycleListener?) {
-        TODO("Not yet implemented")
+
     }
 
     override fun removeLifecycleListener(listener: LifecycleListener?) {
-        TODO("Not yet implemented")
+
     }
 }
