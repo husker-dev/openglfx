@@ -165,7 +165,6 @@ It is better not to mix these two recording methods.
 To view a scene in the Renderdoc application, you need to select one of the processes. It may change depending on the launch settings.
 
 # Notes
-- Async canvas blinks at resizing;
 - RenderDoc + Windows crashes the JVM. Workaround is described in ([#39](https://github.com/husker-dev/openglfx/issues/39));
 - JOGL can't initialize on macOS ([#22](https://github.com/husker-dev/openglfx/issues/22)).
 > If you know how to fix that problem I would be very happy
