@@ -32,7 +32,7 @@ tasks.register('compileJars') {
         Files.createDirectory(out.parent)
         Files.createDirectory(out)
 
-        for(module in ["core", "lwjgl", "jogl"]){
+        for(module in ["core", "lwjgl", "jogl", "lwjgl2", "libgdx"]){
             File moduleJar = project("modules:$module").jar.archivePath
             File resultJar = file("$projectDir/build/libs/openglfx-${moduleJar.name}")
             Files.copy(Paths.get(moduleJar.absolutePath), Paths.get(resultJar.absolutePath), StandardCopyOption.REPLACE_EXISTING)
