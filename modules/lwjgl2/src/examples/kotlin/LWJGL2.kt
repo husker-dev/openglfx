@@ -22,8 +22,6 @@ import java.io.File
 
 fun main() {
     System.setProperty("prism.vsync", "false")
-
-
     Application.launch(ExampleApp::class.java)
 }
 
@@ -34,8 +32,19 @@ class ExampleApp: Application(){
     private var iteration = 1
 
     override fun start(stage: Stage) {
-        if(System.getProperty("os.arch").startsWith("aarch64"))
-            System.setProperty("org.lwjgl.librarypath", "${File("").absoluteFile}/arm64")
+        val osArch = System.getProperty("os.arch")
+        val arm64 = osArch.startsWith("aarch64") || osArch.startsWith("armv8")
+        val arm32 = osArch.startsWith("arm") && !arm64
+        val x64 = osArch.contains("64") && !arm32 && !arm64
+        val x86 = !x64 && !arm32 && !arm64
+        val folder = when {
+            arm64 -> "arm64"
+            x64 -> "x64"
+            x86 -> "x86"
+            else -> "x64"
+        }
+        System.setProperty("org.lwjgl.librarypath", "${File("").absoluteFile}/libs/$folder")
+
         this.stage = stage
         stage.title = "GLCanvas example"
         stage.width = 800.0
