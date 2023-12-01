@@ -24,7 +24,7 @@ open class SharedCanvasImpl(
     msaa: Int
 ): NGGLCanvas(canvas, executor, profile, flipY, msaa){
 
-    private var lastSize = Size()
+    private var lastSize = Size(minWidth = 1, minHeight = 1)
 
     private lateinit var context: GLContext
     private lateinit var fxContext: GLContext

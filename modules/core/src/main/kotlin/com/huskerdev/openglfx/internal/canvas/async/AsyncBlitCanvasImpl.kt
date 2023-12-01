@@ -33,7 +33,7 @@ open class AsyncBlitCanvasImpl(
 
     private var needsBlit = AtomicBoolean(false)
 
-    private var drawSize = Size()
+    private var drawSize = Size(minWidth = 1, minHeight = 1)
     private var transferSize = Size()
     private var resultSize = Size()
 

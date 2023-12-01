@@ -28,7 +28,7 @@ open class BlitCanvasImpl(
 
     private var needsRepaint = AtomicBoolean(false)
 
-    private var resultSize = Size()
+    private var resultSize = Size(minWidth = 1, minHeight = 1)
 
     private lateinit var fbo: Framebuffer
     private lateinit var msaaFBO: MultiSampledFramebuffer

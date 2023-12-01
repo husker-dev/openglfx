@@ -30,7 +30,7 @@ open class IOSurfaceCanvasImpl(
     private lateinit var ioSurface: IOSurface
     private lateinit var fxTexture: Texture
 
-    private val lastSize = Size()
+    private val lastSize = Size(minWidth = 1, minHeight = 1)
 
     private lateinit var fboFX: Framebuffer
     private lateinit var sharedFboFX: Framebuffer
