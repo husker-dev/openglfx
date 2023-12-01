@@ -17,15 +17,15 @@ sourceSets{
 }
 
 dependencies {
-    implementation DEFAULT
+    compileOnly DEFAULT
     implementation project(':modules:core')
 
-    implementation platform("org.lwjgl:lwjgl-bom:${project["version.lwjgl"]}")
-    implementation "org.lwjgl:lwjgl"
-    implementation "org.lwjgl:lwjgl-opengl"
+    compileOnly platform("org.lwjgl:lwjgl-bom:${project["version.lwjgl"]}")
+    compileOnly "org.lwjgl:lwjgl"
+    compileOnly "org.lwjgl:lwjgl-opengl"
 
-    implementation "org.lwjgl:lwjgl::$project.lwjglNatives"
-    implementation "org.lwjgl:lwjgl-opengl::$project.lwjglNatives"
+    compileOnly "org.lwjgl:lwjgl::$project.lwjglNatives"
+    compileOnly "org.lwjgl:lwjgl-opengl::$project.lwjglNatives"
 }
 
 tasks.register('runLWJGL', JavaExec) {

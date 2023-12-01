@@ -6,10 +6,15 @@ apply from: "${project.rootDir}/maven-publisher.gradle"
 
 jar {
     from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+        configurations.compileClasspath.collect {
+            if(!it.name.contains("offscreen")) return null
+            it.isDirectory() ? it : zipTree(it)
+        }
     }
 }
 
 dependencies {
     compileOnly DEFAULT
+    compileOnly "com.github.husker-dev:offscreen-jgl:${project["version.offscreen-jgl"]}"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 }

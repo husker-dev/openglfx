@@ -17,7 +17,7 @@ sourceSets {
 
 dependencies {
     compileOnly DEFAULT
-    compileOnly project(':modules:core')
+    implementation project(':modules:core')
 
     compileOnly "org.jogamp.gluegen:gluegen-rt:${project["version.jogl"]}"
     compileOnly "org.jogamp.gluegen:gluegen-rt:${project["version.jogl"]}:natives-$project.joglNatives"

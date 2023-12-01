@@ -21,10 +21,8 @@ project.ext.jfxNatives = jfxOS + jfxArch
 
 ext {
     DEFAULT = [
-            "com.github.husker-dev:offscreen-jgl:${project["version.offscreen-jgl"]}",
             "org.openjfx:javafx-base:${project["version.javafx"]}:$project.jfxNatives",
             "org.openjfx:javafx-controls:${project["version.javafx"]}:$project.jfxNatives",
             "org.openjfx:javafx-graphics:${project["version.javafx"]}:$project.jfxNatives",
-            "org.jetbrains.kotlin:kotlin-stdlib"
     ]
 }

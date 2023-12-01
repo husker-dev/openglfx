@@ -17,10 +17,10 @@ sourceSets{
 }
 
 dependencies {
-    implementation DEFAULT
+    compileOnly DEFAULT
     implementation project(':modules:core')
 
-    implementation "org.lwjgl.lwjgl:lwjgl:${project["version.lwjgl2"]}"
+    compileOnly "org.lwjgl.lwjgl:lwjgl:${project["version.lwjgl2"]}"
 }
 
 tasks.register('runLWJGL2', JavaExec) {
