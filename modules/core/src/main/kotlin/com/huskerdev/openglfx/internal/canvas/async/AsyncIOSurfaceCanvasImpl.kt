@@ -52,27 +52,26 @@ open class AsyncIOSurfaceCanvasImpl(
 
     private var needsBlit = AtomicBoolean(false)
 
-    private lateinit var passthroughShader: PassthroughShader
+    private lateinit var filterShader: PassthroughShader
 
     private fun initializeThread(){
         fxContext = GLContext.current()
         fxWrapperContext = GLContext.create(fxContext, false)
-        fxWrapperContext.makeCurrent()
-        GLExecutor.loadBasicFunctionPointers()
-        passthroughShader = if(canvas.fxaa) FXAAShader() else PassthroughShader()
-
-        fxContext.makeCurrent()
 
         thread(isDaemon = true) {
             context = GLContext.create(0, profile == GLProfile.Core)
             context.makeCurrent()
             executor.initGLFunctions()
 
+            if(canvas.fxaa) filterShader = FXAAShader()
+
             while (!disposed){
                 paint()
                 synchronized(blitLock) {
                     interopTextureSize.executeOnDifferenceWith(drawSize, ::updateSurfaceSize)
-                    fboGL.blitTo(sharedFboGL)
+                    if(canvas.fxaa)
+                        filterShader.apply(fboGL, sharedFboGL)
+                    else fboGL.blitTo(sharedFboGL)
                 }
                 needsBlit.set(true)
 
@@ -117,7 +116,7 @@ open class AsyncIOSurfaceCanvasImpl(
                 resultSize.executeOnDifferenceWith(interopTextureSize, ::updateResultTextureSize)
                 fxWrapperContext.makeCurrent()
                 glViewport(0, 0, scaledWidth, scaledHeight)
-                passthroughShader.apply(sharedFboFX, fboFX)
+                sharedFboFX.blitTo(fboFX)
                 fxContext.makeCurrent()
             }
         }
