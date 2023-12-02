@@ -9,7 +9,7 @@ import com.huskerdev.openglfx.canvas.GLCanvas
 import com.huskerdev.openglfx.internal.*
 import com.huskerdev.openglfx.internal.GLFXUtils
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.GLTextureId
-import com.huskerdev.openglfx.internal.PassthroughShader
+import com.huskerdev.openglfx.internal.shaders.PassthroughShader
 import com.huskerdev.openglfx.internal.Size
 import com.huskerdev.openglfx.internal.fbo.Framebuffer
 import com.huskerdev.openglfx.internal.fbo.MultiSampledFramebuffer
@@ -118,7 +118,7 @@ open class AsyncSharedCanvasImpl(
             glViewport(0, 0, resultSize.width, resultSize.height)
 
             synchronized(blitLock){
-                passthroughShader.copy(transferFBO, resultFBO)
+                passthroughShader.apply(transferFBO, resultFBO)
             }
             fxContext.makeCurrent()
         }
