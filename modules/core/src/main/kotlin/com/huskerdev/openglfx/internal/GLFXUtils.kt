@@ -2,11 +2,13 @@ package com.huskerdev.openglfx.internal
 
 import com.huskerdev.ojgl.utils.OS
 import com.huskerdev.ojgl.utils.PlatformUtils
+import com.huskerdev.openglfx.internal.iosurface.IOSurface
 import com.sun.javafx.tk.RenderJob
 import com.sun.javafx.tk.Toolkit
 import com.sun.prism.GraphicsPipeline
 import com.sun.prism.PixelFormat
 import com.sun.prism.Texture
+import javafx.scene.Node
 import sun.misc.Unsafe
 import java.nio.Buffer
 import java.nio.ByteBuffer
@@ -34,6 +36,13 @@ internal class GLFXUtils {
             }
             PlatformUtils.loadLibraryFromResources("/com/huskerdev/openglfx/natives/$fileName")
         }
+
+        fun getDPI(node: Node) =
+            if(PlatformUtils.os == OS.MacOS) {
+                val window = node.scene.window
+                IOSurface.nGetDisplayDPI(window.x + window.width / 2, window.y + window.height / 2)
+            } else
+                node.scene?.window?.outputScaleY ?: 1.0
 
         val Texture.D3DTextureResource: Long
             get() = Class.forName("com.sun.prism.d3d.D3DTexture")

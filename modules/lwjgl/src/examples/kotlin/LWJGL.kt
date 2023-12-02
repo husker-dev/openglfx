@@ -8,6 +8,7 @@ import com.sun.prism.GraphicsPipeline
 import javafx.application.Application
 import javafx.application.Platform
 import javafx.event.EventHandler
+import javafx.geometry.Pos
 import javafx.scene.Scene
 import javafx.scene.control.Label
 import javafx.scene.control.SplitPane
@@ -53,8 +54,10 @@ class ExampleApp: Application(){
                     }
                     """.trimIndent()
         }
+        val sampleText = createSampleText()
         val debugPane = createDebugPanel(canvas)
-        stage.scene = Scene(StackPane(debugPane, splitPane)).apply {
+
+        stage.scene = Scene(StackPane(sampleText, splitPane, debugPane)).apply {
             onKeyPressed = EventHandler {
                 if(it.code == KeyCode.F1) System.gc()
                 if(it.code == KeyCode.F2) recreateGLCanvas()
@@ -77,9 +80,12 @@ class ExampleApp: Application(){
         return canvas
     }
 
+    private fun createSampleText() = Label().apply{
+        text = "OpenGLCanvas is not opaque, so you can see this text"
+        StackPane.setAlignment(this, Pos.TOP_RIGHT)
+    }
+
     private fun createDebugPanel(canvas: GLCanvas) = VBox().apply{
-        children.add(Label("OpenGLCanvas is not opaque, so you can see this text"))
-        children.add(Label("----------------------------------------"))
         children.add(Label("Press F1 to invoke GC"))
         children.add(Label("Press F2 to recreate canvas"))
         children.add(Label("Press F3 to add canvas"))
@@ -94,11 +100,12 @@ class ExampleApp: Application(){
             "IS_ASYNC" to canvas.async,
             "FPS" to "-",
             "SIZE" to "0x0",
+            "DPI" to "",
             "MEMORY_USAGE" to "0",
             "ITERATION" to iteration
         ).forEach {
             children.add(BorderPane().apply {
-                maxWidth = 190.0
+                maxWidth = 220.0
                 left = Label(it.first + ":")
                 right = Label(it.second.toString()).apply { id = it.first }
             })
@@ -107,6 +114,7 @@ class ExampleApp: Application(){
             Platform.runLater {
                 (scene.lookup("#FPS") as Label).text = "${e.fps}/${(1000 / (e.delta * 1000)).toInt()}"
                 (scene.lookup("#SIZE") as Label).text = "${e.width}x${e.height}"
+                (scene.lookup("#DPI") as Label).text = canvas.dpi.toString()
                 (scene.lookup("#MEMORY_USAGE") as Label).text =
                     "${(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024 / 1024} Mb"
             }

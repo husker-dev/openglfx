@@ -88,7 +88,7 @@ open class GLCanvas
      * A current window dpi, used to scale output width and height.
      */
     val dpi: Double
-        get() = scene?.window?.outputScaleX ?: 1.0
+        get() = GLFXUtils.getDPI(this)
 
     /**
      * Current node width, considering DPI scaling.

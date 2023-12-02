@@ -4,9 +4,40 @@
 
 #include <jni.h>
 #include <CoreFoundation/CoreFoundation.h>
+#include <CoreGraphics/CGDisplayConfiguration.h>
 #include <IOSurface/IOSurface.h>
 #include <OpenGL/OpenGL.h>
 #include "openglfx.h"
+
+
+iosfun(jdouble, nGetDisplayDPI)(JNIEnv *, jobject, jdouble x, jdouble y) {
+    CGDirectDisplayID display;
+    CGGetDisplaysWithPoint(CGPoint{x, y}, 1, &display, nullptr);
+
+    CFStringRef keys[1]{
+        kCGDisplayShowDuplicateLowResolutionModes
+    };
+    CFBooleanRef values[1]{
+        kCFBooleanTrue
+    };
+    CFDictionaryRef dictionary = CFDictionaryCreate(
+                nullptr, (const void **) keys, (const void **) values, 1,
+                &kCFCopyStringDictionaryKeyCallBacks,
+                &kCFTypeDictionaryValueCallBacks);
+
+    CFArrayRef modes = CGDisplayCopyAllDisplayModes(display, dictionary);
+    CFRelease(dictionary);
+
+    int actualWidth = 0;
+    for(int i = 0; i < CFArrayGetCount(modes); i++){
+        CGDisplayModeRef mode = (CGDisplayModeRef)CFArrayGetValueAtIndex(modes, i);
+
+        int width = CGDisplayModeGetPixelWidth(mode);
+        if(width == CGDisplayModeGetWidth(mode) && actualWidth < width)
+            actualWidth = width;
+    }
+    return (double)actualWidth / CGDisplayPixelsWide(display);
+}
 
 iosfun(jlong, nCreateIOSurface)(JNIEnv *, jobject, jint width, jint height) {
     int bytes = 4;

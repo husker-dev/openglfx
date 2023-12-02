@@ -5,6 +5,8 @@ import com.huskerdev.ojgl.GLContext
 internal class IOSurface(val width: Int, val height: Int) {
 
     companion object {
+        @JvmStatic external fun nGetDisplayDPI(x: Double , y: Double): Double
+
         @JvmStatic private external fun nCreateIOSurface(width: Int, height: Int): Long
         @JvmStatic private external fun nReleaseIOSurface(ioSurfaceRef: Long)
         @JvmStatic private external fun nCGLTexImageIOSurface2D(
