@@ -46,6 +46,7 @@ internal const val GL_ARRAY_BUFFER = 0x8892
 internal const val GL_FLOAT = 0x1406
 internal const val GL_STATIC_DRAW = 0x88E4
 internal const val GL_TRIANGLE_STRIP = 0x0005
+internal const val GL_COMPILE_STATUS = 0x8B81
 
 
 open class GLExecutor {
@@ -90,6 +91,8 @@ open class GLExecutor {
         @JvmStatic external fun glUseProgram(program: Int)
         @JvmStatic external fun glGetUniformLocation(program: Int, name: String): Int
         @JvmStatic external fun glUniform2f(location: Int, value1: Float, value2: Float)
+        @JvmStatic external fun glGetShaderi(shader: Int, pname: Int): Int
+        @JvmStatic external fun glGetShaderInfoLog(shader: Int): String
 
         // Buffers
         @JvmStatic external fun glGenVertexArrays(): Int

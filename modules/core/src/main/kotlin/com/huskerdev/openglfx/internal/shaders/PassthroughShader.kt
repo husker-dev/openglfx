@@ -20,23 +20,23 @@ import com.huskerdev.openglfx.GLExecutor.Companion.glLinkProgram
 import com.huskerdev.openglfx.GLExecutor.Companion.glShaderSource
 import com.huskerdev.openglfx.GLExecutor.Companion.glVertexAttribPointer
 import com.huskerdev.openglfx.GLExecutor.Companion.glEnableVertexAttribArray
+import com.huskerdev.openglfx.GLExecutor.Companion.glGetShaderInfoLog
+import com.huskerdev.openglfx.GLExecutor.Companion.glGetShaderi
 import com.huskerdev.openglfx.GLExecutor.Companion.glGetUniformLocation
 import com.huskerdev.openglfx.GLExecutor.Companion.glUniform2f
 import com.huskerdev.openglfx.GLExecutor.Companion.glUseProgram
 import com.huskerdev.openglfx.internal.fbo.Framebuffer
 
-internal open class PassthroughShader {
-
-    protected open val vertexSource = """
+internal open class PassthroughShader(
+    vertexSource: String = """
         #version 330 core
         layout (location = 0) in vec4 aPos;
 
         void main() {
             gl_Position = aPos;
         }
-    """.trimIndent()
-
-    protected open val fragmentSource = """
+    """.trimIndent(),
+    fragmentSource: String = """
         #version 330 core
         
         uniform sampler2D tex;
@@ -48,7 +48,7 @@ internal open class PassthroughShader {
             out_color = texture(tex, gl_FragCoord.xy / tex_size);
         }
     """.trimIndent()
-
+) {
     private val program: Int
     private val vao: Int
     private val texSizeLoc: Int
@@ -57,10 +57,14 @@ internal open class PassthroughShader {
         val vertex = glCreateShader(GL_VERTEX_SHADER)
         glShaderSource(vertex, vertexSource)
         glCompileShader(vertex)
+        if(glGetShaderi(vertex, GL_COMPILE_STATUS) == 0)
+            throw Exception("Compilation error in vertex shader: \n ${glGetShaderInfoLog(vertex)}")
 
         val fragment = glCreateShader(GL_FRAGMENT_SHADER)
         glShaderSource(fragment, fragmentSource)
         glCompileShader(fragment)
+        if(glGetShaderi(fragment, GL_COMPILE_STATUS) == 0)
+            throw Exception("Compilation error in fragment shader: \n ${glGetShaderInfoLog(fragment)}")
 
         program = glCreateProgram()
         glAttachShader(program, vertex)

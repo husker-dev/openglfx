@@ -76,6 +76,8 @@ glfun(void, nInitGLFunctions)(JNIEnv* env, jobject) {
     a_glUseProgram = (glUseProgramPtr)a_GetProcAddress("glUseProgram");
     a_glGetUniformLocation = (glGetUniformLocationPtr)a_GetProcAddress("glGetUniformLocation");
     a_glUniform2f = (glUniform2fPtr)a_GetProcAddress("glUniform2f");
+    a_glGetShaderiv = (glGetShaderivPtr)a_GetProcAddress("glGetShaderiv");
+    a_glGetShaderInfoLog = (glGetShaderInfoLogPtr)a_GetProcAddress("glGetShaderInfoLog");
 
     a_glGenVertexArrays = (glGenVertexArraysPtr)a_GetProcAddress("glGenVertexArrays");
     a_glBindVertexArray = (glBindVertexArrayPtr)a_GetProcAddress("glBindVertexArray");
@@ -234,6 +236,25 @@ glfun(jint, glGetUniformLocation)(JNIEnv* env, jobject, jint program, jstring na
 
 glfun(void, glUniform2f)(JNIEnv* env, jobject, jint program, jfloat value1, jfloat value2) {
     a_glUniform2f(program, value1, value2);
+}
+
+glfun(jint, glGetShaderi)(JNIEnv* env, jobject, jint shader, jint pname) {
+    GLint result = 0;
+    a_glGetShaderiv(shader, pname, &result);
+    return result;
+}
+
+#define GL_INFO_LOG_LENGTH 0x8B84
+glfun(jstring, glGetShaderInfoLog)(JNIEnv* env, jobject, jint shader) {
+    GLint maxLength = 0;
+    a_glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
+
+    char* errorLog = new char[maxLength];
+    a_glGetShaderInfoLog(shader, maxLength, &maxLength, &errorLog[0]);
+
+    jstring result = env->NewStringUTF(errorLog);
+    delete[] errorLog;
+    return result;
 }
 
 glfun(jint, glGenVertexArrays)(JNIEnv* env, jobject) {

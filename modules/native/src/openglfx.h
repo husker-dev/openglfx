@@ -95,6 +95,8 @@ typedef void (*glLinkProgramPtr)(GLuint program);
 typedef void (*glUseProgramPtr)(GLuint program);
 typedef GLint (*glGetUniformLocationPtr)(GLuint program, const GLchar *name);
 typedef void (*glUniform2fPtr)(GLint location, GLfloat v0, GLfloat v1);
+typedef void (*glGetShaderivPtr)(GLuint shader, GLenum pname, GLint *params);
+typedef void (*glGetShaderInfoLogPtr)(GLuint shader, GLsizei maxLength, GLsizei *length, GLchar *infoLog);
 
 typedef void (*glGenVertexArraysPtr)(GLsizei n, GLuint *arrays);
 typedef void (*glBindVertexArrayPtr)(GLuint array);
@@ -138,6 +140,8 @@ static glLinkProgramPtr                 a_glLinkProgram;
 static glUseProgramPtr                  a_glUseProgram;
 static glGetUniformLocationPtr          a_glGetUniformLocation;
 static glUniform2fPtr                   a_glUniform2f;
+static glGetShaderivPtr                 a_glGetShaderiv;
+static glGetShaderInfoLogPtr            a_glGetShaderInfoLog;
 
 static glGenVertexArraysPtr             a_glGenVertexArrays;
 static glBindVertexArrayPtr             a_glBindVertexArray;
