@@ -34,21 +34,24 @@ enum class GLProfile {
  * @param flipY Flip Y axis:
  *  - false – 0 is bottom (default);
  *  - true – 0 is top.
- * @param msaa Multisampling quality:
+ * @param msaa Multisampling anti-aliasing quality:
  *  - 0 – disabled (default);
  *  - -1 – maximum available samples.
+ * @param fxaa Fast approximate anti-aliasing:
+ *  - false – disabled (default);
+ *  - true – enabled.
  * @param async Enables rendering in parallel thread:
  *  - false – render in JavaFX thread (default);
  *  - true – render in a new thread and synchronise with JavaFX.
  */
-open class GLCanvas
-@JvmOverloads constructor(
+open class GLCanvas @JvmOverloads constructor(
     val executor: GLExecutor,
-    val profile: GLProfile = GLProfile.Compatibility,
-    val flipY: Boolean = false,
-    val msaa: Int = 0,
-    val async: Boolean = false,
-    val interopType: GLInteropType = GLInteropType.supported
+    val profile: GLProfile          = GLProfile.Compatibility,
+    val flipY: Boolean              = false,
+    val msaa: Int                   = 0,
+    val fxaa: Boolean               = false,
+    val async: Boolean              = false,
+    val interopType: GLInteropType  = GLInteropType.supported
 ): Pane() {
 
     companion object {

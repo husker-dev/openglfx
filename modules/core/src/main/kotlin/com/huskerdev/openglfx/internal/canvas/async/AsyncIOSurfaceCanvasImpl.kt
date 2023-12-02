@@ -15,6 +15,8 @@ import com.huskerdev.openglfx.internal.Size
 import com.huskerdev.openglfx.internal.fbo.Framebuffer
 import com.huskerdev.openglfx.internal.fbo.MultiSampledFramebuffer
 import com.huskerdev.openglfx.internal.iosurface.IOSurface
+import com.huskerdev.openglfx.internal.shaders.FXAAShader
+import com.huskerdev.openglfx.internal.shaders.PassthroughShader
 import com.sun.prism.Graphics
 import com.sun.prism.Texture
 import java.util.concurrent.atomic.AtomicBoolean
@@ -50,9 +52,17 @@ open class AsyncIOSurfaceCanvasImpl(
 
     private var needsBlit = AtomicBoolean(false)
 
+    private lateinit var passthroughShader: PassthroughShader
+
     private fun initializeThread(){
         fxContext = GLContext.current()
         fxWrapperContext = GLContext.create(fxContext, false)
+        fxWrapperContext.makeCurrent()
+        GLExecutor.loadBasicFunctionPointers()
+        passthroughShader = if(canvas.fxaa) FXAAShader() else PassthroughShader()
+
+        fxContext.makeCurrent()
+
         thread(isDaemon = true) {
             context = GLContext.create(0, profile == GLProfile.Core)
             context.makeCurrent()
@@ -107,7 +117,7 @@ open class AsyncIOSurfaceCanvasImpl(
                 resultSize.executeOnDifferenceWith(interopTextureSize, ::updateResultTextureSize)
                 fxWrapperContext.makeCurrent()
                 glViewport(0, 0, scaledWidth, scaledHeight)
-                sharedFboFX.blitTo(fboFX)
+                passthroughShader.apply(sharedFboFX, fboFX)
                 fxContext.makeCurrent()
             }
         }

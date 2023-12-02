@@ -53,7 +53,6 @@ internal class FXAAShader: PassthroughShader(
             float lumaB = dot(rgbB.rgb, luma);
         
             if((lumaB < lumaMin) || (lumaB > lumaMax)) return rgbA;
-            
             return rgbB; 
         }
         

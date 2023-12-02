@@ -19,6 +19,7 @@ import com.huskerdev.openglfx.internal.d3d9.D3D9Texture
 import com.huskerdev.openglfx.internal.d3d9.NVDXInterop
 import com.huskerdev.openglfx.internal.d3d9.NVDXInterop.Companion.interopDevice
 import com.huskerdev.openglfx.internal.d3d9.WGL_ACCESS_WRITE_DISCARD_NV
+import com.huskerdev.openglfx.internal.shaders.FXAAShader
 import com.sun.prism.Graphics
 import com.sun.prism.Texture
 import java.util.concurrent.atomic.AtomicBoolean
@@ -60,7 +61,7 @@ open class AsyncNVDXInteropCanvasImpl(
         resultContext = GLContext.create(0, profile == GLProfile.Core)
         resultContext.makeCurrent()
         GLExecutor.loadBasicFunctionPointers()
-        passthroughShader = PassthroughShader()
+        passthroughShader = if(canvas.fxaa) FXAAShader() else PassthroughShader()
         GLContext.clear()
 
         thread(isDaemon = true) {
