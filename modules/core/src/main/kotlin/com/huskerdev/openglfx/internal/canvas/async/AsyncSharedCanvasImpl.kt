@@ -13,6 +13,7 @@ import com.huskerdev.openglfx.internal.shaders.PassthroughShader
 import com.huskerdev.openglfx.internal.Size
 import com.huskerdev.openglfx.internal.fbo.Framebuffer
 import com.huskerdev.openglfx.internal.fbo.MultiSampledFramebuffer
+import com.huskerdev.openglfx.internal.shaders.FXAAShader
 import com.sun.prism.*
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
@@ -55,7 +56,7 @@ open class AsyncSharedCanvasImpl(
         fxWrapperContext = GLContext.create(fxContext, profile == GLProfile.Core)
         fxWrapperContext.makeCurrent()
         GLExecutor.loadBasicFunctionPointers()
-        passthroughShader = PassthroughShader()
+        passthroughShader = if(canvas.fxaa) FXAAShader() else PassthroughShader()
 
         fxContext.makeCurrent()
 

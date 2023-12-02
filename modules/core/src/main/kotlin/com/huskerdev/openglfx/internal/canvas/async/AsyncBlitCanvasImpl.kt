@@ -14,6 +14,7 @@ import com.huskerdev.openglfx.internal.shaders.PassthroughShader
 import com.huskerdev.openglfx.internal.Size
 import com.huskerdev.openglfx.internal.fbo.Framebuffer
 import com.huskerdev.openglfx.internal.fbo.MultiSampledFramebuffer
+import com.huskerdev.openglfx.internal.shaders.FXAAShader
 import com.sun.prism.Graphics
 import com.sun.prism.Texture
 import java.nio.ByteBuffer
@@ -56,7 +57,7 @@ open class AsyncBlitCanvasImpl(
 
         resultContext.makeCurrent()
         GLExecutor.loadBasicFunctionPointers()
-        passthroughShader = PassthroughShader()
+        passthroughShader = if(canvas.fxaa) FXAAShader() else PassthroughShader()
 
         thread(isDaemon = true) {
             context.makeCurrent()
