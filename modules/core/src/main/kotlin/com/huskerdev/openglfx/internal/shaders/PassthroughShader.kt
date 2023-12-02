@@ -1,4 +1,4 @@
-package com.huskerdev.openglfx.internal
+package com.huskerdev.openglfx.internal.shaders
 
 import com.huskerdev.openglfx.*
 import com.huskerdev.openglfx.GLExecutor.Companion.floatBuffer
@@ -25,9 +25,9 @@ import com.huskerdev.openglfx.GLExecutor.Companion.glUniform2f
 import com.huskerdev.openglfx.GLExecutor.Companion.glUseProgram
 import com.huskerdev.openglfx.internal.fbo.Framebuffer
 
-internal class PassthroughShader {
+internal open class PassthroughShader {
 
-    private val vertexSource = """
+    protected open val vertexSource = """
         #version 330 core
         layout (location = 0) in vec4 aPos;
 
@@ -36,7 +36,7 @@ internal class PassthroughShader {
         }
     """.trimIndent()
 
-    private val fragmentSource = """
+    protected open val fragmentSource = """
         #version 330 core
         
         uniform sampler2D tex;
@@ -46,7 +46,7 @@ internal class PassthroughShader {
         
         void main() {
             out_color = texture(tex, gl_FragCoord.xy / tex_size);
-        }  
+        }
     """.trimIndent()
 
     private val program: Int
@@ -87,7 +87,7 @@ internal class PassthroughShader {
         glDeleteBuffers(vbo)
     }
 
-    fun copy(source: Framebuffer, target: Framebuffer){
+    fun apply(source: Framebuffer, target: Framebuffer){
         glUseProgram(program)
         glUniform2f(texSizeLoc, target.width.toFloat(), target.height.toFloat())
 

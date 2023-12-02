@@ -10,7 +10,7 @@ import com.huskerdev.openglfx.internal.*
 import com.huskerdev.openglfx.internal.GLFXUtils
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.dispose
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.updateData
-import com.huskerdev.openglfx.internal.PassthroughShader
+import com.huskerdev.openglfx.internal.shaders.PassthroughShader
 import com.huskerdev.openglfx.internal.Size
 import com.huskerdev.openglfx.internal.fbo.Framebuffer
 import com.huskerdev.openglfx.internal.fbo.MultiSampledFramebuffer
@@ -113,7 +113,7 @@ open class AsyncBlitCanvasImpl(
                     glViewport(0, 0, width, height)
                 }
 
-                passthroughShader.copy(transferFBO, resultFBO)
+                passthroughShader.apply(transferFBO, resultFBO)
                 resultFBO.readPixels(0, 0, resultSize.width, resultSize.height, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, dataBuffer)
                 texture.updateData(dataBuffer, resultSize.width, resultSize.height)
             }

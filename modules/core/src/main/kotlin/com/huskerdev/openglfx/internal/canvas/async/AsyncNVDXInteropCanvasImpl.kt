@@ -10,7 +10,7 @@ import com.huskerdev.openglfx.canvas.GLCanvas
 import com.huskerdev.openglfx.internal.*
 import com.huskerdev.openglfx.internal.GLFXUtils
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.D3DTextureResource
-import com.huskerdev.openglfx.internal.PassthroughShader
+import com.huskerdev.openglfx.internal.shaders.PassthroughShader
 import com.huskerdev.openglfx.internal.Size
 import com.huskerdev.openglfx.internal.fbo.Framebuffer
 import com.huskerdev.openglfx.internal.fbo.MultiSampledFramebuffer
@@ -143,7 +143,7 @@ open class AsyncNVDXInteropCanvasImpl(
                 }
 
                 interopObject.lock()
-                passthroughShader.copy(interThreadFBO, resultFBO)
+                passthroughShader.apply(interThreadFBO, resultFBO)
                 interopObject.unlock()
             }
         }
