@@ -216,7 +216,7 @@ To view a scene in the Renderdoc application, you need to select one of the proc
   | Windows     | [NV_DX_interop](https://www.khronos.org/registry/OpenGL/extensions/NV/WGL_NV_DX_interop.txt) is used to synchronize textures between DirectX from JavaFX and OpenGL. | [NVDXInteropCanvasImpl.kt][NVDXInteropCanvasImpl] | [AsyncNVDXInteropCanvasImpl.kt][AsyncNVDXInteropCanvasImpl]
   | Linux       | Creates context that is shared with JavaFX's one. After rendering, shared texture is displayed in JavaFX frame. | [SharedCanvasImpl.kt][SharedCanvasImpl] | [AsyncSharedCanvasImpl.kt][AsyncSharedCanvasImpl]
   | macOS       | IOSurface is used to create memory block in VRAM that can be used in different OpenGL contexts. | [IOSurfaceCanvasImpl.kt][IOSurfaceCanvasImpl] | [AsyncIOSurfaceCanvasImpl.kt][AsyncIOSurfaceCanvasImpl]
-  | Other       | Copies PixelBuffer from ```glReadPixels``` to JavaFX Image | [BlitCanvasImpl.kt][BlitCanvasImpl] | [AsyncBlitCanvasImpl.kt][AsyncBlitCanvasImpl]
+  | Other       | Copies ByteBuffer from ```glReadPixels``` to JavaFX texture | [BlitCanvasImpl.kt][BlitCanvasImpl] | [AsyncBlitCanvasImpl.kt][AsyncBlitCanvasImpl]
 
 
 # Thanks to
