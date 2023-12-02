@@ -2,7 +2,8 @@ package com.huskerdev.openglfx.internal.shaders
 
 internal class FXAAShader: PassthroughShader(
     fragmentSource = """
-        #version 330 core
+        #version 100
+        precision highp float;
         
         #define FXAA_SPAN_MAX     8.0
         #define FXAA_REDUCE_MUL   (1.0/FXAA_SPAN_MAX)
@@ -14,11 +15,11 @@ internal class FXAAShader: PassthroughShader(
             vec2 uv2 = fragCoord / texSize.xy;
             vec4 uv = vec4(uv2, uv2 - (rcpFrame * (0.5 + FXAA_SUBPIX_SHIFT)));
         
-            vec3 rgbNW = texture(tex, uv.zw).rgb;
-            vec3 rgbNE = texture(tex, uv.zw + vec2(1,0)*rcpFrame.xy).rgb;
-            vec3 rgbSW = texture(tex, uv.zw + vec2(0,1)*rcpFrame.xy).rgb;
-            vec3 rgbSE = texture(tex, uv.zw + vec2(1,1)*rcpFrame.xy).rgb;
-            vec3 rgbM  = texture(tex, uv.xy).rgb;
+            vec3 rgbNW = texture2D(tex, uv.zw).rgb;
+            vec3 rgbNE = texture2D(tex, uv.zw + vec2(1,0)*rcpFrame.xy).rgb;
+            vec3 rgbSW = texture2D(tex, uv.zw + vec2(0,1)*rcpFrame.xy).rgb;
+            vec3 rgbSE = texture2D(tex, uv.zw + vec2(1,1)*rcpFrame.xy).rgb;
+            vec3 rgbM  = texture2D(tex, uv.xy).rgb;
         
             vec3 luma = vec3(0.299, 0.587, 0.114);
             float lumaNW = dot(rgbNW, luma);
@@ -44,11 +45,11 @@ internal class FXAAShader: PassthroughShader(
                   dir * rcpDirMin)) * rcpFrame.xy;
         
             vec4 rgbA = (1.0/2.0) * (
-                texture(tex, uv.xy + dir * (1.0/3.0 - 0.5)).rgba +
-                texture(tex, uv.xy + dir * (2.0/3.0 - 0.5)).rgba);
+                texture2D(tex, uv.xy + dir * (1.0/3.0 - 0.5)).rgba +
+                texture2D(tex, uv.xy + dir * (2.0/3.0 - 0.5)).rgba);
             vec4 rgbB = rgbA * (1.0/2.0) + (1.0/4.0) * (
-                texture(tex, uv.xy + dir * (0.0/3.0 - 0.5)).rgba +
-                texture(tex, uv.xy + dir * (3.0/3.0 - 0.5)).rgba);
+                texture2D(tex, uv.xy + dir * (0.0/3.0 - 0.5)).rgba +
+                texture2D(tex, uv.xy + dir * (3.0/3.0 - 0.5)).rgba);
             
             float lumaB = dot(rgbB.rgb, luma);
         
@@ -58,10 +59,9 @@ internal class FXAAShader: PassthroughShader(
         
         uniform sampler2D tex;
         uniform vec2 tex_size;
-        layout(location = 0) out vec4 out_color;
         
         void main() {
-	        out_color = fxaa(tex, gl_FragCoord.xy, tex_size);
+	        gl_FragColor = fxaa(tex, gl_FragCoord.xy, tex_size);
         }
     """.trimIndent()
 )

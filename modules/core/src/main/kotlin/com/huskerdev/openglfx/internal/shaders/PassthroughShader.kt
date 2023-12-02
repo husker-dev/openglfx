@@ -29,23 +29,24 @@ import com.huskerdev.openglfx.internal.fbo.Framebuffer
 
 internal open class PassthroughShader(
     vertexSource: String = """
-        #version 330 core
-        layout (location = 0) in vec4 aPos;
+        #version 100
+        precision highp float;
+        
+        attribute vec4 a_pos;
 
         void main() {
-            gl_Position = aPos;
+            gl_Position = a_pos;
         }
     """.trimIndent(),
     fragmentSource: String = """
-        #version 330 core
+        #version 100
+        precision highp float;
         
         uniform sampler2D tex;
         uniform vec2 tex_size;
         
-        layout(location = 0) out vec4 out_color;
-        
         void main() {
-            out_color = texture(tex, gl_FragCoord.xy / tex_size);
+            gl_FragColor = texture2D(tex, gl_FragCoord.xy / tex_size);
         }
     """.trimIndent()
 ) {
