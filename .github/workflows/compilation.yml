@@ -27,7 +27,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: Linux
-          path: ./native/build/lib
+          path: ./modules/native/build/lib
           
   compile-windows:
     runs-on: windows-latest
@@ -42,7 +42,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: Windows
-          path: ./native/lib
+          path: ./modules/native/lib
           
   compile-macos:
     runs-on: macos-latest
@@ -58,4 +58,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: MacOS
-          path: ./native/build/lib
+          path: ./modules/native/build/lib
