@@ -74,11 +74,11 @@ class ExampleScene {
                 )
             }
         }
-        meshes.add(Plane(15f, 15f, color = Color.color(0.0, 0.0, 0.0, 0.8)))
+        meshes.add(Plane(15f, 15f, color = Color.color(0.0, 0.0, 0.0, 0.6)))
 
         glEnable(GL_DEPTH_TEST)
         glEnable(GL_BLEND)
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE)
     }
 
     fun reshape(event: GLReshapeEvent){

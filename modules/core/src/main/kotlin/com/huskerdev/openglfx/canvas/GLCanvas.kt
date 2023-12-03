@@ -47,9 +47,9 @@ enum class GLProfile {
 open class GLCanvas @JvmOverloads constructor(
     val executor: GLExecutor,
     val profile: GLProfile          = GLProfile.Compatibility,
-    val flipY: Boolean              = false,
-    val msaa: Int                   = 0,
-    val fxaa: Boolean               = false,
+    var flipY: Boolean              = false,
+    var msaa: Int                   = 0,
+    var fxaa: Boolean               = false,
     val async: Boolean              = false,
     val interopType: GLInteropType  = GLInteropType.supported
 ): Pane() {
@@ -226,7 +226,7 @@ open class GLCanvas @JvmOverloads constructor(
             TextureSharing -> executor::sharedNGCanvas
             NVDXInterop -> executor::interopNGCanvas
             Blit -> executor::blitNGCanvas
-        }(this, executor, profile, flipY, msaa, async)
+        }(this, executor, profile)
 
     /**
      *  Destroys all resources to free up memory

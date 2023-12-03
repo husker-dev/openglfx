@@ -21,15 +21,13 @@ import kotlin.concurrent.thread
 open class AsyncSharedCanvasImpl(
     canvas: GLCanvas,
     executor: GLExecutor,
-    profile: GLProfile,
-    flipY: Boolean,
-    msaa: Int
-): NGGLCanvas(canvas, executor, profile, flipY, msaa){
+    profile: GLProfile
+): NGGLCanvas(canvas, executor, profile){
 
     private val paintLock = Object()
     private val blitLock = Object()
 
-    private var drawSize = Size(minWidth = 1, minHeight = 1)
+    private var drawSize = Size()
     private var transferSize = Size()
     private var resultSize = Size()
 
@@ -46,19 +44,13 @@ open class AsyncSharedCanvasImpl(
 
     private var needsBlit = AtomicBoolean(false)
 
-    private lateinit var passthroughShader: PassthroughShader
+    private val passthroughShader by lazy { PassthroughShader() }
+    private val fxaaShader by lazy { FXAAShader() }
 
     private fun initializeThread(){
         fxContext = GLContext.current()
-        GLContext.clear()
         context = GLContext.create(fxContext, profile == GLProfile.Core)
-
         fxWrapperContext = GLContext.create(fxContext, profile == GLProfile.Core)
-        fxWrapperContext.makeCurrent()
-        GLExecutor.loadBasicFunctionPointers()
-        passthroughShader = if(canvas.fxaa) FXAAShader() else PassthroughShader()
-
-        fxContext.makeCurrent()
 
         thread(isDaemon = true) {
             context.makeCurrent()
@@ -114,12 +106,12 @@ open class AsyncSharedCanvasImpl(
 
         if (needsBlit.getAndSet(false)) {
             fxWrapperContext.makeCurrent()
-
-            resultSize.executeOnDifferenceWith(transferSize, ::updateResultFramebufferSize)
-            glViewport(0, 0, resultSize.width, resultSize.height)
-
             synchronized(blitLock){
-                passthroughShader.apply(transferFBO, resultFBO)
+                resultSize.executeOnDifferenceWith(transferSize) { width, height ->
+                    updateResultFramebufferSize(width, height)
+                    glViewport(0, 0, width, height)
+                }
+                (if(fxaa) fxaaShader else passthroughShader).apply(transferFBO, resultFBO)
             }
             fxContext.makeCurrent()
         }

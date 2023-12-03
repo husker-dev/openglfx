@@ -28,22 +28,20 @@ import kotlin.concurrent.thread
 open class AsyncNVDXInteropCanvasImpl(
     canvas: GLCanvas,
     executor: GLExecutor,
-    profile: GLProfile,
-    flipY: Boolean,
-    msaa: Int
-): NGGLCanvas(canvas, executor, profile, flipY, msaa){
+    profile: GLProfile
+): NGGLCanvas(canvas, executor, profile){
 
     private val paintLock = Object()
     private val blitLock = Object()
 
-    private var drawSize = Size(minWidth = 1, minHeight = 1)
+    private var drawSize = Size()
     private var interopTextureSize = Size()
     private var resultSize = Size()
 
     private lateinit var resultFBO: Framebuffer
     private lateinit var interThreadFBO: Framebuffer
     private lateinit var fbo: Framebuffer
-    private lateinit var msaaFBO: MultiSampledFramebuffer
+    private var msaaFBO: MultiSampledFramebuffer? = null
 
     private lateinit var context: GLContext
     private lateinit var resultContext: GLContext
@@ -55,14 +53,11 @@ open class AsyncNVDXInteropCanvasImpl(
     private var needsBlit = AtomicBoolean(false)
     private lateinit var interopObject: NVDXInterop.NVDXObject
 
-    private lateinit var passthroughShader: PassthroughShader
+    private val passthroughShader by lazy { PassthroughShader() }
+    private val fxaaShader by lazy { FXAAShader() }
 
     private fun initializeGLThread(){
         resultContext = GLContext.create(0, profile == GLProfile.Core)
-        resultContext.makeCurrent()
-        GLExecutor.loadBasicFunctionPointers()
-        passthroughShader = if(canvas.fxaa) FXAAShader() else PassthroughShader()
-        GLContext.clear()
 
         thread(isDaemon = true) {
             context = GLContext.create(resultContext.handle, profile == GLProfile.Core)
@@ -96,18 +91,24 @@ open class AsyncNVDXInteropCanvasImpl(
     }
 
     private fun paint(){
-        drawSize.executeOnDifferenceWith(scaledSize, ::updateFramebufferSize, canvas::fireReshapeEvent)
+        if(drawSize != scaledSize ||
+            msaa != (msaaFBO?.requestedSamples ?: 0)
+        ){
+            scaledSize.copyTo(drawSize)
+            updateFramebufferSize(drawSize.width, drawSize.height)
+            canvas.fireReshapeEvent(drawSize.width, drawSize.height)
+        }
 
         glViewport(0, 0, drawSize.width, drawSize.height)
-        canvas.fireRenderEvent(if (msaa != 0) msaaFBO.id else fbo.id)
-        if (msaa != 0)
-            msaaFBO.blitTo(fbo)
+        canvas.fireRenderEvent(if (msaaFBO != null) msaaFBO!!.id else fbo.id)
+        if (msaaFBO != null)
+            msaaFBO!!.blitTo(fbo)
     }
 
     private fun updateFramebufferSize(width: Int, height: Int) {
         if (::fbo.isInitialized) {
             fbo.delete()
-            if(msaa != 0) msaaFBO.delete()
+            if(msaaFBO != null) msaaFBO!!.delete()
         }
 
         // Create GL texture
@@ -115,10 +116,10 @@ open class AsyncNVDXInteropCanvasImpl(
         fbo.bindFramebuffer()
 
         // Create multi-sampled framebuffer
-        if(msaa != 0) {
+        if(msaa > 0) {
             msaaFBO = MultiSampledFramebuffer(msaa, width, height)
-            msaaFBO.bindFramebuffer()
-        }
+            msaaFBO!!.bindFramebuffer()
+        }else msaaFBO = null
     }
 
     private fun updateInterTextureSize(width: Int, height: Int){
@@ -144,7 +145,7 @@ open class AsyncNVDXInteropCanvasImpl(
                 }
 
                 interopObject.lock()
-                passthroughShader.apply(interThreadFBO, resultFBO)
+                (if(fxaa) fxaaShader else passthroughShader).apply(interThreadFBO, resultFBO)
                 interopObject.unlock()
             }
         }

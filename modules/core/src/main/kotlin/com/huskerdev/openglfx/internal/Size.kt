@@ -1,18 +1,15 @@
 package com.huskerdev.openglfx.internal
 
-import kotlin.math.max
 
 internal data class Size(
     var width: Int = Integer.MIN_VALUE,
-    var height: Int = Integer.MIN_VALUE,
-    val minWidth: Int = Integer.MIN_VALUE,
-    val minHeight: Int = Integer.MIN_VALUE
+    var height: Int = Integer.MIN_VALUE
 ) {
 
     inline fun executeOnDifferenceWith(newWidth: Int, newHeight: Int, consumer: (sizeWidth: Int, sizeHeight: Int) -> Unit){
         if(width != newWidth || height != newHeight){
-            width = max(newWidth, minWidth)
-            height = max(newHeight, minHeight)
+            width = newWidth
+            height = newHeight
             consumer(width, height)
         }
     }
@@ -22,10 +19,15 @@ internal data class Size(
 
     fun executeOnDifferenceWith(size: Size, vararg consumers: (sizeWidth: Int, sizeHeight: Int) -> Unit) {
         if(width != size.width || height != size.height){
-            width = max(size.width, minWidth)
-            height = max(size.height, minHeight)
+            width = size.width
+            height = size.height
             consumers.forEach { it(width, height) }
         }
+    }
+
+    fun copyTo(target: Size){
+        target.width = width
+        target.height = height
     }
 
 }

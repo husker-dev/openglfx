@@ -22,15 +22,13 @@ import java.util.concurrent.atomic.AtomicBoolean
 open class IOSurfaceCanvasImpl(
     canvas: GLCanvas,
     executor: GLExecutor,
-    profile: GLProfile,
-    flipY: Boolean,
-    msaa: Int
-): NGGLCanvas(canvas, executor, profile, flipY, msaa) {
+    profile: GLProfile
+): NGGLCanvas(canvas, executor, profile) {
 
     private lateinit var ioSurface: IOSurface
     private lateinit var fxTexture: Texture
 
-    private val lastSize = Size(minWidth = 1, minHeight = 1)
+    private val lastSize = Size()
 
     private lateinit var fboFX: Framebuffer
     private lateinit var sharedFboFX: Framebuffer
