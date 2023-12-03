@@ -24,12 +24,10 @@ import java.util.concurrent.atomic.AtomicBoolean
 open class NVDXInteropCanvasImpl(
     canvas: GLCanvas,
     executor: GLExecutor,
-    profile: GLProfile,
-    flipY: Boolean,
-    msaa: Int
-): NGGLCanvas(canvas, executor, profile, flipY, msaa){
+    profile: GLProfile
+): NGGLCanvas(canvas, executor, profile){
 
-    private var lastSize = Size(minWidth = 1, minHeight = 1)
+    private var lastSize = Size()
 
     private var needsRepaint = AtomicBoolean(false)
 

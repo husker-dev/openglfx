@@ -25,15 +25,13 @@ import kotlin.concurrent.thread
 open class AsyncIOSurfaceCanvasImpl(
     canvas: GLCanvas,
     executor: GLExecutor,
-    profile: GLProfile,
-    flipY: Boolean,
-    msaa: Int
-): NGGLCanvas(canvas, executor, profile, flipY, msaa) {
+    profile: GLProfile
+): NGGLCanvas(canvas, executor, profile) {
 
     private val paintLock = Object()
     private val blitLock = Object()
 
-    private var drawSize = Size(minWidth = 1, minHeight = 1)
+    private var drawSize = Size()
     private var interopTextureSize = Size()
     private var resultSize = Size()
 
@@ -52,6 +50,7 @@ open class AsyncIOSurfaceCanvasImpl(
 
     private var needsBlit = AtomicBoolean(false)
 
+    private lateinit var filteredFBO: Framebuffer
     private lateinit var filterShader: PassthroughShader
 
     private fun initializeThread(){
@@ -69,9 +68,7 @@ open class AsyncIOSurfaceCanvasImpl(
                 paint()
                 synchronized(blitLock) {
                     interopTextureSize.executeOnDifferenceWith(drawSize, ::updateSurfaceSize)
-                    if(canvas.fxaa)
-                        filterShader.apply(fboGL, sharedFboGL)
-                    else fboGL.blitTo(sharedFboGL)
+                    fboGL.blitTo(sharedFboGL)
                 }
                 needsBlit.set(true)
 

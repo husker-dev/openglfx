@@ -1,6 +1,7 @@
 import com.huskerdev.openglfx.canvas.GLProfile
 import com.huskerdev.openglfx.canvas.GLCanvas
 import com.huskerdev.openglfx.canvas.GLCanvasAnimator
+import com.huskerdev.openglfx.internal.GLInteropType
 import com.huskerdev.openglfx.internal.NGGLCanvas
 import com.huskerdev.openglfx.lwjgl.LWJGLExecutor.Companion.LWJGL_MODULE
 import com.sun.javafx.scene.layout.RegionHelper
@@ -8,14 +9,16 @@ import com.sun.prism.GraphicsPipeline
 import javafx.application.Application
 import javafx.application.Platform
 import javafx.event.EventHandler
+import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.Scene
 import javafx.scene.control.Label
+import javafx.scene.control.Separator
 import javafx.scene.control.SplitPane
 import javafx.scene.input.KeyCode
-import javafx.scene.layout.BorderPane
-import javafx.scene.layout.StackPane
-import javafx.scene.layout.VBox
+import javafx.scene.layout.*
+import javafx.scene.layout.Region.USE_PREF_SIZE
+import javafx.scene.paint.Paint
 import javafx.stage.Stage
 import scene.ExampleScene
 
@@ -29,7 +32,7 @@ class ExampleApp: Application(){
 
     private lateinit var stage: Stage
     private lateinit var canvas: GLCanvas
-    private var iteration = 1
+    private var iteration = 0
 
     override fun start(stage: Stage) {
         this.stage = stage
@@ -42,8 +45,9 @@ class ExampleApp: Application(){
     }
 
     private fun recreateGLCanvas(){
-       if(::canvas.isInitialized)
-           canvas.dispose()
+        iteration++
+        if(::canvas.isInitialized)
+            canvas.dispose()
         canvas = createGLCanvasInstance()
         val splitPane = SplitPane(canvas).apply {
             style = """
@@ -62,13 +66,15 @@ class ExampleApp: Application(){
                 if(it.code == KeyCode.F1) System.gc()
                 if(it.code == KeyCode.F2) recreateGLCanvas()
                 if(it.code == KeyCode.F3) splitPane.items.add(createGLCanvasInstance())
+                if(it.code == KeyCode.F4) canvas.fxaa = !canvas.fxaa
+                if(it.code == KeyCode.F5) canvas.msaa = if(canvas.msaa > 0) 0 else 8
+                if(it.code == KeyCode.F6) canvas.flipY = !canvas.flipY
             }
         }
-        iteration++
     }
 
     private fun createGLCanvasInstance(): GLCanvas {
-        val canvas = GLCanvas(LWJGL_MODULE, msaa = 4, profile = GLProfile.Core, async = true)
+        val canvas = GLCanvas(LWJGL_MODULE, msaa = 0, fxaa = true, profile = GLProfile.Core, async = true, interopType = GLInteropType.NVDXInterop)
         canvas.animator = GLCanvasAnimator(60.0)
 
         val renderExample = ExampleScene()
@@ -81,42 +87,67 @@ class ExampleApp: Application(){
     }
 
     private fun createSampleText() = Label().apply{
-        text = "OpenGLCanvas is not opaque, so you can see this text"
+        text = "GLCanvas is not opaque, so you can see this text"
         StackPane.setAlignment(this, Pos.TOP_RIGHT)
     }
 
     private fun createDebugPanel(canvas: GLCanvas) = VBox().apply{
-        children.add(Label("Press F1 to invoke GC"))
-        children.add(Label("Press F2 to recreate canvas"))
-        children.add(Label("Press F3 to add canvas"))
-        children.add(Label("----------------------------------------"))
-        arrayListOf(
-            "PIPELINE" to GraphicsPipeline.getPipeline().javaClass.canonicalName.split(".")[3],
-            "INTEROP" to canvas.interopType,
-            "IMPL" to RegionHelper.getPeer<NGGLCanvas>(canvas)::class.java.simpleName,
-            "MSAA" to canvas.msaa,
-            "PROFILE" to canvas.profile,
-            "FLIP_Y" to canvas.flipY,
-            "IS_ASYNC" to canvas.async,
-            "FPS" to "-",
-            "SIZE" to "0x0",
-            "DPI" to "",
-            "MEMORY_USAGE" to "0",
-            "ITERATION" to iteration
-        ).forEach {
-            children.add(BorderPane().apply {
-                maxWidth = 220.0
-                left = Label(it.first + ":")
-                right = Label(it.second.toString()).apply { id = it.first }
-            })
+        setMaxSize(USE_PREF_SIZE, USE_PREF_SIZE)
+        padding = Insets(5.0, 5.0, 5.0, 5.0)
+        StackPane.setAlignment(this, Pos.TOP_LEFT)
+        background = Background(BackgroundFill(Paint.valueOf("#ffffffaa"), CornerRadii.EMPTY, Insets.EMPTY))
+        val separator = "separator" to {}
+
+        val params = arrayListOf<Pair<String, () -> Any>>(
+            "Invoke GC" to { "F1" },
+            "Recreate canvas" to { "F2" },
+            "Add canvas" to { "F3" },
+            "Toggle FXAA" to { "F4" },
+            "Toggle MSAA x8" to { "F5" },
+            "Toggle Flip-Y" to { "F6" },
+            separator,
+            "FPS" to {
+                "${canvas.fpsCounter.currentFps}/${(1000 / (canvas.fpsCounter.delta * 1000)).toInt()}"
+            },
+            "Size" to {
+                "${canvas.scaledWidth} x ${canvas.scaledHeight}"
+            },
+            "DPI" to { canvas.dpi.toString() },
+            separator,
+            "Pipeline" to { GraphicsPipeline.getPipeline().javaClass.canonicalName.split(".")[3].uppercase() },
+            "GLInteropType" to { canvas.interopType },
+            "Impl" to { RegionHelper.getPeer<NGGLCanvas>(canvas)::class.java.simpleName },
+            separator,
+            "GLProfile" to { canvas.profile },
+            "Async" to { canvas.async },
+            "Flip-Y" to { canvas.flipY },
+            "MSAA" to { canvas.msaa },
+            "FXAA" to { canvas.fxaa },
+            separator,
+            "JVM MEMORY USAGE" to {
+                "${(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024 / 1024} Mb"
+            },
+            "ITERATION" to { iteration }
+        )
+
+        val labels = hashMapOf<Label, () -> Any>()
+        params.forEach {
+            if(it.first == "separator")
+                children.add(Separator())
+            else {
+                children.add(BorderPane().apply {
+                    minWidth = 220.0
+                    left = Label(it.first + ":")
+                    right = Label(it.second().toString())
+                    labels[right as Label] = it.second
+                })
+            }
         }
         canvas.addOnRenderEvent { e ->
             Platform.runLater {
-                (scene.lookup("#FPS") as Label).text = "${e.fps}/${(1000 / (e.delta * 1000)).toInt()}"
-                (scene.lookup("#SIZE") as Label).text = "${e.width}x${e.height}"
-                (scene.lookup("#DPI") as Label).text = canvas.dpi.toString()
-                (scene.lookup("#MEMORY_USAGE") as Label).text =
-                    "${(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024 / 1024} Mb"
+                labels.forEach {
+                    it.key.text = it.value().toString()
+                }
             }
         }
     }

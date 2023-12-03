@@ -14,18 +14,16 @@ import com.huskerdev.openglfx.GLExecutor.Companion.glRenderbufferStorageMultisam
 import kotlin.math.min
 
 class MultiSampledFramebuffer(
-    requestedMSAA: Int,
+    val requestedSamples: Int,
     val width: Int,
     val height: Int
 ){
-    val msaa: Int
+    val msaa: Int = min(glGetInteger(GL_MAX_SAMPLES), requestedSamples)
     val id: Int
     private val depthRenderbuffer: Int
     private val colorRenderBuffer: Int
 
     init {
-        this.msaa = min(glGetInteger(GL_MAX_SAMPLES), requestedMSAA)
-
         id = glGenFramebuffers()
         glBindFramebuffer(GL_FRAMEBUFFER, id)
 

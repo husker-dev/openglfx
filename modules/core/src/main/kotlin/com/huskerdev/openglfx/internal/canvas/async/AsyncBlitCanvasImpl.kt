@@ -24,17 +24,15 @@ import kotlin.concurrent.thread
 open class AsyncBlitCanvasImpl(
     canvas: GLCanvas,
     executor: GLExecutor,
-    profile: GLProfile,
-    flipY: Boolean,
-    msaa: Int
-): NGGLCanvas(canvas, executor, profile, flipY, msaa){
+    profile: GLProfile
+): NGGLCanvas(canvas, executor, profile){
 
     private val paintLock = Object()
     private val blitLock = Object()
 
     private var needsBlit = AtomicBoolean(false)
 
-    private var drawSize = Size(minWidth = 1, minHeight = 1)
+    private var drawSize = Size()
     private var transferSize = Size()
     private var resultSize = Size()
 
@@ -44,20 +42,19 @@ open class AsyncBlitCanvasImpl(
     private lateinit var resultFBO: Framebuffer
 
     private lateinit var context: GLContext
+    private lateinit var contextWrapper: GLContext
     private lateinit var resultContext: GLContext
 
     private lateinit var dataBuffer: ByteBuffer
     private lateinit var texture: Texture
 
-    private lateinit var passthroughShader: PassthroughShader
+    private val passthroughShader by lazy { PassthroughShader() }
+    private val fxaaShader by lazy { FXAAShader() }
 
     private fun initializeThread(){
         context = GLContext.create(0L, profile == GLProfile.Core)
+        contextWrapper = GLContext.create(context, profile == GLProfile.Core)
         resultContext = GLContext.create(context, profile == GLProfile.Core)
-
-        resultContext.makeCurrent()
-        GLExecutor.loadBasicFunctionPointers()
-        passthroughShader = if(canvas.fxaa) FXAAShader() else PassthroughShader()
 
         thread(isDaemon = true) {
             context.makeCurrent()
@@ -113,8 +110,7 @@ open class AsyncBlitCanvasImpl(
                     resizeResultTexture(width, height)
                     glViewport(0, 0, width, height)
                 }
-
-                passthroughShader.apply(transferFBO, resultFBO)
+                (if(fxaa) fxaaShader else passthroughShader).apply(transferFBO, resultFBO)
                 resultFBO.readPixels(0, 0, resultSize.width, resultSize.height, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, dataBuffer)
                 texture.updateData(dataBuffer, resultSize.width, resultSize.height)
             }

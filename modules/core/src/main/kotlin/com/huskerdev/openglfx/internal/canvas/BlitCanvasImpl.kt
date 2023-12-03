@@ -21,14 +21,12 @@ import java.util.concurrent.atomic.AtomicBoolean
 open class BlitCanvasImpl(
     canvas: GLCanvas,
     executor: GLExecutor,
-    profile: GLProfile,
-    flipY: Boolean,
-    msaa: Int
-): NGGLCanvas(canvas, executor, profile, flipY, msaa){
+    profile: GLProfile
+): NGGLCanvas(canvas, executor, profile){
 
     private var needsRepaint = AtomicBoolean(false)
 
-    private var resultSize = Size(minWidth = 1, minHeight = 1)
+    private var resultSize = Size()
 
     private lateinit var fbo: Framebuffer
     private lateinit var msaaFBO: MultiSampledFramebuffer

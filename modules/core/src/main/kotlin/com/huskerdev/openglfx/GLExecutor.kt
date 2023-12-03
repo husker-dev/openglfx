@@ -122,21 +122,21 @@ open class GLExecutor {
         }
     }
 
-    open fun blitNGCanvas(canvas: GLCanvas, executor: GLExecutor, profile: GLProfile, flipY: Boolean, msaa: Int, async: Boolean) =
-        if(async) AsyncBlitCanvasImpl(canvas, executor, profile, flipY, msaa)
-        else BlitCanvasImpl(canvas, executor, profile, flipY, msaa)
+    open fun blitNGCanvas(canvas: GLCanvas, executor: GLExecutor, profile: GLProfile) =
+        if(canvas.async) AsyncBlitCanvasImpl(canvas, executor, profile)
+        else BlitCanvasImpl(canvas, executor, profile)
 
-    open fun sharedNGCanvas(canvas: GLCanvas, executor: GLExecutor, profile: GLProfile, flipY: Boolean, msaa: Int, async: Boolean) =
-        if(async) AsyncSharedCanvasImpl(canvas, executor, profile, flipY, msaa)
-        else SharedCanvasImpl(canvas, executor, profile, flipY, msaa)
+    open fun sharedNGCanvas(canvas: GLCanvas, executor: GLExecutor, profile: GLProfile) =
+        if(canvas.async) AsyncSharedCanvasImpl(canvas, executor, profile)
+        else SharedCanvasImpl(canvas, executor, profile)
 
-    open fun interopNGCanvas(canvas: GLCanvas, executor: GLExecutor, profile: GLProfile, flipY: Boolean, msaa: Int, async: Boolean) =
-        if(async) AsyncNVDXInteropCanvasImpl(canvas, executor, profile, flipY, msaa)
-        else NVDXInteropCanvasImpl(canvas, executor, profile, flipY, msaa)
+    open fun interopNGCanvas(canvas: GLCanvas, executor: GLExecutor, profile: GLProfile) =
+        if(canvas.async) AsyncNVDXInteropCanvasImpl(canvas, executor, profile)
+        else NVDXInteropCanvasImpl(canvas, executor, profile)
 
-    open fun ioSurfaceNGCanvas(canvas: GLCanvas, executor: GLExecutor, profile: GLProfile, flipY: Boolean, msaa: Int, async: Boolean) =
-        if(async) AsyncIOSurfaceCanvasImpl(canvas, executor, profile, flipY, msaa)
-        else IOSurfaceCanvasImpl(canvas, executor, profile, flipY, msaa)
+    open fun ioSurfaceNGCanvas(canvas: GLCanvas, executor: GLExecutor, profile: GLProfile) =
+        if(canvas.async) AsyncIOSurfaceCanvasImpl(canvas, executor, profile)
+        else IOSurfaceCanvasImpl(canvas, executor, profile)
 
     open fun createRenderEvent(canvas: GLCanvas, currentFps: Int, delta: Double, width: Int, height: Int, fbo: Int)
             = GLRenderEvent(GLRenderEvent.ANY, currentFps, delta, width, height, fbo)
