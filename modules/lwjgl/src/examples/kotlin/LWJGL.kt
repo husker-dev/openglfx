@@ -79,7 +79,7 @@ class ExampleApp: Application(){
     }
 
     private fun createGLCanvasInstance(): GLCanvas {
-        val canvas = GLCanvas(LWJGL_MODULE, msaa = 0, fxaa = true, profile = GLProfile.Core, async = true, interopType = GLInteropType.NVDXInterop)
+        val canvas = GLCanvas(LWJGL_MODULE, msaa = 0, fxaa = true, profile = GLProfile.Core, async = true)
         canvas.animator = GLCanvasAnimator(60.0)
 
         val renderExample = ExampleScene()
