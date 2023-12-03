@@ -36,7 +36,7 @@ open class AsyncSharedCanvasImpl(
     private lateinit var fxContext: GLContext
 
     private lateinit var fbo: Framebuffer
-    private lateinit var msaaFBO: MultiSampledFramebuffer
+    private var msaaFBO: MultiSampledFramebuffer? = null
     private lateinit var transferFBO: Framebuffer
     private lateinit var resultFBO: Framebuffer
 
@@ -79,22 +79,27 @@ open class AsyncSharedCanvasImpl(
                 if(::resultFBO.isInitialized) resultFBO.delete()
                 if(::transferFBO.isInitialized) transferFBO.delete()
                 if(::fbo.isInitialized) fbo.delete()
-                if(::msaaFBO.isInitialized) msaaFBO.delete()
+                msaaFBO?.delete()
 
                 GLContext.delete(context)
                 GLContext.delete(fxWrapperContext)
+                fxContext.makeCurrent()
             }
         }
     }
 
     private fun paint(){
-        drawSize.executeOnDifferenceWith(scaledSize, ::updateRenderFramebufferSize, canvas::fireReshapeEvent)
+        if(drawSize != scaledSize ||
+            msaa != (msaaFBO?.requestedSamples ?: 0)
+        ){
+            scaledSize.copyTo(drawSize)
+            updateRenderFramebufferSize(drawSize.width, drawSize.height)
+            canvas.fireReshapeEvent(drawSize.width, drawSize.height)
+        }
 
         glViewport(0, 0, drawSize.width, drawSize.height)
-        canvas.fireRenderEvent(if(msaa != 0) msaaFBO.id else fbo.id)
-        if(msaa != 0)
-            msaaFBO.blitTo(fbo)
-        glFinish()
+        canvas.fireRenderEvent(msaaFBO?.id ?: fbo.id)
+        msaaFBO?.blitTo(fbo)
     }
 
     override fun renderContent(g: Graphics) {
@@ -142,7 +147,7 @@ open class AsyncSharedCanvasImpl(
     private fun updateRenderFramebufferSize(width: Int, height: Int) {
         if(::fbo.isInitialized){
             fbo.delete()
-            if(msaa != 0) msaaFBO.delete()
+            msaaFBO?.delete()
         }
 
         // Create framebuffer
@@ -150,10 +155,10 @@ open class AsyncSharedCanvasImpl(
         fbo.bindFramebuffer()
 
         // Create multi-sampled framebuffer
-        if(msaa != 0){
+        if(msaa > 0){
             msaaFBO = MultiSampledFramebuffer(msaa, width, height)
-            msaaFBO.bindFramebuffer()
-        }
+            msaaFBO!!.bindFramebuffer()
+        } else msaaFBO = null
     }
 
     override fun repaint() {

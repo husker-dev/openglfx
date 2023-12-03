@@ -100,15 +100,14 @@ open class AsyncNVDXInteropCanvasImpl(
         }
 
         glViewport(0, 0, drawSize.width, drawSize.height)
-        canvas.fireRenderEvent(if (msaaFBO != null) msaaFBO!!.id else fbo.id)
-        if (msaaFBO != null)
-            msaaFBO!!.blitTo(fbo)
+        canvas.fireRenderEvent(msaaFBO?.id ?: fbo.id)
+        msaaFBO?.blitTo(fbo)
     }
 
     private fun updateFramebufferSize(width: Int, height: Int) {
         if (::fbo.isInitialized) {
             fbo.delete()
-            if(msaaFBO != null) msaaFBO!!.delete()
+            msaaFBO?.delete()
         }
 
         // Create GL texture

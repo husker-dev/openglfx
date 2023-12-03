@@ -20,6 +20,9 @@ import javafx.scene.layout.*
 import javafx.scene.layout.Region.USE_PREF_SIZE
 import javafx.scene.paint.Paint
 import javafx.stage.Stage
+import org.lwjgl.opengl.GL11.glGetInteger
+import org.lwjgl.opengl.GL30.GL_MAJOR_VERSION
+import org.lwjgl.opengl.GL30.GL_MINOR_VERSION
 import scene.ExampleScene
 
 
@@ -32,6 +35,8 @@ class ExampleApp: Application(){
 
     private lateinit var stage: Stage
     private lateinit var canvas: GLCanvas
+    private var majorVersion = -1
+    private var minorVersion = -1
     private var iteration = 0
 
     override fun start(stage: Stage) {
@@ -118,7 +123,7 @@ class ExampleApp: Application(){
             "GLInteropType" to { canvas.interopType },
             "Impl" to { RegionHelper.getPeer<NGGLCanvas>(canvas)::class.java.simpleName },
             separator,
-            "GLProfile" to { canvas.profile },
+            "GLProfile" to { "${canvas.profile} ${majorVersion}.${minorVersion}" },
             "Async" to { canvas.async },
             "Flip-Y" to { canvas.flipY },
             "MSAA" to { canvas.msaa },
@@ -144,6 +149,10 @@ class ExampleApp: Application(){
             }
         }
         canvas.addOnRenderEvent { e ->
+            if(majorVersion == -1)
+                majorVersion = glGetInteger(GL_MAJOR_VERSION)
+            if(minorVersion == -1)
+                minorVersion = glGetInteger(GL_MINOR_VERSION)
             Platform.runLater {
                 labels.forEach {
                     it.key.text = it.value().toString()
