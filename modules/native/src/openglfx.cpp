@@ -75,6 +75,7 @@ glfun(void, nInitGLFunctions)(JNIEnv* env, jobject) {
     a_glUseProgram = (glUseProgramPtr)a_GetProcAddress("glUseProgram");
     a_glUseProgram = (glUseProgramPtr)a_GetProcAddress("glUseProgram");
     a_glGetUniformLocation = (glGetUniformLocationPtr)a_GetProcAddress("glGetUniformLocation");
+    a_glGetAttribLocation = (glGetAttribLocationPtr)a_GetProcAddress("glGetAttribLocation");
     a_glUniform2f = (glUniform2fPtr)a_GetProcAddress("glUniform2f");
     a_glGetShaderiv = (glGetShaderivPtr)a_GetProcAddress("glGetShaderiv");
     a_glGetShaderInfoLog = (glGetShaderInfoLogPtr)a_GetProcAddress("glGetShaderInfoLog");
@@ -230,6 +231,14 @@ glfun(jint, glGetUniformLocation)(JNIEnv* env, jobject, jint program, jstring na
     const char* nameCh = env->GetStringUTFChars(name, 0);
 
     jint location = (jint)a_glGetUniformLocation(program, nameCh);
+    env->ReleaseStringUTFChars(name, nameCh);
+    return location;
+}
+
+glfun(jint, glGetAttribLocation)(JNIEnv* env, jobject, jint program, jstring name) {
+    const char* nameCh = env->GetStringUTFChars(name, 0);
+
+    jint location = (jint)a_glGetAttribLocation(program, nameCh);
     env->ReleaseStringUTFChars(name, nameCh);
     return location;
 }

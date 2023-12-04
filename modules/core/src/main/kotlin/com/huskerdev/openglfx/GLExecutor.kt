@@ -15,9 +15,7 @@ import com.huskerdev.openglfx.internal.canvas.async.AsyncBlitCanvasImpl
 import com.huskerdev.openglfx.internal.canvas.async.AsyncIOSurfaceCanvasImpl
 import com.huskerdev.openglfx.internal.canvas.async.AsyncNVDXInteropCanvasImpl
 import com.huskerdev.openglfx.internal.canvas.async.AsyncSharedCanvasImpl
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
-import java.nio.FloatBuffer
+import java.nio.*
 
 
 internal const val GL_BGRA = 0x80E1
@@ -90,6 +88,7 @@ open class GLExecutor {
         @JvmStatic external fun glLinkProgram(program: Int)
         @JvmStatic external fun glUseProgram(program: Int)
         @JvmStatic external fun glGetUniformLocation(program: Int, name: String): Int
+        @JvmStatic external fun glGetAttribLocation(program: Int, name: String): Int
         @JvmStatic external fun glUniform2f(location: Int, value1: Float, value2: Float)
         @JvmStatic external fun glGetShaderi(shader: Int, pname: Int): Int
         @JvmStatic external fun glGetShaderInfoLog(shader: Int): String

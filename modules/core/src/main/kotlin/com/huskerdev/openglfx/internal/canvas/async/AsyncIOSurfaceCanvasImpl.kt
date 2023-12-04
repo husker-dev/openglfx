@@ -3,6 +3,7 @@ package com.huskerdev.openglfx.internal.canvas.async
 import com.huskerdev.ojgl.GLContext
 import com.huskerdev.openglfx.*
 import com.huskerdev.openglfx.GLExecutor.Companion.glBindTexture
+import com.huskerdev.openglfx.GLExecutor.Companion.glFinish
 import com.huskerdev.openglfx.GLExecutor.Companion.glGenTextures
 import com.huskerdev.openglfx.GLExecutor.Companion.glViewport
 import com.huskerdev.openglfx.canvas.GLCanvas
@@ -50,7 +51,6 @@ open class AsyncIOSurfaceCanvasImpl(
 
     private var needsBlit = AtomicBoolean(false)
 
-    private val passthroughShader by lazy { PassthroughShader() }
     private val fxaaShader by lazy { FXAAShader() }
 
     private fun initializeThread(){
@@ -112,15 +112,19 @@ open class AsyncIOSurfaceCanvasImpl(
             initializeThread()
 
         if (needsBlit.getAndSet(false)) {
-            fxContextWrapper.makeCurrent()
             synchronized(blitLock){
                 resultSize.executeOnDifferenceWith(interopTextureSize) { width, height ->
                     updateResultTextureSize(width, height)
-                    glViewport(0, 0, scaledWidth, scaledHeight)
+                    fxContextWrapper.makeCurrent()
+                    glViewport(0, 0, width, height)
                 }
-                (if(fxaa) fxaaShader else passthroughShader).apply(sharedFboFX, fboFX)
-                fxContext.makeCurrent()
+                fxContextWrapper.makeCurrent()
+                // We can't skip this blit, so blit at first, then apply shader
+                sharedFboFX.blitTo(fboFX)
+                if(fxaa) fxaaShader.apply(fboFX, fboFX)
+                glFinish()
             }
+            fxContext.makeCurrent()
         }
         if(this::fxTexture.isInitialized)
             drawResultTexture(g, fxTexture)
@@ -161,20 +165,21 @@ open class AsyncIOSurfaceCanvasImpl(
     }
 
     private fun updateResultTextureSize(width: Int, height: Int){
-        if (::fxTexture.isInitialized) {
+        // Create JavaFX texture
+        if (::fxTexture.isInitialized)
             fxTexture.dispose()
+        fxTexture = GLFXUtils.createPermanentFXTexture(width, height)
 
+        fxContextWrapper.makeCurrent()
+        if(::fboFX.isInitialized){
             fboFX.delete()
             sharedFboFX.delete()
         }
 
-        // Create JavaFX texture
-        fxTexture = GLFXUtils.createPermanentFXTexture(width, height)
-
         // Create FX-side shared texture
         val ioFXTexture = glGenTextures()
         glBindTexture(GL_TEXTURE_RECTANGLE, ioFXTexture)
-        ioSurface.cglTexImageIOSurface2D(fxContext, GL_TEXTURE_RECTANGLE, GL_RGBA, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, 0)
+        ioSurface.cglTexImageIOSurface2D(fxContextWrapper, GL_TEXTURE_RECTANGLE, GL_RGBA, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, 0)
         glBindTexture(GL_TEXTURE_RECTANGLE, 0)
 
         // Create JavaFX buffers

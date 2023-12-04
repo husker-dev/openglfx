@@ -20,6 +20,7 @@ import com.huskerdev.openglfx.GLExecutor.Companion.glLinkProgram
 import com.huskerdev.openglfx.GLExecutor.Companion.glShaderSource
 import com.huskerdev.openglfx.GLExecutor.Companion.glVertexAttribPointer
 import com.huskerdev.openglfx.GLExecutor.Companion.glEnableVertexAttribArray
+import com.huskerdev.openglfx.GLExecutor.Companion.glGetAttribLocation
 import com.huskerdev.openglfx.GLExecutor.Companion.glGetShaderInfoLog
 import com.huskerdev.openglfx.GLExecutor.Companion.glGetShaderi
 import com.huskerdev.openglfx.GLExecutor.Companion.glGetUniformLocation
@@ -46,7 +47,8 @@ internal open class PassthroughShader(
 ) {
     private val program: Int
     private val vao: Int
-    private val texSizeLoc: Int
+    private val positionLoc: Int
+    private val sizeLoc: Int
 
     init {
         val vertex = glCreateShader(GL_VERTEX_SHADER)
@@ -68,7 +70,8 @@ internal open class PassthroughShader(
         glDeleteShader(vertex)
         glDeleteShader(fragment)
 
-        texSizeLoc = glGetUniformLocation(program, "size")
+        positionLoc = glGetAttribLocation(program, "position")
+        sizeLoc = glGetUniformLocation(program, "size")
 
         vao = glGenVertexArrays()
         glBindVertexArray(vao)
@@ -79,16 +82,15 @@ internal open class PassthroughShader(
             -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, -1.0f
         )), GL_STATIC_DRAW)
 
-        glVertexAttribPointer(0, 2, GL_FLOAT, false, 0, 0)
-        glEnableVertexAttribArray(0)
+        glVertexAttribPointer(positionLoc, 2, GL_FLOAT, false, 0, 0)
+        glEnableVertexAttribArray(positionLoc)
 
         glBindVertexArray(0)
-        glDeleteBuffers(vbo)
     }
 
     fun apply(source: Framebuffer, target: Framebuffer){
         glUseProgram(program)
-        glUniform2f(texSizeLoc, target.width.toFloat(), target.height.toFloat())
+        glUniform2f(sizeLoc, target.width.toFloat(), target.height.toFloat())
 
         glBindTexture(GL_TEXTURE_2D, source.texture)
         glBindFramebuffer(GL_FRAMEBUFFER, target.id)

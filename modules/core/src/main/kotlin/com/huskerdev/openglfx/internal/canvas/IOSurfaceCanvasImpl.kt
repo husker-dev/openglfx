@@ -3,6 +3,7 @@ package com.huskerdev.openglfx.internal.canvas
 import com.huskerdev.ojgl.GLContext
 import com.huskerdev.openglfx.*
 import com.huskerdev.openglfx.GLExecutor.Companion.glBindTexture
+import com.huskerdev.openglfx.GLExecutor.Companion.glFinish
 import com.huskerdev.openglfx.GLExecutor.Companion.glGenTextures
 import com.huskerdev.openglfx.GLExecutor.Companion.glViewport
 import com.huskerdev.openglfx.canvas.GLCanvas
@@ -15,6 +16,7 @@ import com.huskerdev.openglfx.internal.Size
 import com.huskerdev.openglfx.internal.fbo.Framebuffer
 import com.huskerdev.openglfx.internal.fbo.MultiSampledFramebuffer
 import com.huskerdev.openglfx.internal.iosurface.IOSurface
+import com.huskerdev.openglfx.internal.shaders.FXAAShader
 import com.sun.prism.Graphics
 import com.sun.prism.Texture
 import java.util.concurrent.atomic.AtomicBoolean
@@ -28,18 +30,20 @@ open class IOSurfaceCanvasImpl(
     private lateinit var ioSurface: IOSurface
     private lateinit var fxTexture: Texture
 
-    private val lastSize = Size()
+    private val drawSize = Size()
 
     private lateinit var fboFX: Framebuffer
     private lateinit var sharedFboFX: Framebuffer
     private lateinit var sharedFboGL: Framebuffer
-    private lateinit var msaaFBO: MultiSampledFramebuffer
+    private var msaaFBO: MultiSampledFramebuffer? = null
 
     private lateinit var fxContext: GLContext
     private lateinit var fxWrapperContext: GLContext
     private lateinit var context: GLContext
 
     private var needsRepaint = AtomicBoolean(false)
+
+    private val fxaaShader by lazy { FXAAShader() }
 
     override fun renderContent(g: Graphics) {
         if(scaledWidth == 0 || scaledHeight == 0 || disposed)
@@ -54,42 +58,50 @@ open class IOSurfaceCanvasImpl(
         }
         context.makeCurrent()
 
-        lastSize.executeOnDifferenceWith(scaledSize, ::updateFramebufferSize, canvas::fireReshapeEvent)
+        if(drawSize != scaledSize ||
+            msaa != (msaaFBO?.requestedSamples ?: 0)
+        ){
+            scaledSize.copyTo(drawSize)
+            updateFramebufferSize(drawSize.width, drawSize.height)
+            canvas.fireReshapeEvent(drawSize.width, drawSize.height)
+        }
 
-        glViewport(0, 0, lastSize.width, lastSize.height)
-        canvas.fireRenderEvent(if(msaa != 0) msaaFBO.id else sharedFboGL.id)
-        if(msaa != 0)
-            msaaFBO.blitTo(sharedFboGL)
+        glViewport(0, 0, drawSize.width, drawSize.height)
+        canvas.fireRenderEvent(msaaFBO?.id ?: sharedFboGL.id)
+        msaaFBO?.blitTo(sharedFboGL)
+        glFinish()
 
         fxWrapperContext.makeCurrent()
-        glViewport(0, 0, lastSize.width, lastSize.height)
+        glViewport(0, 0, drawSize.width, drawSize.height)
         sharedFboFX.blitTo(fboFX)
+        if(fxaa) fxaaShader.apply(fboFX, fboFX)
+        glFinish()
         fxContext.makeCurrent()
 
         drawResultTexture(g, fxTexture)
     }
 
     private fun updateFramebufferSize(width: Int, height: Int){
-        if (::sharedFboGL.isInitialized) {
+        if(::ioSurface.isInitialized)
             ioSurface.dispose()
-            fxTexture.dispose()
-
-            fboFX.delete()
-            sharedFboFX.delete()
-            sharedFboGL.delete()
-            if(msaa != 0) msaaFBO.delete()
-        }
-
         ioSurface = IOSurface(width, height)
 
         // Create JavaFX texture
         fxContext.makeCurrent()
+        if(::fxTexture.isInitialized)
+            fxTexture.dispose()
         fxTexture = GLFXUtils.createPermanentFXTexture(width, height)
+
+        fxWrapperContext.makeCurrent()
+        if(::fboFX.isInitialized){
+            fboFX.delete()
+            sharedFboFX.delete()
+        }
 
         // Create FX-side shared texture
         val ioFXTexture = glGenTextures()
         glBindTexture(GL_TEXTURE_RECTANGLE, ioFXTexture)
-        ioSurface.cglTexImageIOSurface2D(fxContext, GL_TEXTURE_RECTANGLE, GL_RGBA, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, 0)
+        ioSurface.cglTexImageIOSurface2D(fxWrapperContext, GL_TEXTURE_RECTANGLE, GL_RGBA, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, 0)
         glBindTexture(GL_TEXTURE_RECTANGLE, 0)
 
         // Create JavaFX buffers
@@ -98,6 +110,11 @@ open class IOSurfaceCanvasImpl(
 
         // Create GL-side shared texture
         context.makeCurrent()
+        if(::sharedFboGL.isInitialized){
+            sharedFboGL.delete()
+            msaaFBO?.delete()
+        }
+
         val ioGLTexture = glGenTextures()
         glBindTexture(GL_TEXTURE_RECTANGLE, ioGLTexture)
         ioSurface.cglTexImageIOSurface2D(context, GL_TEXTURE_RECTANGLE, GL_RGBA, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, 0)
@@ -109,8 +126,11 @@ open class IOSurfaceCanvasImpl(
         // Create multi-sampled framebuffer
         if(msaa != 0) {
             msaaFBO = MultiSampledFramebuffer(msaa, width, height)
-            msaaFBO.bindFramebuffer()
-        } else sharedFboGL.bindFramebuffer()
+            msaaFBO?.bindFramebuffer()
+        } else {
+            msaaFBO = null
+            sharedFboGL.bindFramebuffer()
+        }
     }
 
     override fun repaint() = needsRepaint.set(true)
