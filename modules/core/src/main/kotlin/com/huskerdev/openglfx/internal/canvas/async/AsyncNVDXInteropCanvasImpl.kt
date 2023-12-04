@@ -112,13 +112,15 @@ open class AsyncNVDXInteropCanvasImpl(
 
         // Create GL texture
         fbo = Framebuffer(width, height)
-        fbo.bindFramebuffer()
 
         // Create multi-sampled framebuffer
         if(msaa > 0) {
             msaaFBO = MultiSampledFramebuffer(msaa, width, height)
             msaaFBO!!.bindFramebuffer()
-        }else msaaFBO = null
+        }else {
+            msaaFBO = null
+            fbo.bindFramebuffer()
+        }
     }
 
     private fun updateInterTextureSize(width: Int, height: Int){

@@ -37,7 +37,7 @@ open class AsyncBlitCanvasImpl(
     private var resultSize = Size()
 
     private lateinit var fbo: Framebuffer
-    private lateinit var msaaFBO: MultiSampledFramebuffer
+    private var msaaFBO: MultiSampledFramebuffer? = null
     private lateinit var transferFBO: Framebuffer
     private lateinit var resultFBO: Framebuffer
 
@@ -88,12 +88,17 @@ open class AsyncBlitCanvasImpl(
     }
 
     private fun paint(){
-        drawSize.executeOnDifferenceWith(scaledSize, ::resizeDrawFramebuffer, canvas::fireReshapeEvent)
+        if(drawSize != scaledSize ||
+            msaa != (msaaFBO?.requestedSamples ?: 0)
+        ){
+            scaledSize.copyTo(drawSize)
+            resizeDrawFramebuffer(drawSize.width, drawSize.height)
+            canvas.fireReshapeEvent(drawSize.width, drawSize.height)
+        }
 
         glViewport(0, 0, drawSize.width, drawSize.height)
-        canvas.fireRenderEvent(if (msaa != 0) msaaFBO.id else fbo.id)
-        if (msaa != 0)
-            msaaFBO.blitTo(fbo)
+        canvas.fireRenderEvent(msaaFBO?.id ?: fbo.id)
+        msaaFBO?.blitTo(fbo)
     }
 
     override fun renderContent(g: Graphics){
@@ -122,14 +127,17 @@ open class AsyncBlitCanvasImpl(
     private fun resizeDrawFramebuffer(width: Int, height: Int) {
         if(::fbo.isInitialized){
             fbo.delete()
-            if(msaa != 0) msaaFBO.delete()
+            msaaFBO?.delete()
         }
 
         fbo = Framebuffer(width, height)
-        if(msaa != 0) {
+        if(msaa > 0) {
             msaaFBO = MultiSampledFramebuffer(msaa, width, height)
-            msaaFBO.bindFramebuffer()
-        } else fbo.bindFramebuffer()
+            msaaFBO?.bindFramebuffer()
+        } else {
+            msaaFBO = null
+            fbo.bindFramebuffer()
+        }
     }
 
     private fun resizeTransferFramebuffer(width: Int, height: Int){

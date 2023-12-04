@@ -42,27 +42,25 @@ open class AsyncIOSurfaceCanvasImpl(
     private lateinit var sharedFboGL: Framebuffer
     private lateinit var fboFX: Framebuffer
     private lateinit var fboGL: Framebuffer
-    private lateinit var msaaFBO: MultiSampledFramebuffer
+    private var msaaFBO: MultiSampledFramebuffer? = null
 
     private lateinit var fxContext: GLContext
-    private lateinit var fxWrapperContext: GLContext
+    private lateinit var fxContextWrapper: GLContext
     private lateinit var context: GLContext
 
     private var needsBlit = AtomicBoolean(false)
 
-    private lateinit var filteredFBO: Framebuffer
-    private lateinit var filterShader: PassthroughShader
+    private val passthroughShader by lazy { PassthroughShader() }
+    private val fxaaShader by lazy { FXAAShader() }
 
     private fun initializeThread(){
         fxContext = GLContext.current()
-        fxWrapperContext = GLContext.create(fxContext, false)
+        fxContextWrapper = GLContext.create(fxContext, false)
 
         thread(isDaemon = true) {
             context = GLContext.create(0, profile == GLProfile.Core)
             context.makeCurrent()
             executor.initGLFunctions()
-
-            if(canvas.fxaa) filterShader = FXAAShader()
 
             while (!disposed){
                 paint()
@@ -93,12 +91,17 @@ open class AsyncIOSurfaceCanvasImpl(
     }
 
     private fun paint(){
-        drawSize.executeOnDifferenceWith(scaledSize, ::updateFramebufferSize, canvas::fireReshapeEvent)
+        if(drawSize != scaledSize ||
+            msaa != (msaaFBO?.requestedSamples ?: 0)
+        ){
+            scaledSize.copyTo(drawSize)
+            updateFramebufferSize(drawSize.width, drawSize.height)
+            canvas.fireReshapeEvent(drawSize.width, drawSize.height)
+        }
 
         glViewport(0, 0, drawSize.width, drawSize.height)
-        canvas.fireRenderEvent(if(msaa != 0) msaaFBO.id else fboGL.id)
-        if(msaa != 0)
-            msaaFBO.blitTo(fboGL)
+        canvas.fireRenderEvent(msaaFBO?.id ?: fboGL.id)
+        msaaFBO?.blitTo(fboGL)
     }
 
     override fun renderContent(g: Graphics) {
@@ -109,11 +112,13 @@ open class AsyncIOSurfaceCanvasImpl(
             initializeThread()
 
         if (needsBlit.getAndSet(false)) {
+            fxContextWrapper.makeCurrent()
             synchronized(blitLock){
-                resultSize.executeOnDifferenceWith(interopTextureSize, ::updateResultTextureSize)
-                fxWrapperContext.makeCurrent()
-                glViewport(0, 0, scaledWidth, scaledHeight)
-                sharedFboFX.blitTo(fboFX)
+                resultSize.executeOnDifferenceWith(interopTextureSize) { width, height ->
+                    updateResultTextureSize(width, height)
+                    glViewport(0, 0, scaledWidth, scaledHeight)
+                }
+                (if(fxaa) fxaaShader else passthroughShader).apply(sharedFboFX, fboFX)
                 fxContext.makeCurrent()
             }
         }
@@ -124,7 +129,7 @@ open class AsyncIOSurfaceCanvasImpl(
     private fun updateFramebufferSize(width: Int, height: Int) {
         if (::fboGL.isInitialized) {
             fboGL.delete()
-            if(msaa != 0) msaaFBO.delete()
+            msaaFBO?.delete()
         }
 
         // Create simple framebuffer
@@ -133,8 +138,11 @@ open class AsyncIOSurfaceCanvasImpl(
         // Create multi-sampled framebuffer
         if(msaa != 0) {
             msaaFBO = MultiSampledFramebuffer(msaa, width, height)
-            msaaFBO.bindFramebuffer()
-        } else fboGL.bindFramebuffer()
+            msaaFBO?.bindFramebuffer()
+        } else {
+            msaaFBO = null
+            fboGL.bindFramebuffer()
+        }
     }
 
     private fun updateSurfaceSize(width: Int, height: Int){

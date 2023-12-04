@@ -1,10 +1,7 @@
 package com.huskerdev.openglfx.internal.shaders
 
 internal class FXAAShader: PassthroughShader(
-    fragmentSource = """
-        #version 100
-        precision highp float;
-        
+    fragmentSource = """      
         #define FXAA_SPAN_MAX     8.0
         #define FXAA_REDUCE_MUL   (1.0/FXAA_SPAN_MAX)
         #define FXAA_REDUCE_MIN   (1.0/128.0)
@@ -57,11 +54,11 @@ internal class FXAAShader: PassthroughShader(
             return rgbB; 
         }
         
-        uniform sampler2D tex;
-        uniform vec2 tex_size;
+        uniform sampler2D texture;
+        uniform vec2 size;
         
         void main() {
-	        gl_FragColor = fxaa(tex, gl_FragCoord.xy, tex_size);
+	        gl_FragColor = fxaa(texture, gl_FragCoord.xy, size);
         }
     """.trimIndent()
 )

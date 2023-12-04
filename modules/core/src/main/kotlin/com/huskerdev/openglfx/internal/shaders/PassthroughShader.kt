@@ -29,24 +29,18 @@ import com.huskerdev.openglfx.internal.fbo.Framebuffer
 
 internal open class PassthroughShader(
     vertexSource: String = """
-        #version 100
-        precision highp float;
-        
-        attribute vec4 a_pos;
+        attribute vec4 position;
 
         void main() {
-            gl_Position = a_pos;
+            gl_Position = position;
         }
     """.trimIndent(),
     fragmentSource: String = """
-        #version 100
-        precision highp float;
-        
-        uniform sampler2D tex;
-        uniform vec2 tex_size;
+        uniform sampler2D texture;
+        uniform vec2 size;
         
         void main() {
-            gl_FragColor = texture2D(tex, gl_FragCoord.xy / tex_size);
+            gl_FragColor = texture2D(texture, gl_FragCoord.xy / size);
         }
     """.trimIndent()
 ) {
@@ -74,7 +68,7 @@ internal open class PassthroughShader(
         glDeleteShader(vertex)
         glDeleteShader(fragment)
 
-        texSizeLoc = glGetUniformLocation(program, "tex_size")
+        texSizeLoc = glGetUniformLocation(program, "size")
 
         vao = glGenVertexArrays()
         glBindVertexArray(vao)

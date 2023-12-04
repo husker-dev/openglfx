@@ -32,7 +32,7 @@ open class AsyncSharedCanvasImpl(
     private var resultSize = Size()
 
     private lateinit var context: GLContext
-    private lateinit var fxWrapperContext: GLContext
+    private lateinit var fxContextWrapper: GLContext
     private lateinit var fxContext: GLContext
 
     private lateinit var fbo: Framebuffer
@@ -49,8 +49,8 @@ open class AsyncSharedCanvasImpl(
 
     private fun initializeThread(){
         fxContext = GLContext.current()
+        fxContextWrapper = GLContext.create(fxContext, profile == GLProfile.Core)
         context = GLContext.create(fxContext, profile == GLProfile.Core)
-        fxWrapperContext = GLContext.create(fxContext, profile == GLProfile.Core)
 
         thread(isDaemon = true) {
             context.makeCurrent()
@@ -82,7 +82,7 @@ open class AsyncSharedCanvasImpl(
                 msaaFBO?.delete()
 
                 GLContext.delete(context)
-                GLContext.delete(fxWrapperContext)
+                GLContext.delete(fxContextWrapper)
                 fxContext.makeCurrent()
             }
         }
@@ -110,7 +110,7 @@ open class AsyncSharedCanvasImpl(
             initializeThread()
 
         if (needsBlit.getAndSet(false)) {
-            fxWrapperContext.makeCurrent()
+            fxContextWrapper.makeCurrent()
             synchronized(blitLock){
                 resultSize.executeOnDifferenceWith(transferSize) { width, height ->
                     updateResultFramebufferSize(width, height)
@@ -152,13 +152,15 @@ open class AsyncSharedCanvasImpl(
 
         // Create framebuffer
         fbo = Framebuffer(width, height)
-        fbo.bindFramebuffer()
 
         // Create multi-sampled framebuffer
         if(msaa > 0){
             msaaFBO = MultiSampledFramebuffer(msaa, width, height)
             msaaFBO!!.bindFramebuffer()
-        } else msaaFBO = null
+        } else {
+            msaaFBO = null
+            fbo.bindFramebuffer()
+        }
     }
 
     override fun repaint() {
