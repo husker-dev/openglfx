@@ -38,11 +38,13 @@ internal class GLFXUtils {
         }
 
         fun getDPI(node: Node) =
-            if(PlatformUtils.os == OS.MacOS) {
+            if(node.scene == null || node.scene.window == null)
+                1.0
+            else if(PlatformUtils.os == OS.MacOS) {
                 val window = node.scene.window
                 IOSurface.nGetDisplayDPI(window.x + window.width / 2, window.y + window.height / 2)
             } else
-                node.scene?.window?.outputScaleY ?: 1.0
+                node.scene.window.outputScaleY
 
         val Texture.D3DTextureResource: Long
             get() = Class.forName("com.sun.prism.d3d.D3DTexture")
