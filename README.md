@@ -33,7 +33,8 @@ dependencies {
     // implementation JavaFX
     // implementation LWJGL
     // implementation ...
-    
+
+    implementation 'com.huskerdev:openglfx:4.0.5'
     implementation 'com.huskerdev:openglfx-lwjgl:4.0.5'
 }
 ```
