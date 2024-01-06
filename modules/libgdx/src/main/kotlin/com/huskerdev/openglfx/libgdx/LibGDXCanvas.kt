@@ -25,6 +25,10 @@ class LibGDXCanvas(
     lateinit var application: Application
         private set
 
+    init {
+        focusTraversableProperty().set(true)
+    }
+
     override fun fireRenderEvent(fbo: Int) {
         super.fireRenderEvent(fbo)
         synchronized(invokeLater){

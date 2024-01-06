@@ -11,7 +11,7 @@ import com.huskerdev.openglfx.internal.GLFXUtils.Companion.dispatchEvent
 import com.huskerdev.openglfx.internal.GLInteropType.*
 import com.sun.javafx.scene.layout.RegionHelper
 import javafx.scene.Scene
-import javafx.scene.control.Control
+import javafx.scene.layout.Region
 import java.util.function.Consumer
 
 enum class GLProfile {
@@ -51,7 +51,7 @@ open class GLCanvas @JvmOverloads constructor(
     var fxaa: Boolean               = false,
     val async: Boolean              = false,
     val interopType: GLInteropType  = GLInteropType.auto
-): Control() {
+): Region() {
 
     companion object {
         init {
