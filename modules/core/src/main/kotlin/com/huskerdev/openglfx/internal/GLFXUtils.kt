@@ -89,7 +89,7 @@ internal class GLFXUtils {
             }
         }
 
-        fun <T> List<Consumer<T>>.dispatchJavaEvent(event: T) {
+        fun <T> List<Consumer<T>>.dispatchConsumer(event: T) {
             if(isNotEmpty()) forEach { it.accept(event) }
         }
         fun <T> List<(T) -> Unit>.dispatchEvent(event: T) {

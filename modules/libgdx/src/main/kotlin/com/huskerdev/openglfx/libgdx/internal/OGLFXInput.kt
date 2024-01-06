@@ -5,59 +5,75 @@ import com.badlogic.gdx.InputProcessor
 import com.huskerdev.openglfx.canvas.GLCanvas
 import javafx.event.EventHandler
 import javafx.scene.control.TextInputDialog
-import javafx.scene.input.KeyEvent
+import javafx.scene.input.MouseButton
 import javafx.scene.input.MouseEvent
 
 
-class OGLFXInput(canvas: GLCanvas): Input {
+private fun <T> copySet(target: HashSet<T>, src: HashSet<T>){
+    target.clear()
+    src.forEach { target.add(it) }
+}
 
+private fun fxToGDXKey(key: MouseButton) = when(key){
+    MouseButton.PRIMARY -> Input.Buttons.LEFT
+    MouseButton.MIDDLE -> Input.Buttons.MIDDLE
+    MouseButton.SECONDARY -> Input.Buttons.RIGHT
+    MouseButton.BACK -> Input.Buttons.BACK
+    MouseButton.FORWARD -> Input.Buttons.FORWARD
+    MouseButton.NONE -> throw UnsupportedOperationException("JavaFX key is MouseButton.NONE")
+}
+
+class OGLFXInput(canvas: GLCanvas): Input {
     private var processor: InputProcessor? = null
 
-    private lateinit var mouseEvent: MouseEvent
-    private lateinit var prevMouseEvent: MouseEvent
+    private var x = 0
+    private var y = 0
+    private var deltaX = 0
+    private var deltaY = 0
+    private val pressedMouseButtons = hashSetOf<Int>()
+    private val pressedMouseButtonsPast = hashSetOf<Int>()
 
-    private lateinit var keyEvent: KeyEvent
-    private lateinit var prevKeyEvent: KeyEvent
-    private val pressedKeys = arrayListOf<Int>()
+    private val pressedKeys = hashSetOf<Int>()
+    private val pressedKeysPast = hashSetOf<Int>()
 
     init {
         canvas.onMousePressed = EventHandler {
-            processor?.touchDown(it.x.toInt(), it.y.toInt(), 1, getPressedButtonIndex(it))
-            handleMouseEvent(it)
+            canvas.requestFocus()
+            val key = fxToGDXKey(it.button)
+            processor?.touchDown(it.x.toInt(), it.y.toInt(), 1, key)
+            copySet(pressedMouseButtonsPast, pressedMouseButtons)
+            pressedMouseButtons.add(key)
         }
         canvas.onMouseReleased = EventHandler {
-            processor?.touchUp(it.x.toInt(), it.y.toInt(), 1, getPressedButtonIndex(it))
-            handleMouseEvent(it)
+            val key = fxToGDXKey(it.button)
+            processor?.touchUp(it.x.toInt(), it.y.toInt(), 1, key)
+            copySet(pressedMouseButtonsPast, pressedMouseButtons)
+            pressedMouseButtons.remove(key)
         }
-        canvas.onMouseClicked = EventHandler(::handleMouseEvent)
-        canvas.onMouseEntered = EventHandler(::handleMouseEvent)
-        canvas.onMouseExited = EventHandler(::handleMouseEvent)
         canvas.onMouseMoved = EventHandler {
             processor?.mouseMoved(it.x.toInt(), it.y.toInt())
-            handleMouseEvent(it)
+            handleMouseMoveEvent(it)
         }
         canvas.onMouseDragged = EventHandler {
             processor?.touchDragged(it.x.toInt(), it.y.toInt(), 1)
-            handleMouseEvent(it)
+            handleMouseMoveEvent(it)
         }
-        canvas.onMouseDragEntered = EventHandler(::handleMouseEvent)
-        canvas.onMouseDragReleased = EventHandler(::handleMouseEvent)
-        canvas.onMouseDragOver = EventHandler(::handleMouseEvent)
-        canvas.onMouseDragExited = EventHandler(::handleMouseEvent)
 
         canvas.onKeyPressed = EventHandler {
-            pressedKeys.add(it.code.code)
-            processor?.keyDown(it.code.code)
-            handleKeyEvent(it)
+            val key = it.code.code
+            if(!pressedKeys.contains(key))
+                processor?.keyDown(key)
+            copySet(pressedKeysPast, pressedKeys)
+            pressedKeys.add(key)
         }
         canvas.onKeyReleased = EventHandler {
-            pressedKeys.remove(it.code.code)
-            processor?.keyUp(it.code.code)
-            handleKeyEvent(it)
+            val key = it.code.code
+            processor?.keyUp(key)
+            copySet(pressedKeysPast, pressedKeys)
+            pressedKeys.remove(key)
         }
         canvas.onKeyTyped = EventHandler{
             processor?.keyTyped(it.character[0])
-            handleKeyEvent(it)
         }
 
         canvas.onScroll = EventHandler {
@@ -65,25 +81,11 @@ class OGLFXInput(canvas: GLCanvas): Input {
         }
     }
 
-    private fun getPressedButtonIndex(event: MouseEvent) = when {
-        event.isPrimaryButtonDown -> Input.Buttons.LEFT
-        event.isSecondaryButtonDown -> Input.Buttons.RIGHT
-        event.isMiddleButtonDown -> Input.Buttons.MIDDLE
-        event.isBackButtonDown -> Input.Buttons.BACK
-        event.isForwardButtonDown -> Input.Buttons.FORWARD
-        else -> -1
-    }
-
-    private fun handleMouseEvent(event: MouseEvent){
-        if(::mouseEvent.isInitialized)
-            prevMouseEvent = mouseEvent
-        mouseEvent = event
-    }
-
-    private fun handleKeyEvent(event: KeyEvent){
-        if(::keyEvent.isInitialized)
-            prevKeyEvent = keyEvent
-        keyEvent = event
+    private fun handleMouseMoveEvent(event: MouseEvent){
+        deltaX = event.x.toInt() - x
+        deltaY = event.y.toInt() - y
+        x = event.x.toInt()
+        y = event.y.toInt()
     }
 
     override fun getAccelerometerX() = 0f
@@ -96,55 +98,33 @@ class OGLFXInput(canvas: GLCanvas): Input {
 
     override fun getMaxPointers() = 1
 
-    override fun getX() = mouseEvent.x.toInt()
-    override fun getX(pointer: Int) = getX()
+    override fun getX() = x
+    override fun getX(pointer: Int) = x
 
-    override fun getDeltaX() = if(::prevMouseEvent.isInitialized)
-            (mouseEvent.x - prevMouseEvent.x).toInt() else 0
-    override fun getDeltaX(pointer: Int) = getDeltaX()
+    override fun getDeltaX() = deltaX
+    override fun getDeltaX(pointer: Int) = deltaX
 
-    override fun getY() = mouseEvent.y.toInt()
-    override fun getY(pointer: Int) = getY()
+    override fun getY() = y
+    override fun getY(pointer: Int) = y
 
-    override fun getDeltaY() = if(::prevMouseEvent.isInitialized)
-        (mouseEvent.y - prevMouseEvent.y).toInt() else 0
-    override fun getDeltaY(pointer: Int) = getDeltaY()
+    override fun getDeltaY() = deltaY
+    override fun getDeltaY(pointer: Int) = deltaY
 
-    override fun isTouched() =
-        mouseEvent.isPrimaryButtonDown ||
-        mouseEvent.isSecondaryButtonDown ||
-        mouseEvent.isMiddleButtonDown
-    override fun isTouched(pointer: Int) = isTouched()
+    override fun isTouched() = pressedMouseButtons.isNotEmpty()
+    override fun isTouched(pointer: Int) = pressedMouseButtons.isNotEmpty()
 
-    override fun justTouched() = isTouched() !=
-        prevMouseEvent.isPrimaryButtonDown ||
-        prevMouseEvent.isSecondaryButtonDown ||
-        prevMouseEvent.isMiddleButtonDown
+    override fun justTouched() = pressedMouseButtons.size > pressedMouseButtonsPast.size
 
     override fun getPressure() = 1f
     override fun getPressure(pointer: Int) = getPressure()
 
-    override fun isButtonPressed(button: Int) = when(button){
-        Input.Buttons.LEFT -> mouseEvent.isPrimaryButtonDown
-        Input.Buttons.RIGHT -> mouseEvent.isSecondaryButtonDown
-        Input.Buttons.MIDDLE -> mouseEvent.isMiddleButtonDown
-        Input.Buttons.BACK -> mouseEvent.isBackButtonDown
-        Input.Buttons.FORWARD -> mouseEvent.isForwardButtonDown
-        else -> false
-    }
+    override fun isButtonPressed(button: Int) = pressedMouseButtons.contains(button)
 
-    override fun isButtonJustPressed(button: Int) = isButtonPressed(button) !=
-        when(button){
-            Input.Buttons.LEFT -> prevMouseEvent.isPrimaryButtonDown
-            Input.Buttons.RIGHT -> prevMouseEvent.isSecondaryButtonDown
-            Input.Buttons.MIDDLE -> prevMouseEvent.isMiddleButtonDown
-            Input.Buttons.BACK -> prevMouseEvent.isBackButtonDown
-            Input.Buttons.FORWARD -> prevMouseEvent.isForwardButtonDown
-            else -> false
-        }
+    override fun isButtonJustPressed(button: Int) =
+        pressedMouseButtons.contains(button) && !pressedMouseButtonsPast.contains(button)
 
     override fun isKeyPressed(key: Int) = pressedKeys.contains(key)
-    override fun isKeyJustPressed(key: Int) = false
+    override fun isKeyJustPressed(key: Int) = pressedKeys.contains(key) && !pressedKeysPast.contains(key)
 
     override fun getTextInput(listener: Input.TextInputListener?, title: String?, text: String?, hint: String?) {
         val dialog = TextInputDialog()

@@ -6,13 +6,12 @@ import com.huskerdev.openglfx.canvas.events.GLInitializeEvent
 import com.huskerdev.openglfx.canvas.events.GLRenderEvent
 import com.huskerdev.openglfx.canvas.events.GLReshapeEvent
 import com.huskerdev.openglfx.internal.*
+import com.huskerdev.openglfx.internal.GLFXUtils.Companion.dispatchConsumer
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.dispatchEvent
-import com.huskerdev.openglfx.internal.GLFXUtils.Companion.dispatchJavaEvent
-import com.huskerdev.openglfx.internal.NGGLCanvas
 import com.huskerdev.openglfx.internal.GLInteropType.*
 import com.sun.javafx.scene.layout.RegionHelper
 import javafx.scene.Scene
-import javafx.scene.layout.Pane
+import javafx.scene.control.Control
 import java.util.function.Consumer
 
 enum class GLProfile {
@@ -51,8 +50,8 @@ open class GLCanvas @JvmOverloads constructor(
     var msaa: Int                   = 0,
     var fxaa: Boolean               = false,
     val async: Boolean              = false,
-    val interopType: GLInteropType  = GLInteropType.supported
-): Pane() {
+    val interopType: GLInteropType  = GLInteropType.auto
+): Control() {
 
     companion object {
         init {
@@ -175,11 +174,11 @@ open class GLCanvas @JvmOverloads constructor(
      *
      *  @param fbo result framebuffer that is bound to Node
      */
-    fun fireRenderEvent(fbo: Int) {
+    open fun fireRenderEvent(fbo: Int) {
         fireInitEvent()
         fpsCounter.update()
         onRenderBegin.dispatchEvent()
-        onRender.dispatchJavaEvent(executor.createRenderEvent(
+        onRender.dispatchConsumer(executor.createRenderEvent(
             this,
             fpsCounter.currentFps,
             fpsCounter.delta,
@@ -193,15 +192,15 @@ open class GLCanvas @JvmOverloads constructor(
      *  @param width new framebuffer width
      *  @param height new framebuffer height
      */
-    fun fireReshapeEvent(width: Int, height: Int) {
+    open fun fireReshapeEvent(width: Int, height: Int) {
         fireInitEvent()
-        onReshape.dispatchJavaEvent(executor.createReshapeEvent(this, width, height))
+        onReshape.dispatchConsumer(executor.createReshapeEvent(this, width, height))
     }
 
     /**
      *  Invokes every initialization listener.
      */
-    fun fireInitEvent() {
+    open fun fireInitEvent() {
         while(onInit.size > 0)
             onInit.removeLast().accept(executor.createInitEvent(this))
     }
@@ -209,12 +208,12 @@ open class GLCanvas @JvmOverloads constructor(
     /**
      *  Invokes every disposing listener.
      */
-    fun fireDisposeEvent() = onDispose.dispatchJavaEvent(executor.createDisposeEvent(this))
+    open fun fireDisposeEvent() = onDispose.dispatchConsumer(executor.createDisposeEvent(this))
 
     /**
      *  Internal method. Invokes every scene binding listener.
      */
-    internal fun fireSceneBoundEvent() = onSceneBound.dispatchEvent(scene)
+    internal open fun fireSceneBoundEvent() = onSceneBound.dispatchEvent(scene)
 
     /*===========================================*\
     |                     Peer                    |

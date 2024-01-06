@@ -2,8 +2,10 @@ package com.huskerdev.openglfx.libgdx.internal
 
 import com.badlogic.gdx.AbstractGraphics
 import com.badlogic.gdx.Application
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Graphics
 import com.badlogic.gdx.Graphics.DisplayMode
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3GL32
 import com.badlogic.gdx.graphics.*
 import com.badlogic.gdx.graphics.Cursor.SystemCursor.*
 import com.badlogic.gdx.graphics.glutils.GLVersion
@@ -17,6 +19,19 @@ class OGLFXGraphics(val canvas: GLCanvas): AbstractGraphics() {
     private var gl30: GL30? = null
     private var gl31: GL31? = null
     private var gl32: GL32? = null
+
+    init {
+        gl32 = Lwjgl3GL32()
+        gl31 = gl32
+        gl30 = gl32
+        gl20 = gl32
+
+        Gdx.gl32 = gl32
+        Gdx.gl31 = gl31
+        Gdx.gl30 = gl30
+        Gdx.gl20 = gl20
+        Gdx.gl = Gdx.gl32
+    }
 
     override fun isGL30Available() = true
     override fun isGL31Available() = true

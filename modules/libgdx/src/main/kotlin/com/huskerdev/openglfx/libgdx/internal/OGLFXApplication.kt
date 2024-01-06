@@ -6,15 +6,13 @@ import com.badlogic.gdx.backends.lwjgl3.audio.Lwjgl3Audio
 import com.badlogic.gdx.backends.lwjgl3.audio.OpenALLwjgl3Audio
 import com.badlogic.gdx.backends.lwjgl3.audio.mock.MockAudio
 import com.badlogic.gdx.utils.ObjectMap
-import com.huskerdev.openglfx.canvas.GLCanvas
-import com.huskerdev.openglfx.libgdx.LibGDXExecutor
+import com.huskerdev.openglfx.libgdx.LibGDXCanvas
 import com.huskerdev.openglfx.libgdx.OGLFXApplicationConfiguration
 import java.io.File
 
 class OGLFXApplication(
-    val config: OGLFXApplicationConfiguration,
-    val canvas: GLCanvas,
-    val executor: LibGDXExecutor
+    private val config: OGLFXApplicationConfiguration,
+    val canvas: LibGDXCanvas
 ): Application {
     companion object {
         init {
@@ -68,6 +66,8 @@ class OGLFXApplication(
         Gdx.audio = audio
         Gdx.files = files
         Gdx.net = net
+        Gdx.graphics = graphics
+        Gdx.input = input
     }
 
     override fun getApplicationListener() = defaultListener
@@ -133,11 +133,8 @@ class OGLFXApplication(
 
     override fun getClipboard() = clipboard
 
-    override fun postRunnable(runnable: Runnable) {
-        synchronized(executor.invokeLater){
-            executor.invokeLater.add(runnable)
-        }
-    }
+    override fun postRunnable(runnable: Runnable) =
+        canvas.invokeLater(runnable)
 
     override fun exit() {}
 
