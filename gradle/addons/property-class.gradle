@@ -1,0 +1,67 @@
+apply plugin: 'java-library'
+
+
+abstract class PropertyFilePluginConfiguration {
+    abstract Property<String> getName()
+    abstract Property<String> getClasspath()
+
+    def fields = [] as LinkedHashMap<String, Object>
+
+    void field(String name, Object value) {
+        fields.put(name, value)
+    }
+}
+
+class PropertyFilePlugin implements Plugin<Project> {
+    PropertyFilePluginConfiguration config
+    Project project
+
+    void apply(Project project) {
+        project.getPlugins().apply(this.class)
+        this.project = project
+        config = project.extensions.create('properties', PropertyFilePluginConfiguration)
+
+        project.afterEvaluate {
+            createFile()
+        }
+
+        project.tasks.register('generatePropertyFile') {
+            doFirst {
+                createFile()
+            }
+        }
+        project.tasks.compileJava.dependsOn project.tasks.generatePropertyFile
+
+    }
+
+    void createFile(){
+        def file = new File(project.sourceSets.main.java.srcDirs[0], "${config.classpath.get().replace(".", "/")}/${config.name.get()}.kt")
+        file.parentFile.mkdirs()
+
+        def content = []
+        for(Map.Entry<String, Object> entry in config.fields.entrySet()){
+            def field = ""
+
+            field += "const val ${entry.key} = "
+            if(entry.value instanceof Integer || entry.value instanceof Double || entry.value instanceof BigDecimal || entry.value instanceof Boolean)
+                field += entry.value
+            else if(entry.value instanceof Float)
+                field += entry.value + "f"
+            else if(entry.value instanceof Long)
+                field += entry.value + "L"
+            else field += "\"${entry.value}\""
+            content += field
+        }
+
+        file.text =
+            """package ${config.classpath.get()}
+            |
+            |// Generated with gradle
+            |class ${config.name.get()} {
+            |    companion object {
+            |        ${content.join("\n|        ")}
+            |    }
+            |}""".stripMargin()
+    }
+}
+apply plugin: PropertyFilePlugin

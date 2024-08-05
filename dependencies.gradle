@@ -20,9 +20,9 @@ def jfxOS = os.linux? "linux" :os.macOsX? "mac" :os.windows? "win" : os.name
 project.ext.jfxNatives = jfxOS + jfxArch
 
 ext {
-    DEFAULT = [
-            "org.openjfx:javafx-base:${project["version.javafx"]}:$project.jfxNatives",
-            "org.openjfx:javafx-controls:${project["version.javafx"]}:$project.jfxNatives",
-            "org.openjfx:javafx-graphics:${project["version.javafx"]}:$project.jfxNatives",
+    JavaFX = [
+            "org.openjfx:javafx-base:$javafxVersion:$project.jfxNatives",
+            "org.openjfx:javafx-controls:$javafxVersion:$project.jfxNatives",
+            "org.openjfx:javafx-graphics:$javafxVersion:$project.jfxNatives",
     ]
 }

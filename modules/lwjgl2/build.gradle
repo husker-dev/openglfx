@@ -1,56 +1,28 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.6.10'
-    id "application"
+    id 'org.jetbrains.kotlin.jvm' version "$kotlinVersion"
 }
 
-apply from: "${project.rootDir}/maven-publisher.gradle"
+apply from: addon(addons_mavenPublish)
 
-sourceSets{
-    examples {
-        resources { srcDirs "src/examples/resources" }
-        java {
-            srcDirs 'src/examples/kotlin', 'src/examples/java'
-            compileClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.compileClasspath
-            runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.compileClasspath
-        }
-    }
+sourceSets {
+    main.java.srcDirs = ['kotlin']
+    test.java.srcDirs = ['test']
+}
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+
+maven {
+    name = artifactId = "$projectName-lwjgl2"
+    description = "$projectName lwjgl2 module"
 }
 
 dependencies {
-    compileOnly DEFAULT
-    implementation project(':modules:core')
+    compileOnly JavaFX
+    api project(':modules:core')
 
-    compileOnly "org.lwjgl.lwjgl:lwjgl:${project["version.lwjgl2"]}"
-}
-
-tasks.register('runLWJGL2', JavaExec) {
-    group = "Execution"
-    description = "Run the example class with LWJGL2"
-    classpath = sourceSets.examples.runtimeClasspath
-    mainClass = "LWJGL2Kt"
-    jvmArgs project["opens"].split()
-}
-
-tasks.register('runLWJGL2_D3D', JavaExec) {
-    group = "Execution"
-    description = "Run the example class with LWJGL2 D3D"
-    classpath = sourceSets.examples.runtimeClasspath
-    mainClass = "LWJGL2_D3DKt"
-    jvmArgs project["opens"].split()
-}
-
-tasks.register('runLWJGL2_SW', JavaExec) {
-    group = "Execution"
-    description = "Run the example class with LWJGL2 SW"
-    classpath = sourceSets.examples.runtimeClasspath
-    mainClass = "LWJGL2_SWKt"
-    jvmArgs project["opens"].split()
-}
-
-tasks.register('runLWJGL2_ES2', JavaExec) {
-    group = "Execution"
-    description = "Run the example class with LWJGL2 ES2"
-    classpath = sourceSets.examples.runtimeClasspath
-    mainClass = "LWJGL2_ES2Kt"
-    jvmArgs project["opens"].split()
+    compileOnly "org.lwjgl.lwjgl:lwjgl:$lwjgl2Version"
 }

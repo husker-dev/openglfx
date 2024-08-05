@@ -1,44 +1,16 @@
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
-import java.nio.file.StandardCopyOption
-
 plugins {
     id "io.codearte.nexus-staging" version "0.30.0"
 }
 
-allprojects {
-    version = "4.0.5"
-    apply from: "$rootDir/dependencies.gradle"
 
+allprojects {
+    apply from: "$rootDir/dependencies.gradle"
     repositories {
         mavenCentral()
-        maven { url 'https://jitpack.io' }
+        mavenLocal()
     }
 }
 
-
-// Tasks
-tasks.register('compileJars') {
-    group 'release'
-    doLast {
-        Path out = Paths.get("$projectDir/build/libs")
-        if (Files.exists(out.parent)) {
-            Files.walk(out.parent)
-                    .sorted(Comparator.reverseOrder())
-                    .map { it.toFile() }
-                    .forEach { it.delete() }
-        }
-        Files.createDirectory(out.parent)
-        Files.createDirectory(out)
-
-        for(module in ["core", "lwjgl", "jogl", "lwjgl2", "libgdx"]){
-            File moduleJar = project("modules:$module").jar.archivePath
-            File resultJar = file("$projectDir/build/libs/openglfx-${moduleJar.name}")
-            Files.copy(Paths.get(moduleJar.absolutePath), Paths.get(resultJar.absolutePath), StandardCopyOption.REPLACE_EXISTING)
-        }
-    }
+String addon(String name){
+    return "${project.rootDir}/gradle/addons/${name}.gradle"
 }
-compileJars.dependsOn 'modules:core:jar'
-compileJars.dependsOn 'modules:lwjgl:jar'
-compileJars.dependsOn 'modules:jogl:jar'

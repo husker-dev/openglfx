@@ -1,20 +1,46 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.6.10'
+    id 'org.jetbrains.kotlin.jvm' version "$kotlinVersion"
 }
 
-apply from: "${project.rootDir}/maven-publisher.gradle"
+apply from: addon(addons_mavenPublish)
+apply from: addon(addons_propertyClass)
 
-jar {
-    from {
-        configurations.compileClasspath.collect {
-            if(!it.name.contains("offscreen")) return null
-            it.isDirectory() ? it : zipTree(it)
-        }
-    }
+sourceSets {
+    main.java.srcDirs = ['kotlin']
+    main.resources.srcDirs = ['resources']
+}
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+
+maven {
+    name = artifactId = projectName
+    description = "$projectName core module"
 }
 
 dependencies {
-    compileOnly DEFAULT
-    compileOnly "com.github.husker-dev:offscreen-jgl:${project["version.offscreen-jgl"]}"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    api "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+
+    compileOnly JavaFX
+    api("com.huskerdev:grapl-gl:$graplVersion"){
+        exclude module: "grapl-native-gl-macos"
+        exclude module: "grapl-native-gl-linux"
+
+        exclude module: "grapl-native-core-macos"
+        exclude module: "grapl-native-core-linux"
+    }
+
+    silentApi "$mvn_groupId:$projectName-native-core-win:$version"
+    silentApi "$mvn_groupId:$projectName-native-core-linux:$version"
+    silentApi "$mvn_groupId:$projectName-native-core-macos:$version"
+}
+
+properties {
+    name = "GLFXInfo"
+    classpath = "com.huskerdev.openglfx"
+
+    field("VERSION", version)
 }

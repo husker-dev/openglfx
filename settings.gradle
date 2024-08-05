@@ -1,8 +1,9 @@
-rootProject.name = 'openglfx'
-include 'modules:core'
-include 'modules:native'
-
-include 'modules:jogl'
-include 'modules:lwjgl'
-include 'modules:lwjgl2'
-include 'modules:libgdx'
+include (
+        'modules:bom',
+        'modules:core',
+        'modules:core:native',
+        'modules:jogl',
+        'modules:libgdx',
+        'modules:lwjgl',
+        'modules:lwjgl2'
+)

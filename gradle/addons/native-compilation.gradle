@@ -1,0 +1,531 @@
+import groovy.transform.TupleConstructor
+import org.gradle.internal.os.*
+
+import java.util.function.Function
+import java.util.function.Predicate
+
+
+
+/* ========================== *\
+          Configuration
+\* ========================== */
+
+abstract class WindowsConfiguration extends AbstractPlatformConfiguration{
+    abstract Property<String> getVarsDir()
+    abstract Property<String> getSdkDir()
+}
+
+abstract class MacOSConfiguration extends AbstractPlatformConfiguration{
+    abstract ListProperty<String> getFrameworks()
+}
+
+abstract class LinuxConfiguration extends AbstractPlatformConfiguration{
+    abstract Property<String> getPkgConfig()
+}
+
+abstract class AbstractPlatformConfiguration {
+    abstract RegularFileProperty getJvmInclude()
+    abstract ListProperty<File> getIncludeDirs()
+    abstract ListProperty<File> getSrcDirs()
+    abstract ListProperty<File> getLibDirs()
+    abstract ListProperty<String> getLibs()
+    abstract ListProperty<Arch> getArchitectures()
+
+    void include(File dir) {
+        includeDirs.add(dir)
+    }
+
+    void src(File dir) {
+        srcDirs.add(dir)
+    }
+}
+
+abstract class ProjectCompileConfiguration extends AbstractPlatformConfiguration{
+    abstract Property<String> getBaseName()
+    abstract Property<String> getVersion()
+    abstract Property<String> getClasspath()
+
+    abstract Property<OutputType> getType()
+    abstract RegularFileProperty getJdk()
+
+    @Nested abstract WindowsConfiguration getWindows()
+    @Nested abstract LinuxConfiguration getLinux()
+    @Nested abstract MacOSConfiguration getMacos()
+
+    void windows(Action<? super WindowsConfiguration> action) {
+        action.execute(getWindows())
+    }
+
+    void linux(Action<? super LinuxConfiguration> action) {
+        action.execute(getLinux())
+    }
+
+    void macos(Action<? super MacOSConfiguration> action) {
+        action.execute(getMacos())
+    }
+}
+
+/* ========================== *\
+              Enums
+\* ========================== */
+
+enum Platform {
+    WINDOWS(
+            "win",
+            os -> os.isWindows(),
+            config -> config.windows,
+            Compiler.CL,
+            new Arch[]{Arch.X64, Arch.X86},
+            ".lib", ".dll", ".exe"
+    ),
+    LINUX(
+            "linux",
+            os -> os.isLinux(),
+            config -> config.linux,
+            Compiler.GCC,
+            new Arch[]{Arch.X64, Arch.X86},
+            ".a", ".so", ""
+    ),
+    MACOS(
+            "macos",
+            os -> os.isMacOsX(),
+            config -> config.macos,
+            Compiler.CLANG,
+            new Arch[]{Arch.X64, Arch.ARM64},
+            ".a", ".dylib", ""
+    )
+
+    public final String shortName
+    public final Predicate<OperatingSystem> condition
+    public final Function<ProjectCompileConfiguration, AbstractPlatformConfiguration> configGetter
+    public final Compiler compiler
+    public final Arch[] defaultArch
+    public final String staticExt, sharedExt, executableExt
+
+    Platform(
+            String shortName,
+            Predicate<OperatingSystem> condition,
+            Function<ProjectCompileConfiguration, AbstractPlatformConfiguration> configGetter,
+            Compiler compiler,
+            Arch[] defaultArch,
+            String staticExt, String sharedExt, String executableExt
+    ){
+        this.shortName = shortName
+        this.condition = condition
+        this.configGetter = configGetter
+        this.compiler = compiler
+        this.defaultArch = defaultArch
+        this.staticExt = staticExt
+        this.sharedExt = sharedExt
+        this.executableExt = executableExt
+    }
+}
+
+
+enum OutputType {
+    SHARED,
+    EXECUTABLE,
+    STATIC
+}
+
+enum Arch {
+    X86,
+    X64,
+    ARM64
+}
+
+enum Compiler {
+    CL((projectConfig, platformConfig, project, platform, type, archs, includeDirs, libDirs, libs, output, sources) -> {
+        def tmpDir = new File(project.layout.buildDirectory.get().asFile, "tmp/native")
+        tmpDir.mkdirs()
+
+        def varsDir = platformConfig.varsDir.getOrElse(findVCVarsDir())
+        def sdkDir = platformConfig.sdkDir.getOrElse(findWinSDKDir())
+
+        def sdkVersion = findWinSDKVersion()
+
+        includeDirs += "${sdkDir}/Include/${sdkVersion}/ucrt"
+        includeDirs += "${sdkDir}/Include/${sdkVersion}/um"
+        includeDirs += "${sdkDir}/Include/${sdkVersion}/shared"
+        includeDirs += "${sdkDir}/Include/${sdkVersion}/winrt"
+
+        for(Arch arch in archs) {
+            String typeModifier = type == OutputType.SHARED ? "/LD" : ""
+            def archLibs = [
+                    "${sdkDir}/Lib/${sdkVersion}/ucrt/${arch.name().toLowerCase()}",
+                    "${sdkDir}/Lib/${sdkVersion}/um/${arch.name().toLowerCase()}"
+            ]
+            def varsFile = arch == Arch.X64 ? "vcvars64" : (arch == Arch.X86 ? "vcvars32" : "vcvars_arm64")
+
+            execute(new String[]{
+                    "call \"${varsDir}/${varsFile}.bat\"",
+                    """cl
+                    $typeModifier
+                    /EHsc /O1
+                    ${sources.join(" ")}
+                    ${libs.collect { "${it}.lib" }.join(" ")}
+                    ${includeDirs.collect { "/I\"$it\"" }.join(" ")}
+                    /link
+                    /MACHINE:${arch.name()}
+                    ${(libDirs + archLibs).collect { "/LIBPATH:\"$it\"" }.join(" ")}
+                    /out:${getOutputName(projectConfig, project, output, type, arch)}
+                    """
+                    },
+                    varsDir,
+                    tmpDir
+            )
+        }
+    }),
+
+    GCC((projectConfig, platformConfig, project, platform, type, archs, includeDirs, libDirs, libs, output, sources) -> {
+        String typeModifier = type == OutputType.SHARED ? "-shared" : ""
+
+        for(Arch arch in archs) {
+            String archModifier = arch == Arch.X64 ? "-m64" : (arch == Arch.X86 ? "-m32" : "-arm64")
+
+            execute(new String[]{"""g++
+                        -Wall -Os -s
+                        -Wno-unused-function
+                        -Wno-unused-variable
+                        -fPIC
+                        $typeModifier
+                        $archModifier
+                        ${includeDirs.collect { "-I$it" }.join(" ")}
+                        ${libDirs.collect { "-L$it" }.join(" ")}
+                        -o ${getOutputName(projectConfig, project, output, type, arch)}
+                        ${sources.join(" ")}
+                        ${platformConfig.pkgConfig.get()}
+                        ${libs.collect { "-l$it" }.join(" ")}
+                        """},
+                    "",
+                    project.file(".")
+            )
+        }
+    }),
+    CLANG((projectConfig, platformConfig, project, platform, type, archs, includeDirs, libDirs, libs, output, sources) -> {
+        String typeModifier = type == OutputType.SHARED ? "-shared" : ""
+        String archModifier = ""
+        if(Arch.ARM64 in archs)
+            archModifier += "-arch arm64 "
+        if(Arch.X64 in archs)
+            archModifier += "-arch x86_64 "
+        execute(new String[]{"""clang++
+                    -Wall -Os -v
+                    -std=c++0x
+                    -fmodules
+                    $typeModifier
+                    $archModifier
+                    ${platformConfig.frameworks.get().collect { "-framework $it" }.join(" ")}
+                    ${includeDirs.collect { "-I$it" }.join(" ")}
+                    ${libDirs.collect { "-L$it" }.join(" ")}
+                    -o ${getOutputName(projectConfig, project, output, type, null)}
+                    ${sources.join(" ")}
+                    ${libs.collect { "-l$it" }.join(" ")}
+                    """},
+                "",
+                project.file(".")
+        )
+    })
+
+    public final CompileAction action
+    Compiler(CompileAction action){
+        this.action = action
+    }
+
+    private static String getOutputName(
+            ProjectCompileConfiguration projectConfig,
+            Project project,
+            String output,
+            OutputType type,
+            Arch arch
+    ){
+        if(projectConfig.version.get() != "")
+            output += "-" + projectConfig.version.get()
+        if(arch != null)
+            output += "-" + arch.name().toLowerCase()
+        Platform platform = NativeCompilationPlugin.platform
+        switch (type){
+            case OutputType.EXECUTABLE: return output + platform.executableExt
+            case OutputType.SHARED: return output + platform.sharedExt
+            case OutputType.STATIC: return output + platform.staticExt
+        }
+    }
+
+    private static void execute(String[] command, String envPath, File directory){
+        String commandStr = command.collect {
+            it.split("\n").collect{ it.trim() }.join(" ")
+        }.join("\n")
+        println(commandStr)
+
+        File file
+        if(OperatingSystem.current().isWindows()){
+            file = new File(directory, "script.bat")
+            file.text = commandStr
+        }else {
+            file = new File(directory, "script.sh")
+            file.text = "#!/bin/sh\n" + commandStr
+            Runtime.getRuntime().exec("chmod +x ${file.absolutePath}").waitFor()
+        }
+
+        ProcessBuilder builder = new ProcessBuilder(new String[]{file.absolutePath})
+                .directory(directory)
+                .redirectErrorStream(true)
+        builder.environment().put("Path", envPath)
+
+        def process = builder.start()
+        BufferedReader r = new BufferedReader(new InputStreamReader(process.getInputStream()))
+        String line
+        while ((line = r.readLine()) != null)
+            println(line)
+        int result = process.waitFor()
+        file.delete()
+        if(result != 0)
+            throw new GradleException("Execution of '$file.absolutePath' finished with exit code: ${process.exitValue()}")
+    }
+
+    @TupleConstructor
+    static class VSType implements Comparable {
+        File rootDrive
+        String type
+        String version
+        File file
+
+        @Override
+        int compareTo(Object o) {
+            VSType other = (VSType)o
+            int res = -(rootDrive.absolutePath <=> other.rootDrive.absolutePath)
+            if(res == 0) res = version <=> other.version
+            if(res == 0) res = type <=> other.type
+            return res
+        }
+
+        @Override
+        String toString() {
+            return file
+        }
+    }
+
+    static private String findVCVarsDir(){
+        def vcPath = new ArrayList<VSType>()
+        for(root in File.listRoots()){
+            for(path in [
+                "Microsoft Visual Studio",
+                "Program Files/Microsoft Visual Studio",
+                "Program Files (x86)/Microsoft Visual Studio"
+            ]){
+                for(type in ["Community", "Enterprise"]){
+                    for(version in ["2022", "2019"]){
+                        def file = new File(root, "$path/$version/$type")
+                        if(file.exists())
+                            vcPath.add(new VSType(root, type, version, file));
+                    }
+                }
+            }
+        }
+        if(vcPath.size() == 0)
+            throw new GradleException("Cant find Visual Studio directory")
+        vcPath.sort()
+        return new File(vcPath[vcPath.size()-1].file, "VC/Auxiliary/Build").absolutePath
+    }
+
+    static private String findWinSDKDir(){
+        for(root in File.listRoots()){
+            for(path in [
+                "Windows Kits",
+                "Program Files/Windows Kits",
+                "Program Files (x86)/Windows Kits",
+            ]){
+                def file = new File(root, "$path/10")
+                if(file.exists())
+                    return file.absolutePath
+            }
+        }
+        throw new GradleException("Cant find any Windows SDK 10")
+    }
+
+    static private String findWinSDKVersion(){
+        for(dir in new File(findWinSDKDir(), "Lib").listFiles())
+            if(new File(dir, "um").exists() && new File(dir, "ucrt").exists())
+                return dir.name
+        throw new GradleException("Cant find any version of Windows SDK 10")
+    }
+
+    interface CompileAction{
+        void compile(
+                ProjectCompileConfiguration projectConfig,
+                AbstractPlatformConfiguration platformConfig,
+                Project project,
+                Platform platform,
+                OutputType type,
+                Arch[] archs,
+                String[] includeDirs,
+                String[] libDirs,
+                String[] libs,
+                String output,
+                String[] sources
+        )
+    }
+}
+
+
+/* ========================== *\
+             Plugin
+\* ========================== */
+
+apply plugin: 'java-library'
+
+project.ext.shortOS = NativeCompilationPlugin.getPlatform().shortName
+
+
+class NativeCompilationPlugin implements Plugin<Project> {
+    ProjectCompileConfiguration config
+    Project project
+
+    void apply(Project project) {
+        project.getPlugins().apply(this.class)
+        this.project = project
+        config = project.extensions.create('compilation', ProjectCompileConfiguration)
+
+        // Configuration defaults
+        config.baseName = "lib"
+        config.version = project.version
+        config.classpath = ""
+        config.type = OutputType.SHARED
+        config.jdk = new File(System.getProperty("java.home"))
+        if(config.jdk.getAsFile().get().name == "jre")
+            config.jdk = config.jdk.getAsFile().get().parentFile
+        config.jvmInclude = new File(config.jdk.asFile.get(), "include")
+        config.includeDirs = [ project.file("shared") ]
+
+        config.windows.srcDirs = [ project.file("win"), project.file("shared") ]
+        config.windows.jvmInclude = new File(config.jdk.asFile.get(), "include/win32")
+
+        config.macos.srcDirs = [ project.file("macos"), project.file("shared") ]
+        config.macos.jvmInclude = new File(config.jdk.asFile.get(), "include/darwin")
+
+        config.linux.srcDirs = [ project.file("linux"), project.file("shared") ]
+        config.linux.jvmInclude = new File(config.jdk.asFile.get(), "include/linux")
+        config.linux.pkgConfig = ""
+
+        project.afterEvaluate {
+            project.sourceSets {
+                include {
+                    java {
+                        srcDirs = config.includeDirs.get() +
+                                config.windows.includeDirs.get() +
+                                config.macos.includeDirs.get() +
+                                config.linux.includeDirs.get()
+                    }
+                }
+                win {
+                    java {
+                        srcDirs = config.windows.srcDirs.get()
+                    }
+                }
+                macos {
+                    java {
+                        srcDirs = config.macos.srcDirs.get()
+                    }
+                }
+                linux {
+                    java {
+                        srcDirs = config.linux.srcDirs.get()
+                    }
+                }
+            }
+        }
+
+        project.pluginManager.withPlugin('maven-publish') {
+            project.tasks.register('publishNatives') {
+                group "publishing"
+                dependsOn "publish"
+            }
+        }
+
+        project.tasks.register('compileNatives') {
+            group "compilation"
+
+            doFirst {
+                buildDir.deleteDir()
+                def artifactDir = new File(buildDir, config.classpath.get().replaceAll("\\.", "/"))
+                artifactDir.mkdirs()
+
+
+                // Platform defaults
+                def platform = getPlatform()
+                if(platform == null)
+                    throw new GradleException("Unknown platform")
+
+                def platformConfig = platform.configGetter.apply(config)
+
+                Arch[] architectures = config.architectures.get()
+                if(architectures.length == 0 && platformConfig.architectures.get().empty)
+                    architectures = platform.defaultArch
+
+                def include = [
+                        config.jvmInclude.asFile.get().absolutePath.replace("\\", "/"),
+                        platformConfig.jvmInclude.asFile.get().absolutePath.replace("\\", "/")
+                ]
+                include += config.includeDirs.get().collect { it.absolutePath }
+                include += platformConfig.includeDirs.get().collect { it.absolutePath }
+
+                def libFolders = config.libDirs.get() + platformConfig.libDirs.get()
+                def libs = config.libs.get() + platformConfig.libs.get()
+
+                def src = new ArrayList<String>()
+                for(String path in (config.srcDirs.get() + platformConfig.srcDirs.get())){
+                    def file = project.file(path)
+                    if(file.directory)
+                        project.fileTree(file).files.each {
+                            if(it.absolutePath.endsWith(".c") ||
+                                it.absolutePath.endsWith(".cpp") ||
+                                it.absolutePath.endsWith(".m") ||
+                                it.absolutePath.endsWith(".mm")
+                            ) src += it.absolutePath
+                        }
+                    else
+                        src += file.absolutePath
+                }
+
+                String outputName = artifactDir.absolutePath + "/" + config.baseName.getOrElse("lib")
+
+                platform.compiler.action.compile(
+                        config,
+                        platformConfig,
+                        project,
+                        platform,
+                        config.type.getOrElse(OutputType.SHARED),
+                        architectures,
+                        include.toArray(new String[0]),
+                        libFolders.toArray(new String[0]),
+                        libs.toArray(new String[0]),
+                        outputName,
+                        src.toArray(new String[0])
+                )
+            }
+        }
+
+        project.tasks.register('packNatives', Copy) {
+            group 'build'
+
+            dependsOn project.tasks.compileNatives
+
+            from buildDir
+            into project.sourceSets.main.output.resourcesDir
+        }
+
+        project.tasks.jar.dependsOn project.tasks.packNatives
+    }
+
+    File getBuildDir(){
+        return new File(project.layout.buildDirectory.get().asFile, "natives")
+    }
+
+    static Platform getPlatform(){
+        for(Platform platform in Platform.values())
+            if(platform.condition.test(OperatingSystem.current()))
+                return platform
+        return null
+    }
+}
+apply plugin: NativeCompilationPlugin

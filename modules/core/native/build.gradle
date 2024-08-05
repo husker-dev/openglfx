@@ -1,0 +1,24 @@
+
+apply from: addon(addons_mavenPublish)
+apply from: addon(addons_nativeCompilation)
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+compilation {
+    baseName = "lib"
+    classpath = "com.huskerdev.openglfx.native"
+
+    windows {
+        libs = ["user32", "gdi32", "setupapi", "advapi32", "ole32", "dwmapi"]
+    }
+    macos {
+        frameworks = ["Cocoa", "IOKit"]
+    }
+}
+
+maven {
+    artifactId = "$projectName-native-core-${project.ext.shortOS}"
+    name = "$projectName"
+    description = "$projectName core module (native for $project.ext.shortOS)"
+}

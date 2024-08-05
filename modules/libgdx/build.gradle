@@ -1,57 +1,30 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.6.10'
-    id "application"
+    id 'org.jetbrains.kotlin.jvm' version "$kotlinVersion"
 }
 
-apply from: "${project.rootDir}/maven-publisher.gradle"
+apply from: addon(addons_mavenPublish)
 
-sourceSets{
-    examples {
-        java {
-            srcDirs 'src/examples/kotlin', 'src/examples/java'
-            compileClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.compileClasspath
-            runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.compileClasspath
-        }
-    }
+sourceSets {
+    main.java.srcDirs = ['kotlin']
+    test.java.srcDirs = ['test']
+}
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+
+maven {
+    name = artifactId = "$projectName-libgdx"
+    description = "$projectName libgdx module"
 }
 
 dependencies {
-    compileOnly DEFAULT
-    implementation project(':modules:core')
+    compileOnly JavaFX
+    api project(':modules:core')
 
-    compileOnly "com.badlogicgames.gdx:gdx:${project["version.libgdx"]}"
-    compileOnly "com.badlogicgames.gdx:gdx-backend-lwjgl3:${project["version.libgdx"]}"
-    compileOnly "com.badlogicgames.gdx:gdx-platform:${project["version.libgdx"]}:natives-desktop"
-}
-
-tasks.register('runLibGDX', JavaExec) {
-    group = "Execution"
-    description = "Run the example class with LibGDX"
-    classpath = sourceSets.examples.runtimeClasspath
-    mainClass = "com.huskerdev.openglfx.libgdx.test.game.GameApplicationKt"
-    jvmArgs project["opens"].split()
-}
-
-tasks.register('runLibGDX_D3D', JavaExec) {
-    group = "Execution"
-    description = "Run the example class with LibGDX D3D"
-    classpath = sourceSets.examples.runtimeClasspath
-    mainClass = "com.huskerdev.openglfx.libgdx.test.game.GameApplicationKt"
-    jvmArgs project["opens"].split()
-}
-
-tasks.register('runLibGDX_SW', JavaExec) {
-    group = "Execution"
-    description = "Run the example class with LibGDX SW"
-    classpath = sourceSets.examples.runtimeClasspath
-    mainClass = "com.huskerdev.openglfx.libgdx.test.game.GameApplicationKt"
-    jvmArgs project["opens"].split()
-}
-
-tasks.register('runLibGDX_ES2', JavaExec) {
-    group = "Execution"
-    description = "Run the example class with LibGDX ES2"
-    classpath = sourceSets.examples.runtimeClasspath
-    mainClass = "com.huskerdev.openglfx.libgdx.test.game.GameApplicationKt"
-    jvmArgs project["opens"].split()
+    compileOnly "com.badlogicgames.gdx:gdx:$libgdxVersion"
+    compileOnly "com.badlogicgames.gdx:gdx-backend-lwjgl3:$libgdxVersion"
+    compileOnly "com.badlogicgames.gdx:gdx-platform:$libgdxVersion:natives-desktop"
 }
