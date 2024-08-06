@@ -9,7 +9,6 @@ import com.huskerdev.openglfx.GLExecutor.Companion.glGenTextures
 import com.huskerdev.openglfx.GLExecutor.Companion.glViewport
 import com.huskerdev.openglfx.canvas.GLCanvas
 import com.huskerdev.openglfx.internal.GLFXUtils
-import com.huskerdev.openglfx.internal.GLFXUtils.Companion.GLTextureId
 import com.huskerdev.openglfx.internal.NGGLCanvas
 import com.huskerdev.openglfx.internal.Size
 import com.huskerdev.openglfx.internal.fbo.Framebuffer
@@ -18,6 +17,7 @@ import com.huskerdev.openglfx.internal.iosurface.IOSurface
 import com.huskerdev.openglfx.internal.shaders.FXAAShader
 import com.sun.prism.Graphics
 import com.sun.prism.Texture
+import com.sun.prism.es2.esTextureId
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
@@ -190,7 +190,7 @@ open class AsyncIOSurfaceCanvasImpl(
 
         // Create JavaFX buffers
         sharedFboFX = Framebuffer(width, height, existingTexture = ioFXTexture, existingTextureType = GL_TEXTURE_RECTANGLE)
-        fboFX = Framebuffer(width, height, existingTexture = fxTexture.GLTextureId)
+        fboFX = Framebuffer(width, height, existingTexture = fxTexture.esTextureId)
     }
 
     override fun repaint() {

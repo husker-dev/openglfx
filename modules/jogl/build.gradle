@@ -20,13 +20,21 @@ maven {
     description = "$projectName jogl module"
 }
 
+repositories {
+    maven {
+        url "https://jogamp.org/deployment/maven/"
+    }
+}
+
 dependencies {
     compileOnly JavaFX
     api project(':modules:core')
 
     compileOnly "org.jogamp.gluegen:gluegen-rt:$joglVersion"
-    compileOnly "org.jogamp.gluegen:gluegen-rt:$joglVersion:natives-$project.joglNatives"
-
     compileOnly "org.jogamp.jogl:jogl-all:$joglVersion"
-    compileOnly "org.jogamp.jogl:jogl-all:$joglVersion:natives-$project.joglNatives"
+
+    ["linux-amd64", "linux-aarch64", "macosx-universal", "windows-amd64"].forEach {
+        compileOnly "org.jogamp.gluegen:gluegen-rt:$joglVersion:natives-$it"
+        compileOnly "org.jogamp.jogl:jogl-all:$joglVersion:natives-$it"
+    }
 }

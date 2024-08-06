@@ -7,7 +7,6 @@ import com.huskerdev.openglfx.GLExecutor.Companion.glViewport
 import com.huskerdev.openglfx.canvas.GLCanvas
 import com.huskerdev.openglfx.internal.GLFXUtils
 import com.huskerdev.openglfx.internal.fbo.MultiSampledFramebuffer
-import com.huskerdev.openglfx.internal.GLFXUtils.Companion.D3DTextureResource
 import com.huskerdev.openglfx.internal.NGGLCanvas
 import com.huskerdev.openglfx.internal.Size
 import com.huskerdev.openglfx.internal.fbo.Framebuffer
@@ -18,6 +17,7 @@ import com.huskerdev.openglfx.internal.d3d9.NVDXInterop.Companion.interopDevice
 import com.huskerdev.openglfx.internal.d3d9.WGL_ACCESS_WRITE_DISCARD_NV
 import com.sun.prism.Graphics
 import com.sun.prism.Texture
+import com.sun.prism.d3d.d3dTextureResource
 import java.util.concurrent.atomic.AtomicBoolean
 
 
@@ -95,7 +95,7 @@ open class NVDXInteropCanvasImpl(
 
         // Create default JavaFX texture and replace a native handle with custom one.
         fxTexture = GLFXUtils.createPermanentFXTexture(width, height)
-        D3D9Device.replaceD3DTextureInResource(fxTexture.D3DTextureResource, fxD3DTexture.handle)
+        D3D9Device.replaceD3DTextureInResource(fxTexture.d3dTextureResource, fxD3DTexture.handle)
 
         // Create interop texture
         interopObject = interopDevice.registerObject(fxD3DTexture.handle, fbo.texture,

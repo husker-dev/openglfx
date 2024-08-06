@@ -28,6 +28,8 @@ dependencies {
     compileOnly "org.lwjgl:lwjgl"
     compileOnly "org.lwjgl:lwjgl-opengl"
 
-    compileOnly "org.lwjgl:lwjgl::$project.lwjglNatives"
-    compileOnly "org.lwjgl:lwjgl-opengl::$project.lwjglNatives"
+    ["linux", "linux-arm64", "macos", "macos-arm64", "windows", "windows-x86", "windows-arm64"].forEach {
+        compileOnly "org.lwjgl:lwjgl::natives-$it"
+        compileOnly "org.lwjgl:lwjgl-opengl::natives-$it"
+    }
 }

@@ -4,10 +4,18 @@ plugins {
 
 
 allprojects {
-    apply from: "$rootDir/dependencies.gradle"
     repositories {
         mavenCentral()
         mavenLocal()
+    }
+
+    ext {
+        JavaFX = ["linux", "linux-aarch64", "mac", "mac-aarch64", "win"]
+            .collect { [
+                "org.openjfx:javafx-base:$javafxVersion:$it",
+                "org.openjfx:javafx-controls:$javafxVersion:$it",
+                "org.openjfx:javafx-graphics:$javafxVersion:$it"
+            ] }.flatten()
     }
 }
 

@@ -8,13 +8,13 @@ import com.huskerdev.openglfx.GLExecutor.Companion.glViewport
 import com.huskerdev.openglfx.canvas.GLCanvas
 import com.huskerdev.openglfx.internal.*
 import com.huskerdev.openglfx.internal.GLFXUtils
-import com.huskerdev.openglfx.internal.GLFXUtils.Companion.GLTextureId
 import com.huskerdev.openglfx.internal.shaders.PassthroughShader
 import com.huskerdev.openglfx.internal.Size
 import com.huskerdev.openglfx.internal.fbo.Framebuffer
 import com.huskerdev.openglfx.internal.fbo.MultiSampledFramebuffer
 import com.huskerdev.openglfx.internal.shaders.FXAAShader
 import com.sun.prism.*
+import com.sun.prism.es2.esTextureId
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
@@ -135,7 +135,7 @@ open class AsyncSharedCanvasImpl(
         fxTexture = GLFXUtils.createPermanentFXTexture(width, height)
 
         // Create framebuffer that connected to JavaFX's texture
-        resultFBO = Framebuffer(width, height, existingTexture = fxTexture.GLTextureId)
+        resultFBO = Framebuffer(width, height, existingTexture = fxTexture.esTextureId)
     }
 
     private fun updateTransferTextureSize(width: Int, height: Int) {

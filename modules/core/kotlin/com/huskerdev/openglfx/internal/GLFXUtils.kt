@@ -41,18 +41,6 @@ internal class GLFXUtils {
             } else
                 node.scene.window.outputScaleY
 
-        val Texture.D3DTextureResource: Long
-            get() = Class.forName("com.sun.prism.d3d.D3DTexture")
-                .getMethod("getNativeSourceHandle")
-                .apply { isAccessible = true }
-                .invoke(this) as Long
-
-        val Texture.GLTextureId: Int
-            get() = Class.forName("com.sun.prism.es2.ES2RTTexture")
-                .getMethod("getNativeSourceHandle")
-                .apply { isAccessible = true }
-                .invoke(this) as Int
-
         fun createPermanentFXTexture(width: Int, height: Int): Texture {
             val texture = GraphicsPipeline.getDefaultResourceFactory()
                 .createTexture(
