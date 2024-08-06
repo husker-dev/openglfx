@@ -28,6 +28,22 @@ jlongArray createLongArray(JNIEnv* env, int size, jlong* elements) {
     return result;
 }
 
+extern "C"{
+    typedef jlong (*nGetContextPtr) (JNIEnv *jEnv, jclass, jint adapterOrdinal);
+    typedef jlong (*nGetDevicePtr) (JNIEnv *jEnv, jclass, jlong context);
+
+    static nGetContextPtr nGetContext;
+    static nGetDevicePtr nGetDevice;
+}
+
+d3dfun(jlong, nGetDeviceFromAdapter)(JNIEnv* env, jclass obj, jint adapterOrdinal) {
+    HMODULE module = GetModuleHandleA("prism_d3d.dll");
+    nGetContext = (nGetContextPtr)GetProcAddress(module, "Java_com_sun_prism_d3d_D3DResourceFactory_nGetContext");
+    nGetDevice = (nGetDevicePtr)GetProcAddress(module, "Java_com_sun_prism_d3d_D3DResourceFactory_nGetDevice");
+
+    return nGetDevice(env, obj, nGetContext(env, obj, adapterOrdinal));
+}
+
 d3dfun(jlongArray, createD3DTexture)(JNIEnv* env, jobject, jlong _device, jint width, jint height) {
     IDirect3DDevice9Ex* device = (IDirect3DDevice9Ex*)_device;
 
