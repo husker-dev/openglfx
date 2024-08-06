@@ -11,6 +11,8 @@ import com.huskerdev.openglfx.internal.GLFXUtils.Companion.dispatchConsumer
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.dispatchEvent
 import com.huskerdev.openglfx.internal.GLInteropType.*
 import com.sun.javafx.scene.layout.RegionHelper
+import com.sun.javafx.sg.prism.NGNode
+import javafx.scene.Node
 import javafx.scene.Scene
 import javafx.scene.layout.Region
 import java.util.function.Consumer
@@ -53,9 +55,6 @@ open class GLCanvas @JvmOverloads constructor(
     companion object {
         init {
             GLFXUtils.loadLibrary()
-            RegionAccessorOverrider.overwrite(object : RegionAccessorObject<GLCanvas>() {
-                override fun doCreatePeer(node: GLCanvas) = node.doCreatePeer()
-            })
         }
     }
 
@@ -100,6 +99,17 @@ open class GLCanvas @JvmOverloads constructor(
      */
     val scaledHeight: Int
         get() = (height * dpi).toInt()
+
+    init {
+        object: RegionHelper(){
+            init {
+                setHelper(this@GLCanvas, this)
+            }
+            override fun createPeerImpl(node: Node) =
+                if(node == this@GLCanvas) doCreatePeer()
+                else super.createPeerImpl(node)
+        }
+    }
 
     /*===========================================*\
     |                 Listeners                   |
