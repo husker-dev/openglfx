@@ -8,7 +8,7 @@ import com.huskerdev.openglfx.internal.NGGLCanvas
 
 import com.huskerdev.openglfx.internal.Framebuffer
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.dispose
-import com.huskerdev.openglfx.internal.GLFXUtils.Companion.updateData
+import com.sun.prism.PixelFormat
 
 
 import com.sun.prism.Texture
@@ -30,6 +30,7 @@ open class BlitCanvas(
         private lateinit var dataBuffer: ByteBuffer
 
         private lateinit var fxTexture: Texture
+        private var contentChanged = false
 
         override fun render(width: Int, height: Int) {
             if(checkFramebufferSize(width, height))
@@ -40,6 +41,7 @@ open class BlitCanvas(
             fbo.blitTo(interopFBO)
 
             interopFBO.readPixels(0, 0, width, height, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, dataBuffer)
+            contentChanged = true
         }
 
         private fun checkFramebufferSize(width: Int, height: Int): Boolean{
@@ -63,7 +65,17 @@ open class BlitCanvas(
 
                 fxTexture = GLFXUtils.createPermanentFXTexture(width, height)
             }
-            fxTexture.updateData(dataBuffer, width, height)
+
+            if(contentChanged) {
+                contentChanged = false
+                fxTexture.update(
+                    dataBuffer, PixelFormat.BYTE_BGRA_PRE,
+                    0, 0,
+                    0, 0,
+                    width, height,
+                    width * 4, true
+                )
+            }
 
             return fxTexture
         }

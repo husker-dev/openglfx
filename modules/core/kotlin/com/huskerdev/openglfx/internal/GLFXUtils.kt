@@ -4,7 +4,6 @@ import com.huskerdev.grapl.core.platform.OS
 import com.huskerdev.grapl.core.platform.Platform
 import com.huskerdev.openglfx.GLFXInfo
 import com.huskerdev.openglfx.internal.iosurface.IOSurface
-import com.sun.javafx.tk.RenderJob
 import com.sun.javafx.tk.Toolkit
 import com.sun.prism.GraphicsPipeline
 import com.sun.prism.PixelFormat
@@ -12,10 +11,7 @@ import com.sun.prism.Texture
 import com.sun.scenario.Settings
 import javafx.scene.Node
 import sun.misc.Unsafe
-import java.nio.Buffer
 import java.nio.ByteBuffer
-import java.util.concurrent.ExecutionException
-import java.util.concurrent.FutureTask
 import java.util.function.Consumer
 
 
@@ -52,26 +48,9 @@ class GLFXUtils {
             return texture
         }
 
-        fun Texture.updateData(buffer: Buffer, width: Int, height: Int) =
-            this.update(buffer, PixelFormat.BYTE_BGRA_PRE,
-                0, 0, 0, 0, width, height, width * 4, true)
 
         fun ByteBuffer.dispose() {
             unsafe.invokeCleaner(this)
-        }
-
-        fun runOnRenderThread(runnable: () -> Unit) {
-            if (Thread.currentThread().name.startsWith("QuantumRenderer")) {
-                runnable()
-            } else {
-                val task = FutureTask<Void?>(runnable, null)
-                Toolkit.getToolkit().addRenderJob(RenderJob(task))
-                try {
-                    task.get()
-                } catch (ex: ExecutionException) {
-                    throw AssertionError(ex)
-                } catch (_: InterruptedException) {}
-            }
         }
 
         fun getPulseDuration(): Int {
