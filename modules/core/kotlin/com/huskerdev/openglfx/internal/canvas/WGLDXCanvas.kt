@@ -53,10 +53,7 @@ open class WGLDXCanvas(
 
         private fun checkFramebufferSize(width: Int, height: Int, device: D3D9.Device, interopDevice: WGLDX.Device): Boolean{
             if(!this::fbo.isInitialized || fbo.width != width || fbo.height != height){
-                if (this::interopObject.isInitialized) interopObject.release()
-                if (this::fbo.isInitialized) fbo.delete()
-                if (this::interopFBO.isInitialized) interopFBO.delete()
-                if (this::d3d9Texture.isInitialized) d3d9Texture.release()
+                dispose()
 
                 fbo = createFramebufferForRender(width, height)
 
@@ -82,7 +79,7 @@ open class WGLDXCanvas(
             val height = d3d9Texture.height
 
             if(!this::fxD3D9Texture.isInitialized || fxD3D9Texture.width != width || fxD3D9Texture.height != height){
-                if (this::fxTexture.isInitialized) fxTexture.dispose()
+                disposeFXResources()
 
                 fxD3D9Texture = D3D9.Device.jfx.createTexture(width, height, d3d9Texture.sharedHandle)
                 fxTexture = GLFXUtils.createPermanentFXTexture(width, height)
@@ -90,6 +87,17 @@ open class WGLDXCanvas(
             }
 
             return fxTexture
+        }
+
+        override fun dispose() {
+            if (this::interopObject.isInitialized) interopObject.release()
+            if (this::fbo.isInitialized) fbo.delete()
+            if (this::interopFBO.isInitialized) interopFBO.delete()
+            if (this::d3d9Texture.isInitialized) d3d9Texture.release()
+        }
+
+        override fun disposeFXResources() {
+            if (this::fxTexture.isInitialized) fxTexture.dispose()
         }
     }
 }

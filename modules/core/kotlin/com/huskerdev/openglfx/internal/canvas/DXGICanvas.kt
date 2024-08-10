@@ -39,7 +39,7 @@ open class DXGICanvas(
 
     protected inner class DXGISwapBuffer: SwapBuffer() {
         private lateinit var fbo: Framebuffer
-        private lateinit var interopFBO: Framebuffer
+        private lateinit var interopFBO: Framebuffer.Default
         private lateinit var d3d9Texture: D3D9.Texture
         private var memoryObj = 0
 
@@ -59,11 +59,7 @@ open class DXGICanvas(
 
         private fun checkFramebufferSize(width: Int, height: Int, device9: D3D9.Device): Boolean{
             if(!this::fbo.isInitialized || fbo.width != width || fbo.height != height){
-                if (this::fbo.isInitialized) fbo.delete()
-                if (this::interopFBO.isInitialized) interopFBO.delete()
-                if (this::d3d9Texture.isInitialized) d3d9Texture.release()
-                if (memoryObj != 0) glDeleteMemoryObjectsEXT(memoryObj)
-
+                dispose()
 
                 val sharedTexture = glGenTextures()
                 glBindTexture(GL_TEXTURE_2D, sharedTexture)
@@ -88,7 +84,7 @@ open class DXGICanvas(
             val height = d3d9Texture.height
 
             if(!this::fxD3D9Texture.isInitialized || fxD3D9Texture.width != width || fxD3D9Texture.height != height){
-                if (this::fxTexture.isInitialized) fxTexture.dispose()
+                disposeFXResources()
 
                 fxD3D9Texture = D3D9.Device.jfx.createTexture(width, height, d3d9Texture.sharedHandle)
                 fxTexture = GLFXUtils.createPermanentFXTexture(width, height)
@@ -96,6 +92,17 @@ open class DXGICanvas(
             }
 
             return fxTexture
+        }
+
+        override fun dispose() {
+            if (this::fbo.isInitialized) fbo.delete()
+            if (this::interopFBO.isInitialized) interopFBO.delete()
+            if (this::d3d9Texture.isInitialized) d3d9Texture.release()
+            if (memoryObj != 0) glDeleteMemoryObjectsEXT(memoryObj)
+        }
+
+        override fun disposeFXResources() {
+            if (this::fxTexture.isInitialized) fxTexture.dispose()
         }
     }
 }

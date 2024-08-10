@@ -8,7 +8,7 @@ import com.huskerdev.openglfx.canvas.events.GLInitializeEvent
 import com.huskerdev.openglfx.canvas.events.GLRenderEvent
 import com.huskerdev.openglfx.canvas.events.GLReshapeEvent
 import com.huskerdev.openglfx.internal.NGGLCanvas
-import com.huskerdev.openglfx.internal.canvas.DXGICanvas
+import com.huskerdev.openglfx.internal.canvas.BlitCanvas
 import java.nio.*
 
 
@@ -100,11 +100,6 @@ open class GLExecutor {
 
         @JvmStatic external fun glGetError(): Int
 
-        internal fun floatBuffer(array: FloatArray): FloatBuffer {
-            return ByteBuffer.allocateDirect(array.size * Float.SIZE_BYTES)
-                .order(ByteOrder.nativeOrder()).asFloatBuffer().put(array)
-        }
-
         internal fun loadBasicFunctionPointers(){
             if(isInitialized) return
             isInitialized = true
@@ -124,7 +119,7 @@ open class GLExecutor {
         throw UnsupportedOperationException()
 
     open fun interopNGCanvas(canvas: GLCanvas, executor: GLExecutor, profile: GLProfile) =
-        DXGICanvas(canvas, executor, profile)
+        BlitCanvas(canvas, executor, profile)
 
     open fun ioSurfaceNGCanvas(canvas: GLCanvas, executor: GLExecutor, profile: GLProfile): NGGLCanvas =
         throw UnsupportedOperationException()

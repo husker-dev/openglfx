@@ -42,7 +42,7 @@ abstract class NGGLCanvas(
     private var readyToDisplay = AtomicBoolean(false)
     private var lastFrameStartTime = 0L
 
-    private val swapChain = Array(1) { createSwapBuffer() }
+    private val swapChain = Array(2) { createSwapBuffer() }
     private var currentSwapBufferIndex = AtomicInteger(-1)
 
     private val animationTimer = object : AnimationTimer() {
@@ -65,20 +65,14 @@ abstract class NGGLCanvas(
         renderLock.notifyAll()
     }
 
-    override fun setParent(parent: NGNode?) {
-        super.setParent(parent)
-        if(canvas.scene != null)
-            canvas.fireSceneBoundEvent()
-    }
-
-    override fun setTransformedBounds(bounds: BaseBounds?, byTransformChangeOnly: Boolean) {
-        super.setTransformedBounds(bounds, byTransformChangeOnly)
-        requestRepaint()
-    }
-
-    override fun setVisible(value: Boolean) {
-        super.setVisible(value)
-        requestRepaint()
+    fun dispose(){
+        animationTimer.stop()
+        disposed = true
+        swapChain.forEach {
+            synchronized(it.lock){
+                it.disposeFXResources()
+            }
+        }
     }
 
     private fun createRenderingThread(){
@@ -117,6 +111,9 @@ abstract class NGGLCanvas(
                         renderLock.wait()
                 }
             }
+
+            swapChain.forEach { it.dispose() }
+            context.delete()
         }
     }
 
@@ -143,22 +140,32 @@ abstract class NGGLCanvas(
         }
     }
 
-
     protected abstract inner class SwapBuffer {
         val lock = Object()
 
         abstract fun render(width: Int, height: Int)
         abstract fun getTextureForDisplay(): Texture
+        abstract fun dispose()
+        abstract fun disposeFXResources()
 
-        protected fun createFramebufferForRender(width: Int, height: Int): Framebuffer =
+        protected fun createFramebufferForRender(width: Int, height: Int) =
             if(msaa > 0) Framebuffer.MultiSampled(width, height, msaa)
             else         Framebuffer.Default(width, height)
-
     }
 
+    override fun setParent(parent: NGNode?) {
+        super.setParent(parent)
+        if(canvas.scene != null)
+            canvas.fireSceneBoundEvent()
+    }
 
-    open fun dispose(){
-        animationTimer.stop()
-        disposed = true
+    override fun setTransformedBounds(bounds: BaseBounds?, byTransformChangeOnly: Boolean) {
+        super.setTransformedBounds(bounds, byTransformChangeOnly)
+        requestRepaint()
+    }
+
+    override fun setVisible(value: Boolean) {
+        super.setVisible(value)
+        requestRepaint()
     }
 }

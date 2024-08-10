@@ -1,7 +1,6 @@
 package com.huskerdev.openglfx.internal.shaders
 
 import com.huskerdev.openglfx.*
-import com.huskerdev.openglfx.GLExecutor.Companion.floatBuffer
 import com.huskerdev.openglfx.GLExecutor.Companion.glAttachShader
 import com.huskerdev.openglfx.GLExecutor.Companion.glBindBuffer
 import com.huskerdev.openglfx.GLExecutor.Companion.glBindFramebuffer
@@ -26,6 +25,8 @@ import com.huskerdev.openglfx.GLExecutor.Companion.glGetUniformLocation
 import com.huskerdev.openglfx.GLExecutor.Companion.glUniform2f
 import com.huskerdev.openglfx.GLExecutor.Companion.glUseProgram
 import com.huskerdev.openglfx.internal.Framebuffer
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 
 internal open class PassthroughShader(
     vertexSource: String = """
@@ -78,9 +79,9 @@ internal open class PassthroughShader(
         val vbo = glGenBuffers()
         glBindBuffer(GL_ARRAY_BUFFER, vbo)
         glBufferData(
-            GL_ARRAY_BUFFER, floatBuffer(floatArrayOf(
-            -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, -1.0f
-        )), GL_STATIC_DRAW
+            GL_ARRAY_BUFFER,
+            floatBuffer(floatArrayOf(-1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, -1.0f)),
+            GL_STATIC_DRAW
         )
 
         glVertexAttribPointer(positionLoc, 2, GL_FLOAT, false, 0, 0)
@@ -88,6 +89,12 @@ internal open class PassthroughShader(
 
         glBindVertexArray(0)
     }
+
+    private fun floatBuffer(array: FloatArray) =
+        ByteBuffer.allocateDirect(array.size * Float.SIZE_BYTES)
+            .order(ByteOrder.nativeOrder())
+            .asFloatBuffer()
+            .put(array)
 
     fun apply(source: Framebuffer.Default, target: Framebuffer){
         glUseProgram(program)
