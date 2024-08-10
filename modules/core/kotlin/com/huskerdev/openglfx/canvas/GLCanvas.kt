@@ -11,11 +11,11 @@ import com.huskerdev.openglfx.internal.GLFXUtils.Companion.dispatchConsumer
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.dispatchEvent
 import com.huskerdev.openglfx.internal.GLInteropType.*
 import com.sun.javafx.scene.layout.RegionHelper
-import com.sun.javafx.sg.prism.NGNode
 import javafx.scene.Node
 import javafx.scene.Scene
 import javafx.scene.layout.Region
 import java.util.function.Consumer
+import kotlin.math.ceil
 
 /**
  * Hardware-accelerated OpenGL canvas.
@@ -38,9 +38,6 @@ import java.util.function.Consumer
  * @param fxaa Fast approximate anti-aliasing:
  *  - false – disabled (default);
  *  - true – enabled.
- * @param async Enables rendering in parallel thread:
- *  - false – render in JavaFX thread (default);
- *  - true – render in a new thread and synchronise with JavaFX.
  */
 open class GLCanvas @JvmOverloads constructor(
     val executor: GLExecutor,
@@ -48,7 +45,7 @@ open class GLCanvas @JvmOverloads constructor(
     var flipY: Boolean              = false,
     var msaa: Int                   = 0,
     var fxaa: Boolean               = false,
-    val async: Boolean              = false,
+    fps: Int                        = 0,
     val interopType: GLInteropType  = GLInteropType.auto
 ): Region() {
 
@@ -73,16 +70,6 @@ open class GLCanvas @JvmOverloads constructor(
     val fpsCounter = FPSCounter()
 
     /**
-     *  Binds GLCanvasAnimator to the OpenGLCanvas.
-     */
-    var animator: GLCanvasAnimator? = null
-        set(value) {
-            field?.unbind()
-            value?.bind(this)
-            field = value
-        }
-
-    /**
      * A current window dpi, used to scale output width and height.
      */
     val dpi: Double
@@ -92,13 +79,20 @@ open class GLCanvas @JvmOverloads constructor(
      * Current node width, considering DPI scaling.
      */
     val scaledWidth: Int
-        get() = (width * dpi).toInt()
+        get() = ceil(width * dpi).toInt()
 
     /**
      * Current node height, considering DPI scaling.
      */
     val scaledHeight: Int
-        get() = (height * dpi).toInt()
+        get() = ceil(height * dpi).toInt()
+
+    var fps: Int = 0
+        set(value) {
+            field = value
+            RegionHelper.getPeer<NGGLCanvas>(this).fps =
+                if(value > 0) value else GLFXUtils.getPulseDuration()
+        }
 
     init {
         object: RegionHelper(){
@@ -109,6 +103,7 @@ open class GLCanvas @JvmOverloads constructor(
                 if(node == this@GLCanvas) doCreatePeer()
                 else super.createPeerImpl(node)
         }
+        this.fps = fps
     }
 
     /*===========================================*\
@@ -226,7 +221,7 @@ open class GLCanvas @JvmOverloads constructor(
     |                     Peer                    |
     \*===========================================*/
 
-    internal fun doCreatePeer() =
+    private fun doCreatePeer() =
         when (interopType) {
             IOSurface -> executor::ioSurfaceNGCanvas
             TextureSharing -> executor::sharedNGCanvas
@@ -237,10 +232,9 @@ open class GLCanvas @JvmOverloads constructor(
     /**
      *  Destroys all resources to free up memory
      */
-    fun dispose() {
-        animator = null
+    fun dispose() =
         RegionHelper.getPeer<NGGLCanvas>(this).dispose()
-    }
 
-    fun repaint() = RegionHelper.getPeer<NGGLCanvas>(this).repaint()
+    fun repaint() =
+        RegionHelper.getPeer<NGGLCanvas>(this).requestRepaint()
 }

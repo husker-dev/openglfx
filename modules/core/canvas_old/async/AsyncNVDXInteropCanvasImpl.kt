@@ -1,4 +1,4 @@
-package com.huskerdev.openglfx.internal.canvas.async
+package com.huskerdev.openglfx.internal.canvas_old.async
 
 import com.huskerdev.grapl.gl.GLContext
 import com.huskerdev.grapl.gl.GLProfile
@@ -45,7 +45,7 @@ open class AsyncNVDXInteropCanvasImpl(
 
     private lateinit var context: GLContext
     private lateinit var resultContext: GLContext
-    private val fxDevice = D3D9Device.fxInstance
+    private val fxDevice = D3D9Device.jfx
 
     private lateinit var fxD3DTexture: D3D9Texture
     private lateinit var fxTexture: Texture
@@ -177,7 +177,7 @@ open class AsyncNVDXInteropCanvasImpl(
             GL_TEXTURE_2D, WGL_ACCESS_WRITE_DISCARD_NV)
     }
 
-    override fun repaint() {
+    override fun requestRepaint() {
         synchronized(paintLock){
             paintLock.notifyAll()
         }
@@ -185,11 +185,11 @@ open class AsyncNVDXInteropCanvasImpl(
 
     override fun timerTick() {
         if(needsBlit.get())
-            dirty()
+            makeDirty()
     }
 
     override fun dispose() {
         super.dispose()
-        repaint()
+        requestRepaint()
     }
 }

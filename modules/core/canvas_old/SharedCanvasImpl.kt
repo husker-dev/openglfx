@@ -1,4 +1,4 @@
-package com.huskerdev.openglfx.internal.canvas
+package com.huskerdev.openglfx.internal.canvas_old
 
 import com.huskerdev.grapl.gl.GLContext
 import com.huskerdev.grapl.gl.GLProfile
@@ -79,11 +79,11 @@ open class SharedCanvasImpl(
         }
     }
 
-    override fun repaint() = needsRepaint.set(true)
+    override fun requestRepaint() = needsRepaint.set(true)
 
     override fun timerTick() {
         if(needsRepaint.getAndSet(false))
-            dirty()
+            makeDirty()
     }
 
     override fun dispose() {

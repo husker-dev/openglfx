@@ -2,8 +2,7 @@ package com.huskerdev.openglfx.renderdoc
 
 import com.huskerdev.grapl.gl.GLContext
 import com.huskerdev.openglfx.canvas.GLCanvas
-import com.huskerdev.openglfx.internal.canvas.NVDXInteropCanvasImpl
-import com.huskerdev.openglfx.internal.canvas.async.AsyncNVDXInteropCanvasImpl
+
 import com.huskerdev.openglfx.internal.NGGLCanvas
 import com.huskerdev.openglfx.internal.GLFXUtils
 import com.sun.javafx.scene.layout.RegionHelper
@@ -43,12 +42,15 @@ class RenderDoc {
         @JvmStatic
         fun bind(canvas: GLCanvas, keyCode: KeyCode = KeyCode.F12){
             val peer = RegionHelper.getPeer<NGGLCanvas>(canvas)
+            /*
             if(peer is NVDXInteropCanvasImpl || peer is AsyncNVDXInteropCanvasImpl)
                 println("""
                     WARNING: RenderDoc doesn't support WGL_NV_DX_interop. 
                              Please, use 'OpenGLCanvas.create(..., interopType = GLInteropType.Blit)'.
                              More at: https://github.com/husker-dev/openglfx/issues/39
                 """.trimIndent())
+
+             */
 
             var captureNextFrame = false
             canvas.addOnRenderBegin {

@@ -25,7 +25,7 @@ import com.huskerdev.openglfx.GLExecutor.Companion.glGetShaderi
 import com.huskerdev.openglfx.GLExecutor.Companion.glGetUniformLocation
 import com.huskerdev.openglfx.GLExecutor.Companion.glUniform2f
 import com.huskerdev.openglfx.GLExecutor.Companion.glUseProgram
-import com.huskerdev.openglfx.internal.fbo.Framebuffer
+import com.huskerdev.openglfx.internal.Framebuffer
 
 internal open class PassthroughShader(
     vertexSource: String = """
@@ -89,7 +89,7 @@ internal open class PassthroughShader(
         glBindVertexArray(0)
     }
 
-    fun apply(source: Framebuffer, target: Framebuffer){
+    fun apply(source: Framebuffer.Default, target: Framebuffer){
         glUseProgram(program)
         glUniform2f(sizeLoc, target.width.toFloat(), target.height.toFloat())
 

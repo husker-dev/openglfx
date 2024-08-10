@@ -61,6 +61,8 @@ glfun(void, nInitGLFunctions)(JNIEnv* env, jobject) {
     a_glDeleteRenderbuffers = (glDeleteRenderbuffersPtr)a_GetProcAddress("glDeleteRenderbuffers");
     a_glDeleteFramebuffers = (glDeleteFramebuffersPtr)a_GetProcAddress("glDeleteFramebuffers");
     a_glFinish = (glFinishPtr)a_GetProcAddress("glFinish");
+    a_glGetError = (glGetErrorPtr)a_GetProcAddress("glGetError");
+
     a_glRenderbufferStorageMultisample = (glRenderbufferStorageMultisamplePtr)a_GetProcAddress("glRenderbufferStorageMultisample");
     a_glBlitFramebuffer = (glBlitFramebufferPtr)a_GetProcAddress("glBlitFramebuffer");
     a_glGetIntegerv = (glGetIntegervPtr)a_GetProcAddress("glGetIntegerv");
@@ -89,18 +91,6 @@ glfun(void, nInitGLFunctions)(JNIEnv* env, jobject) {
     a_glEnableVertexAttribArray = (glEnableVertexAttribArrayPtr)a_GetProcAddress("glEnableVertexAttribArray");
     a_glDeleteBuffers = (glDeleteBuffersPtr)a_GetProcAddress("glDeleteBuffers");
     a_glDrawArrays = (glDrawArraysPtr)a_GetProcAddress("glDrawArrays");
-
-    #if defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__)
-    wglChoosePixelFormatARB = (wglChoosePixelFormatARBPtr)a_GetProcAddress("wglChoosePixelFormatARB");
-    wglCreateContextAttribsARB = (wglCreateContextAttribsARBPtr)a_GetProcAddress("wglCreateContextAttribsARB");
-    wglDXOpenDeviceNV = (wglDXOpenDeviceNVPtr)a_GetProcAddress("wglDXOpenDeviceNV");
-    wglDXCloseDeviceNV = (wglDXCloseDeviceNVPtr)a_GetProcAddress("wglDXCloseDeviceNV");
-    wglDXRegisterObjectNV = (wglDXRegisterObjectNVPtr)a_GetProcAddress("wglDXRegisterObjectNV");
-    wglDXSetResourceShareHandleNV = (wglDXSetResourceShareHandleNVPtr)a_GetProcAddress("wglDXSetResourceShareHandleNV");
-    wglDXUnregisterObjectNV = (wglDXUnregisterObjectNVPtr)a_GetProcAddress("wglDXUnregisterObjectNV");
-    wglDXLockObjectsNV = (wglDXLockObjectsNVPtr)a_GetProcAddress("wglDXLockObjectsNV");
-    wglDXUnlockObjectsNV = (wglDXUnlockObjectsNVPtr)a_GetProcAddress("wglDXUnlockObjectsNV");
-    #endif
 }
 
 glfun(void, glDeleteFramebuffers)(JNIEnv* env, jobject, jint fbo) {
@@ -306,4 +296,8 @@ glfun(void, glDeleteBuffers)(JNIEnv* env, jobject, jint buffer) {
 
 glfun(void, glDrawArrays)(JNIEnv* env, jobject, jint mode, jint first, jint count) {
     a_glDrawArrays(mode, first, count);
+}
+
+glfun(jint, glGetError)(JNIEnv* env, jobject) {
+    return (jint)a_glGetError();
 }

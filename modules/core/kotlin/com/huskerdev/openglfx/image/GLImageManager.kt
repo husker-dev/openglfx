@@ -7,7 +7,7 @@ import com.huskerdev.openglfx.GLExecutor.Companion.glGenTextures
 import com.huskerdev.openglfx.GLExecutor.Companion.glGetInteger
 import com.huskerdev.openglfx.GLExecutor.Companion.glReadPixels
 import com.huskerdev.openglfx.GLExecutor.Companion.glTexImage2D
-import com.huskerdev.openglfx.internal.fbo.Framebuffer
+import com.huskerdev.openglfx.internal.Framebuffer
 import javafx.scene.image.Image
 import javafx.scene.image.PixelBuffer
 import javafx.scene.image.PixelFormat
@@ -31,7 +31,7 @@ class GLImageManager {
                 GL_BGRA,
                 GL_UNSIGNED_BYTE, buffer)
 
-            return Framebuffer(width, height, existingTexture = texture)
+            return Framebuffer.Default(width, height, texture = texture)
         }
 
         @JvmStatic

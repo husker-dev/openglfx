@@ -10,7 +10,7 @@ compilation {
     classpath = "com.huskerdev.openglfx.native"
 
     windows {
-        libs = ["user32", "gdi32", "setupapi", "advapi32", "ole32", "dwmapi"]
+        libs = ["user32", "gdi32", "d3d9"]
     }
     macos {
         frameworks = ["Cocoa", "IOKit"]

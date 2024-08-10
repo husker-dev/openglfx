@@ -37,7 +37,7 @@ enum class GLInteropType {
         val auto: GLInteropType
             get() = when (GraphicsPipeline.getPipeline().javaClass.canonicalName.split(".")[3]) {
                 "es2" -> if(Platform.os == OS.MacOS) IOSurface else TextureSharing
-                "d3d" -> if (com.huskerdev.openglfx.internal.d3d9.NVDXInterop.isSupported()) NVDXInterop else Blit
+                "d3d" -> if (com.huskerdev.openglfx.internal.platforms.win.WGLDX.isSupported()) NVDXInterop else Blit
                 else -> Blit
             }
     }

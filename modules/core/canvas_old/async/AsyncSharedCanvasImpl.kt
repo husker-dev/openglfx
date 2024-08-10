@@ -1,27 +1,24 @@
-package com.huskerdev.openglfx.internal.canvas.async
+package com.huskerdev.openglfx.internal.canvas_old.async
 
 import com.huskerdev.grapl.gl.GLContext
 import com.huskerdev.grapl.gl.GLProfile
-import com.huskerdev.openglfx.*
+import com.huskerdev.openglfx.GLExecutor
 import com.huskerdev.openglfx.GLExecutor.Companion.glFinish
 import com.huskerdev.openglfx.GLExecutor.Companion.glViewport
 import com.huskerdev.openglfx.canvas.GLCanvas
 import com.huskerdev.openglfx.internal.*
 import com.huskerdev.openglfx.internal.GLFXUtils
-import com.huskerdev.openglfx.internal.GLFXUtils.Companion.dispose
-import com.huskerdev.openglfx.internal.GLFXUtils.Companion.updateData
 import com.huskerdev.openglfx.internal.shaders.PassthroughShader
 import com.huskerdev.openglfx.internal.Size
 import com.huskerdev.openglfx.internal.fbo.Framebuffer
 import com.huskerdev.openglfx.internal.fbo.MultiSampledFramebuffer
 import com.huskerdev.openglfx.internal.shaders.FXAAShader
-import com.sun.prism.Graphics
-import com.sun.prism.Texture
-import java.nio.ByteBuffer
+import com.sun.prism.*
+import com.sun.prism.es2.esTextureId
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
-open class AsyncBlitCanvasImpl(
+open class AsyncSharedCanvasImpl(
     canvas: GLCanvas,
     executor: GLExecutor,
     profile: GLProfile
@@ -30,41 +27,39 @@ open class AsyncBlitCanvasImpl(
     private val paintLock = Object()
     private val blitLock = Object()
 
-    private var needsBlit = AtomicBoolean(false)
-
     private var drawSize = Size()
     private var transferSize = Size()
     private var resultSize = Size()
+
+    private lateinit var context: GLContext
+    private lateinit var fxContextWrapper: GLContext
+    private lateinit var fxContext: GLContext
 
     private lateinit var fbo: Framebuffer
     private var msaaFBO: MultiSampledFramebuffer? = null
     private lateinit var transferFBO: Framebuffer
     private lateinit var resultFBO: Framebuffer
 
-    private lateinit var context: GLContext
-    private lateinit var contextWrapper: GLContext
-    private lateinit var resultContext: GLContext
+    private lateinit var fxTexture: Texture
 
-    private lateinit var dataBuffer: ByteBuffer
-    private lateinit var texture: Texture
+    private var needsBlit = AtomicBoolean(false)
 
     private val passthroughShader by lazy { PassthroughShader() }
     private val fxaaShader by lazy { FXAAShader() }
 
     private fun initializeThread(){
-        context = GLContext.create(0L, profile)
-        contextWrapper = GLContext.create(context, profile)
-        resultContext = GLContext.create(context, profile)
+        fxContext = GLContext.current()
+        fxContextWrapper = GLContext.create(fxContext, profile)
+        context = GLContext.create(fxContext, profile)
 
         thread(isDaemon = true) {
             context.makeCurrent()
             executor.initGLFunctions()
-            canvas.fireInitEvent()
 
             while(!disposed){
                 paint()
                 synchronized(blitLock) {
-                    transferSize.executeOnDifferenceWith(drawSize, ::resizeTransferFramebuffer)
+                    transferSize.executeOnDifferenceWith(drawSize, ::updateTransferTextureSize)
                     fbo.blitTo(transferFBO)
                     glFinish()
                 }
@@ -79,10 +74,16 @@ open class AsyncBlitCanvasImpl(
             canvas.fireDisposeEvent()
             GLContext.clear()
             GLFXUtils.runOnRenderThread {
-                if (::texture.isInitialized) texture.dispose()
-                if (::dataBuffer.isInitialized) dataBuffer.dispose()
+                if(::fxTexture.isInitialized) fxTexture.dispose()
+
+                if(::resultFBO.isInitialized) resultFBO.delete()
+                if(::transferFBO.isInitialized) transferFBO.delete()
+                if(::fbo.isInitialized) fbo.delete()
+                msaaFBO?.delete()
+
                 context.delete()
-                resultContext.delete()
+                fxContextWrapper.delete()
+                fxContext.makeCurrent()
             }
         }
     }
@@ -92,7 +93,7 @@ open class AsyncBlitCanvasImpl(
             msaa != (msaaFBO?.requestedSamples ?: 0)
         ){
             scaledSize.copyTo(drawSize)
-            resizeDrawFramebuffer(drawSize.width, drawSize.height)
+            updateRenderFramebufferSize(drawSize.width, drawSize.height)
             canvas.fireReshapeEvent(drawSize.width, drawSize.height)
         }
 
@@ -101,65 +102,68 @@ open class AsyncBlitCanvasImpl(
         msaaFBO?.blitTo(fbo)
     }
 
-    override fun renderContent(g: Graphics){
+    override fun renderContent(g: Graphics) {
         if(scaledWidth == 0 || scaledHeight == 0 || disposed)
             return
 
-        if(!this::context.isInitialized)
+        if (!::context.isInitialized)
             initializeThread()
 
         if (needsBlit.getAndSet(false)) {
-            resultContext.makeCurrent()
+            fxContextWrapper.makeCurrent()
             synchronized(blitLock){
                 resultSize.executeOnDifferenceWith(transferSize) { width, height ->
-                    resizeResultTexture(width, height)
+                    updateResultFramebufferSize(width, height)
                     glViewport(0, 0, width, height)
                 }
                 (if(fxaa) fxaaShader else passthroughShader).apply(transferFBO, resultFBO)
-                resultFBO.readPixels(0, 0, resultSize.width, resultSize.height,
-                    GL_BGRA,
-                    GL_UNSIGNED_INT_8_8_8_8_REV, dataBuffer)
-                texture.updateData(dataBuffer, resultSize.width, resultSize.height)
             }
+            fxContext.makeCurrent()
         }
-        if(::texture.isInitialized)
-            drawResultTexture(g, texture)
+
+        if(this::fxTexture.isInitialized)
+            drawResultTexture(g, fxTexture)
     }
 
-    private fun resizeDrawFramebuffer(width: Int, height: Int) {
+    private fun updateResultFramebufferSize(width: Int, height: Int) {
+        if(::resultFBO.isInitialized) {
+            resultFBO.delete()
+            fxTexture.dispose()
+        }
+
+        // Create JavaFX texture
+        fxTexture = GLFXUtils.createPermanentFXTexture(width, height)
+
+        // Create framebuffer that connected to JavaFX's texture
+        resultFBO = Framebuffer(width, height, existingTexture = fxTexture.esTextureId)
+    }
+
+    private fun updateTransferTextureSize(width: Int, height: Int) {
+        if(::transferFBO.isInitialized)
+            transferFBO.delete()
+        transferFBO = Framebuffer(width, height)
+    }
+
+    private fun updateRenderFramebufferSize(width: Int, height: Int) {
         if(::fbo.isInitialized){
             fbo.delete()
             msaaFBO?.delete()
         }
 
+        // Create framebuffer
         fbo = Framebuffer(width, height)
-        if(msaa > 0) {
+
+        // Create multi-sampled framebuffer
+        if(msaa > 0){
             msaaFBO = MultiSampledFramebuffer(msaa, width, height)
-            msaaFBO?.bindFramebuffer()
+            msaaFBO!!.bindFramebuffer()
         } else {
             msaaFBO = null
             fbo.bindFramebuffer()
         }
     }
 
-    private fun resizeTransferFramebuffer(width: Int, height: Int){
-        if(::transferFBO.isInitialized)
-            transferFBO.delete()
-        transferFBO = Framebuffer(width, height)
-    }
-
-    private fun resizeResultTexture(width: Int, height: Int) {
-        if(::dataBuffer.isInitialized) {
-            dataBuffer.dispose()
-            texture.dispose()
-            resultFBO.delete()
-        }
-        dataBuffer = ByteBuffer.allocateDirect(width * height * 4)
-        texture = GLFXUtils.createPermanentFXTexture(width, height)
-        resultFBO = Framebuffer(width, height)
-    }
-
-    override fun repaint() {
+    override fun requestRepaint() {
         synchronized(paintLock){
             paintLock.notifyAll()
         }
@@ -167,11 +171,11 @@ open class AsyncBlitCanvasImpl(
 
     override fun timerTick() {
         if(needsBlit.get())
-            dirty()
+            makeDirty()
     }
 
     override fun dispose() {
         super.dispose()
-        repaint()
+        requestRepaint()
     }
 }

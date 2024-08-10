@@ -7,14 +7,8 @@ import com.huskerdev.openglfx.canvas.events.GLDisposeEvent
 import com.huskerdev.openglfx.canvas.events.GLInitializeEvent
 import com.huskerdev.openglfx.canvas.events.GLRenderEvent
 import com.huskerdev.openglfx.canvas.events.GLReshapeEvent
-import com.huskerdev.openglfx.internal.canvas.NVDXInteropCanvasImpl
-import com.huskerdev.openglfx.internal.canvas.SharedCanvasImpl
-import com.huskerdev.openglfx.internal.canvas.BlitCanvasImpl
-import com.huskerdev.openglfx.internal.canvas.IOSurfaceCanvasImpl
-import com.huskerdev.openglfx.internal.canvas.async.AsyncBlitCanvasImpl
-import com.huskerdev.openglfx.internal.canvas.async.AsyncIOSurfaceCanvasImpl
-import com.huskerdev.openglfx.internal.canvas.async.AsyncNVDXInteropCanvasImpl
-import com.huskerdev.openglfx.internal.canvas.async.AsyncSharedCanvasImpl
+import com.huskerdev.openglfx.internal.NGGLCanvas
+import com.huskerdev.openglfx.internal.canvas.DXGICanvas
 import java.nio.*
 
 
@@ -104,6 +98,8 @@ open class GLExecutor {
         @JvmStatic external fun glDeleteBuffers(buffer: Int)
         @JvmStatic external fun glDrawArrays(mode: Int, first: Int, count: Int)
 
+        @JvmStatic external fun glGetError(): Int
+
         internal fun floatBuffer(array: FloatArray): FloatBuffer {
             return ByteBuffer.allocateDirect(array.size * Float.SIZE_BYTES)
                 .order(ByteOrder.nativeOrder()).asFloatBuffer().put(array)
@@ -121,21 +117,17 @@ open class GLExecutor {
         }
     }
 
-    open fun blitNGCanvas(canvas: GLCanvas, executor: GLExecutor, profile: GLProfile) =
-        if(canvas.async) AsyncBlitCanvasImpl(canvas, executor, profile)
-        else BlitCanvasImpl(canvas, executor, profile)
+    open fun blitNGCanvas(canvas: GLCanvas, executor: GLExecutor, profile: GLProfile): NGGLCanvas =
+        throw UnsupportedOperationException()
 
-    open fun sharedNGCanvas(canvas: GLCanvas, executor: GLExecutor, profile: GLProfile) =
-        if(canvas.async) AsyncSharedCanvasImpl(canvas, executor, profile)
-        else SharedCanvasImpl(canvas, executor, profile)
+    open fun sharedNGCanvas(canvas: GLCanvas, executor: GLExecutor, profile: GLProfile): NGGLCanvas =
+        throw UnsupportedOperationException()
 
     open fun interopNGCanvas(canvas: GLCanvas, executor: GLExecutor, profile: GLProfile) =
-        if(canvas.async) AsyncNVDXInteropCanvasImpl(canvas, executor, profile)
-        else NVDXInteropCanvasImpl(canvas, executor, profile)
+        DXGICanvas(canvas, executor, profile)
 
-    open fun ioSurfaceNGCanvas(canvas: GLCanvas, executor: GLExecutor, profile: GLProfile) =
-        if(canvas.async) AsyncIOSurfaceCanvasImpl(canvas, executor, profile)
-        else IOSurfaceCanvasImpl(canvas, executor, profile)
+    open fun ioSurfaceNGCanvas(canvas: GLCanvas, executor: GLExecutor, profile: GLProfile): NGGLCanvas =
+        throw UnsupportedOperationException()
 
     open fun createRenderEvent(canvas: GLCanvas, currentFps: Int, delta: Double, width: Int, height: Int, fbo: Int)
             = GLRenderEvent(GLRenderEvent.ANY, currentFps, delta, width, height, fbo)

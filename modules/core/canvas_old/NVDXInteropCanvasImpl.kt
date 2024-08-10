@@ -1,4 +1,4 @@
-package com.huskerdev.openglfx.internal.canvas
+package com.huskerdev.openglfx.internal.canvas_old
 
 import com.huskerdev.grapl.gl.GLContext
 import com.huskerdev.grapl.gl.GLProfile
@@ -35,7 +35,7 @@ open class NVDXInteropCanvasImpl(
     private lateinit var msaaFBO: MultiSampledFramebuffer
 
     private lateinit var context: GLContext
-    private val fxDevice = D3D9Device.fxInstance
+    private val fxDevice = D3D9Device.jfx
 
     private lateinit var fxD3DTexture: D3D9Texture
     private lateinit var fxTexture: Texture
@@ -105,11 +105,11 @@ open class NVDXInteropCanvasImpl(
         context.makeCurrent()
     }
 
-    override fun repaint() = needsRepaint.set(true)
+    override fun requestRepaint() = needsRepaint.set(true)
 
     override fun timerTick() {
         if(needsRepaint.getAndSet(false))
-            dirty()
+            makeDirty()
     }
 
     override fun dispose() {

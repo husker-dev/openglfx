@@ -13,6 +13,7 @@ import java.util.function.Predicate
 abstract class WindowsConfiguration extends AbstractPlatformConfiguration{
     abstract Property<String> getVarsDir()
     abstract Property<String> getSdkDir()
+    abstract Property<Boolean> getUseDXSdk()
 }
 
 abstract class MacOSConfiguration extends AbstractPlatformConfiguration{
@@ -149,12 +150,17 @@ enum Compiler {
         includeDirs += "${sdkDir}/Include/${sdkVersion}/shared"
         includeDirs += "${sdkDir}/Include/${sdkVersion}/winrt"
 
+        if(platformConfig.useDXSdk.get())
+            includeDirs += "${findDXSDKDir()}/Include"
+
         for(Arch arch in archs) {
             String typeModifier = type == OutputType.SHARED ? "/LD" : ""
             def archLibs = [
                     "${sdkDir}/Lib/${sdkVersion}/ucrt/${arch.name().toLowerCase()}",
                     "${sdkDir}/Lib/${sdkVersion}/um/${arch.name().toLowerCase()}"
             ]
+            if(platformConfig.useDXSdk.get())
+                archLibs += "${findDXSDKDir()}/Lib/${arch.name().toLowerCase()}"
             def varsFile = arch == Arch.X64 ? "vcvars64" : (arch == Arch.X86 ? "vcvars32" : "vcvars_arm64")
 
             execute(new String[]{
@@ -170,7 +176,7 @@ enum Compiler {
                     ${(libDirs + archLibs).collect { "/LIBPATH:\"$it\"" }.join(" ")}
                     /out:${getOutputName(projectConfig, project, output, type, arch)}
                     """
-                    },
+            },
                     varsDir,
                     tmpDir
             )
@@ -350,6 +356,24 @@ enum Compiler {
         throw new GradleException("Cant find any version of Windows SDK 10")
     }
 
+    static private String findDXSDKDir(){
+        for(root in File.listRoots()){
+            for(path in [
+                    "Program Files",
+                    "Program Files (x86)",
+            ]){
+                File[] children = new File(root, path).listFiles();
+                if(children != null){
+                    for(child in children){
+                        if(child.name.contains("Microsoft DirectX SDK"))
+                            return child.absolutePath
+                    }
+                }
+            }
+        }
+        throw new GradleException("Cant find any DirectX SDK")
+    }
+
     interface CompileAction{
         void compile(
                 ProjectCompileConfiguration projectConfig,
@@ -399,6 +423,7 @@ class NativeCompilationPlugin implements Plugin<Project> {
 
         config.windows.srcDirs = [ project.file("win"), project.file("shared") ]
         config.windows.jvmInclude = new File(config.jdk.asFile.get(), "include/win32")
+        config.windows.useDXSdk = false
 
         config.macos.srcDirs = [ project.file("macos"), project.file("shared") ]
         config.macos.jvmInclude = new File(config.jdk.asFile.get(), "include/darwin")
@@ -497,7 +522,7 @@ class NativeCompilationPlugin implements Plugin<Project> {
                         config.type.getOrElse(OutputType.SHARED),
                         architectures,
                         include.toArray(new String[0]),
-                        libFolders.toArray(new String[0]),
+                        libFolders.collect { it.absolutePath }.toArray(new String[0]),
                         libs.toArray(new String[0]),
                         outputName,
                         src.toArray(new String[0])

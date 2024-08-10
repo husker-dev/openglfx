@@ -1,4 +1,4 @@
-package com.huskerdev.openglfx.internal.canvas.async
+package com.huskerdev.openglfx.internal.canvas_old.async
 
 import com.huskerdev.grapl.gl.GLContext
 import com.huskerdev.grapl.gl.GLProfile
@@ -193,7 +193,7 @@ open class AsyncIOSurfaceCanvasImpl(
         fboFX = Framebuffer(width, height, existingTexture = fxTexture.esTextureId)
     }
 
-    override fun repaint() {
+    override fun requestRepaint() {
         synchronized(paintLock){
             paintLock.notifyAll()
         }
@@ -201,11 +201,11 @@ open class AsyncIOSurfaceCanvasImpl(
 
     override fun timerTick() {
         if(needsBlit.get())
-            dirty()
+            makeDirty()
     }
 
     override fun dispose() {
         super.dispose()
-        repaint()
+        requestRepaint()
     }
 }

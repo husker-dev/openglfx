@@ -106,10 +106,10 @@ class OGLFXGraphics(val canvas: GLCanvas): AbstractGraphics() {
     override fun supportsExtension(extension: String?) = true
 
     override fun setContinuousRendering(isContinuous: Boolean) {
-        canvas.animator = if(isContinuous) GLCanvasAnimator(60.0) else null
+        canvas.fps = 0
     }
 
-    override fun isContinuousRendering() = canvas.animator != null
+    override fun isContinuousRendering() = canvas.fps == 0
 
     override fun requestRendering() {
         canvas.repaint()

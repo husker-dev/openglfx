@@ -9,6 +9,7 @@ import com.sun.javafx.tk.Toolkit
 import com.sun.prism.GraphicsPipeline
 import com.sun.prism.PixelFormat
 import com.sun.prism.Texture
+import com.sun.scenario.Settings
 import javafx.scene.Node
 import sun.misc.Unsafe
 import java.nio.Buffer
@@ -18,7 +19,7 @@ import java.util.concurrent.FutureTask
 import java.util.function.Consumer
 
 
-internal class GLFXUtils {
+class GLFXUtils {
 
     companion object {
         private var isLibLoaded = false
@@ -71,6 +72,23 @@ internal class GLFXUtils {
                     throw AssertionError(ex)
                 } catch (_: InterruptedException) {}
             }
+        }
+
+        fun getPulseDuration(): Int {
+            if (Settings.get("javafx.animation.framerate") != null) {
+                val overrideHz = Settings.getInt("javafx.animation.framerate", 60)
+                if (overrideHz > 0)
+                    return overrideHz
+            } else if (Settings.get("javafx.animation.pulse") != null) {
+                val overrideHz = Settings.getInt("javafx.animation.pulse", 60)
+                if (overrideHz > 0)
+                    return overrideHz
+            } else {
+                val rate: Int = Toolkit.getToolkit().refreshRate
+                if (rate > 0)
+                    return rate
+            }
+            return 60
         }
 
         fun <T> List<Consumer<T>>.dispatchConsumer(event: T) {
