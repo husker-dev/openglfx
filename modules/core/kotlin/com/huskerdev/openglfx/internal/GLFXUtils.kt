@@ -8,7 +8,6 @@ import com.sun.prism.PixelFormat
 import com.sun.prism.Texture
 import com.sun.scenario.Settings
 import javafx.scene.Node
-import sun.misc.Unsafe
 import java.nio.ByteBuffer
 import java.util.function.Consumer
 
@@ -16,16 +15,11 @@ import java.util.function.Consumer
 class GLFXUtils {
 
     companion object {
-        private var isLibLoaded = false
+        @JvmStatic external fun createDirectBuffer(size: Int): ByteBuffer
+        @JvmStatic external fun cleanDirectBuffer(buffer: ByteBuffer)
 
-        private val unsafe = Unsafe::class.java.getDeclaredField("theUnsafe").apply { isAccessible = true }[null] as Unsafe
-
-        fun loadLibrary(){
-            if(isLibLoaded) return
-            isLibLoaded = true
-
+        fun loadLibrary() =
             Platform.loadLibraryFromResources("com/huskerdev/openglfx/native", "lib", GLFXInfo.VERSION)
-        }
 
         fun getDPI(node: Node) =
             if(node.scene == null || node.scene.window == null)
@@ -41,11 +35,6 @@ class GLFXUtils {
                 )
             texture.makePermanent()
             return texture
-        }
-
-
-        fun ByteBuffer.dispose() {
-            unsafe.invokeCleaner(this)
         }
 
         fun getPulseDuration(): Int {

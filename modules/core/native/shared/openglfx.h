@@ -3,10 +3,9 @@
 
 #include <jni.h>
 
-#define glfun(returnType, fun) extern "C" JNIEXPORT returnType JNICALL Java_com_huskerdev_openglfx_GLExecutor_##fun
-#define nvdxfun(returnType, fun) extern "C" JNIEXPORT returnType JNICALL Java_com_huskerdev_openglfx_internal_d3d9_NVDXInterop_##fun
-#define d3dfun(returnType, fun) extern "C" JNIEXPORT returnType JNICALL Java_com_huskerdev_openglfx_internal_d3d9_D3D9Device_##fun
-#define iosfun(returnType, fun) extern "C" JNIEXPORT returnType JNICALL Java_com_huskerdev_openglfx_internal_iosurface_IOSurface_##fun
+#define jni_utils(returnType, fun)  extern "C" JNIEXPORT returnType JNICALL Java_com_huskerdev_openglfx_internal_GLFXUtils_##fun
+#define jni_gl(returnType, fun)  extern "C" JNIEXPORT returnType JNICALL Java_com_huskerdev_openglfx_GLExecutor_##fun
+
 
 typedef unsigned int GLenum;
 typedef int GLint;
@@ -29,7 +28,6 @@ typedef unsigned int GLbitfield;
 #define GL_FALSE 0
 #define GL_TRUE 1
 
-void* a_GetProcAddress(const char* name);
 
 #if defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__)
 #include <windows.h>
@@ -49,6 +47,49 @@ static glXGetProcAddressPtr a_gladGetProcAddress;
 #include <dlfcn.h>
 static void* libGL;
 #endif
+
+
+
+static void* a_GetProcAddress(const char* name) {
+#if defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__)
+    if(libGL == NULL){
+        libGL = LoadLibraryW(L"opengl32.dll");
+        a_wglGetProcAddress = (wglGetProcAddressPtr)GetProcAddress(libGL, "wglGetProcAddress");
+    }
+    void* procAddr = a_wglGetProcAddress(name);
+    if(procAddr == NULL)
+        procAddr = GetProcAddress(libGL, name);
+    return procAddr;
+
+#elif defined(__linux__)
+    if(libGL == NULL){
+        static const char *NAMES[] = {"libGL.so.1", "libGL.so"};
+        for(int i = 0; i < 2; i++)
+            if((libGL = dlopen(NAMES[i], RTLD_NOW | RTLD_GLOBAL)) != NULL)
+                break;
+        a_gladGetProcAddress = (glXGetProcAddressPtr)dlsym(libGL, "glXGetProcAddressARB");
+    }
+    void* procAddr = (void*)a_gladGetProcAddress(name);
+    if(procAddr == NULL)
+        procAddr = dlsym(libGL, name);
+    return procAddr;
+
+#elif defined(__APPLE__)
+    if(libGL == NULL){
+        static const char *NAMES[] = {
+            "../Frameworks/OpenGL.framework/OpenGL",
+            "/Library/Frameworks/OpenGL.framework/OpenGL",
+            "/System/Library/Frameworks/OpenGL.framework/OpenGL",
+            "/System/Library/Frameworks/OpenGL.framework/Versions/Current/OpenGL"
+        };
+        for(int i = 0; i < 4; i++)
+            if((libGL = dlopen(NAMES[i], RTLD_NOW | RTLD_GLOBAL)) != NULL)
+                break;
+    }
+    return dlsym(libGL, name);
+#endif
+}
+
 
 
 typedef void (*glDeleteFramebuffersPtr)(GLsizei n, const GLuint* framebuffers);

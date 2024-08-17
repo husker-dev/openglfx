@@ -41,7 +41,7 @@ import kotlin.math.ceil
  */
 open class GLCanvas @JvmOverloads constructor(
     val executor: GLExecutor,
-    val profile: GLProfile          = GLProfile.COMPATIBILITY,
+    val profile: GLProfile          = GLProfile.CORE,
     var flipY: Boolean              = false,
     var msaa: Int                   = 0,
     var fxaa: Boolean               = false,

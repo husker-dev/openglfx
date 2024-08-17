@@ -8,6 +8,7 @@ import com.huskerdev.openglfx.canvas.events.GLInitializeEvent
 import com.huskerdev.openglfx.canvas.events.GLRenderEvent
 import com.huskerdev.openglfx.canvas.events.GLReshapeEvent
 import com.huskerdev.openglfx.internal.NGGLCanvas
+import com.huskerdev.openglfx.internal.canvas.BlitCanvas
 import com.huskerdev.openglfx.internal.canvas.DXGICanvas
 import com.huskerdev.openglfx.internal.canvas.IOSurfaceCanvas
 import java.nio.*
@@ -114,7 +115,7 @@ open class GLExecutor {
     }
 
     open fun blitNGCanvas(canvas: GLCanvas, executor: GLExecutor, profile: GLProfile): NGGLCanvas =
-        throw UnsupportedOperationException()
+        BlitCanvas(canvas, executor, profile)
 
     open fun sharedNGCanvas(canvas: GLCanvas, executor: GLExecutor, profile: GLProfile): NGGLCanvas =
         throw UnsupportedOperationException()

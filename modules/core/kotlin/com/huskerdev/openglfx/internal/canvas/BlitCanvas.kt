@@ -7,7 +7,6 @@ import com.huskerdev.openglfx.internal.GLFXUtils
 import com.huskerdev.openglfx.internal.NGGLCanvas
 
 import com.huskerdev.openglfx.internal.Framebuffer
-import com.huskerdev.openglfx.internal.GLFXUtils.Companion.dispose
 import com.sun.prism.PixelFormat
 
 
@@ -48,7 +47,7 @@ open class BlitCanvas(
             if(!this::fbo.isInitialized || fbo.width != width || fbo.height != height){
                 dispose()
 
-                dataBuffer = ByteBuffer.allocateDirect(width * height * 4)
+                dataBuffer = GLFXUtils.createDirectBuffer(width * height * 4)
                 interopFBO = Framebuffer.Default(width, height)
                 fbo = createFramebufferForRender(width, height)
                 return true
@@ -83,7 +82,7 @@ open class BlitCanvas(
         override fun dispose() {
             if (this::fbo.isInitialized) fbo.delete()
             if (this::interopFBO.isInitialized) interopFBO.delete()
-            if (this::dataBuffer.isInitialized) dataBuffer.dispose()
+            if (this::dataBuffer.isInitialized) GLFXUtils.cleanDirectBuffer(dataBuffer)
         }
 
         override fun disposeFXResources() {
