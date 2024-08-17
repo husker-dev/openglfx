@@ -13,7 +13,7 @@ compilation {
         libs = ["user32", "gdi32", "d3d9"]
     }
     macos {
-        frameworks = ["Cocoa", "IOKit"]
+        frameworks = ["Cocoa", "IOSurface", "OpenGL"]
     }
 }
 

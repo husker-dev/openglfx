@@ -1,9 +1,7 @@
 package com.huskerdev.openglfx.internal
 
-import com.huskerdev.grapl.core.platform.OS
 import com.huskerdev.grapl.core.platform.Platform
 import com.huskerdev.openglfx.GLFXInfo
-import com.huskerdev.openglfx.internal.iosurface.IOSurface
 import com.sun.javafx.tk.Toolkit
 import com.sun.prism.GraphicsPipeline
 import com.sun.prism.PixelFormat
@@ -32,10 +30,7 @@ class GLFXUtils {
         fun getDPI(node: Node) =
             if(node.scene == null || node.scene.window == null)
                 1.0
-            else if(Platform.os == OS.MacOS) {
-                val window = node.scene.window
-                IOSurface.nGetDisplayDPI(window.x + window.width / 2, window.y + window.height / 2)
-            } else
+            else
                 node.scene.window.outputScaleY
 
         fun createPermanentFXTexture(width: Int, height: Int): Texture {

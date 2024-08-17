@@ -1,12 +1,16 @@
-package com.huskerdev.openglfx.internal.iosurface
+package com.huskerdev.openglfx.internal.platforms.macos
 
 import com.huskerdev.grapl.gl.GLContext
+import com.huskerdev.openglfx.GLExecutor.Companion.glBindTexture
+import com.huskerdev.openglfx.GLExecutor.Companion.glGenTextures
+import com.huskerdev.openglfx.GL_BGRA
+import com.huskerdev.openglfx.GL_RGBA
+import com.huskerdev.openglfx.GL_TEXTURE_RECTANGLE
+import com.huskerdev.openglfx.GL_UNSIGNED_INT_8_8_8_8_REV
 
 internal class IOSurface(val width: Int, val height: Int) {
 
     companion object {
-        @JvmStatic external fun nGetDisplayDPI(x: Double , y: Double): Double
-
         @JvmStatic private external fun nCreateIOSurface(width: Int, height: Int): Long
         @JvmStatic private external fun nReleaseIOSurface(ioSurfaceRef: Long)
         @JvmStatic private external fun nCGLTexImageIOSurface2D(
@@ -19,10 +23,19 @@ internal class IOSurface(val width: Int, val height: Int) {
 
     private val handle = nCreateIOSurface(width, height)
 
-    fun cglTexImageIOSurface2D(ctx: GLContext, target: Int, internalFormat: Int,
-                               format: Int, type: Int,
-                               plane: Int): Int =
-        nCGLTexImageIOSurface2D(ctx.handle, target, internalFormat, width, height, format, type, handle, plane)
+    fun createBoundTexture(): Int {
+        val texture = glGenTextures()
+        glBindTexture(GL_TEXTURE_RECTANGLE, texture)
+        nCGLTexImageIOSurface2D(
+            GLContext.current().handle,
+            GL_TEXTURE_RECTANGLE,
+            GL_RGBA,
+            width, height,
+            GL_BGRA,
+            GL_UNSIGNED_INT_8_8_8_8_REV,
+            handle, 0)
+        return texture
+    }
 
     fun lock() = nIOSurfaceLock(handle)
 

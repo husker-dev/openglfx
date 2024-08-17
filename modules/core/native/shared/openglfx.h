@@ -22,7 +22,9 @@ typedef unsigned char GLubyte;
 typedef char GLchar;
 typedef unsigned char GLboolean;
 typedef unsigned int GLbitfield;
-typedef unsigned __int64 GLuint64;
+#ifndef __APPLE__
+    typedef unsigned long GLuint64;
+#endif
 
 #define GL_FALSE 0
 #define GL_TRUE 1

@@ -2,45 +2,15 @@
 // Created by Nikita Shtengauer on 20.11.2023.
 //
 
-#include <openglfx.h>
+#include "openglfx-macos.h"
 
-#include <CoreFoundation/CoreFoundation.h>
-#include <CoreGraphics/CGDisplayConfiguration.h>
 #include <IOSurface/IOSurface.h>
 #include <OpenGL/OpenGL.h>
 
 
 
-iosfun(jdouble, nGetDisplayDPI)(JNIEnv *, jobject, jdouble x, jdouble y) {
-    CGDirectDisplayID display;
-    CGGetDisplaysWithPoint(CGPoint{x, y}, 1, &display, nullptr);
 
-    CFStringRef keys[1]{
-        kCGDisplayShowDuplicateLowResolutionModes
-    };
-    CFBooleanRef values[1]{
-        kCFBooleanTrue
-    };
-    CFDictionaryRef dictionary = CFDictionaryCreate(
-                nullptr, (const void **) keys, (const void **) values, 1,
-                &kCFCopyStringDictionaryKeyCallBacks,
-                &kCFTypeDictionaryValueCallBacks);
-
-    CFArrayRef modes = CGDisplayCopyAllDisplayModes(display, dictionary);
-    CFRelease(dictionary);
-
-    int actualWidth = 0;
-    for(int i = 0; i < CFArrayGetCount(modes); i++){
-        CGDisplayModeRef mode = (CGDisplayModeRef)CFArrayGetValueAtIndex(modes, i);
-
-        int width = CGDisplayModeGetPixelWidth(mode);
-        if(width == CGDisplayModeGetWidth(mode) && actualWidth < width)
-            actualWidth = width;
-    }
-    return (double)actualWidth / CGDisplayPixelsWide(display);
-}
-
-iosfun(jlong, nCreateIOSurface)(JNIEnv *, jobject, jint width, jint height) {
+jni_win_iosurface(jlong, nCreateIOSurface)(JNIEnv *, jobject, jint width, jint height) {
     int bytes = 4;
     CFStringRef keys[3]{
             kIOSurfaceWidth, kIOSurfaceHeight, kIOSurfaceBytesPerElement
@@ -61,11 +31,11 @@ iosfun(jlong, nCreateIOSurface)(JNIEnv *, jobject, jint width, jint height) {
     return (jlong) ioSurfaceRef;
 }
 
-iosfun(void, nReleaseIOSurface)(JNIEnv *, jobject, jlong ioSurfaceRef) {
+jni_win_iosurface(void, nReleaseIOSurface)(JNIEnv *, jobject, jlong ioSurfaceRef) {
     CFRelease((IOSurfaceRef) ioSurfaceRef);
 }
 
-iosfun(jint, nCGLTexImageIOSurface2D)(JNIEnv *, jobject,
+jni_win_iosurface(jint, nCGLTexImageIOSurface2D)(JNIEnv *, jobject,
                                       jlong ctx, jint target, jint internalFormat, jint width, jint height, jint format,
                                       jint type,
                                       jlong ioSurfaceRef, jint plane) {
@@ -77,10 +47,10 @@ iosfun(jint, nCGLTexImageIOSurface2D)(JNIEnv *, jobject,
             (IOSurfaceRef) ioSurfaceRef, (GLuint) plane);
 }
 
-iosfun(void, nIOSurfaceLock)(JNIEnv *, jobject, jlong ioSurfaceRef) {
+jni_win_iosurface(void, nIOSurfaceLock)(JNIEnv *, jobject, jlong ioSurfaceRef) {
     IOSurfaceLock((IOSurfaceRef) ioSurfaceRef, kIOSurfaceLockReadOnly, nullptr);
 }
 
-iosfun(void, nIOSurfaceUnlock)(JNIEnv *, jobject, jlong ioSurfaceRef) {
+jni_win_iosurface(void, nIOSurfaceUnlock)(JNIEnv *, jobject, jlong ioSurfaceRef) {
     IOSurfaceUnlock((IOSurfaceRef) ioSurfaceRef, kIOSurfaceLockReadOnly, nullptr);
 }

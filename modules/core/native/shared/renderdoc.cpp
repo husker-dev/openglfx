@@ -20,7 +20,7 @@ JNIEXPORT jboolean JNICALL Java_com_huskerdev_openglfx_renderdoc_RenderDoc_nInit
     #elif defined(__linux__) || defined(__APPLE__)
     if(void *mod = dlopen("librenderdoc.so", RTLD_NOW | RTLD_NOLOAD)) {
         auto GetAPI = (pRENDERDOC_GetAPI)dlsym(mod, "RENDERDOC_GetAPI");
-        int ret = GetAPI(eRENDERDOC_API_Version_1_6_0, (void **)&rdoc_api);
+        return (jboolean)GetAPI(eRENDERDOC_API_Version_1_6_0, (void **)&rdoc_api);
     }
     #endif
     return false;

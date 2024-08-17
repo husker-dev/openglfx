@@ -8,8 +8,8 @@ import com.huskerdev.openglfx.canvas.events.GLInitializeEvent
 import com.huskerdev.openglfx.canvas.events.GLRenderEvent
 import com.huskerdev.openglfx.canvas.events.GLReshapeEvent
 import com.huskerdev.openglfx.internal.NGGLCanvas
-import com.huskerdev.openglfx.internal.canvas.BlitCanvas
 import com.huskerdev.openglfx.internal.canvas.DXGICanvas
+import com.huskerdev.openglfx.internal.canvas.IOSurfaceCanvas
 import java.nio.*
 
 
@@ -123,7 +123,7 @@ open class GLExecutor {
         DXGICanvas(canvas, executor, profile)
 
     open fun ioSurfaceNGCanvas(canvas: GLCanvas, executor: GLExecutor, profile: GLProfile): NGGLCanvas =
-        throw UnsupportedOperationException()
+        IOSurfaceCanvas(canvas, executor, profile)
 
     open fun createRenderEvent(canvas: GLCanvas, currentFps: Int, delta: Double, width: Int, height: Int, fbo: Int)
             = GLRenderEvent(GLRenderEvent.ANY, currentFps, delta, width, height, fbo)
