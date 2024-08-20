@@ -11,12 +11,12 @@ import com.huskerdev.openglfx.internal.GLFXUtils
 import com.huskerdev.openglfx.internal.NGGLCanvas
 
 import com.huskerdev.openglfx.internal.Framebuffer
+import com.huskerdev.openglfx.internal.platforms.GL_HANDLE_TYPE_D3D11_IMAGE_KMT_EXT
+import com.huskerdev.openglfx.internal.platforms.MemoryObjects.Companion.glCreateMemoryObjectsEXT
+import com.huskerdev.openglfx.internal.platforms.MemoryObjects.Companion.glDeleteMemoryObjectsEXT
+import com.huskerdev.openglfx.internal.platforms.MemoryObjects.Companion.glImportMemoryWin32HandleEXT
+import com.huskerdev.openglfx.internal.platforms.MemoryObjects.Companion.glTextureStorageMem2DEXT
 import com.huskerdev.openglfx.internal.platforms.win.D3D9
-import com.huskerdev.openglfx.internal.platforms.win.DXGI.Companion.GL_HANDLE_TYPE_D3D11_IMAGE_KMT_EXT
-import com.huskerdev.openglfx.internal.platforms.win.DXGI.Companion.glCreateMemoryObjectsEXT
-import com.huskerdev.openglfx.internal.platforms.win.DXGI.Companion.glDeleteMemoryObjectsEXT
-import com.huskerdev.openglfx.internal.platforms.win.DXGI.Companion.glImportMemoryWin32HandleEXT
-import com.huskerdev.openglfx.internal.platforms.win.DXGI.Companion.glTextureStorageMem2DEXT
 
 import com.sun.prism.Texture
 import com.sun.prism.d3d.d3dTextureResource
@@ -67,7 +67,7 @@ open class DXGICanvas(
                 d3d9Texture = device9.createTexture(width, height)
 
                 memoryObj = glCreateMemoryObjectsEXT()
-                glImportMemoryWin32HandleEXT(memoryObj, (width * height * 4 * 2).toLong(), GL_HANDLE_TYPE_D3D11_IMAGE_KMT_EXT, d3d9Texture.sharedHandle)
+                glImportMemoryWin32HandleEXT(memoryObj, width * height * 4L * 2, GL_HANDLE_TYPE_D3D11_IMAGE_KMT_EXT, d3d9Texture.sharedHandle)
                 glTextureStorageMem2DEXT(sharedTexture, 1, GL_BGRA, width, height, memoryObj, 0)
 
                 interopFBO = Framebuffer.Default(width, height, texture = sharedTexture)

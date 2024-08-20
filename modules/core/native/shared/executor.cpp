@@ -22,6 +22,7 @@ jni_gl(void, nInitGLFunctions)(JNIEnv* env, jobject) {
     a_glDeleteFramebuffers = (glDeleteFramebuffersPtr)a_GetProcAddress("glDeleteFramebuffers");
     a_glFinish = (glFinishPtr)a_GetProcAddress("glFinish");
     a_glGetError = (glGetErrorPtr)a_GetProcAddress("glGetError");
+    a_glCopyTexSubImage2D = (glCopyTexSubImage2DPtr)a_GetProcAddress("glCopyTexSubImage2D");
 
     a_glRenderbufferStorageMultisample = (glRenderbufferStorageMultisamplePtr)a_GetProcAddress("glRenderbufferStorageMultisample");
     a_glBlitFramebuffer = (glBlitFramebufferPtr)a_GetProcAddress("glBlitFramebuffer");
@@ -127,6 +128,10 @@ jni_gl(void, glViewport)(JNIEnv* env, jobject, jint x, jint y, jint w, jint h) {
 
 jni_gl(void, glFinish)(JNIEnv* env, jobject) {
     a_glFinish();
+}
+
+jni_gl(void, glCopyTexSubImage2D)(JNIEnv* env, jobject, jint target, jint level, jint xoffset, jint yoffset, jint x, jint y, jint width, jint height) {
+    a_glCopyTexSubImage2D(target, level, xoffset, yoffset, x, y, width, height);
 }
 
 jni_gl(void, glRenderbufferStorageMultisample)(JNIEnv* env, jobject, jint target, jint samples, jint internalformat, jint width, jint height) {

@@ -42,6 +42,8 @@ abstract class NGGLCanvas(
     private var readyToDisplay = AtomicBoolean(false)
     private var lastFrameStartTime = 0L
 
+    protected lateinit var context: GLContext
+
     private val swapChain = Array(2) { createSwapBuffer() }
     private var currentSwapBufferIndex = AtomicInteger(-1)
 
@@ -65,7 +67,7 @@ abstract class NGGLCanvas(
         renderLock.notifyAll()
     }
 
-    fun dispose(){
+    open fun dispose(){
         animationTimer.stop()
         disposed = true
         swapChain.forEach {
@@ -77,8 +79,10 @@ abstract class NGGLCanvas(
 
     private fun createRenderingThread(){
         renderThread = thread(isDaemon = true) {
-            val context = GLContext.create(0L, profile, debug = true)
+            context = GLContext.create(profile = profile, debug = true)
             context.makeCurrent()
+            println("gl context: ${context}")
+
             GLContext.bindDebugCallback(::println) // Debug
 
             executor.initGLFunctions()

@@ -69,6 +69,7 @@ open class GLExecutor {
         @JvmStatic external fun glTexParameteri(target: Int, pname: Int, param: Int)
         @JvmStatic external fun glViewport(x: Int, y: Int, w: Int, h: Int)
         @JvmStatic external fun glFinish()
+        @JvmStatic external fun glCopyTexSubImage2D(target: Int, level: Int, xOffset: Int, yOffset: Int, x: Int, y: Int, width: Int, height: Int)
 
         @JvmStatic external fun glRenderbufferStorageMultisample(target: Int, samples: Int, internalformat: Int, width: Int, height: Int)
         @JvmStatic external fun glBlitFramebuffer(srcX0: Int, srcY0: Int, srcX1: Int, srcY1: Int, dstX0: Int, dstY0: Int, dstX1: Int, dstY1: Int, mask: Int, filter: Int)

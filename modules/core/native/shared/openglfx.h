@@ -2,9 +2,11 @@
 #define OPENGLFX_H
 
 #include <jni.h>
+#include <initializer_list>
 
-#define jni_utils(returnType, fun)  extern "C" JNIEXPORT returnType JNICALL Java_com_huskerdev_openglfx_internal_GLFXUtils_##fun
-#define jni_gl(returnType, fun)  extern "C" JNIEXPORT returnType JNICALL Java_com_huskerdev_openglfx_GLExecutor_##fun
+#define jni_utils(returnType, fun)          extern "C" JNIEXPORT returnType JNICALL Java_com_huskerdev_openglfx_internal_GLFXUtils_##fun
+#define jni_gl(returnType, fun)             extern "C" JNIEXPORT returnType JNICALL Java_com_huskerdev_openglfx_GLExecutor_##fun
+#define jni_memoryObjects(returnType, fun)  extern "C" JNIEXPORT returnType JNICALL Java_com_huskerdev_openglfx_internal_platforms_MemoryObjects_##fun
 
 
 typedef unsigned int GLenum;
@@ -21,7 +23,8 @@ typedef unsigned char GLubyte;
 typedef char GLchar;
 typedef unsigned char GLboolean;
 typedef unsigned int GLbitfield;
-#ifndef __APPLE__
+
+#if defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__)
     typedef unsigned long GLuint64;
 #endif
 
@@ -110,6 +113,7 @@ typedef void (*glTexParameteriPtr)(GLenum target, GLenum pname, GLint param);
 typedef void (*glViewportPtr)(GLint x, GLint y, GLsizei width, GLsizei height);
 typedef void (*glFinishPtr)(void);
 typedef GLenum (*glGetErrorPtr)(void);
+typedef void (*glCopyTexSubImage2DPtr)(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height);
 
 typedef void (*glRenderbufferStorageMultisamplePtr)(GLenum target, GLsizei samples, GLint internalformat, GLsizei width, GLsizei height);
 typedef void (*glBlitFramebufferPtr)(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter);
@@ -158,6 +162,7 @@ static glDeleteRenderbuffersPtr         a_glDeleteRenderbuffers;
 static glDeleteFramebuffersPtr          a_glDeleteFramebuffers;
 static glFinishPtr                      a_glFinish;
 static glGetErrorPtr                    a_glGetError;
+static glCopyTexSubImage2DPtr           a_glCopyTexSubImage2D;
 
 static glRenderbufferStorageMultisamplePtr a_glRenderbufferStorageMultisample;
 static glBlitFramebufferPtr             a_glBlitFramebuffer;
@@ -186,5 +191,17 @@ static glVertexAttribPointerPtr         a_glVertexAttribPointer;
 static glEnableVertexAttribArrayPtr     a_glEnableVertexAttribArray;
 static glDeleteBuffersPtr               a_glDeleteBuffers;
 static glDrawArraysPtr                  a_glDrawArrays;
+
+// JNI utils
+
+static jlongArray createLongArray(JNIEnv* env, int size, jlong* array){
+    jlongArray result = env->NewLongArray(size);
+    env->SetLongArrayRegion(result, 0, size, array);
+    return result;
+}
+
+static jlongArray createLongArray(JNIEnv* env, std::initializer_list<jlong> array){
+    return createLongArray(env, (int)array.size(), (jlong*)array.begin());
+}
 
 #endif

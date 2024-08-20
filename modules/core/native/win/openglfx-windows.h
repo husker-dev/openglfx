@@ -23,11 +23,6 @@ typedef BOOL (*wglDXUnregisterObjectNVPtr)(HANDLE hDevice, HANDLE hObject);
 typedef BOOL (*wglDXLockObjectsNVPtr)(HANDLE hDevice, GLint count, HANDLE* hObjects);
 typedef BOOL (*wglDXUnlockObjectsNVPtr)(HANDLE hDevice, GLint count, HANDLE* hObjects);
 
-typedef void (*glCreateMemoryObjectsEXTPtr)(GLsizei n, GLuint* memoryObjects);
-typedef void (*glDeleteMemoryObjectsEXTPtr)(GLsizei n, const GLuint* memoryObjects);
-typedef void (*glImportMemoryWin32HandleEXTPtr)(GLuint memory, GLuint64 size, GLenum handleType, void* handle);
-typedef void (*glTextureStorageMem2DEXTPtr)(GLuint texture, GLsizei levels, GLenum internalFormat, GLsizei width, GLsizei height, GLuint memory, GLuint64 offset);
-
 
 static wglDXOpenDeviceNVPtr             wglDXOpenDeviceNV;
 static wglDXCloseDeviceNVPtr            wglDXCloseDeviceNV;
@@ -36,11 +31,6 @@ static wglDXSetResourceShareHandleNVPtr wglDXSetResourceShareHandleNV;
 static wglDXUnregisterObjectNVPtr       wglDXUnregisterObjectNV;
 static wglDXLockObjectsNVPtr            wglDXLockObjectsNV;
 static wglDXUnlockObjectsNVPtr          wglDXUnlockObjectsNV;
-
-static glCreateMemoryObjectsEXTPtr      glCreateMemoryObjectsEXT;
-static glDeleteMemoryObjectsEXTPtr      glDeleteMemoryObjectsEXT;
-static glImportMemoryWin32HandleEXTPtr  glImportMemoryWin32HandleEXT;
-static glTextureStorageMem2DEXTPtr      glTextureStorageMem2DEXT;
 
 static bool functionsLoaded = false;
 
@@ -53,10 +43,6 @@ static void loadWGLFunctions(){
     wglDXLockObjectsNV = (wglDXLockObjectsNVPtr)a_GetProcAddress("wglDXLockObjectsNV");
     wglDXUnlockObjectsNV = (wglDXUnlockObjectsNVPtr)a_GetProcAddress("wglDXUnlockObjectsNV");
 
-    glCreateMemoryObjectsEXT = (glCreateMemoryObjectsEXTPtr)a_GetProcAddress("glCreateMemoryObjectsEXT");
-    glDeleteMemoryObjectsEXT = (glDeleteMemoryObjectsEXTPtr)a_GetProcAddress("glDeleteMemoryObjectsEXT");
-    glImportMemoryWin32HandleEXT = (glImportMemoryWin32HandleEXTPtr)a_GetProcAddress("glImportMemoryWin32HandleEXT");
-    glTextureStorageMem2DEXT = (glTextureStorageMem2DEXTPtr)a_GetProcAddress("glTextureStorageMem2DEXT");
 }
 
 static void checkWGLFunctions(){

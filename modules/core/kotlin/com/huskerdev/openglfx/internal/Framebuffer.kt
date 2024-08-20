@@ -5,6 +5,7 @@ import com.huskerdev.openglfx.GLExecutor.Companion.glBindFramebuffer
 import com.huskerdev.openglfx.GLExecutor.Companion.glBindRenderbuffer
 import com.huskerdev.openglfx.GLExecutor.Companion.glBindTexture
 import com.huskerdev.openglfx.GLExecutor.Companion.glBlitFramebuffer
+import com.huskerdev.openglfx.GLExecutor.Companion.glCopyTexSubImage2D
 import com.huskerdev.openglfx.GLExecutor.Companion.glDeleteFramebuffers
 import com.huskerdev.openglfx.GLExecutor.Companion.glDeleteRenderbuffers
 import com.huskerdev.openglfx.GLExecutor.Companion.glDeleteTextures
@@ -156,6 +157,16 @@ abstract class Framebuffer(
     }
 
     fun blitTo(fbo: Framebuffer) = blitTo(fbo.id)
+
+    fun copyToTexture(texture: Int){
+        val oldReadBuffer = glGetInteger(GL_READ_FRAMEBUFFER_BINDING)
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, id)
+
+        glBindTexture(GL_TEXTURE_2D, texture)
+        glCopyTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 0, 0, width, height)
+
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, oldReadBuffer)
+    }
 
     open fun delete(){
         glDeleteFramebuffers(id)

@@ -9,7 +9,7 @@ import com.huskerdev.openglfx.canvas.events.GLReshapeEvent
 import com.huskerdev.openglfx.internal.*
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.dispatchConsumer
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.dispatchEvent
-import com.huskerdev.openglfx.internal.GLInteropType.*
+import com.huskerdev.openglfx.internal.canvas.VkExtMemoryCanvas
 import com.sun.javafx.scene.layout.RegionHelper
 import javafx.scene.Node
 import javafx.scene.Scene
@@ -204,7 +204,7 @@ open class GLCanvas @JvmOverloads constructor(
      */
     open fun fireInitEvent() {
         while(onInit.size > 0)
-            onInit.removeLast().accept(executor.createInitEvent(this))
+            onInit.removeAt(onInit.lastIndex).accept(executor.createInitEvent(this))
     }
 
     /**
@@ -222,12 +222,7 @@ open class GLCanvas @JvmOverloads constructor(
     \*===========================================*/
 
     private fun doCreatePeer() =
-        when (interopType) {
-            IOSurface -> executor::ioSurfaceNGCanvas
-            TextureSharing -> executor::sharedNGCanvas
-            NVDXInterop -> executor::interopNGCanvas
-            Blit -> executor::blitNGCanvas
-        }(this, executor, profile)
+        VkExtMemoryCanvas(this, executor, profile)
 
     /**
      *  Destroys all resources to free up memory

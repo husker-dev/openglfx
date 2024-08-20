@@ -6,6 +6,6 @@ jni_utils(jobject, createDirectBuffer)(JNIEnv* env, jobject, jint size) {
 }
 
 jni_utils(void, cleanDirectBuffer)(JNIEnv* env, jobject, jobject directBuffer) {
-    void* buffer = env->GetDirectBufferAddress(directBuffer);
+    char* buffer = (char*)env->GetDirectBufferAddress(directBuffer);
     delete[] buffer;
 }

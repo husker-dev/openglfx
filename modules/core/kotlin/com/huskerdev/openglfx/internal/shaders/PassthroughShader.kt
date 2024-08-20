@@ -96,11 +96,14 @@ internal open class PassthroughShader(
             .asFloatBuffer()
             .put(array)
 
-    fun apply(source: Framebuffer.Default, target: Framebuffer){
+    fun apply(source: Framebuffer.Default, target: Framebuffer) =
+        apply(source.texture, target)
+
+    fun apply(sourceTexture: Int, target: Framebuffer){
         glUseProgram(program)
         glUniform2f(sizeLoc, target.width.toFloat(), target.height.toFloat())
 
-        glBindTexture(GL_TEXTURE_2D, source.texture)
+        glBindTexture(GL_TEXTURE_2D, sourceTexture)
         glBindFramebuffer(GL_FRAMEBUFFER, target.id)
 
         glBindVertexArray(vao)
