@@ -15,13 +15,13 @@ import com.huskerdev.openglfx.internal.platforms.MemoryObjects.Companion.glCreat
 import com.huskerdev.openglfx.internal.platforms.MemoryObjects.Companion.glDeleteMemoryObjectsEXT
 import com.huskerdev.openglfx.internal.platforms.MemoryObjects.Companion.glImportMemoryFdEXT
 import com.huskerdev.openglfx.internal.platforms.MemoryObjects.Companion.glTextureStorageMem2DEXT
-import com.huskerdev.openglfx.internal.platforms.linux.VkExtMemory
+import com.huskerdev.openglfx.internal.platforms.VkExtMemory
 
 import com.sun.prism.Texture
 import com.sun.prism.es2.glTextureId
 
 
-open class VkExtMemoryCanvas(
+open class VkExtMemoryFdCanvas(
     canvas: GLCanvas,
     executor: GLExecutor,
     profile: GLProfile
@@ -65,7 +65,7 @@ open class VkExtMemoryCanvas(
                 externalImage = vk.createExternalImage(width, height)
 
                 memoryObj = glCreateMemoryObjectsEXT()
-                glImportMemoryFdEXT(memoryObj, externalImage.size, GL_HANDLE_TYPE_OPAQUE_FD_EXT, externalImage.fd1)
+                glImportMemoryFdEXT(memoryObj, externalImage.size, GL_HANDLE_TYPE_OPAQUE_FD_EXT, externalImage.createMemoryFd())
 
                 val sharedTexture = glGenTextures()
                 glBindTexture(GL_TEXTURE_2D, sharedTexture)
@@ -89,7 +89,7 @@ open class VkExtMemoryCanvas(
                 fxTexture = GLFXUtils.createPermanentFXTexture(width, height)
 
                 fxMemoryObj = glCreateMemoryObjectsEXT()
-                glImportMemoryFdEXT(fxMemoryObj, externalImage.size, GL_HANDLE_TYPE_OPAQUE_FD_EXT, externalImage.fd2)
+                glImportMemoryFdEXT(fxMemoryObj, externalImage.size, GL_HANDLE_TYPE_OPAQUE_FD_EXT, externalImage.createMemoryFd())
 
                 val sharedTexture = glGenTextures()
                 glBindTexture(GL_TEXTURE_2D, sharedTexture)

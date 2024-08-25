@@ -163,23 +163,32 @@ enum Compiler {
                 archLibs += "${findDXSDKDir()}/Lib/${arch.name().toLowerCase()}"
             def varsFile = arch == Arch.X64 ? "vcvars64" : (arch == Arch.X86 ? "vcvars32" : "vcvars_arm64")
 
-            execute(new String[]{
-                    "call \"${varsDir}/${varsFile}.bat\"",
-                    """cl
-                    $typeModifier
-                    /EHsc /O1
-                    ${sources.join(" ")}
-                    ${libs.collect { "${it}.lib" }.join(" ")}
-                    ${includeDirs.collect { "/I\"$it\"" }.join(" ")}
-                    /link
-                    /MACHINE:${arch.name()}
-                    ${(libDirs + archLibs).collect { "/LIBPATH:\"$it\"" }.join(" ")}
-                    /out:${getOutputName(projectConfig, project, output, type, arch)}
-                    """
-            },
-                    varsDir,
-                    tmpDir
-            )
+            while(true) {
+                try {
+                    execute(new String[]{
+                            "call \"${varsDir}/${varsFile}.bat\"",
+                            """cl
+                            $typeModifier
+                            /EHsc /O1
+                            ${sources.join(" ")}
+                            ${libs.collect { "${it}.lib" }.join(" ")}
+                            ${includeDirs.collect { "/I\"$it\"" }.join(" ")}
+                            /link
+                            /MACHINE:${arch.name()}
+                            ${(libDirs + archLibs).collect { "/LIBPATH:\"$it\"" }.join(" ")}
+                            /out:${getOutputName(projectConfig, project, output, type, arch)}
+                            """
+                        },
+                                varsDir,
+                                tmpDir
+                        )
+                } catch (Exception e) {
+                    if (e.message.contains("-1073741819"))
+                        continue
+                    else throw e
+                }
+                break
+            }
         }
     }),
 

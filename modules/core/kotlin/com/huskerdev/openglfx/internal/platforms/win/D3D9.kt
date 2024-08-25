@@ -20,7 +20,7 @@ class D3D9 {
     }
 
 
-    class Device(
+    data class Device(
         val handle: Long = nCreateDeviceEx()
     ) {
         companion object {
@@ -35,7 +35,7 @@ class D3D9 {
             }
     }
 
-    class Texture(
+    data class Texture(
         val width: Int,
         val height: Int,
         val handle: Long,

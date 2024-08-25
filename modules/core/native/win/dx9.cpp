@@ -22,11 +22,6 @@ struct D3DResource {
 	D3DSURFACE_DESC desc;
 };
 
-jlongArray createLongArray(JNIEnv* env, int size, jlong* elements) {
-    jlongArray result = env->NewLongArray(size);
-    env->SetLongArrayRegion(result, 0, size, elements);
-    return result;
-}
 
 extern "C"{
     typedef jlong (*nGetContextPtr) (JNIEnv *jEnv, jclass, jint adapterOrdinal);
@@ -74,8 +69,7 @@ jni_win_d3d9(jlongArray, nCreateTexture)(JNIEnv* env, jobject, jlong _device, ji
     HANDLE sharedHandle = (HANDLE)_shareHandle;
     device->CreateTexture(width, height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &texture, &sharedHandle);
 
-    jlong array[] = { (jlong)texture, (jlong)sharedHandle };
-    return createLongArray(env, 2, array);
+    return createLongArray(env, { (jlong)texture, (jlong)sharedHandle });
 }
 
 jni_win_d3d9(void, nReleaseTexture)(JNIEnv* env, jobject, jlong handle) {

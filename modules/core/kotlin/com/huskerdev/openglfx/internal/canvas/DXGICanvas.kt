@@ -47,7 +47,7 @@ open class DXGICanvas(
         private lateinit var fxTexture: Texture
 
         override fun render(width: Int, height: Int) {
-            if(checkFramebufferSize(width, height, d3d9Device))
+            if(checkFramebufferSize(width, height))
                 canvas.fireReshapeEvent(width, height)
 
             fbo.bindFramebuffer()
@@ -57,21 +57,20 @@ open class DXGICanvas(
             glFinish()
         }
 
-        private fun checkFramebufferSize(width: Int, height: Int, device9: D3D9.Device): Boolean{
+        private fun checkFramebufferSize(width: Int, height: Int): Boolean{
             if(!this::fbo.isInitialized || fbo.width != width || fbo.height != height){
                 dispose()
 
-                val sharedTexture = glGenTextures()
-                glBindTexture(GL_TEXTURE_2D, sharedTexture)
-
-                d3d9Texture = device9.createTexture(width, height)
+                d3d9Texture = d3d9Device.createTexture(width, height)
 
                 memoryObj = glCreateMemoryObjectsEXT()
-                glImportMemoryWin32HandleEXT(memoryObj, width * height * 4L * 2, GL_HANDLE_TYPE_D3D11_IMAGE_KMT_EXT, d3d9Texture.sharedHandle)
+                glImportMemoryWin32HandleEXT(memoryObj, 0, GL_HANDLE_TYPE_D3D11_IMAGE_KMT_EXT, d3d9Texture.sharedHandle)
+
+                val sharedTexture = glGenTextures()
+                glBindTexture(GL_TEXTURE_2D, sharedTexture)
                 glTextureStorageMem2DEXT(sharedTexture, 1, GL_BGRA, width, height, memoryObj, 0)
 
                 interopFBO = Framebuffer.Default(width, height, texture = sharedTexture)
-
                 fbo = createFramebufferForRender(width, height)
 
                 return true

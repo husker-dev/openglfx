@@ -1,4 +1,4 @@
-package com.huskerdev.openglfx.internal.platforms.linux
+package com.huskerdev.openglfx.internal.platforms
 
 
 class VkExtMemory{
@@ -8,6 +8,9 @@ class VkExtMemory{
         @JvmStatic private external fun nCreateExternalImage(device: Long, physicalDevice: Long, width: Int, height: Int): LongArray
         @JvmStatic private external fun nFreeImage(device: Long, image: Long, memory: Long)
         @JvmStatic private external fun nFreeVkInstance(instance: Long)
+
+        @JvmStatic private external fun vkGetMemoryFdKHR(device: Long, memory: Long): Int
+        @JvmStatic private external fun vkGetMemoryWin32HandleKHR(device: Long, memory: Long): Long
 
         init {
             nLoadFunctions()
@@ -24,7 +27,7 @@ class VkExtMemory{
     ){
         fun createExternalImage(width: Int, height: Int) =
             nCreateExternalImage(vkDevice, vkPhysicalDevice, width, height)
-                .run { ExternalImage(this@Vk, this[0], this[1], this[2].toInt(),  this[3].toInt(), this[4]) }
+                .run { ExternalImage(this@Vk, width, height, this[0], this[1], this[2]) }
 
         fun dispose() =
             nFreeVkInstance(vkInstance)
@@ -32,13 +35,19 @@ class VkExtMemory{
 
     data class ExternalImage(
         val vk: Vk,
+        val width: Int,
+        val height: Int,
         val vkImage: Long,
         val vkDeviceMemory: Long,
-        val fd1: Int,
-        val fd2: Int,
         val size: Long
     ) {
         fun dispose() =
             nFreeImage(vk.vkDevice, vkImage, vkDeviceMemory)
+
+        fun createMemoryFd() =
+            vkGetMemoryFdKHR(vk.vkDevice, vkDeviceMemory)
+
+        fun getMemoryWin32Handle() =
+            vkGetMemoryWin32HandleKHR(vk.vkDevice, vkDeviceMemory)
     }
 }

@@ -4,7 +4,7 @@
 typedef void (*glCreateMemoryObjectsEXTPtr)(GLsizei n, GLuint* memoryObjects);
 typedef void (*glDeleteMemoryObjectsEXTPtr)(GLsizei n, const GLuint* memoryObjects);
 typedef void (*glImportMemoryWin32HandleEXTPtr)(GLuint memory, unsigned long size, GLenum handleType, void* handle);
-typedef void (*glTextureStorageMem2DEXTPtr)(GLuint texture, GLsizei levels, GLenum internalFormat, GLsizei width, GLsizei height, GLuint memory, unsigned long offset);
+typedef void (*glTextureStorageMem2DEXTPtr)(jint texture, jint levels, jint internalFormat, jint width, jint height, jint memory, jlong offset);
 typedef void (*glImportMemoryFdEXTPtr)(GLuint memory, unsigned long size, GLenum handleType, GLint fd);
 
 

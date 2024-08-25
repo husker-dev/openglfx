@@ -7,6 +7,7 @@
 #define jni_utils(returnType, fun)          extern "C" JNIEXPORT returnType JNICALL Java_com_huskerdev_openglfx_internal_GLFXUtils_##fun
 #define jni_gl(returnType, fun)             extern "C" JNIEXPORT returnType JNICALL Java_com_huskerdev_openglfx_GLExecutor_##fun
 #define jni_memoryObjects(returnType, fun)  extern "C" JNIEXPORT returnType JNICALL Java_com_huskerdev_openglfx_internal_platforms_MemoryObjects_##fun
+#define jni_vkextmemory(returnType, fun)    extern "C" JNIEXPORT returnType JNICALL Java_com_huskerdev_openglfx_internal_platforms_VkExtMemory_##fun
 
 
 typedef unsigned int GLenum;

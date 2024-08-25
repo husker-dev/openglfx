@@ -81,7 +81,6 @@ abstract class NGGLCanvas(
         renderThread = thread(isDaemon = true) {
             context = GLContext.create(profile = profile, debug = true)
             context.makeCurrent()
-            println("gl context: ${context}")
 
             GLContext.bindDebugCallback(::println) // Debug
 

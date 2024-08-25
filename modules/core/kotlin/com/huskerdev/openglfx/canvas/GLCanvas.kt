@@ -9,7 +9,7 @@ import com.huskerdev.openglfx.canvas.events.GLReshapeEvent
 import com.huskerdev.openglfx.internal.*
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.dispatchConsumer
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.dispatchEvent
-import com.huskerdev.openglfx.internal.canvas.VkExtMemoryCanvas
+import com.huskerdev.openglfx.internal.canvas.DXGICanvas
 import com.sun.javafx.scene.layout.RegionHelper
 import javafx.scene.Node
 import javafx.scene.Scene
@@ -222,7 +222,7 @@ open class GLCanvas @JvmOverloads constructor(
     \*===========================================*/
 
     private fun doCreatePeer() =
-        VkExtMemoryCanvas(this, executor, profile)
+        DXGICanvas(this, executor, profile)
 
     /**
      *  Destroys all resources to free up memory
