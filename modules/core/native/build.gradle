@@ -9,6 +9,8 @@ compilation {
     baseName = "lib"
     classpath = "com.huskerdev.openglfx.native"
 
+    includeDirs = [file("shared"), file("include")]
+
     windows {
         libs = ["user32", "gdi32", "d3d9"]
     }
