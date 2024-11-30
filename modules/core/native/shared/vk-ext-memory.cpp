@@ -1,3 +1,5 @@
+#ifndef __APPLE__
+
 #include "openglfx.h"
 #include <vulkan/vulkan.h>
 
@@ -259,3 +261,5 @@ jni_vkextmemory(void, nFreeVkInstance)(JNIEnv* env, jobject, jlong _instance) {
     VkInstance instance = (VkInstance)_instance;
     _vkDestroyInstance(instance, 0);
 }
+
+#endif
