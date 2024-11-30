@@ -1,10 +1,8 @@
 package com.huskerdev.openglfx.internal
 
-import com.huskerdev.grapl.core.platform.OS
-import com.huskerdev.grapl.core.platform.Platform
-import com.sun.prism.GraphicsPipeline
-
 enum class GLInteropType {
+    AUTO,
+
     /**
      *  Reads pixels by 'glBlitFramebuffer' and then creates JavaFX image.
      *
@@ -20,11 +18,18 @@ enum class GLInteropType {
     NVDXInterop,
 
     /**
-     *  Creates context that is shared with JavaFX's one. After rendering, shared texture is displayed in JavaFX frame.
+     *  Creates shared object between GL and DirectX
+     *
+     *  - Supported platforms: **Windows**
+     */
+    SharedObjectsWin32,
+
+    /**
+     *  Creates shared object between two GL context
      *
      *  - Supported platforms: **Linux**
      */
-    TextureSharing,
+    SharedObjectsFd,
 
     /**
     *  Creates memory block in VRAM that can be used in different OpenGL contexts.
@@ -32,13 +37,4 @@ enum class GLInteropType {
     *  - Supported platforms: **macOS**
     */
     IOSurface;
-
-    companion object {
-        val auto: GLInteropType
-            get() = when (GraphicsPipeline.getPipeline().javaClass.canonicalName.split(".")[3]) {
-                "es2" -> if(Platform.os == OS.MacOS) IOSurface else TextureSharing
-                "d3d" -> if (com.huskerdev.openglfx.internal.platforms.win.WGLDX.isSupported()) NVDXInterop else Blit
-                else -> Blit
-            }
-    }
 }

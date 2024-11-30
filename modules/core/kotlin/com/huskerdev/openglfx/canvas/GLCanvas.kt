@@ -9,7 +9,6 @@ import com.huskerdev.openglfx.canvas.events.GLReshapeEvent
 import com.huskerdev.openglfx.internal.*
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.dispatchConsumer
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.dispatchEvent
-import com.huskerdev.openglfx.internal.canvas.DXGICanvas
 import com.sun.javafx.scene.layout.RegionHelper
 import javafx.scene.Node
 import javafx.scene.Scene
@@ -46,7 +45,8 @@ open class GLCanvas @JvmOverloads constructor(
     var msaa: Int                   = 0,
     var fxaa: Boolean               = false,
     fps: Int                        = 0,
-    val interopType: GLInteropType  = GLInteropType.auto
+    val swapBuffers: Int            = 2,
+    val interopType: GLInteropType  = GLInteropType.AUTO
 ): Region() {
 
     companion object {
@@ -222,7 +222,7 @@ open class GLCanvas @JvmOverloads constructor(
     \*===========================================*/
 
     private fun doCreatePeer() =
-        DXGICanvas(this, executor, profile)
+        NGGLCanvas.createCompatible(this, executor, profile, interopType)
 
     /**
      *  Destroys all resources to free up memory

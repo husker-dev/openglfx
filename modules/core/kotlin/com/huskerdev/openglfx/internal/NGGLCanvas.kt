@@ -1,28 +1,90 @@
 package com.huskerdev.openglfx.internal
 
+import com.huskerdev.grapl.core.platform.OS
 import com.huskerdev.grapl.gl.GLContext
 import com.huskerdev.grapl.gl.GLProfile
 import com.huskerdev.openglfx.GLExecutor
 import com.huskerdev.openglfx.GLExecutor.Companion.glViewport
 import com.huskerdev.openglfx.canvas.GLCanvas
+import com.huskerdev.openglfx.internal.canvas.BlitCanvas
+import com.huskerdev.openglfx.internal.canvas.DXGICanvas
+import com.huskerdev.openglfx.internal.canvas.IOSurfaceCanvas
+import com.huskerdev.openglfx.internal.canvas.VkExtMemoryFdCanvas
+import com.huskerdev.openglfx.internal.canvas.WGLDXCanvas
 import com.sun.javafx.geom.BaseBounds
 import com.sun.javafx.scene.DirtyBits
 import com.sun.javafx.scene.NodeHelper
 import com.sun.javafx.sg.prism.NGNode
 import com.sun.javafx.sg.prism.NGRegion
 import com.sun.prism.Graphics
+import com.sun.prism.GraphicsPipeline
 import com.sun.prism.Texture
 import javafx.animation.AnimationTimer
 import javafx.application.Platform
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.concurrent.thread
+import kotlin.math.max
 
 abstract class NGGLCanvas(
     val canvas: GLCanvas,
     val executor: GLExecutor,
     val profile: GLProfile
 ): NGRegion() {
+
+    companion object {
+        fun createCompatible(
+            canvas: GLCanvas,
+            executor: GLExecutor,
+            profile: GLProfile,
+            interopType: GLInteropType
+        ): NGRegion {
+            return if(interopType != GLInteropType.AUTO){
+                when(interopType){
+                    GLInteropType.AUTO -> throw UnsupportedOperationException()
+                    GLInteropType.Blit -> ::BlitCanvas
+                    GLInteropType.NVDXInterop -> ::WGLDXCanvas
+                    GLInteropType.SharedObjectsWin32 -> ::DXGICanvas
+                    GLInteropType.SharedObjectsFd -> ::VkExtMemoryFdCanvas
+                    GLInteropType.IOSurface -> ::IOSurfaceCanvas
+                }
+            }else {
+                val pipeline = GraphicsPipeline.getPipeline().javaClass.canonicalName.split(".")[3]
+                val tmpContext = GLContext.create()
+                tmpContext.makeCurrent()
+                val extensions = tmpContext.getExtensions()
+
+                when (com.huskerdev.grapl.core.platform.Platform.os) {
+                    OS.Windows -> {
+                        if (pipeline == "d3d" && "GL_EXT_memory_object" in extensions && "GL_EXT_memory_object_win32" in extensions)
+                            ::DXGICanvas
+                        else if (pipeline == "d3d" && tmpContext.hasFunction("wglDXOpenDeviceNV") && tmpContext.hasFunction("wglDXLockObjectsNV"))
+                            ::WGLDXCanvas
+                        else
+                            ::BlitCanvas
+                    }
+
+                    OS.Linux -> {
+                        if (pipeline == "es2" && "GL_EXT_memory_object" in extensions && "GL_EXT_memory_object_fd" in extensions)
+                            ::VkExtMemoryFdCanvas
+                        else
+                            ::BlitCanvas
+                    }
+
+                    OS.MacOS -> {
+                        if(pipeline == "es2")
+                            ::IOSurfaceCanvas
+                        else
+                            ::BlitCanvas
+                    }
+                    OS.Other -> throw UnsupportedOperationException("Unsupported OS")
+                }.also {
+                    tmpContext.delete()
+                }
+            }(canvas, executor, profile)
+        }
+    }
+
     @Volatile var disposed = false
         private set
 
@@ -44,7 +106,7 @@ abstract class NGGLCanvas(
 
     protected lateinit var context: GLContext
 
-    private val swapChain = Array(2) { createSwapBuffer() }
+    private val swapChain = Array(canvas.swapBuffers) { createSwapBuffer() }
     private var currentSwapBufferIndex = AtomicInteger(-1)
 
     private val animationTimer = object : AnimationTimer() {
@@ -91,8 +153,8 @@ abstract class NGGLCanvas(
             while(!disposed) {
                 lastFrameStartTime = System.currentTimeMillis()
 
-                val canvasWidth = scaledWidth
-                val canvasHeight = scaledHeight
+                val canvasWidth = max(1, scaledWidth)
+                val canvasHeight = max(1, scaledHeight)
 
                 val swapBufferIndex = (currentSwapBufferIndex.get() + 1) % swapChain.size
                 val swapBuffer = swapChain[swapBufferIndex]

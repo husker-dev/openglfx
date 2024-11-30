@@ -15,11 +15,12 @@ class LibGDXCanvas(
     msaa: Int                   = 0,
     fxaa: Boolean               = false,
     fps: Int                    = 0,
-    interopType: GLInteropType = GLInteropType.auto
+    swapBuffers: Int            = 2,
+    interopType: GLInteropType  = GLInteropType.AUTO
 ): GLCanvas(
     LIBGDX_MODULE,
     GLProfile.CORE,
-    flipY, msaa, fxaa, fps, interopType
+    flipY, msaa, fxaa, fps, swapBuffers, interopType
 ) {
     private val invokeLater = arrayListOf<Runnable>()
     lateinit var application: Application
