@@ -1,7 +1,10 @@
 package com.huskerdev.openglfx.internal
 
+import com.huskerdev.grapl.core.platform.BackgroundMessageHandler
+import com.huskerdev.grapl.core.x
 import com.huskerdev.grapl.gl.GLContext
 import com.huskerdev.grapl.gl.GLProfile
+import com.huskerdev.grapl.gl.GLWindow
 import com.huskerdev.openglfx.GLExecutor
 import com.huskerdev.openglfx.GLExecutor.Companion.glViewport
 import com.huskerdev.openglfx.canvas.GLCanvas
@@ -28,7 +31,9 @@ import kotlin.math.max
 abstract class NGGLCanvas(
     val canvas: GLCanvas,
     val executor: GLExecutor,
-    val profile: GLProfile
+    val profile: GLProfile,
+    val glDebug: Boolean,
+    val externalWindow: Boolean
 ): NGRegion() {
 
     companion object {
@@ -36,7 +41,9 @@ abstract class NGGLCanvas(
             canvas: GLCanvas,
             executor: GLExecutor,
             profile: GLProfile,
-            interopType: GLInteropType
+            glDebug: Boolean,
+            interopType: GLInteropType,
+            externalWindow: Boolean
         ) = when(interopType){
             GLInteropType.Blit -> ::BlitCanvas
             GLInteropType.WGLDXInterop -> ::WGLDXInteropCanvas
@@ -44,7 +51,7 @@ abstract class NGGLCanvas(
             GLInteropType.ExternalObjectsWinES -> ::ExternalObjectsCanvasWinES2
             GLInteropType.ExternalObjectsFd -> ::ExternalObjectsCanvasFd
             GLInteropType.IOSurface -> ::IOSurfaceCanvas
-        }(canvas, executor, profile)
+        }(canvas, executor, profile, glDebug, externalWindow)
     }
 
     @Volatile var disposed = false
@@ -66,6 +73,7 @@ abstract class NGGLCanvas(
     private var readyToDisplay = AtomicBoolean(false)
     private var lastFrameStartTime = 0L
 
+    protected lateinit var window: GLWindow // Used when 'externalWindow' is true
     protected lateinit var context: GLContext
 
     private val swapChain = Array(canvas.swapBuffers) { createSwapBuffer() }
@@ -99,11 +107,26 @@ abstract class NGGLCanvas(
                 it.disposeFXResources()
             }
         }
+        if(externalWindow){
+            window.destroy()
+            com.huskerdev.grapl.core.platform.Platform.current.peekMessages()
+        }
     }
 
     private fun createRenderingThread(){
         renderThread = thread(isDaemon = true) {
-            context = GLContext.create(profile = profile, debug = true)
+            if(externalWindow){
+                BackgroundMessageHandler.useHandler = false
+                window = GLWindow(profile, debug = glDebug).apply {
+                    closable = false
+                    maximizable = false
+                    resizable = false
+                    title = "openglfx external window"
+                    visible = true
+                }
+                context = window.context
+            }else
+                context = GLContext.create(profile = profile, debug = glDebug)
             context.makeCurrent()
 
             GLContext.bindDebugCallback(::println) // Debug
@@ -123,7 +146,14 @@ abstract class NGGLCanvas(
 
                 synchronized(swapBuffer.lock){
                     glViewport(0, 0, canvasWidth, canvasHeight)
-                    swapBuffer.render(canvasWidth, canvasHeight)
+                    val buffer = swapBuffer.render(canvasWidth, canvasHeight)
+                    if(externalWindow){
+                        if(window.absoluteSize != canvasWidth x canvasHeight)
+                            window.absoluteSize = canvasWidth x canvasHeight
+                        buffer.blitTo(0)
+                        com.huskerdev.grapl.core.platform.Platform.current.peekMessages()
+                        window.swapBuffers()
+                    }
                 }
 
                 currentSwapBufferIndex.set(swapBufferIndex)
@@ -170,7 +200,7 @@ abstract class NGGLCanvas(
     protected abstract inner class SwapBuffer {
         val lock = Object()
 
-        abstract fun render(width: Int, height: Int)
+        abstract fun render(width: Int, height: Int): Framebuffer
         abstract fun getTextureForDisplay(): Texture
         abstract fun dispose()
         abstract fun disposeFXResources()

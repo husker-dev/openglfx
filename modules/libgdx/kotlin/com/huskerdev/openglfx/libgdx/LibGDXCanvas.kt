@@ -7,6 +7,7 @@ import com.huskerdev.openglfx.canvas.GLCanvas
 import com.huskerdev.openglfx.internal.GLInteropType
 import com.huskerdev.openglfx.libgdx.LibGDXExecutor.Companion.LIBGDX_MODULE
 import com.huskerdev.openglfx.libgdx.internal.OGLFXApplication
+import kotlin.Boolean
 
 class LibGDXCanvas(
     val adapter: ApplicationAdapter,
@@ -15,12 +16,14 @@ class LibGDXCanvas(
     msaa: Int                   = 0,
     fxaa: Boolean               = false,
     fps: Int                    = 0,
+    glDebug: Boolean            = false,
     swapBuffers: Int            = 2,
-    interopType: GLInteropType  = GLInteropType.auto
+    interopType: GLInteropType  = GLInteropType.auto,
+    externalWindow: Boolean     = false
 ): GLCanvas(
     LIBGDX_MODULE,
     GLProfile.CORE,
-    flipY, msaa, fxaa, fps, swapBuffers, interopType
+    flipY, msaa, fxaa, fps, glDebug, swapBuffers, interopType, externalWindow
 ) {
     private val invokeLater = arrayListOf<Runnable>()
     lateinit var application: Application

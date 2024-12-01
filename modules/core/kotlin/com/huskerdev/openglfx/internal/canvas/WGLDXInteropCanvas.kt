@@ -16,8 +16,10 @@ import com.sun.prism.d3d.d3dTextureResource
 open class WGLDXInteropCanvas(
     canvas: GLCanvas,
     executor: GLExecutor,
-    profile: GLProfile
-) : NGGLCanvas(canvas, executor, profile) {
+    profile: GLProfile,
+    glDebug: Boolean,
+    externalWindow: Boolean
+): NGGLCanvas(canvas, executor, profile, glDebug, externalWindow) {
 
     private lateinit var d3d9Device: D3D9.Device
     private lateinit var interopDevice: WGLDX.Device
@@ -39,7 +41,7 @@ open class WGLDXInteropCanvas(
         private lateinit var fxD3D9Texture: D3D9.Texture
         private lateinit var fxTexture: Texture
 
-        override fun render(width: Int, height: Int) {
+        override fun render(width: Int, height: Int): Framebuffer {
             if(checkFramebufferSize(width, height, d3d9Device, interopDevice))
                 canvas.fireReshapeEvent(width, height)
 
@@ -49,6 +51,7 @@ open class WGLDXInteropCanvas(
             interopObject.lock()
             fbo.blitTo(interopFBO)
             interopObject.unlock()
+            return fbo
         }
 
         private fun checkFramebufferSize(width: Int, height: Int, device: D3D9.Device, interopDevice: WGLDX.Device): Boolean{

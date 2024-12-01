@@ -17,8 +17,10 @@ import java.nio.ByteBuffer
 open class BlitCanvas(
     canvas: GLCanvas,
     executor: GLExecutor,
-    profile: GLProfile
-) : NGGLCanvas(canvas, executor, profile) {
+    profile: GLProfile,
+    glDebug: Boolean,
+    externalWindow: Boolean
+) : NGGLCanvas(canvas, executor, profile, glDebug, externalWindow) {
 
     override fun onRenderThreadInit() = Unit
     override fun createSwapBuffer() = BlitSwapBuffer()
@@ -31,7 +33,7 @@ open class BlitCanvas(
         private lateinit var fxTexture: Texture
         private var contentChanged = false
 
-        override fun render(width: Int, height: Int) {
+        override fun render(width: Int, height: Int): Framebuffer {
             if(checkFramebufferSize(width, height))
                 canvas.fireReshapeEvent(width, height)
 
@@ -41,6 +43,8 @@ open class BlitCanvas(
 
             interopFBO.readPixels(0, 0, width, height, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, dataBuffer)
             contentChanged = true
+
+            return fbo
         }
 
         private fun checkFramebufferSize(width: Int, height: Int): Boolean{

@@ -114,7 +114,7 @@ open class GLExecutor {
             } else nInitGLFunctions()
         }
     }
-
+    /*
     open fun blitNGCanvas(canvas: GLCanvas, executor: GLExecutor, profile: GLProfile): NGGLCanvas =
         BlitCanvas(canvas, executor, profile)
 
@@ -126,6 +126,8 @@ open class GLExecutor {
 
     open fun ioSurfaceNGCanvas(canvas: GLCanvas, executor: GLExecutor, profile: GLProfile): NGGLCanvas =
         IOSurfaceCanvas(canvas, executor, profile)
+
+     */
 
     open fun createRenderEvent(canvas: GLCanvas, currentFps: Int, delta: Double, width: Int, height: Int, fbo: Int)
             = GLRenderEvent(GLRenderEvent.ANY, currentFps, delta, width, height, fbo)

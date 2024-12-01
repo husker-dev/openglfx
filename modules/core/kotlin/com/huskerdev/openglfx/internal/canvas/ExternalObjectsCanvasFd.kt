@@ -24,8 +24,10 @@ import com.sun.prism.es2.glTextureId
 open class ExternalObjectsCanvasFd(
     canvas: GLCanvas,
     executor: GLExecutor,
-    profile: GLProfile
-) : NGGLCanvas(canvas, executor, profile) {
+    profile: GLProfile,
+    glDebug: Boolean,
+    externalWindow: Boolean
+) : NGGLCanvas(canvas, executor, profile, glDebug, externalWindow) {
 
     private val vk = VkExtMemory.createVk()
 
@@ -47,7 +49,7 @@ open class ExternalObjectsCanvasFd(
         private lateinit var fxInteropFbo: Framebuffer
         private var fxMemoryObj = 0
 
-        override fun render(width: Int, height: Int) {
+        override fun render(width: Int, height: Int): Framebuffer {
             if(checkFramebufferSize(width, height))
                 canvas.fireReshapeEvent(width, height)
 
@@ -56,6 +58,7 @@ open class ExternalObjectsCanvasFd(
             fbo.blitTo(interopFBO)
 
             glFinish()
+            return fbo
         }
 
         private fun checkFramebufferSize(width: Int, height: Int): Boolean{

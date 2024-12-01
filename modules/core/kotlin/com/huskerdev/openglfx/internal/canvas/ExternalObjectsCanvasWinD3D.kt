@@ -25,8 +25,10 @@ import com.sun.prism.d3d.d3dTextureResource
 open class ExternalObjectsCanvasWinD3D(
     canvas: GLCanvas,
     executor: GLExecutor,
-    profile: GLProfile
-) : NGGLCanvas(canvas, executor, profile) {
+    profile: GLProfile,
+    glDebug: Boolean,
+    externalWindow: Boolean
+) : NGGLCanvas(canvas, executor, profile, glDebug, externalWindow) {
 
     private lateinit var d3d9Device: D3D9.Device
 
@@ -46,7 +48,7 @@ open class ExternalObjectsCanvasWinD3D(
         private lateinit var fxD3D9Texture: D3D9.Texture
         private lateinit var fxTexture: Texture
 
-        override fun render(width: Int, height: Int) {
+        override fun render(width: Int, height: Int): Framebuffer {
             if(checkFramebufferSize(width, height))
                 canvas.fireReshapeEvent(width, height)
 
@@ -55,6 +57,7 @@ open class ExternalObjectsCanvasWinD3D(
             fbo.blitTo(interopFBO)
 
             glFinish()
+            return fbo
         }
 
         private fun checkFramebufferSize(width: Int, height: Int): Boolean{

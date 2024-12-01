@@ -14,8 +14,10 @@ import com.sun.prism.es2.glTextureId
 class IOSurfaceCanvas(
     canvas: GLCanvas,
     executor: GLExecutor,
-    profile: GLProfile
-) : NGGLCanvas(canvas, executor, profile) {
+    profile: GLProfile,
+    glDebug: Boolean,
+    externalWindow: Boolean
+) : NGGLCanvas(canvas, executor, profile, glDebug, externalWindow) {
 
     override fun onRenderThreadInit() = Unit
     override fun createSwapBuffer() = IOSurfaceSwapBuffer()
@@ -30,7 +32,7 @@ class IOSurfaceCanvas(
         private lateinit var fxTextureFBO: Framebuffer
         private lateinit var fxInteropFBO: Framebuffer
 
-        override fun render(width: Int, height: Int) {
+        override fun render(width: Int, height: Int): Framebuffer {
             if(checkFramebufferSize(width, height))
                 canvas.fireReshapeEvent(width, height)
 
@@ -40,6 +42,8 @@ class IOSurfaceCanvas(
             ioSurface.lock()
             fbo.blitTo(interopFBO)
             ioSurface.unlock()
+
+            return fbo
         }
 
         private fun checkFramebufferSize(width: Int, height: Int): Boolean {
