@@ -1,23 +1,22 @@
 package com.huskerdev.openglfx.internal
 
-import com.huskerdev.grapl.core.platform.OS
 import com.huskerdev.grapl.gl.GLContext
 import com.huskerdev.grapl.gl.GLProfile
 import com.huskerdev.openglfx.GLExecutor
 import com.huskerdev.openglfx.GLExecutor.Companion.glViewport
 import com.huskerdev.openglfx.canvas.GLCanvas
 import com.huskerdev.openglfx.internal.canvas.BlitCanvas
-import com.huskerdev.openglfx.internal.canvas.DXGICanvas
+import com.huskerdev.openglfx.internal.canvas.ExternalObjectsCanvasWinD3D
+import com.huskerdev.openglfx.internal.canvas.ExternalObjectsCanvasWinES2
 import com.huskerdev.openglfx.internal.canvas.IOSurfaceCanvas
-import com.huskerdev.openglfx.internal.canvas.VkExtMemoryFdCanvas
-import com.huskerdev.openglfx.internal.canvas.WGLDXCanvas
+import com.huskerdev.openglfx.internal.canvas.ExternalObjectsCanvasFd
+import com.huskerdev.openglfx.internal.canvas.WGLDXInteropCanvas
 import com.sun.javafx.geom.BaseBounds
 import com.sun.javafx.scene.DirtyBits
 import com.sun.javafx.scene.NodeHelper
 import com.sun.javafx.sg.prism.NGNode
 import com.sun.javafx.sg.prism.NGRegion
 import com.sun.prism.Graphics
-import com.sun.prism.GraphicsPipeline
 import com.sun.prism.Texture
 import javafx.animation.AnimationTimer
 import javafx.application.Platform
@@ -33,56 +32,19 @@ abstract class NGGLCanvas(
 ): NGRegion() {
 
     companion object {
-        fun createCompatible(
+        fun create(
             canvas: GLCanvas,
             executor: GLExecutor,
             profile: GLProfile,
             interopType: GLInteropType
-        ): NGRegion {
-            return if(interopType != GLInteropType.AUTO){
-                when(interopType){
-                    GLInteropType.AUTO -> throw UnsupportedOperationException()
-                    GLInteropType.Blit -> ::BlitCanvas
-                    GLInteropType.NVDXInterop -> ::WGLDXCanvas
-                    GLInteropType.SharedObjectsWin32 -> ::DXGICanvas
-                    GLInteropType.SharedObjectsFd -> ::VkExtMemoryFdCanvas
-                    GLInteropType.IOSurface -> ::IOSurfaceCanvas
-                }
-            }else {
-                val pipeline = GraphicsPipeline.getPipeline().javaClass.canonicalName.split(".")[3]
-                val tmpContext = GLContext.create()
-                tmpContext.makeCurrent()
-                val extensions = tmpContext.getExtensions()
-
-                when (com.huskerdev.grapl.core.platform.Platform.os) {
-                    OS.Windows -> {
-                        if (pipeline == "d3d" && "GL_EXT_memory_object" in extensions && "GL_EXT_memory_object_win32" in extensions)
-                            ::DXGICanvas
-                        else if (pipeline == "d3d" && tmpContext.hasFunction("wglDXOpenDeviceNV") && tmpContext.hasFunction("wglDXLockObjectsNV"))
-                            ::WGLDXCanvas
-                        else
-                            ::BlitCanvas
-                    }
-
-                    OS.Linux -> {
-                        if (pipeline == "es2" && "GL_EXT_memory_object" in extensions && "GL_EXT_memory_object_fd" in extensions)
-                            ::VkExtMemoryFdCanvas
-                        else
-                            ::BlitCanvas
-                    }
-
-                    OS.MacOS -> {
-                        if(pipeline == "es2")
-                            ::IOSurfaceCanvas
-                        else
-                            ::BlitCanvas
-                    }
-                    OS.Other -> throw UnsupportedOperationException("Unsupported OS")
-                }.also {
-                    tmpContext.delete()
-                }
-            }(canvas, executor, profile)
-        }
+        ) = when(interopType){
+            GLInteropType.Blit -> ::BlitCanvas
+            GLInteropType.WGLDXInterop -> ::WGLDXInteropCanvas
+            GLInteropType.ExternalObjectsWinD3D -> ::ExternalObjectsCanvasWinD3D
+            GLInteropType.ExternalObjectsWinES -> ::ExternalObjectsCanvasWinES2
+            GLInteropType.ExternalObjectsFd -> ::ExternalObjectsCanvasFd
+            GLInteropType.IOSurface -> ::IOSurfaceCanvas
+        }(canvas, executor, profile)
     }
 
     @Volatile var disposed = false

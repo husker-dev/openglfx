@@ -16,7 +16,7 @@ class LibGDXCanvas(
     fxaa: Boolean               = false,
     fps: Int                    = 0,
     swapBuffers: Int            = 2,
-    interopType: GLInteropType  = GLInteropType.AUTO
+    interopType: GLInteropType  = GLInteropType.auto
 ): GLCanvas(
     LIBGDX_MODULE,
     GLProfile.CORE,

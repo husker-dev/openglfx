@@ -9,7 +9,7 @@ import com.huskerdev.openglfx.canvas.events.GLRenderEvent
 import com.huskerdev.openglfx.canvas.events.GLReshapeEvent
 import com.huskerdev.openglfx.internal.NGGLCanvas
 import com.huskerdev.openglfx.internal.canvas.BlitCanvas
-import com.huskerdev.openglfx.internal.canvas.DXGICanvas
+import com.huskerdev.openglfx.internal.canvas.ExternalObjectsCanvasWinD3D
 import com.huskerdev.openglfx.internal.canvas.IOSurfaceCanvas
 import java.nio.*
 
@@ -122,7 +122,7 @@ open class GLExecutor {
         throw UnsupportedOperationException()
 
     open fun interopNGCanvas(canvas: GLCanvas, executor: GLExecutor, profile: GLProfile) =
-        DXGICanvas(canvas, executor, profile)
+        ExternalObjectsCanvasWinD3D(canvas, executor, profile)
 
     open fun ioSurfaceNGCanvas(canvas: GLCanvas, executor: GLExecutor, profile: GLProfile): NGGLCanvas =
         IOSurfaceCanvas(canvas, executor, profile)

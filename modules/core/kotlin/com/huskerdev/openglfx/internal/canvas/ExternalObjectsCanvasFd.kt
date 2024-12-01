@@ -5,46 +5,47 @@ import com.huskerdev.openglfx.*
 import com.huskerdev.openglfx.GLExecutor.Companion.glBindTexture
 import com.huskerdev.openglfx.GLExecutor.Companion.glFinish
 import com.huskerdev.openglfx.GLExecutor.Companion.glGenTextures
-import com.huskerdev.openglfx.GL_TEXTURE_2D
 import com.huskerdev.openglfx.canvas.GLCanvas
 import com.huskerdev.openglfx.internal.GLFXUtils
 import com.huskerdev.openglfx.internal.NGGLCanvas
 
 import com.huskerdev.openglfx.internal.Framebuffer
-import com.huskerdev.openglfx.internal.platforms.GL_HANDLE_TYPE_D3D11_IMAGE_KMT_EXT
+import com.huskerdev.openglfx.internal.platforms.GL_HANDLE_TYPE_OPAQUE_FD_EXT
 import com.huskerdev.openglfx.internal.platforms.MemoryObjects.Companion.glCreateMemoryObjectsEXT
 import com.huskerdev.openglfx.internal.platforms.MemoryObjects.Companion.glDeleteMemoryObjectsEXT
-import com.huskerdev.openglfx.internal.platforms.MemoryObjects.Companion.glImportMemoryWin32HandleEXT
+import com.huskerdev.openglfx.internal.platforms.MemoryObjects.Companion.glImportMemoryFdEXT
 import com.huskerdev.openglfx.internal.platforms.MemoryObjects.Companion.glTextureStorageMem2DEXT
-import com.huskerdev.openglfx.internal.platforms.win.D3D9
+import com.huskerdev.openglfx.internal.platforms.VkExtMemory
 
 import com.sun.prism.Texture
-import com.sun.prism.d3d.d3dTextureResource
+import com.sun.prism.es2.glTextureId
 
 
-open class DXGICanvas(
+open class ExternalObjectsCanvasFd(
     canvas: GLCanvas,
     executor: GLExecutor,
     profile: GLProfile
 ) : NGGLCanvas(canvas, executor, profile) {
 
-    private lateinit var d3d9Device: D3D9.Device
+    private val vk = VkExtMemory.createVk()
 
-    override fun onRenderThreadInit() {
-        d3d9Device = D3D9.Device()
+    override fun onRenderThreadInit() = Unit
+    override fun createSwapBuffer() = EGLImageSwapBuffer()
+
+    override fun dispose() {
+        super.dispose()
+        vk.dispose()
     }
 
-    override fun createSwapBuffer() = DXGISwapBuffer()
-
-
-    protected inner class DXGISwapBuffer: SwapBuffer() {
+    protected inner class EGLImageSwapBuffer: SwapBuffer() {
         private lateinit var fbo: Framebuffer
         private lateinit var interopFBO: Framebuffer.Default
-        private lateinit var d3d9Texture: D3D9.Texture
+        private lateinit var externalImage: VkExtMemory.ExternalImage
         private var memoryObj = 0
 
-        private lateinit var fxD3D9Texture: D3D9.Texture
         private lateinit var fxTexture: Texture
+        private lateinit var fxInteropFbo: Framebuffer
+        private var fxMemoryObj = 0
 
         override fun render(width: Int, height: Int) {
             if(checkFramebufferSize(width, height))
@@ -61,14 +62,14 @@ open class DXGICanvas(
             if(!this::fbo.isInitialized || fbo.width != width || fbo.height != height){
                 dispose()
 
-                d3d9Texture = d3d9Device.createTexture(width, height)
+                externalImage = vk.createExternalImage(width, height)
 
                 memoryObj = glCreateMemoryObjectsEXT()
-                glImportMemoryWin32HandleEXT(memoryObj, 0, GL_HANDLE_TYPE_D3D11_IMAGE_KMT_EXT, d3d9Texture.sharedHandle)
+                glImportMemoryFdEXT(memoryObj, externalImage.size, GL_HANDLE_TYPE_OPAQUE_FD_EXT, externalImage.createMemoryFd())
 
                 val sharedTexture = glGenTextures()
                 glBindTexture(GL_TEXTURE_2D, sharedTexture)
-                glTextureStorageMem2DEXT(sharedTexture, 1, GL_BGRA, width, height, memoryObj, 0)
+                glTextureStorageMem2DEXT(sharedTexture, 1, GL_RGBA8, width, height, memoryObj, 0)
 
                 interopFBO = Framebuffer.Default(width, height, texture = sharedTexture)
                 fbo = createFramebufferForRender(width, height)
@@ -79,16 +80,26 @@ open class DXGICanvas(
         }
 
         override fun getTextureForDisplay(): Texture {
-            val width = d3d9Texture.width
-            val height = d3d9Texture.height
+            val width = fbo.width
+            val height = fbo.height
 
-            if(!this::fxD3D9Texture.isInitialized || fxD3D9Texture.width != width || fxD3D9Texture.height != height){
+            if(!this::fxTexture.isInitialized || fxTexture.physicalWidth != width || fxTexture.physicalHeight != height){
                 disposeFXResources()
 
-                fxD3D9Texture = D3D9.Device.jfx.createTexture(width, height, d3d9Texture.sharedHandle)
                 fxTexture = GLFXUtils.createPermanentFXTexture(width, height)
-                D3D9.replaceD3DTextureInResource(fxTexture.d3dTextureResource, fxD3D9Texture.handle)
+
+                fxMemoryObj = glCreateMemoryObjectsEXT()
+                glImportMemoryFdEXT(fxMemoryObj, externalImage.size, GL_HANDLE_TYPE_OPAQUE_FD_EXT, externalImage.createMemoryFd())
+
+                val sharedTexture = glGenTextures()
+                glBindTexture(GL_TEXTURE_2D, sharedTexture)
+                glTextureStorageMem2DEXT(sharedTexture, 1, GL_RGBA8, width, height, fxMemoryObj, 0)
+
+                fxInteropFbo = Framebuffer.Default(width, height, texture = sharedTexture)
             }
+
+            fxInteropFbo.copyToTexture(fxTexture.glTextureId)
+            glFinish()
 
             return fxTexture
         }
@@ -96,12 +107,14 @@ open class DXGICanvas(
         override fun dispose() {
             if (this::fbo.isInitialized) fbo.delete()
             if (this::interopFBO.isInitialized) interopFBO.delete()
-            if (this::d3d9Texture.isInitialized) d3d9Texture.release()
             if (memoryObj != 0) glDeleteMemoryObjectsEXT(memoryObj)
+            if (this::externalImage.isInitialized) externalImage.dispose()
         }
 
         override fun disposeFXResources() {
             if (this::fxTexture.isInitialized) fxTexture.dispose()
+            if (this::fxInteropFbo.isInitialized) fxInteropFbo.delete()
+            if (fxMemoryObj != 0) glDeleteMemoryObjectsEXT(fxMemoryObj)
         }
     }
 }

@@ -46,7 +46,7 @@ open class GLCanvas @JvmOverloads constructor(
     var fxaa: Boolean               = false,
     fps: Int                        = 0,
     val swapBuffers: Int            = 2,
-    val interopType: GLInteropType  = GLInteropType.AUTO
+    val interopType: GLInteropType  = GLInteropType.auto
 ): Region() {
 
     companion object {
@@ -222,7 +222,7 @@ open class GLCanvas @JvmOverloads constructor(
     \*===========================================*/
 
     private fun doCreatePeer() =
-        NGGLCanvas.createCompatible(this, executor, profile, interopType)
+        NGGLCanvas.create(this, executor, profile, interopType)
 
     /**
      *  Destroys all resources to free up memory

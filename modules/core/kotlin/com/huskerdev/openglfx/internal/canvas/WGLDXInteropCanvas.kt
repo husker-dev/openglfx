@@ -13,7 +13,7 @@ import com.sun.prism.Texture
 import com.sun.prism.d3d.d3dTextureResource
 
 
-open class WGLDXCanvas(
+open class WGLDXInteropCanvas(
     canvas: GLCanvas,
     executor: GLExecutor,
     profile: GLProfile
