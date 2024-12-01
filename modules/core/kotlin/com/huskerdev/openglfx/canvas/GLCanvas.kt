@@ -219,6 +219,9 @@ open class GLCanvas @JvmOverloads constructor(
      */
     internal open fun fireSceneBoundEvent() = onSceneBound.dispatchEvent(scene)
 
+    public override fun getChildren() =
+        super.children!!
+
     /*===========================================*\
     |                     Peer                    |
     \*===========================================*/
