@@ -13,6 +13,12 @@ jobs:
         run: |
           sudo gpg --batch --passphrase ${{ secrets.GPG_PASSPHRASE }} --import gradle/secring.gpg
 
+      - name: "Install build dependencies"
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
+          sudo apt-get install g++-multilib
+
       - name: "Prepare"
         run: |
           chmod +x ./gradlew
