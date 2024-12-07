@@ -14,8 +14,7 @@ class LibGDXCanvas(
     val configuration: OGLFXApplicationConfiguration = OGLFXApplicationConfiguration(),
     flipY: Boolean              = false,
     msaa: Int                   = 0,
-    fxaa: Boolean               = false,
-    fps: Int                    = 0,
+    fps: Int                    = -1,
     glDebug: Boolean            = false,
     swapBuffers: Int            = 2,
     interopType: GLInteropType  = GLInteropType.auto,
@@ -23,7 +22,7 @@ class LibGDXCanvas(
 ): GLCanvas(
     LIBGDX_MODULE,
     GLProfile.CORE,
-    flipY, msaa, fxaa, fps, glDebug, swapBuffers, interopType, externalWindow
+    flipY, msaa, fps, glDebug, swapBuffers, interopType, externalWindow
 ) {
     private val invokeLater = arrayListOf<Runnable>()
     lateinit var application: Application
@@ -42,17 +41,17 @@ class LibGDXCanvas(
     }
 
     override fun fireInitEvent() {
-        super.fireInitEvent()
         if(!::application.isInitialized) {
             application = OGLFXApplication(configuration, this)
             adapter.create()
         }
+        super.fireInitEvent()
     }
 
     override fun fireDisposeEvent() {
-        super.fireDisposeEvent()
         if(::application.isInitialized)
             adapter.dispose()
+        super.fireDisposeEvent()
     }
 
     fun invokeLater(runnable: Runnable){

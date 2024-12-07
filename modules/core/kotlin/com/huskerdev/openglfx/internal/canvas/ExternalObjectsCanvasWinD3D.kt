@@ -36,10 +36,10 @@ open class ExternalObjectsCanvasWinD3D(
         d3d9Device = D3D9.Device()
     }
 
-    override fun createSwapBuffer() = DXGISwapBuffer()
+    override fun createSwapBuffer() = ExternalObjectsSwapBuffer()
 
 
-    protected inner class DXGISwapBuffer: SwapBuffer() {
+    protected inner class ExternalObjectsSwapBuffer: SwapBuffer() {
         private lateinit var fbo: Framebuffer
         private lateinit var interopFBO: Framebuffer.Default
         private lateinit var d3d9Texture: D3D9.Texture

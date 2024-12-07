@@ -1,16 +1,11 @@
 package com.huskerdev.openglfx
 
 import com.huskerdev.grapl.gl.GLContext
-import com.huskerdev.grapl.gl.GLProfile
 import com.huskerdev.openglfx.canvas.GLCanvas
 import com.huskerdev.openglfx.canvas.events.GLDisposeEvent
 import com.huskerdev.openglfx.canvas.events.GLInitializeEvent
 import com.huskerdev.openglfx.canvas.events.GLRenderEvent
 import com.huskerdev.openglfx.canvas.events.GLReshapeEvent
-import com.huskerdev.openglfx.internal.NGGLCanvas
-import com.huskerdev.openglfx.internal.canvas.BlitCanvas
-import com.huskerdev.openglfx.internal.canvas.ExternalObjectsCanvasWinD3D
-import com.huskerdev.openglfx.internal.canvas.IOSurfaceCanvas
 import java.nio.*
 
 
@@ -42,9 +37,8 @@ internal const val GL_STATIC_DRAW = 0x88E4
 internal const val GL_TRIANGLE_STRIP = 0x0005
 internal const val GL_COMPILE_STATUS = 0x8B81
 
-
+@Suppress("unused")
 open class GLExecutor {
-
     companion object {
 
         @JvmStatic val NONE_MODULE = object: GLExecutor(){}
@@ -114,29 +108,18 @@ open class GLExecutor {
             } else nInitGLFunctions()
         }
     }
-    /*
-    open fun blitNGCanvas(canvas: GLCanvas, executor: GLExecutor, profile: GLProfile): NGGLCanvas =
-        BlitCanvas(canvas, executor, profile)
 
-    open fun sharedNGCanvas(canvas: GLCanvas, executor: GLExecutor, profile: GLProfile): NGGLCanvas =
-        throw UnsupportedOperationException()
+    open fun createRenderEvent(canvas: GLCanvas, currentFps: Int, delta: Double, width: Int, height: Int, fbo: Int) =
+        GLRenderEvent(GLRenderEvent.ANY, currentFps, delta, width, height, fbo)
 
-    open fun interopNGCanvas(canvas: GLCanvas, executor: GLExecutor, profile: GLProfile) =
-        ExternalObjectsCanvasWinD3D(canvas, executor, profile)
+    open fun createReshapeEvent(canvas: GLCanvas, width: Int, height: Int) =
+        GLReshapeEvent(GLReshapeEvent.ANY, width, height)
 
-    open fun ioSurfaceNGCanvas(canvas: GLCanvas, executor: GLExecutor, profile: GLProfile): NGGLCanvas =
-        IOSurfaceCanvas(canvas, executor, profile)
+    open fun createInitEvent(canvas: GLCanvas) =
+        GLInitializeEvent(GLInitializeEvent.ANY)
 
-     */
-
-    open fun createRenderEvent(canvas: GLCanvas, currentFps: Int, delta: Double, width: Int, height: Int, fbo: Int)
-            = GLRenderEvent(GLRenderEvent.ANY, currentFps, delta, width, height, fbo)
-    open fun createReshapeEvent(canvas: GLCanvas, width: Int, height: Int)
-            = GLReshapeEvent(GLReshapeEvent.ANY, width, height)
-    open fun createInitEvent(canvas: GLCanvas)
-            = GLInitializeEvent(GLInitializeEvent.ANY)
-    open fun createDisposeEvent(canvas: GLCanvas)
-            = GLDisposeEvent(GLDisposeEvent.ANY)
+    open fun createDisposeEvent(canvas: GLCanvas) =
+        GLDisposeEvent(GLDisposeEvent.ANY)
 
     open fun initGLFunctions() = loadBasicFunctionPointers()
 

@@ -33,14 +33,14 @@ open class ExternalObjectsCanvasWinES2(
     private val vk = VkExtMemory.createVk()
 
     override fun onRenderThreadInit() = Unit
-    override fun createSwapBuffer() = DXGISwapBuffer()
+    override fun createSwapBuffer() = ExternalObjectsSwapBuffer()
 
     override fun dispose() {
         super.dispose()
         vk.dispose()
     }
 
-    protected inner class DXGISwapBuffer: SwapBuffer() {
+    protected inner class ExternalObjectsSwapBuffer: SwapBuffer() {
         private lateinit var fbo: Framebuffer
         private lateinit var interopFBO: Framebuffer.Default
         private lateinit var externalImage: VkExtMemory.ExternalImage

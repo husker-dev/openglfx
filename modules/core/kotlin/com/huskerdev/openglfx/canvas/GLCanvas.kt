@@ -32,17 +32,13 @@ import kotlin.math.ceil
  * @param msaa Multisampling anti-aliasing quality:
  *  - 0 – disabled (default);
  *  - -1 – maximum available samples.
- * @param fxaa Fast approximate anti-aliasing:
- *  - false – disabled (default);
- *  - true – enabled.
  */
 open class GLCanvas @JvmOverloads constructor(
     val executor: GLExecutor,
     val profile: GLProfile          = GLProfile.CORE,
     var flipY: Boolean              = false,
     var msaa: Int                   = 0,
-    var fxaa: Boolean               = false,
-    fps: Int                        = 0,
+    fps: Int                        = -1,
     val glDebug: Boolean            = false,
     val swapBuffers: Int            = 2,
     val interopType: GLInteropType  = GLInteropType.auto,
@@ -87,7 +83,7 @@ open class GLCanvas @JvmOverloads constructor(
         set(value) {
             field = value
             RegionHelper.getPeer<NGGLCanvas>(this).fps =
-                if(value > 0) value else GLFXUtils.getPulseDuration()
+                if(value >= 0) value else GLFXUtils.getPulseDuration()
         }
 
     init {
@@ -112,6 +108,7 @@ open class GLCanvas @JvmOverloads constructor(
      * @param listener
      * @return true (specified by [java.util.Collection.add])
      */
+    @Suppress("unused")
     fun addOnRenderEvent(listener: Consumer<GLRenderEvent>) = onRender.add(listener)
 
     /**
@@ -120,6 +117,7 @@ open class GLCanvas @JvmOverloads constructor(
      * @param listener consumer with GLReshapeEvent
      * @return true (specified by [java.util.Collection.add])
      */
+    @Suppress("unused")
     fun addOnReshapeEvent(listener: Consumer<GLReshapeEvent>) = onReshape.add(listener)
 
     /**
@@ -128,6 +126,7 @@ open class GLCanvas @JvmOverloads constructor(
      * @param listener consumer with GLDisposeEvent
      * @return true (specified by [java.util.Collection.add])
      */
+    @Suppress("unused")
     fun addOnDisposeEvent(listener: Consumer<GLDisposeEvent>) = onDispose.add(listener)
 
     /**
@@ -136,6 +135,7 @@ open class GLCanvas @JvmOverloads constructor(
      * @param listener consumer with GLInitializeEvent
      * @return true (specified by [java.util.Collection.add])
      */
+    @Suppress("unused")
     fun addOnInitEvent(listener: Consumer<GLInitializeEvent>) = onInit.add(listener)
 
 

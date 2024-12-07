@@ -1,6 +1,8 @@
-![Logo](https://github.com/husker-dev/openglfx/assets/31825139/3968c34e-ad83-4613-a5ce-1524aa79aa83)
+<img src="./.github/resources/logo.png" alt="logo">
 
-### [Buy coffee](https://www.buymeacoffee.com/huskerdev) for the developer.
+<a href="https://boosty.to/husker-dev/donate">
+    <img width="145" src="./.github/resources/boosty.svg" alt="boosty">
+</a>
 
 <a href="LICENSE"><img src="https://img.shields.io/github/license/husker-dev/openglfx?style=flat-square"></a>
 <a href="https://github.com/husker-dev/openglfx/releases/latest"><img src="https://img.shields.io/github/v/release/husker-dev/openglfx?style=flat-square"></a>
@@ -10,17 +12,17 @@
 This library adds a new element to the JavaFX for rendering OpenGL graphics using LWJGL, JOGL, LWJGL2 or LibGDX. It is optimized for each platform and includes some auxiliary functions for working with OpenGL from JavaFX.
 
 - [Dependency](#dependency)
+- [Example](#example)
 - [Usage](#usage)
   - [Rendering events](#rendering-events)
   - [Antialiasing (MSAA)](#antialiasing-msaa)
-  - [Async rendering](#async-rendering)
   - [Y-flipping](#y-flipping)
   - [OpenGL profile](#opengl-profile)
-  - [Auto repaint](#auto-repaint)
+  - [FPS control](#fps-control)
   - [Image transfering](#image-transfering)
-  - [RenderDoc](#renderdoc)
+  - [RenderDoc](#renderdoc--nsight)
+  - [LibGDX](#libgdx)
 - [Notes](#notes)
-  - [Reflection opens](#reflection-opens)
 - [Under the hood](#under-the-hood)
 - [Thanks to](#thanks-to)
 
@@ -34,8 +36,7 @@ dependencies {
     // implementation LWJGL
     // implementation ...
 
-    implementation 'com.huskerdev:openglfx:4.0.5'
-    implementation 'com.huskerdev:openglfx-lwjgl:4.0.5'
+    implementation 'com.huskerdev:openglfx-lwjgl:4.1.0'
 }
 ```
 
@@ -44,6 +45,10 @@ Available modules:
   - ```openglfx-lwjgl2```
   - ```openglfx-jogl```
   - ```openglfx-libgdx```
+
+
+# Example
+https://github.com/husker-dev/openglfx-example
 
 # Usage
 
@@ -95,11 +100,13 @@ For maximum possible MSAA level, specify -1.
 GLCanvas(.., msaa = 4)
 ```
 
-### Async rendering
-```GLCanvas``` can render graphics in a separated thread. This feature can either improve or decrease performance. Test it on your applications.
+### Swap buffers
+```GLCanvas``` based on the swap chain system - you can think of it as "double buffering".
+
+The best UI performance is achieved with `2` (default). The most responsive to resizing is `1`.
 
 ```kotlin
-GLCanvas(.., async = true)
+GLCanvas(.., swapBuffers = 1)
 ```
 
 ### Y-flipping
@@ -110,25 +117,30 @@ GLCanvas(.., flipY = true)
 ```
 
 ### OpenGL profile
-OpenGL has two initialization profiles - ```Core``` and ```Compatibility```, you can read about them on the Internet. 
 
-In GLCanvas you can specify the desired option. I advise you to always choose Core. 
-To do this, you need to specify a parameter when creating.
+In GLCanvas you can specify the desired profile. I advise you to always choose Core. 
+To do this, you need to specify a parameter in constructor.
 
 ```kotlin
-GLCanvas(.., profile = GLProfile.Core)
-GLCanvas(.., profile = GLProfile.Compatibility)
+GLCanvas(.., profile = GLProfile.CORE)
+GLCanvas(.., profile = GLProfile.COMPATIBILITY)
 ```
 
-### Auto repaint
-If you need to update content with a certain FPS, then you should use ```GLCanvasAnimator```. Keep in mind that JavaFX can limits the refresh rate.
+### FPS control
+If you need to update content with a certain FPS, then you should use property ```fps```. Keep in mind that JavaFX can limits the refresh rate.
+
+| Value | Behavior                                                                                                                    |
+|-------|-----------------------------------------------------------------------------------------------------------------------------|
+| < 0   | Monitor refresh rate                                                                                                        |
+| 0     | Do not updates automatically <br> (Keep in mind that the update may be triggered by resizing or other commands from JavaFX) |
+| \> 0  | Update with desired FPS                                                                                                     |
 
 ```kotlin
-import com.huskerdev.openglfx.canvas.GLCanvasAnimator
+// In constructor
+val canvas = GLCanvas(..., fps = 30)
 
-canvas.animator = GLCanvasAnimator(60.0) 
-canvas.animator = GLCanvasAnimator(GLCanvasAnimator.UNLIMITED_FPS) // For maximum available FPS
-canvas.animator = null // To remove animator
+// Or at runtime
+canvas.fps = 40
 ```
 
 Don't forget to disable VSync before JavaFX initialization if you want to get FPS more than monitor's frequency.
@@ -144,80 +156,78 @@ val fbo = GLImageManager.toGL(image)
 val image = GLImageManager.fromGL(fbo, width, height)
 ```
 
-### RenderDoc
-```openglfx``` supports RenderDoc integration. Unfortunately, java and javaFX limit how this tool can be used, so the following features have been made.
+### RenderDoc & NSight
+```openglfx``` supports RenderDoc integration.
+To use it, you need to set `externalWindow` in GLCanvas constructor to `true`. 
 
-- You can take a screenshot of the following frame using the hotkey:
-```kotlin
-RenderDoc.bind(canvas)  // F12 by default
-// or
-RenderDoc.bind(canvas, keyCode = KeyCode.F11)
+This will create a separate window with the rendered image, which you can connect to via RenderDoc or NSight.
+
+### LibGDX
+To use in LibGDX project, you should create new module.
+
+Minimal `build.gradle` example:
+```groovy
+plugins {
+    id("org.jetbrains.kotlin.jvm")
+}
+
+sourceSets.main.resources.srcDirs += [ rootProject.file('assets').path ]
+
+dependencies {
+    implementation project(':core')
+    implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
+    implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+
+    // openglfx
+    api("com.huskerdev:openglfx-libgdx:4.1.0")
+  
+    // implementation(/* JavaFX */)
+    // implementation(/* LWJGL */)
+}
 ```
-
-- You can insert the **beginning** and **ending** of capturing into the code:
+Instead of using GLCanvas, you should use `LibGDXCanvas`:
 ```kotlin
-RenderDoc.startFrameCapture()
-// Renders here...
-RenderDoc.endFrameCapture()
+val canvas = LibGDXCanvas(Main()) // Main is ApplicationAdapter
 ```
-
-It is better not to mix these two recording methods.
-
-To view a scene in the Renderdoc application, you need to select one of the processes. It may change depending on the launch settings.
 
 # Notes
-- RenderDoc + Windows crashes the JVM. Workaround is described in ([#39](https://github.com/husker-dev/openglfx/issues/39));
 - JOGL can't initialize on macOS ([#22](https://github.com/husker-dev/openglfx/issues/22)).
 > If you know how to fix that problem I would be very happy
 
-### Reflection opens
-```
---add-opens javafx.base/com.sun.javafx=ALL-UNNAMED
---add-opens javafx.graphics/com.sun.prism=ALL-UNNAMED
---add-opens javafx.graphics/com.sun.prism.d3d=ALL-UNNAMED
---add-opens javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED
---add-opens javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED
---add-opens javafx.graphics/com.sun.javafx.sg.prism=ALL-UNNAMED
---add-opens javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED
---add-opens javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED
---add-opens javafx.graphics/javafx.scene.image=ALL-UNNAMED
-```
-
 # Under the hood
 
-- ### Offscreen GL
-  [husker-dev/offscreen-jgl](https://github.com/husker-dev/offscreen-jgl) is used to create offscreen thread-independent GL context on Windows, MacOS and Linux.
+- ### grapl
+  [husker-dev/grapl](https://github.com/husker-dev/offscreen-jgl) is used to create offscreen thread-independent GL context on Windows, MacOS and Linux.
 
 - ### GLExecutor
   Executors are the bridges from OpenGLFX inner logic to outer libraries like LWJGL or JOGL.
   
   |          | LWJGL  | JOGL |
   | -------- | ------ | ---- |
-  |  Class   | [LWJGLExecutor.kt](https://github.com/husker-dev/openglfx/blob/master/lwjgl/src/main/kotlin/com/huskerdev/openglfx/lwjgl/LWJGLExecutor.kt)  | [JOGLFXExecutor.kt](https://github.com/husker-dev/openglfx/blob/master/jogl/src/main/kotlin/com/huskerdev/openglfx/jogl/JOGLFXExecutor.kt)  |
+  |  Class   | [LWJGLExecutor.kt](https://github.com/husker-dev/openglfx/blob/master/modules/lwjgl/kotlin/com/huskerdev/openglfx/lwjgl/LWJGLExecutor.kt)  | [JOGLFXExecutor.kt](https://github.com/husker-dev/openglfx/blob/master/modules/jogl/kotlin/com/huskerdev/openglfx/jogl/JOGLFXExecutor.kt)  |
   | Instance | LWJGL_MODULE | JOGL_MODULE |
 
-  If you want to add new OpenGL library, just create your implementation of [GLExecutor](https://github.com/husker-dev/openglfx/blob/master/core/src/main/kotlin/com/huskerdev/openglfx/core/GLExecutor.kt) and use it as existing one: ```OpenGLCanvas.create(YOUR_EXECUTOR_INSTANCE)```.
+  If you want to add new OpenGL library, just create your implementation of [GLExecutor](https://github.com/husker-dev/openglfx/blob/master/modules/core/kotlin/com/huskerdev/openglfx/GLExecutor.kt) and use it as existing one: ```GLCanvas.create(YOUR_EXECUTOR_INSTANCE)```.
 
 - ### Texture sharing
 
-  To efficiently connect OpenGL and JavaFX, OpenGLFX uses some techniques based on OS.
+  To efficiently connect OpenGL and JavaFX, OpenGLFX uses some techniques based on OS and supported extensions.
   
-  [BlitCanvasImpl]: https://github.com/husker-dev/openglfx/blob/master/core/src/main/kotlin/com/huskerdev/openglfx/canvas/implementations/BlitCanvasImpl.kt
-  [SharedCanvasImpl]: https://github.com/husker-dev/openglfx/blob/master/core/src/main/kotlin/com/huskerdev/openglfx/canvas/implementations/SharedCanvasImpl.kt
-  [NVDXInteropCanvasImpl]: https://github.com/husker-dev/openglfx/blob/master/core/src/main/kotlin/com/huskerdev/openglfx/canvas/implementations/NVDXInteropCanvasImpl.kt
-  [IOSurfaceCanvasImpl]: https://github.com/husker-dev/openglfx/blob/master/core/src/main/kotlin/com/huskerdev/openglfx/canvas/implementations/IOSurfaceCanvasImpl.kt
+  [BlitCanvas]: https://github.com/husker-dev/openglfx/blob/master/modules/core/kotlin/com/huskerdev/openglfx/internal/canvas/BlitCanvas.kt
+  [ExternalObjectsCanvasFd]: https://github.com/husker-dev/openglfx/blob/master/modules/core/kotlin/com/huskerdev/openglfx/internal/canvas/ExternalObjectsCanvasFd.kt
+  [ExternalObjectsCanvasWinD3D]: https://github.com/husker-dev/openglfx/blob/master/modules/core/kotlin/com/huskerdev/openglfx/internal/canvas/ExternalObjectsCanvasWinD3D.kt
+  [ExternalObjectsCanvasWinES2]: https://github.com/husker-dev/openglfx/blob/master/modules/core/kotlin/com/huskerdev/openglfx/internal/canvas/ExternalObjectsCanvasWinES2.kt
+  [IOSurface]: https://github.com/husker-dev/openglfx/blob/master/modules/core/kotlin/com/huskerdev/openglfx/internal/canvas/IOSurface.kt
+  [WGLDXInteropCanvas]: https://github.com/husker-dev/openglfx/blob/master/modules/core/kotlin/com/huskerdev/openglfx/internal/canvas/WGLDXInteropCanvas.kt
 
-  [AsyncBlitCanvasImpl]: https://github.com/husker-dev/openglfx/blob/master/core/src/main/kotlin/com/huskerdev/openglfx/canvas/implementations/async/AsyncBlitCanvasImpl.kt
-  [AsyncSharedCanvasImpl]: https://github.com/husker-dev/openglfx/blob/master/core/src/main/kotlin/com/huskerdev/openglfx/canvas/implementations/async/AsyncSharedCanvasImpl.kt
-  [AsyncNVDXInteropCanvasImpl]: https://github.com/husker-dev/openglfx/blob/master/core/src/main/kotlin/com/huskerdev/openglfx/canvas/implementations/async/AsyncNVDXInteropCanvasImpl.kt
-  [AsyncIOSurfaceCanvasImpl]: https://github.com/husker-dev/openglfx/blob/master/core/src/main/kotlin/com/huskerdev/openglfx/canvas/implementations/async/AsyncIOSurfaceCanvasImpl.kt
-  
-  |             | Description | Sync implementation | Async implementation |
-  | ----------- | ----------- | ------------------- | -------------------- |
-  | Windows     | [NV_DX_interop](https://www.khronos.org/registry/OpenGL/extensions/NV/WGL_NV_DX_interop.txt) is used to synchronize textures between DirectX from JavaFX and OpenGL. | [NVDXInteropCanvasImpl.kt][NVDXInteropCanvasImpl] | [AsyncNVDXInteropCanvasImpl.kt][AsyncNVDXInteropCanvasImpl]
-  | Linux       | Creates context that is shared with JavaFX's one. After rendering, shared texture is displayed in JavaFX frame. | [SharedCanvasImpl.kt][SharedCanvasImpl] | [AsyncSharedCanvasImpl.kt][AsyncSharedCanvasImpl]
-  | macOS       | IOSurface is used to create memory block in VRAM that can be used in different OpenGL contexts. | [IOSurfaceCanvasImpl.kt][IOSurfaceCanvasImpl] | [AsyncIOSurfaceCanvasImpl.kt][AsyncIOSurfaceCanvasImpl]
-  | Other       | Copies ByteBuffer from ```glReadPixels``` to JavaFX texture | [BlitCanvasImpl.kt][BlitCanvasImpl] | [AsyncBlitCanvasImpl.kt][AsyncBlitCanvasImpl]
+  |                                                       | Description                                                                                                                                                                                    | Implementation                                                |
+  |-------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------|
+  | **Windows** <br> (that supports EXT_external_objects) | [EXT_external_objects_win32](https://registry.khronos.org/OpenGL/extensions/EXT/EXT_external_objects_win32.txt) is used to create shared DXGI texture between DirectX 9 and OpenGL.            | [ExternalObjectsCanvasWinD3D.kt][ExternalObjectsCanvasWinD3D] |
+  | **Windows** <br> (that supports WGL_NV_DX_interop)    | [NV_DX_interop](https://www.khronos.org/registry/OpenGL/extensions/NV/WGL_NV_DX_interop.txt) is used to synchronize textures between DirectX 9 and OpenGL.                                     | [WGLDXInteropCanvas.kt][WGLDXInteropCanvas]                   |
+  | **Windows** <br> (es2 pipeline)                       | [EXT_external_objects_win32](https://registry.khronos.org/OpenGL/extensions/EXT/EXT_external_objects_win32.txt) is used to create chain with shared texture: <br> OpenGL <-> Vulkan <-> OpenGL | [ExternalObjectsCanvasWinES2.kt][ExternalObjectsCanvasWinES2] |
+  | **Linux**                                             | [EXT_external_objects_fd](https://registry.khronos.org/OpenGL/extensions/EXT/EXT_external_objects_fd.txt) is used to create chain with shared texture: <br> OpenGL <-> Vulkan <-> OpenGL       | [ExternalObjectsCanvasFd.kt][ExternalObjectsCanvasFd]         |
+  | **macOS**                                             | IOSurface is used to create memory block in VRAM that can be used in different OpenGL contexts.                                                                                                | [IOSurface.kt][IOSurface]                                     |
+  | *Other*                                               | Copies ByteBuffer from ```glReadPixels``` to JavaFX texture                                                                                                                                    | [BlitCanvas.kt][BlitCanvas]                                   |
 
 
 # Thanks to

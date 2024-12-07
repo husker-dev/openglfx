@@ -6,7 +6,9 @@ import com.huskerdev.grapl.gl.GLContext
 import com.huskerdev.grapl.gl.GLProfile
 import com.huskerdev.grapl.gl.GLWindow
 import com.huskerdev.openglfx.GLExecutor
+import com.huskerdev.openglfx.GLExecutor.Companion.glGetInteger
 import com.huskerdev.openglfx.GLExecutor.Companion.glViewport
+import com.huskerdev.openglfx.GL_MAX_SAMPLES
 import com.huskerdev.openglfx.canvas.GLCanvas
 import com.huskerdev.openglfx.internal.canvas.BlitCanvas
 import com.huskerdev.openglfx.internal.canvas.ExternalObjectsCanvasWinD3D
@@ -63,7 +65,6 @@ abstract class NGGLCanvas(
 
     val flipY by canvas::flipY
     val msaa by canvas::msaa
-    val fxaa by canvas::fxaa
 
     var fps = 0
 
@@ -106,7 +107,7 @@ abstract class NGGLCanvas(
                 it.disposeFXResources()
             }
         }
-        if(externalWindow){
+        if(externalWindow && this::window.isInitialized){
             window.destroy()
             com.huskerdev.grapl.core.platform.Platform.current.peekMessages()
         }
@@ -204,6 +205,7 @@ abstract class NGGLCanvas(
 
         protected fun createFramebufferForRender(width: Int, height: Int) =
             if(msaa > 0) Framebuffer.MultiSampled(width, height, msaa)
+            else if(msaa < 0) Framebuffer.MultiSampled(width, height, glGetInteger(GL_MAX_SAMPLES))
             else         Framebuffer.Default(width, height)
     }
 
