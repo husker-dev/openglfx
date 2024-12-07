@@ -56,7 +56,7 @@ static PFN_vkFreeMemory _vkFreeMemory;
 static PFN_vkDestroyInstance _vkDestroyInstance;
 
 
-unsigned int findMemoryType(VkPhysicalDevice physicalDevice, unsigned int typeFilter, VkMemoryPropertyFlags properties) {
+static unsigned int findMemoryType(VkPhysicalDevice physicalDevice, unsigned int typeFilter, VkMemoryPropertyFlags properties) {
     VkPhysicalDeviceMemoryProperties memProperties;
     _vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
 
@@ -233,6 +233,7 @@ jni_vkextmemory(jint, vkGetMemoryFdKHR)(JNIEnv* env, jobject, jlong _device, jlo
     return fd;
 }
 
+#if defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__)
 jni_vkextmemory(jlong, vkGetMemoryWin32HandleKHR)(JNIEnv* env, jobject, jlong _device, jlong _memory) {
     VkDevice device = (VkDevice)_device;
     VkDeviceMemory textureImageMemory = (VkDeviceMemory)_memory;
@@ -248,7 +249,7 @@ jni_vkextmemory(jlong, vkGetMemoryWin32HandleKHR)(JNIEnv* env, jobject, jlong _d
 
     return (jlong)handle;
 }
-
+#endif
 
 jni_vkextmemory(void, nFreeImage)(JNIEnv* env, jobject, jlong _device, jlong image, jlong memory) {
     VkDevice device = (VkDevice)_device;

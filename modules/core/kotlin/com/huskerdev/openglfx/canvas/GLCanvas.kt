@@ -8,10 +8,8 @@ import com.huskerdev.openglfx.canvas.events.GLRenderEvent
 import com.huskerdev.openglfx.canvas.events.GLReshapeEvent
 import com.huskerdev.openglfx.internal.*
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.dispatchConsumer
-import com.huskerdev.openglfx.internal.GLFXUtils.Companion.dispatchEvent
 import com.sun.javafx.scene.layout.RegionHelper
 import javafx.scene.Node
-import javafx.scene.Scene
 import javafx.scene.layout.Region
 import java.util.function.Consumer
 import kotlin.math.ceil
@@ -61,10 +59,6 @@ open class GLCanvas @JvmOverloads constructor(
     private var onRender = arrayListOf<Consumer<GLRenderEvent>>()
     private var onReshape = arrayListOf<Consumer<GLReshapeEvent>>()
     private var onDispose = arrayListOf<Consumer<GLDisposeEvent>>()
-
-    private val onRenderBegin = arrayListOf<() -> Unit>()
-    private val onRenderEnd = arrayListOf<() -> Unit>()
-    private val onSceneBound = arrayListOf<(Scene) -> Unit>()
 
     /**
      * Store current FPS, delta time and frame id.
@@ -144,30 +138,6 @@ open class GLCanvas @JvmOverloads constructor(
      */
     fun addOnInitEvent(listener: Consumer<GLInitializeEvent>) = onInit.add(listener)
 
-    /**
-     * Internal method. Invokes BEFORE rendering frame.
-     *
-     * @param listener
-     */
-    internal fun addOnRenderBegin(listener: () -> Unit) = onRenderBegin.add(listener)
-
-    /**
-     * Internal method. Invokes AFTER rendering frame.
-     *
-     * @param listener
-     */
-    internal fun addOnRenderEnd(listener: () -> Unit) = onRenderEnd.add(listener)
-
-    /**
-     * Internal method for listening bound scene.
-     * If the scene is already connected, then listener invokes immediately.
-     *
-     * @param listener invokes when scene is connected to the node
-     */
-    internal fun addOnSceneConnected(listener: (Scene) -> Unit){
-        if(scene != null) listener(scene)
-        else onSceneBound.add(listener)
-    }
 
     /*===========================================*\
     |                Events firing                |
@@ -181,13 +151,11 @@ open class GLCanvas @JvmOverloads constructor(
     open fun fireRenderEvent(fbo: Int) {
         fireInitEvent()
         fpsCounter.update()
-        onRenderBegin.dispatchEvent()
         onRender.dispatchConsumer(executor.createRenderEvent(
             this,
             fpsCounter.currentFps,
             fpsCounter.delta,
             scaledWidth, scaledHeight, fbo))
-        onRenderEnd.dispatchEvent()
     }
 
     /**
@@ -214,13 +182,6 @@ open class GLCanvas @JvmOverloads constructor(
      */
     open fun fireDisposeEvent() = onDispose.dispatchConsumer(executor.createDisposeEvent(this))
 
-    /**
-     *  Internal method. Invokes every scene binding listener.
-     */
-    internal open fun fireSceneBoundEvent() = onSceneBound.dispatchEvent(scene)
-
-    public override fun getChildren() =
-        super.children!!
 
     /*===========================================*\
     |                     Peer                    |

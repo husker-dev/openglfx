@@ -102,7 +102,6 @@ open class ExternalObjectsCanvasFd(
             }
 
             fxInteropFbo.copyToTexture(fxTexture.glTextureId)
-            glFinish()
 
             return fxTexture
         }

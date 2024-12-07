@@ -17,7 +17,6 @@ import com.huskerdev.openglfx.internal.canvas.WGLDXInteropCanvas
 import com.sun.javafx.geom.BaseBounds
 import com.sun.javafx.scene.DirtyBits
 import com.sun.javafx.scene.NodeHelper
-import com.sun.javafx.sg.prism.NGNode
 import com.sun.javafx.sg.prism.NGRegion
 import com.sun.prism.Graphics
 import com.sun.prism.Texture
@@ -129,8 +128,6 @@ abstract class NGGLCanvas(
                 context = GLContext.create(profile = profile, debug = glDebug)
             context.makeCurrent()
 
-            GLContext.bindDebugCallback(::println) // Debug
-
             executor.initGLFunctions()
 
             onRenderThreadInit()
@@ -208,12 +205,6 @@ abstract class NGGLCanvas(
         protected fun createFramebufferForRender(width: Int, height: Int) =
             if(msaa > 0) Framebuffer.MultiSampled(width, height, msaa)
             else         Framebuffer.Default(width, height)
-    }
-
-    override fun setParent(parent: NGNode?) {
-        super.setParent(parent)
-        if(canvas.scene != null)
-            canvas.fireSceneBoundEvent()
     }
 
     override fun setTransformedBounds(bounds: BaseBounds?, byTransformChangeOnly: Boolean) {
