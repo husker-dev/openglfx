@@ -1,0 +1,64 @@
+name: Maven Central publishing
+
+on:
+  workflow_dispatch:
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "Importing GPG key"
+        run: |
+          sudo gpg --batch --passphrase ${{ secrets.GPG_PASSPHRASE }} --import gradle/secring.gpg
+
+      - name: "Prepare"
+        run: |
+          chmod +x ./gradlew
+
+      - name: "Building and publishing"
+        run: >
+          ./gradlew publish
+          -Dorg.gradle.project.signing.password=${{ secrets.GPG_PASSPHRASE }}
+          -Dorg.gradle.project.signing.secretKeyRingFile=${{ github.workspace }}/gradle/secring.gpg
+          -Dorg.gradle.project.ossrhUsername=${{ secrets.SONATYPE_USERNAME }}
+          -Dorg.gradle.project.ossrhPassword=${{ secrets.SONATYPE_PASSWORD }}
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "Importing GPG key"
+        run: |
+          gpg --batch --passphrase ${{ secrets.GPG_PASSPHRASE }} --import gradle/secring.gpg
+
+      - name: "Building and publishing"
+        run: >
+          ./gradlew publishNatives
+          "-Dorg.gradle.project.signing.password=${{ secrets.GPG_PASSPHRASE }}"
+          "-Dorg.gradle.project.signing.secretKeyRingFile=${{ github.workspace }}/gradle/secring.gpg"
+          "-Dorg.gradle.project.ossrhUsername=${{ secrets.SONATYPE_USERNAME }}"
+          "-Dorg.gradle.project.ossrhPassword=${{ secrets.SONATYPE_PASSWORD }}"
+
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "Importing GPG key"
+        run: |
+          gpg --batch --passphrase ${{ secrets.GPG_PASSPHRASE }} --import gradle/secring.gpg
+
+      - name: "Prepare"
+        run: |
+          chmod +x ./gradlew
+
+      - name: "Building and publishing"
+        run: >
+          ./gradlew publishNatives
+          -Dorg.gradle.project.signing.password=${{ secrets.GPG_PASSPHRASE }}
+          -Dorg.gradle.project.signing.secretKeyRingFile=${{ github.workspace }}/gradle/secring.gpg
+          -Dorg.gradle.project.ossrhUsername=${{ secrets.SONATYPE_USERNAME }}
+          -Dorg.gradle.project.ossrhPassword=${{ secrets.SONATYPE_PASSWORD }}
