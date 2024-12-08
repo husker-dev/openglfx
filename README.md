@@ -22,7 +22,6 @@ This library adds a new element to the JavaFX for rendering OpenGL graphics usin
   - [Image transfering](#image-transfering)
   - [RenderDoc](#renderdoc--nsight)
   - [LibGDX](#libgdx)
-- [Notes](#notes)
 - [Under the hood](#under-the-hood)
 - [Thanks to](#thanks-to)
 
@@ -36,7 +35,7 @@ dependencies {
     // implementation LWJGL
     // implementation ...
 
-    implementation 'com.huskerdev:openglfx-lwjgl:4.1.0'
+    implementation 'com.huskerdev:openglfx-lwjgl:4.1.1'
 }
 ```
 
@@ -189,10 +188,6 @@ Instead of using GLCanvas, you should use `LibGDXCanvas`:
 ```kotlin
 val canvas = LibGDXCanvas(Main()) // Main is ApplicationAdapter
 ```
-
-# Notes
-- JOGL can't initialize on macOS ([#22](https://github.com/husker-dev/openglfx/issues/22)).
-> If you know how to fix that problem I would be very happy
 
 # Under the hood
 
