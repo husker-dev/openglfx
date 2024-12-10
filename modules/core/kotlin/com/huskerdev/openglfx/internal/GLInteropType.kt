@@ -2,6 +2,17 @@ package com.huskerdev.openglfx.internal
 
 import com.huskerdev.grapl.core.platform.OS
 import com.huskerdev.grapl.gl.GLContext
+import com.huskerdev.openglfx.GLExecutor
+import com.huskerdev.openglfx.GLExecutor.Companion.glBindTexture
+import com.huskerdev.openglfx.GLExecutor.Companion.glGenTextures
+import com.huskerdev.openglfx.GLExecutor.Companion.glGetError
+import com.huskerdev.openglfx.GL_BGRA
+import com.huskerdev.openglfx.GL_TEXTURE_2D
+import com.huskerdev.openglfx.internal.platforms.GL_HANDLE_TYPE_D3D11_IMAGE_KMT_EXT
+import com.huskerdev.openglfx.internal.platforms.MemoryObjects.Companion.glCreateMemoryObjectsEXT
+import com.huskerdev.openglfx.internal.platforms.MemoryObjects.Companion.glImportMemoryWin32HandleEXT
+import com.huskerdev.openglfx.internal.platforms.MemoryObjects.Companion.glTextureStorageMem2DEXT
+import com.huskerdev.openglfx.internal.platforms.win.D3D9
 import com.sun.prism.GraphicsPipeline
 
 enum class GLInteropType {
@@ -50,18 +61,20 @@ enum class GLInteropType {
     companion object {
         val auto: GLInteropType by lazy {
             val pipeline = GraphicsPipeline.getPipeline().javaClass.canonicalName.split(".")[3]
+            val oldContext = GLContext.current()
             val tmpContext = GLContext.create()
             tmpContext.makeCurrent()
             val extensions = tmpContext.getExtensions()
 
+            val hasMemoryObjectExt = "GL_EXT_memory_object" in extensions && ("GL_EXT_memory_object_win32" in extensions || "GL_EXT_memory_object_fd" in extensions)
+
             val type = when (com.huskerdev.grapl.core.platform.Platform.os) {
                 OS.Windows -> {
-                    if("GL_EXT_memory_object" in extensions && "GL_EXT_memory_object_win32" in extensions && (pipeline == "d3d" || pipeline == "es2")){
-                        if(pipeline == "d3d")
-                            ExternalObjectsWinD3D
-                        else
-                            ExternalObjectsWinES
-                    } else if (pipeline == "d3d" && tmpContext.hasFunction("wglDXOpenDeviceNV") && tmpContext.hasFunction("wglDXLockObjectsNV"))
+                    if(pipeline == "d3d" && hasMemoryObjectExt && isDXGISupported())
+                        ExternalObjectsWinD3D
+                    else if(pipeline == "es2" && hasMemoryObjectExt)
+                        ExternalObjectsWinES
+                    else if(pipeline == "d3d" && tmpContext.hasFunction("wglDXOpenDeviceNV") && tmpContext.hasFunction("wglDXLockObjectsNV"))
                         WGLDXInterop
                     else
                         Blit
@@ -83,7 +96,39 @@ enum class GLInteropType {
                 OS.Other -> throw UnsupportedOperationException("Unsupported OS")
             }
             tmpContext.delete()
+            oldContext.makeCurrent()
             type
+        }
+
+        /**
+         * Check if `glImportMemoryWin32HandleEXT` works, so we can use this interop
+         */
+        private fun isDXGISupported(): Boolean{
+            // Create GL context and D3D9 device
+            val oldContext = GLContext.current()
+            val tmpContext = GLContext.create()
+            tmpContext.makeCurrent()
+            GLExecutor.loadBasicFunctionPointers()
+            val d3d9 = D3D9.Device()
+
+            // Simulate real interop process
+            val texture = d3d9.createTexture(10, 10)
+            val memoryObj = glCreateMemoryObjectsEXT()
+            glImportMemoryWin32HandleEXT(memoryObj, 0, GL_HANDLE_TYPE_D3D11_IMAGE_KMT_EXT, texture.sharedHandle)
+
+            val sharedTexture = glGenTextures()
+            glBindTexture(GL_TEXTURE_2D, sharedTexture)
+            glTextureStorageMem2DEXT(sharedTexture, 1, GL_BGRA, 10, 10, memoryObj, 0)
+
+            // Check for errors
+            val supported = glGetError() == 0
+
+            // Release
+            texture.release()
+            tmpContext.delete()
+
+            oldContext.makeCurrent()
+            return supported
         }
     }
 }
