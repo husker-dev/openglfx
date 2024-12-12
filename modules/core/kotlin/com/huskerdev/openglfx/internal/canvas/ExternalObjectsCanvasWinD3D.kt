@@ -11,15 +11,16 @@ import com.huskerdev.openglfx.internal.GLFXUtils
 import com.huskerdev.openglfx.internal.NGGLCanvas
 
 import com.huskerdev.openglfx.internal.Framebuffer
+import com.huskerdev.openglfx.internal.GLFXUtils.Companion.fetchDXTexHandle
 import com.huskerdev.openglfx.internal.platforms.GL_HANDLE_TYPE_D3D11_IMAGE_KMT_EXT
 import com.huskerdev.openglfx.internal.platforms.MemoryObjects.Companion.glCreateMemoryObjectsEXT
 import com.huskerdev.openglfx.internal.platforms.MemoryObjects.Companion.glDeleteMemoryObjectsEXT
 import com.huskerdev.openglfx.internal.platforms.MemoryObjects.Companion.glImportMemoryWin32HandleEXT
 import com.huskerdev.openglfx.internal.platforms.MemoryObjects.Companion.glTextureStorageMem2DEXT
 import com.huskerdev.openglfx.internal.platforms.win.D3D9
+import com.sun.prism.Graphics
 
 import com.sun.prism.Texture
-import com.sun.prism.d3d.d3dTextureResource
 
 
 open class ExternalObjectsCanvasWinD3D(
@@ -47,6 +48,7 @@ open class ExternalObjectsCanvasWinD3D(
 
         private lateinit var fxD3D9Texture: D3D9.Texture
         private lateinit var fxTexture: Texture
+        private var fxTextureHandle = 0L
 
         override fun render(width: Int, height: Int): Framebuffer {
             if(checkFramebufferSize(width, height))
@@ -81,7 +83,7 @@ open class ExternalObjectsCanvasWinD3D(
             return false
         }
 
-        override fun getTextureForDisplay(): Texture {
+        override fun getTextureForDisplay(g: Graphics): Texture {
             val width = d3d9Texture.width
             val height = d3d9Texture.height
 
@@ -89,9 +91,11 @@ open class ExternalObjectsCanvasWinD3D(
                 disposeFXResources()
 
                 fxD3D9Texture = D3D9.Device.jfx.createTexture(width, height, d3d9Texture.sharedHandle)
-                fxTexture = GLFXUtils.createPermanentFXTexture(width, height)
-                D3D9.replaceD3DTextureInResource(fxTexture.d3dTextureResource, fxD3D9Texture.handle)
+                fxTexture = GLFXUtils.createPermanentFXRTTexture(width, height)
+                fxTextureHandle = fetchDXTexHandle(fxTexture, g)
             }
+
+            D3D9.Device.jfx.stretchRect(fxD3D9Texture.handle, fxTextureHandle)
 
             return fxTexture
         }

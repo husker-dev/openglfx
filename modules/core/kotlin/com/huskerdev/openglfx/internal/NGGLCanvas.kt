@@ -183,7 +183,7 @@ abstract class NGGLCanvas(
         val swapElement = swapChain[currentSwapBufferIndex.get()]
 
         synchronized(swapElement.lock){
-            val texture = swapElement.getTextureForDisplay()
+            val texture = swapElement.getTextureForDisplay(g)
 
             val drawWidth = (texture.physicalWidth / canvas.dpi).toFloat()
             val drawHeight = (texture.physicalHeight / canvas.dpi).toFloat()
@@ -199,7 +199,7 @@ abstract class NGGLCanvas(
         val lock = Object()
 
         abstract fun render(width: Int, height: Int): Framebuffer
-        abstract fun getTextureForDisplay(): Texture
+        abstract fun getTextureForDisplay(g: Graphics): Texture
         abstract fun dispose()
         abstract fun disposeFXResources()
 

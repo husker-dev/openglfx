@@ -7,6 +7,7 @@ import com.huskerdev.openglfx.internal.GLFXUtils
 import com.huskerdev.openglfx.internal.NGGLCanvas
 
 import com.huskerdev.openglfx.internal.Framebuffer
+import com.sun.prism.Graphics
 import com.sun.prism.PixelFormat
 
 
@@ -59,7 +60,7 @@ open class BlitCanvas(
             return false
         }
 
-        override fun getTextureForDisplay(): Texture {
+        override fun getTextureForDisplay(g: Graphics): Texture {
             val width = fbo.width
             val height = fbo.height
 

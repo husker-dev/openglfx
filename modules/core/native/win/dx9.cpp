@@ -3,26 +3,6 @@
 #include <d3d9.h>
 
 
-// Emulate internal JavaFX's code for memory mapping
-struct IManagedResource {
-    void* virtualTable;
-
-	IManagedResource* pPrev;
-	IManagedResource* pNext;
-};
-
-struct D3DResource {
-	IManagedResource managedResource;
-	IDirect3DResource9* pResource;
-	IDirect3DSwapChain9* pSwapChain;
-	IDirect3DSurface9* pSurface;
-	IDirect3DSurface9* pDepthSurface;
-	IDirect3DTexture9* pTexture;
-
-	D3DSURFACE_DESC desc;
-};
-
-
 extern "C"{
     typedef jlong (*nGetContextPtr) (JNIEnv *jEnv, jclass, jint adapterOrdinal);
     typedef jlong (*nGetDevicePtr) (JNIEnv *jEnv, jclass, jlong context);
@@ -77,18 +57,25 @@ jni_win_d3d9(void, nReleaseTexture)(JNIEnv* env, jobject, jlong handle) {
     texture->Release();
 }
 
-jni_win_d3d9(void, replaceD3DTextureInResource)(JNIEnv* env, jobject, jlong _resource, jlong newTexture) {
-    D3DResource* resource = (D3DResource*)_resource;
-    IDirect3DTexture9* texture = (IDirect3DTexture9*)newTexture;
+jni_win_d3d9(void, nStretchRect)(JNIEnv* env, jobject, jlong _device, jlong _src, jlong _dst) {
+    IDirect3DDevice9Ex* device = (IDirect3DDevice9Ex*)_device;
 
-    resource->pTexture->Release();
-    resource->pResource->Release();
-    resource->pSurface->Release();
 
-    // From D3DResource in D3DResourceManager.cpp
-    resource->pResource = texture;
-    resource->pResource->AddRef();
-    resource->pTexture = (IDirect3DTexture9*)resource->pResource;
-    resource->pTexture->GetSurfaceLevel(0, &resource->pSurface);
-    resource->pSurface->GetDesc(&resource->desc);
+    IDirect3DTexture9* srcTx = (IDirect3DTexture9*)_src;
+    IDirect3DTexture9* dstTx = (IDirect3DTexture9*)_dst;
+    IDirect3DSurface9* src = 0;
+    IDirect3DSurface9* dst = 0;
+    srcTx->GetSurfaceLevel(0, &src);
+    dstTx->GetSurfaceLevel(0, &dst);
+
+    device->StretchRect(src, NULL, dst, NULL, D3DTEXF_NONE);
+    src->Release();
+    dst->Release();
+}
+
+jni_win_d3d9(jlong, nGetTexture)(JNIEnv* env, jobject, jlong _device, jint stage) {
+    IDirect3DDevice9Ex* device = (IDirect3DDevice9Ex*)_device;
+    IDirect3DBaseTexture9* texture = 0;
+    device->GetTexture(stage, &texture);
+    return (jlong)texture;
 }

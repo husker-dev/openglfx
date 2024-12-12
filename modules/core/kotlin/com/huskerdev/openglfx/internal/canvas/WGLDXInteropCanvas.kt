@@ -7,10 +7,11 @@ import com.huskerdev.openglfx.canvas.GLCanvas
 import com.huskerdev.openglfx.internal.GLFXUtils
 import com.huskerdev.openglfx.internal.NGGLCanvas
 import com.huskerdev.openglfx.internal.Framebuffer
+import com.huskerdev.openglfx.internal.GLFXUtils.Companion.fetchDXTexHandle
 import com.huskerdev.openglfx.internal.platforms.win.*
 import com.huskerdev.openglfx.internal.platforms.win.WGLDX.Companion.WGL_ACCESS_WRITE_DISCARD_NV
+import com.sun.prism.Graphics
 import com.sun.prism.Texture
-import com.sun.prism.d3d.d3dTextureResource
 
 
 open class WGLDXInteropCanvas(
@@ -40,6 +41,7 @@ open class WGLDXInteropCanvas(
 
         private lateinit var fxD3D9Texture: D3D9.Texture
         private lateinit var fxTexture: Texture
+        private var fxTextureHandle = 0L
 
         override fun render(width: Int, height: Int): Framebuffer {
             if(checkFramebufferSize(width, height, d3d9Device, interopDevice))
@@ -77,7 +79,7 @@ open class WGLDXInteropCanvas(
             return false
         }
 
-        override fun getTextureForDisplay(): Texture {
+        override fun getTextureForDisplay(g: Graphics): Texture {
             val width = d3d9Texture.width
             val height = d3d9Texture.height
 
@@ -86,8 +88,10 @@ open class WGLDXInteropCanvas(
 
                 fxD3D9Texture = D3D9.Device.jfx.createTexture(width, height, d3d9Texture.sharedHandle)
                 fxTexture = GLFXUtils.createPermanentFXTexture(width, height)
-                D3D9.replaceD3DTextureInResource(fxTexture.d3dTextureResource, fxD3D9Texture.handle)
+                fxTextureHandle = fetchDXTexHandle(fxTexture, g)
             }
+
+            D3D9.Device.jfx.stretchRect(fxD3D9Texture.handle, fxTextureHandle)
 
             return fxTexture
         }

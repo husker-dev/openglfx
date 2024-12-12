@@ -10,15 +10,16 @@ import com.huskerdev.openglfx.internal.GLFXUtils
 import com.huskerdev.openglfx.internal.NGGLCanvas
 
 import com.huskerdev.openglfx.internal.Framebuffer
+import com.huskerdev.openglfx.internal.GLFXUtils.Companion.fetchGLTexId
 import com.huskerdev.openglfx.internal.platforms.GL_HANDLE_TYPE_OPAQUE_FD_EXT
 import com.huskerdev.openglfx.internal.platforms.MemoryObjects.Companion.glCreateMemoryObjectsEXT
 import com.huskerdev.openglfx.internal.platforms.MemoryObjects.Companion.glDeleteMemoryObjectsEXT
 import com.huskerdev.openglfx.internal.platforms.MemoryObjects.Companion.glImportMemoryFdEXT
 import com.huskerdev.openglfx.internal.platforms.MemoryObjects.Companion.glTextureStorageMem2DEXT
 import com.huskerdev.openglfx.internal.platforms.VkExtMemory
+import com.sun.prism.Graphics
 
 import com.sun.prism.Texture
-import com.sun.prism.es2.glTextureId
 
 
 open class ExternalObjectsCanvasFd(
@@ -46,6 +47,7 @@ open class ExternalObjectsCanvasFd(
         private var memoryObj = 0
 
         private lateinit var fxTexture: Texture
+        private var fxTextureId = 0
         private lateinit var fxInteropFbo: Framebuffer
         private var fxMemoryObj = 0
 
@@ -82,7 +84,7 @@ open class ExternalObjectsCanvasFd(
             return false
         }
 
-        override fun getTextureForDisplay(): Texture {
+        override fun getTextureForDisplay(g: Graphics): Texture {
             val width = fbo.width
             val height = fbo.height
 
@@ -90,6 +92,7 @@ open class ExternalObjectsCanvasFd(
                 disposeFXResources()
 
                 fxTexture = GLFXUtils.createPermanentFXTexture(width, height)
+                fxTextureId = fetchGLTexId(fxTexture, g)
 
                 fxMemoryObj = glCreateMemoryObjectsEXT()
                 glImportMemoryFdEXT(fxMemoryObj, externalImage.size, GL_HANDLE_TYPE_OPAQUE_FD_EXT, externalImage.createMemoryFd())
@@ -101,7 +104,7 @@ open class ExternalObjectsCanvasFd(
                 fxInteropFbo = Framebuffer.Default(width, height, texture = sharedTexture)
             }
 
-            fxInteropFbo.copyToTexture(fxTexture.glTextureId)
+            fxInteropFbo.copyToTexture(fxTextureId)
 
             return fxTexture
         }

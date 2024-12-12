@@ -36,6 +36,7 @@ internal const val GL_FLOAT = 0x1406
 internal const val GL_STATIC_DRAW = 0x88E4
 internal const val GL_TRIANGLE_STRIP = 0x0005
 internal const val GL_COMPILE_STATUS = 0x8B81
+internal const val GL_TEXTURE_BINDING_2D = 0x8069
 
 @Suppress("unused")
 open class GLExecutor {

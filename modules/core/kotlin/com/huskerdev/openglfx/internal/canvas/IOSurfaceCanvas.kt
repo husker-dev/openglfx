@@ -6,10 +6,11 @@ import com.huskerdev.openglfx.GL_TEXTURE_RECTANGLE
 import com.huskerdev.openglfx.canvas.GLCanvas
 import com.huskerdev.openglfx.internal.Framebuffer
 import com.huskerdev.openglfx.internal.GLFXUtils
+import com.huskerdev.openglfx.internal.GLFXUtils.Companion.fetchGLTexId
 import com.huskerdev.openglfx.internal.NGGLCanvas
 import com.huskerdev.openglfx.internal.platforms.macos.IOSurface
+import com.sun.prism.Graphics
 import com.sun.prism.Texture
-import com.sun.prism.es2.glTextureId
 
 class IOSurfaceCanvas(
     canvas: GLCanvas,
@@ -61,7 +62,7 @@ class IOSurfaceCanvas(
             return false
         }
 
-        override fun getTextureForDisplay(): Texture {
+        override fun getTextureForDisplay(g: Graphics): Texture {
             val width = ioSurface.width
             val height = ioSurface.height
 
@@ -70,7 +71,7 @@ class IOSurfaceCanvas(
 
                 fxTexture = GLFXUtils.createPermanentFXTexture(width, height)
                 fxTextureFBO = Framebuffer.Default(width, height,
-                    texture = fxTexture.glTextureId)
+                    texture = fetchGLTexId(fxTexture, g))
 
                 fxInteropFBO = Framebuffer.Default(width, height,
                     texture = ioSurface.createBoundTexture(),
