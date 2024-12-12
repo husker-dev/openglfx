@@ -14,7 +14,7 @@ class LibGDXCanvas(
     val configuration: OGLFXApplicationConfiguration = OGLFXApplicationConfiguration(),
     flipY: Boolean              = false,
     msaa: Int                   = 0,
-    fps: Int                    = -1,
+    fps: Double                 = -1.0,
     glDebug: Boolean            = false,
     swapBuffers: Int            = 2,
     interopType: GLInteropType  = GLInteropType.auto,

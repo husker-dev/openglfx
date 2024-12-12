@@ -32,13 +32,23 @@ import kotlin.math.ceil
  * @param msaa Multisampling anti-aliasing quality:
  *  - 0 – disabled (default);
  *  - -1 – maximum available samples.
+ *  @param fps Frames per seconds:
+ *  - < 0 - Monitor refresh rate
+ *  - 0	- Do not update repeatedly
+ *  - \> 0 Update with desired FPS
+ *  @param glDebug Creates GLContext that supports debugging
+ *  @param swapBuffers Swap-chain buffers:
+ *  - The best UI performance is achieved with 2 (default).
+ *  - The most responsive to resizing is 1.
+ *  @param interopType Type of interop between JavaFX and OpenGL (do not change if you not sure what you do)
+ *  @param externalWindow Creates external window that mirroring canvas. Used to enable debugging via NSight or RenderDoc.
  */
 open class GLCanvas @JvmOverloads constructor(
     val executor: GLExecutor,
     val profile: GLProfile          = GLProfile.CORE,
     var flipY: Boolean              = false,
     var msaa: Int                   = 0,
-    fps: Int                        = -1,
+    fps: Double                     = -1.0,
     val glDebug: Boolean            = false,
     val swapBuffers: Int            = 2,
     val interopType: GLInteropType  = GLInteropType.auto,
@@ -79,11 +89,17 @@ open class GLCanvas @JvmOverloads constructor(
     val scaledHeight: Int
         get() = ceil(height * dpi).toInt()
 
-    var fps: Int = 0
+    /**
+     * Frames per seconds:
+     *  - < 0 - Monitor refresh rate
+     *  - 0	- Do not update repeatedly
+     *  - \> 0 Update with desired FPS
+     */
+    var fps: Double = 0.0
         set(value) {
             field = value
             RegionHelper.getPeer<NGGLCanvas>(this).fps =
-                if(value >= 0) value else GLFXUtils.getPulseDuration()
+                if(value >= 0) value else GLFXUtils.getPulseDuration().toDouble()
         }
 
     init {

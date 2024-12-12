@@ -66,7 +66,7 @@ abstract class NGGLCanvas(
     val flipY by canvas::flipY
     val msaa by canvas::msaa
 
-    var fps = 0
+    var fps = 0.0
 
     private val renderLock = Object()
     private lateinit var renderThread: Thread
@@ -161,7 +161,7 @@ abstract class NGGLCanvas(
                     if(fps > 0) {
                         val delay = (1000 / fps) - (System.currentTimeMillis() - lastFrameStartTime)
                         if(delay > 0)
-                            renderLock.wait(delay)
+                            renderLock.wait(delay.toLong())
                     }else
                         renderLock.wait()
                 }

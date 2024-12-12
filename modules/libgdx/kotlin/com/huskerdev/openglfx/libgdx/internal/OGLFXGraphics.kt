@@ -10,7 +10,6 @@ import com.badlogic.gdx.graphics.*
 import com.badlogic.gdx.graphics.Cursor.SystemCursor.*
 import com.badlogic.gdx.graphics.glutils.GLVersion
 import com.huskerdev.openglfx.canvas.GLCanvas
-import com.huskerdev.openglfx.canvas.GLCanvasAnimator
 import javafx.scene.ImageCursor
 import javafx.stage.Screen
 
@@ -106,10 +105,10 @@ class OGLFXGraphics(val canvas: GLCanvas): AbstractGraphics() {
     override fun supportsExtension(extension: String?) = true
 
     override fun setContinuousRendering(isContinuous: Boolean) {
-        canvas.fps = 0
+        canvas.fps = 0.0
     }
 
-    override fun isContinuousRendering() = canvas.fps == 0
+    override fun isContinuousRendering() = canvas.fps == 0.0
 
     override fun requestRendering() {
         canvas.repaint()

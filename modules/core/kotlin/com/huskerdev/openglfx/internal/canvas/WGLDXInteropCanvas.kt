@@ -104,6 +104,7 @@ open class WGLDXInteropCanvas(
         }
 
         override fun disposeFXResources() {
+            if (this::fxD3D9Texture.isInitialized) fxD3D9Texture.release()
             if (this::fxTexture.isInitialized) fxTexture.dispose()
         }
     }
