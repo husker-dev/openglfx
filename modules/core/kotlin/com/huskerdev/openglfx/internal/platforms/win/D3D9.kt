@@ -15,6 +15,9 @@ class D3D9 {
         @JvmStatic external fun nStretchRect(device: Long, src: Long, dst: Long)
         @JvmStatic external fun nGetTexture(device: Long, stage: Int): Long
 
+        @JvmStatic external fun nGetSurface(texture: Long, level: Int): Long
+        @JvmStatic external fun nReleaseSurface(surface: Long): Long
+
         init {
             GLFXUtils.loadLibrary()
         }
@@ -35,8 +38,8 @@ class D3D9 {
                 Texture(width, height, this[0], this[1])
             }
 
-        fun stretchRect(src: Long, dst: Long) =
-            nStretchRect(handle, src, dst)
+        fun stretchRect(src: Surface, dst: Surface) =
+            nStretchRect(handle, src.handle, dst.handle)
 
         fun getTexture(stage: Int) =
             nGetTexture(handle, stage)
@@ -50,5 +53,15 @@ class D3D9 {
     ) {
         fun release() =
             nReleaseTexture(handle)
+
+        fun getSurfaceLevel(level: Int) =
+            Surface(nGetSurface(handle, level))
+    }
+
+    data class Surface(
+        val handle: Long
+    ) {
+        fun release() =
+            nReleaseSurface(handle)
     }
 }

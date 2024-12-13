@@ -43,12 +43,16 @@ open class ExternalObjectsCanvasWinD3D(
     protected inner class ExternalObjectsSwapBuffer: SwapBuffer() {
         private lateinit var fbo: Framebuffer
         private lateinit var interopFBO: Framebuffer.Default
-        private lateinit var d3d9Texture: D3D9.Texture
         private var memoryObj = 0
 
-        private lateinit var fxD3D9Texture: D3D9.Texture
-        private lateinit var fxTexture: Texture
-        private var fxTextureHandle = 0L
+        private lateinit var texture: Texture
+
+        private lateinit var sharedD3DTexture0: D3D9.Texture
+        private lateinit var sharedD3DTexture: D3D9.Texture
+        private lateinit var sharedD3DTextureSurface: D3D9.Surface
+
+        private lateinit var fxD3DTexture: D3D9.Texture
+        private lateinit var fxD3DTextureSurface: D3D9.Surface
 
         override fun render(width: Int, height: Int): Framebuffer {
             if(checkFramebufferSize(width, height))
@@ -66,10 +70,10 @@ open class ExternalObjectsCanvasWinD3D(
             if(!this::fbo.isInitialized || fbo.width != width || fbo.height != height){
                 dispose()
 
-                d3d9Texture = d3d9Device.createTexture(width, height)
+                sharedD3DTexture0 = d3d9Device.createTexture(width, height)
 
                 memoryObj = glCreateMemoryObjectsEXT()
-                glImportMemoryWin32HandleEXT(memoryObj, 0, GL_HANDLE_TYPE_D3D11_IMAGE_KMT_EXT, d3d9Texture.sharedHandle)
+                glImportMemoryWin32HandleEXT(memoryObj, 0, GL_HANDLE_TYPE_D3D11_IMAGE_KMT_EXT, sharedD3DTexture0.sharedHandle)
 
                 val sharedTexture = glGenTextures()
                 glBindTexture(GL_TEXTURE_2D, sharedTexture)
@@ -84,32 +88,38 @@ open class ExternalObjectsCanvasWinD3D(
         }
 
         override fun getTextureForDisplay(g: Graphics): Texture {
-            val width = d3d9Texture.width
-            val height = d3d9Texture.height
+            val width = sharedD3DTexture0.width
+            val height = sharedD3DTexture0.height
 
-            if(!this::fxD3D9Texture.isInitialized || fxD3D9Texture.width != width || fxD3D9Texture.height != height){
+            if(!this::sharedD3DTexture.isInitialized || sharedD3DTexture.width != width || sharedD3DTexture.height != height){
                 disposeFXResources()
 
-                fxD3D9Texture = D3D9.Device.jfx.createTexture(width, height, d3d9Texture.sharedHandle)
-                fxTexture = GLFXUtils.createPermanentFXRTTexture(width, height)
-                fxTextureHandle = fetchDXTexHandle(fxTexture, g)
+                sharedD3DTexture = D3D9.Device.jfx.createTexture(width, height, sharedD3DTexture0.sharedHandle)
+                sharedD3DTextureSurface = sharedD3DTexture.getSurfaceLevel(0)
+
+                texture = GLFXUtils.createPermanentFXRTTexture(width, height)
+                fxD3DTexture = D3D9.Texture(width, height, fetchDXTexHandle(texture, g), 0)
+                fxD3DTextureSurface = fxD3DTexture.getSurfaceLevel(0)
             }
 
-            D3D9.Device.jfx.stretchRect(fxD3D9Texture.handle, fxTextureHandle)
+            D3D9.Device.jfx.stretchRect(sharedD3DTextureSurface, fxD3DTextureSurface)
 
-            return fxTexture
+            return texture
         }
 
         override fun dispose() {
             if (this::fbo.isInitialized) fbo.delete()
             if (this::interopFBO.isInitialized) interopFBO.delete()
-            if (this::d3d9Texture.isInitialized) d3d9Texture.release()
+            if (this::sharedD3DTexture0.isInitialized) sharedD3DTexture0.release()
             if (memoryObj != 0) glDeleteMemoryObjectsEXT(memoryObj)
         }
 
         override fun disposeFXResources() {
-            if (this::fxD3D9Texture.isInitialized) fxD3D9Texture.release()
-            if (this::fxTexture.isInitialized) fxTexture.dispose()
+            if (this::sharedD3DTextureSurface.isInitialized) sharedD3DTextureSurface.release()
+            if (this::sharedD3DTexture.isInitialized) sharedD3DTexture.release()
+            if (this::fxD3DTextureSurface.isInitialized) fxD3DTextureSurface.release()
+            if (this::fxD3DTexture.isInitialized) fxD3DTexture.release()
+            if (this::texture.isInitialized) texture.dispose()
         }
     }
 }

@@ -57,20 +57,18 @@ jni_win_d3d9(void, nReleaseTexture)(JNIEnv* env, jobject, jlong handle) {
     texture->Release();
 }
 
+jni_win_d3d9(void, nReleaseSurface)(JNIEnv* env, jobject, jlong _surface) {
+    IDirect3DSurface9* surface = (IDirect3DSurface9*)_surface;
+    surface->Release();
+}
+
 jni_win_d3d9(void, nStretchRect)(JNIEnv* env, jobject, jlong _device, jlong _src, jlong _dst) {
     IDirect3DDevice9Ex* device = (IDirect3DDevice9Ex*)_device;
 
-
-    IDirect3DTexture9* srcTx = (IDirect3DTexture9*)_src;
-    IDirect3DTexture9* dstTx = (IDirect3DTexture9*)_dst;
-    IDirect3DSurface9* src = 0;
-    IDirect3DSurface9* dst = 0;
-    srcTx->GetSurfaceLevel(0, &src);
-    dstTx->GetSurfaceLevel(0, &dst);
+    IDirect3DSurface9* src = (IDirect3DSurface9*)_src;
+    IDirect3DSurface9* dst = (IDirect3DSurface9*)_dst;
 
     device->StretchRect(src, NULL, dst, NULL, D3DTEXF_NONE);
-    src->Release();
-    dst->Release();
 }
 
 jni_win_d3d9(jlong, nGetTexture)(JNIEnv* env, jobject, jlong _device, jint stage) {
@@ -78,4 +76,12 @@ jni_win_d3d9(jlong, nGetTexture)(JNIEnv* env, jobject, jlong _device, jint stage
     IDirect3DBaseTexture9* texture = 0;
     device->GetTexture(stage, &texture);
     return (jlong)texture;
+}
+
+
+jni_win_d3d9(jlong, nGetSurface)(JNIEnv* env, jobject, jlong _texture, jint level) {
+    IDirect3DTexture9* texture = (IDirect3DTexture9*)_texture;
+    IDirect3DSurface9* surface = 0;
+    texture->GetSurfaceLevel(0, &surface);
+    return (jlong)surface;
 }

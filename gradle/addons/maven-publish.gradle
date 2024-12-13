@@ -130,7 +130,8 @@ class MavenPublishPlugin implements Plugin<Project> {
         }
 
         project.signing {
-            sign project.publishing.publications.mavenJava
+            if(project.properties.hasProperty("ossrhUsername"))
+                sign project.publishing.publications.mavenJava
         }
     }
 }
