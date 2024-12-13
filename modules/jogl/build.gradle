@@ -6,13 +6,10 @@ apply from: addon(addons_mavenPublish)
 
 sourceSets {
     main.java.srcDirs = ['kotlin']
-    test.java.srcDirs = ['test']
 }
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
-compileKotlin {
-    kotlinOptions.jvmTarget = "1.8"
+kotlin {
+    jvmToolchain(11)
 }
 
 maven {

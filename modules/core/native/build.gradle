@@ -2,8 +2,11 @@
 apply from: addon(addons_mavenPublish)
 apply from: addon(addons_nativeCompilation)
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(11))
+    }
+}
 
 compilation {
     baseName = "lib"
