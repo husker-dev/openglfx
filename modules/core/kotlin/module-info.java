@@ -9,7 +9,6 @@ module openglfx {
     exports com.huskerdev.openglfx;
     exports com.huskerdev.openglfx.canvas;
     exports com.huskerdev.openglfx.canvas.events;
-    exports com.huskerdev.openglfx.effects;
     exports com.huskerdev.openglfx.image;
     exports com.huskerdev.openglfx.internal;
     exports com.huskerdev.openglfx.internal.canvas;
