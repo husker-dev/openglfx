@@ -12,7 +12,9 @@ import com.sun.prism.PixelFormat
 import com.sun.prism.Texture
 import com.sun.scenario.Settings
 import javafx.scene.Node
+import java.lang.reflect.Field
 import java.nio.ByteBuffer
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.function.Consumer
 
 
@@ -22,8 +24,57 @@ class GLFXUtils {
         @JvmStatic external fun createDirectBuffer(size: Int): ByteBuffer
         @JvmStatic external fun cleanDirectBuffer(buffer: ByteBuffer)
 
-        fun loadLibrary() =
+        private val initialized = AtomicBoolean()
+
+        private val unsafeClass by lazy {
+            Class.forName("sun.misc.Unsafe")
+        }
+        private val unsafe by lazy {
+            unsafeClass.getDeclaredField("theUnsafe").apply { trySetAccessible() }[null]
+        }
+
+
+        fun loadLibrary() {
+            if(initialized.getAndSet(true))
+                return
             Platform.loadLibraryFromResources("com/huskerdev/openglfx/native", "lib", GLFXInfo.VERSION)
+
+            // Uses modules
+            if (ModuleLayer.boot().findModule("javafx.graphics").isPresent){
+                arrayOf(
+                    "com.sun.prism",
+                    "com.sun.javafx.scene.layout",
+                    "com.sun.javafx.scene",
+                    "com.sun.javafx.sg.prism",
+                    "com.sun.scenario",
+                    "com.sun.javafx.tk",
+                    "com.sun.glass.ui"
+                ).forEach {
+                    addExports("javafx.graphics", it, GLFXUtils::class.java.module)
+                }
+            }
+        }
+
+        private fun addExports(module: String, pkg: String, currentModule: Module) {
+            try {
+                val moduleOpt = ModuleLayer.boot().findModule(module)
+                val addOpensMethodImpl = Module::class.java.getDeclaredMethod("implAddExports", String::class.java, Module::class.java)
+
+                @Suppress("unused")
+                class OffsetProvider(val first: Int)
+
+                val firstFieldOffset = unsafeClass.getDeclaredMethod("objectFieldOffset", Field::class.java)
+                    .invoke(unsafe, OffsetProvider::class.java.getDeclaredField("first"))
+
+                unsafeClass.getDeclaredMethod("putBooleanVolatile", Object::class.java, Long::class.java, Boolean::class.java)
+                    .invoke(unsafe, addOpensMethodImpl, firstFieldOffset, true)
+
+                addOpensMethodImpl.invoke(moduleOpt.get(), pkg, currentModule);
+            } catch (e: Throwable) {
+                System.err.println("Could not add exports: $module/$pkg to ${currentModule.name}")
+                e.printStackTrace()
+            }
+        }
 
         fun getDPI(node: Node) =
             if(node.scene == null || node.scene.window == null)
