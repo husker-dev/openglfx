@@ -1,5 +1,4 @@
 include (
-        'modules:bom',
         'modules:core',
         'modules:core:native',
         'modules:jogl',

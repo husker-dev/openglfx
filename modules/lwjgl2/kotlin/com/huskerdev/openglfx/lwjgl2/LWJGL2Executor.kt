@@ -1,4 +1,5 @@
 package com.huskerdev.openglfx.lwjgl2
+
 import com.huskerdev.grapl.gl.GLContext
 import com.huskerdev.openglfx.GLExecutor
 

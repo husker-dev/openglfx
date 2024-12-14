@@ -4,6 +4,7 @@ plugins {
 
 apply from: addon(addons_mavenPublish)
 apply from: addon(addons_propertyClass)
+apply from: addon(addons_moduleInfo)
 
 sourceSets {
     main.java.srcDirs = ['kotlin']
@@ -11,6 +12,9 @@ sourceSets {
 
 kotlin {
     jvmToolchain(11)
+    compilerOptions.freeCompilerArgs = [
+        "-Xjavac-arguments" // Let not use "--add-exports"
+    ]
 }
 
 maven {

@@ -1,0 +1,12 @@
+
+compileKotlin {
+    destinationDirectory = compileJava.destinationDirectory
+}
+
+jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.withType(Javadoc).configureEach {
+    enabled = false
+}
