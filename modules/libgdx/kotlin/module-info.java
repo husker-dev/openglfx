@@ -4,6 +4,7 @@ module openglfx.libgdx {
 
     requires org.lwjgl;
     requires org.lwjgl.opengl;
+    requires javafx.controls;
 
     exports com.huskerdev.openglfx.libgdx;
     exports com.huskerdev.openglfx.libgdx.events;
