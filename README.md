@@ -49,7 +49,7 @@ If you are using java modules, then you need to add the following module in `mod
 ```java
 requires openglfx.lwjgl;
 ```
-and launch with the following arguments:
+`openglfx` adds exports for JavaFX at runtime, but if you experience issues with package access, then add following arguments to launch configuration:
 ```
 --add-exports=javafx.graphics/com.sun.prism=ALL-UNNAMED
 --add-exports=javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED
