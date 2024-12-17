@@ -1,6 +1,7 @@
 package com.huskerdev.openglfx.internal
 
 import com.huskerdev.grapl.core.platform.OS
+import com.huskerdev.grapl.core.platform.Platform
 import com.huskerdev.grapl.gl.GLContext
 import com.huskerdev.openglfx.GLExecutor
 import com.huskerdev.openglfx.GLExecutor.Companion.glBindTexture
@@ -61,27 +62,40 @@ enum class GLInteropType {
     companion object {
         val auto: GLInteropType by lazy {
             val pipeline = GraphicsPipeline.getPipeline().javaClass.canonicalName.split(".")[3]
-            val oldContext = GLContext.current()
-            val tmpContext = GLContext.create()
-            tmpContext.makeCurrent()
-            val extensions = tmpContext.getExtensions()
 
-            val hasMemoryObjectExt = "GL_EXT_memory_object" in extensions && ("GL_EXT_memory_object_win32" in extensions || "GL_EXT_memory_object_fd" in extensions)
+            var hasWGLNVInteropExt = false
+            var hasMemoryObjectExt = false
 
-            val type = when (com.huskerdev.grapl.core.platform.Platform.os) {
+            // Create temporary context to fetch extension information (not on macOS)
+            if(Platform.os != OS.MacOS) {
+                val oldContext = GLContext.current()
+                val tmpContext = GLContext.create()
+                tmpContext.makeCurrent()
+
+                // Get info
+                val extensions = tmpContext.getExtensions()
+                hasWGLNVInteropExt = tmpContext.hasFunction("wglDXOpenDeviceNV") && tmpContext.hasFunction("wglDXLockObjectsNV")
+                hasMemoryObjectExt = "GL_EXT_memory_object" in extensions && ("GL_EXT_memory_object_win32" in extensions || "GL_EXT_memory_object_fd" in extensions)
+
+                // Clear temporary context
+                tmpContext.delete()
+                oldContext.makeCurrent()
+            }
+
+            val type = when (Platform.os) {
                 OS.Windows -> {
                     if(pipeline == "d3d" && hasMemoryObjectExt && isDXGISupported())
                         ExternalObjectsWinD3D
                     else if(pipeline == "es2" && hasMemoryObjectExt)
                         ExternalObjectsWinES
-                    else if(pipeline == "d3d" && tmpContext.hasFunction("wglDXOpenDeviceNV") && tmpContext.hasFunction("wglDXLockObjectsNV"))
+                    else if(pipeline == "d3d" && hasWGLNVInteropExt)
                         WGLDXInterop
                     else
                         Blit
                 }
 
                 OS.Linux -> {
-                    if (pipeline == "es2" && "GL_EXT_memory_object" in extensions && "GL_EXT_memory_object_fd" in extensions)
+                    if (pipeline == "es2" && hasMemoryObjectExt)
                         ExternalObjectsFd
                     else
                         Blit
@@ -95,8 +109,6 @@ enum class GLInteropType {
                 }
                 OS.Other -> throw UnsupportedOperationException("Unsupported OS")
             }
-            tmpContext.delete()
-            oldContext.makeCurrent()
             type
         }
 
