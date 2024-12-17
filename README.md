@@ -35,7 +35,7 @@ dependencies {
     // implementation LWJGL
     // implementation ...
 
-    implementation 'com.huskerdev:openglfx-lwjgl:4.1.5'
+    implementation 'com.huskerdev:openglfx-lwjgl:4.1.6'
 }
 ```
 
