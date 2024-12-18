@@ -226,7 +226,7 @@ val canvas = LibGDXCanvas(Main()) // Main is ApplicationAdapter
   [ExternalObjectsCanvasFd]: https://github.com/husker-dev/openglfx/blob/master/modules/core/kotlin/com/huskerdev/openglfx/internal/canvas/ExternalObjectsCanvasFd.kt
   [ExternalObjectsCanvasWinD3D]: https://github.com/husker-dev/openglfx/blob/master/modules/core/kotlin/com/huskerdev/openglfx/internal/canvas/ExternalObjectsCanvasWinD3D.kt
   [ExternalObjectsCanvasWinES2]: https://github.com/husker-dev/openglfx/blob/master/modules/core/kotlin/com/huskerdev/openglfx/internal/canvas/ExternalObjectsCanvasWinES2.kt
-  [IOSurface]: https://github.com/husker-dev/openglfx/blob/master/modules/core/kotlin/com/huskerdev/openglfx/internal/canvas/IOSurface.kt
+  [IOSurfaceCanvas]: https://github.com/husker-dev/openglfx/blob/master/modules/core/kotlin/com/huskerdev/openglfx/internal/canvas/IOSurfaceCanvas.kt
   [WGLDXInteropCanvas]: https://github.com/husker-dev/openglfx/blob/master/modules/core/kotlin/com/huskerdev/openglfx/internal/canvas/WGLDXInteropCanvas.kt
 
   |                                                       | Description                                                                                                                                                                                    | Implementation                                                |
@@ -235,7 +235,7 @@ val canvas = LibGDXCanvas(Main()) // Main is ApplicationAdapter
   | **Windows** <br> (that supports WGL_NV_DX_interop)    | [NV_DX_interop](https://www.khronos.org/registry/OpenGL/extensions/NV/WGL_NV_DX_interop.txt) is used to synchronize textures between DirectX 9 and OpenGL.                                     | [WGLDXInteropCanvas.kt][WGLDXInteropCanvas]                   |
   | **Windows** <br> (es2 pipeline)                       | [EXT_external_objects_win32](https://registry.khronos.org/OpenGL/extensions/EXT/EXT_external_objects_win32.txt) is used to create chain with shared texture: <br> OpenGL <-> Vulkan <-> OpenGL | [ExternalObjectsCanvasWinES2.kt][ExternalObjectsCanvasWinES2] |
   | **Linux**                                             | [EXT_external_objects_fd](https://registry.khronos.org/OpenGL/extensions/EXT/EXT_external_objects_fd.txt) is used to create chain with shared texture: <br> OpenGL <-> Vulkan <-> OpenGL       | [ExternalObjectsCanvasFd.kt][ExternalObjectsCanvasFd]         |
-  | **macOS**                                             | IOSurface is used to create memory block in VRAM that can be used in different OpenGL contexts.                                                                                                | [IOSurface.kt][IOSurface]                                     |
+  | **macOS**                                             | IOSurface is used to create memory block in VRAM that can be used in different OpenGL contexts.                                                                                                | [IOSurfaceCanvas.kt][IOSurfaceCanvas]                         |
   | *Other*                                               | Copies ByteBuffer from ```glReadPixels``` to JavaFX texture                                                                                                                                    | [BlitCanvas.kt][BlitCanvas]                                   |
 
 
