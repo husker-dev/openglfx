@@ -4,6 +4,8 @@
 
 
 jni_gl(void, nInitGLFunctions)(JNIEnv* env, jobject) {
+    a_glEnable = (glEnablePtr)a_GetProcAddress("glEnable");
+    a_glDisable = (glDisablePtr)a_GetProcAddress("glDisable");
     a_glViewport = (glViewportPtr)a_GetProcAddress("glViewport");
     a_glTexParameteri = (glTexParameteriPtr)a_GetProcAddress("glTexParameteri");
     a_glTexImage2D = (glTexImage2DPtr)a_GetProcAddress("glTexImage2D");
@@ -52,6 +54,14 @@ jni_gl(void, nInitGLFunctions)(JNIEnv* env, jobject) {
     a_glEnableVertexAttribArray = (glEnableVertexAttribArrayPtr)a_GetProcAddress("glEnableVertexAttribArray");
     a_glDeleteBuffers = (glDeleteBuffersPtr)a_GetProcAddress("glDeleteBuffers");
     a_glDrawArrays = (glDrawArraysPtr)a_GetProcAddress("glDrawArrays");
+}
+
+jni_gl(void, glEnable)(JNIEnv* env, jobject, jint cap) {
+    a_glEnable(cap);
+}
+
+jni_gl(void, glDisable)(JNIEnv* env, jobject, jint cap) {
+    a_glDisable(cap);
 }
 
 jni_gl(void, glDeleteFramebuffers)(JNIEnv* env, jobject, jint fbo) {

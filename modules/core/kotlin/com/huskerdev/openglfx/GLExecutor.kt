@@ -6,7 +6,8 @@ import com.huskerdev.openglfx.canvas.events.GLDisposeEvent
 import com.huskerdev.openglfx.canvas.events.GLInitializeEvent
 import com.huskerdev.openglfx.canvas.events.GLRenderEvent
 import com.huskerdev.openglfx.canvas.events.GLReshapeEvent
-import java.nio.*
+import java.nio.ByteBuffer
+import java.nio.FloatBuffer
 
 
 internal const val GL_BGRA = 0x80E1
@@ -37,6 +38,7 @@ internal const val GL_STATIC_DRAW = 0x88E4
 internal const val GL_TRIANGLE_STRIP = 0x0005
 internal const val GL_COMPILE_STATUS = 0x8B81
 internal const val GL_TEXTURE_BINDING_2D = 0x8069
+internal const val GL_SCISSOR_TEST = 0xc11
 
 @Suppress("unused")
 open class GLExecutor {
@@ -47,6 +49,8 @@ open class GLExecutor {
         private var isInitialized = false
         @JvmStatic external fun nInitGLFunctions()
 
+        @JvmStatic external fun glEnable(cap: Int)
+        @JvmStatic external fun glDisable(cap: Int)
         @JvmStatic external fun glDeleteFramebuffers(fbo: Int)
         @JvmStatic external fun glDeleteRenderbuffers(rbo: Int)
         @JvmStatic external fun glDeleteTextures(texture: Int)
