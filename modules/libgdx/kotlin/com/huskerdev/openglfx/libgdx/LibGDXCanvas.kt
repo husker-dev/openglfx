@@ -12,6 +12,7 @@ import kotlin.Boolean
 class LibGDXCanvas(
     val adapter: ApplicationAdapter,
     val configuration: OGLFXApplicationConfiguration = OGLFXApplicationConfiguration(),
+    profile: GLProfile          = GLProfile.CORE,
     flipY: Boolean              = false,
     msaa: Int                   = 0,
     fps: Double                 = -1.0,
@@ -21,8 +22,7 @@ class LibGDXCanvas(
     externalWindow: Boolean     = false
 ): GLCanvas(
     LIBGDX_MODULE,
-    GLProfile.CORE,
-    flipY, msaa, fps, glDebug, swapBuffers, interopType, externalWindow
+    profile, flipY, msaa, fps, glDebug, swapBuffers, interopType, externalWindow
 ) {
     private val invokeLater = arrayListOf<Runnable>()
     lateinit var application: Application
