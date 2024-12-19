@@ -36,6 +36,7 @@ class LibGDXCanvas(
         super.fireRenderEvent(fbo)
         synchronized(invokeLater){
             invokeLater.forEach { it.run() }
+            invokeLater.clear()
         }
         adapter.render()
     }
