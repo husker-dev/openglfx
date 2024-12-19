@@ -40,6 +40,11 @@ class LibGDXCanvas(
         adapter.render()
     }
 
+    override fun fireReshapeEvent(width: Int, height: Int) {
+        super.fireReshapeEvent(width, height)
+        adapter.resize(width, height)
+    }
+
     override fun fireInitEvent() {
         if(!::application.isInitialized) {
             application = OGLFXApplication(configuration, this)

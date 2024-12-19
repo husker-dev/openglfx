@@ -46,8 +46,8 @@ class OGLFXGraphics(val canvas: GLCanvas): AbstractGraphics() {
     override fun setGL31(gl31: GL31?) { this.gl31 = gl31 }
     override fun setGL32(gl32: GL32?) { this.gl32 = gl32 }
 
-    override fun getWidth() = canvas.scaledWidth
-    override fun getHeight() = canvas.scaledHeight
+    override fun getWidth() = canvas.width.toInt()
+    override fun getHeight() = canvas.height.toInt()
     override fun getBackBufferWidth() = canvas.scaledWidth
     override fun getBackBufferHeight() = canvas.scaledHeight
 
