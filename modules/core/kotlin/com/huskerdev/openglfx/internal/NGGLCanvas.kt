@@ -159,9 +159,9 @@ abstract class NGGLCanvas(
 
                 synchronized(renderLock) {
                     if(fps > 0) {
-                        val delay = (1000 / fps) - (System.currentTimeMillis() - lastFrameStartTime)
+                        val delay = ((1000 / fps) - (System.currentTimeMillis() - lastFrameStartTime)).toLong()
                         if(delay > 0)
-                            renderLock.wait(delay.toLong())
+                            renderLock.wait(delay)
                     }else
                         renderLock.wait()
                 }
