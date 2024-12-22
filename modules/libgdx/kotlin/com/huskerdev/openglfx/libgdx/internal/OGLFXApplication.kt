@@ -2,9 +2,9 @@ package com.huskerdev.openglfx.libgdx.internal
 
 import com.badlogic.gdx.*
 import com.badlogic.gdx.backends.lwjgl3.*
-import com.badlogic.gdx.backends.lwjgl3.audio.Lwjgl3Audio
 import com.badlogic.gdx.backends.lwjgl3.audio.OpenALLwjgl3Audio
 import com.badlogic.gdx.backends.lwjgl3.audio.mock.MockAudio
+import com.badlogic.gdx.utils.Clipboard
 import com.badlogic.gdx.utils.ObjectMap
 import com.huskerdev.openglfx.libgdx.LibGDXCanvas
 import com.huskerdev.openglfx.libgdx.OGLFXApplicationConfiguration
@@ -22,12 +22,12 @@ class OGLFXApplication(
 
     private val preferences = ObjectMap<String, Preferences>()
 
-    private val audio: Lwjgl3Audio
+    private val audio: Audio
     private val files: Files
     private val net: Net
-    private val clipboard: Lwjgl3Clipboard
+    private val clipboard: Clipboard
     private val graphics: Graphics
-    private val input: OGLFXInput
+    private val input: Input
     private var logger: ApplicationLogger
     private var logLevel = Application.LOG_INFO
 
@@ -58,7 +58,7 @@ class OGLFXApplication(
 
         files = Lwjgl3Files()
         net = Lwjgl3Net(Lwjgl3ApplicationConfiguration().apply { setMaxNetThreads(config.maxNetThreads) })
-        clipboard = Lwjgl3Clipboard()
+        clipboard = OGLFXClipboard()
         graphics = OGLFXGraphics(canvas)
         input = OGLFXInput(canvas)
 
