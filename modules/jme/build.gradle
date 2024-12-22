@@ -1,0 +1,26 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version "$kotlinVersion"
+}
+
+apply from: addon(addons_mavenPublish)
+apply from: addon(addons_moduleInfo)
+
+sourceSets {
+    main.java.srcDirs = ['kotlin']
+}
+
+kotlin {
+    jvmToolchain(11)
+}
+
+maven {
+    name = artifactId = "$projectName-jme"
+    description = "$projectName jMonkeyEngine module"
+}
+
+dependencies {
+    compileOnly JavaFX
+    api project(':modules:core')
+
+    implementation "org.jmonkeyengine:jme3-core:$jmeVersion"
+}

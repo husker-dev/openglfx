@@ -3,6 +3,7 @@ include (
         'modules:core:native',
         'modules:jogl',
         'modules:libgdx',
+        'modules:jme',
         'modules:lwjgl',
         'modules:lwjgl2'
 )
