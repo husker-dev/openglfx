@@ -45,7 +45,7 @@ Available modules:
   - ```openglfx-jogl```
   - ```openglfx-libgdx```
 
-If you are using java modules, then you need to add the following module in `module-info.java`:
+If you are using JPMS (Java 9+), then you need to add the following module in `module-info.java`:
 ```java
 requires openglfx.lwjgl;
 ```
