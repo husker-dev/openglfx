@@ -39,7 +39,7 @@ class ModuleInfoPlugin implements Plugin<Project> {
                 ClassWriter classWriter = new ClassWriter(0)
                 classWriter.visit(Opcodes.V9, Opcodes.ACC_MODULE, "module-info", null, null, null)
 
-                ModuleVisitor moduleVisitor = classWriter.visitModule(config.name.get(), 0, null)
+                ModuleVisitor moduleVisitor = classWriter.visitModule(config.name.get(), Opcodes.ACC_OPEN, null)
                 moduleVisitor.visitRequire("java.base", 0, null)
 
                 config.requires.get().forEach {

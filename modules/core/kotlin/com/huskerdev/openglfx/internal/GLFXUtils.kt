@@ -40,7 +40,7 @@ class GLFXUtils {
             Platform.loadLibraryFromResources("com/huskerdev/openglfx/natives", "lib", GLFXInfo.VERSION)
 
             // Uses modules
-            if (System.getProperty("openglfx.disable.exports")?.equals("true") == true &&
+            if (System.getProperty("openglfx.disable.exports", "false") == "false" &&
                 ModuleLayer.boot().findModule("javafx.graphics").isPresent
             ){
                 arrayOf(
