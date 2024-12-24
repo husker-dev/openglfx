@@ -29,6 +29,12 @@ maven {
     description = "$projectName core module (natives for $project.ext.shortOS)"
 }
 
+jar {
+    manifest {
+        attributes("Automatic-Module-Name": "${projectName}.natives.core.${project.ext.shortOS}")
+    }
+}
+
 moduleInfo {
     name = "${projectName}.natives.core.${project.ext.shortOS}"
 

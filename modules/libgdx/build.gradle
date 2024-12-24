@@ -27,6 +27,12 @@ dependencies {
     compileOnly "com.badlogicgames.gdx:gdx-platform:$libgdxVersion:natives-desktop"
 }
 
+jar {
+    manifest {
+        attributes("Automatic-Module-Name": "${projectName}.libgdx")
+    }
+}
+
 moduleInfo {
     name = "${projectName}.libgdx"
 

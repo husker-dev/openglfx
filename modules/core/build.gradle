@@ -37,6 +37,12 @@ properties {
     field("VERSION", version)
 }
 
+jar {
+    manifest {
+        attributes("Automatic-Module-Name": projectName)
+    }
+}
+
 moduleInfo {
     name = projectName
 

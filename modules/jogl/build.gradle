@@ -37,6 +37,12 @@ dependencies {
     }
 }
 
+jar {
+    manifest {
+        attributes("Automatic-Module-Name": "${projectName}.jogl")
+    }
+}
+
 moduleInfo {
     name = "${projectName}.jogl"
 

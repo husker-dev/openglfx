@@ -18,6 +18,12 @@ maven {
     description = "$projectName lwjgl2 module"
 }
 
+jar {
+    manifest {
+        attributes("Automatic-Module-Name": "${projectName}.lwjgl2")
+    }
+}
+
 dependencies {
     compileOnly JavaFX
     api project(':modules:core')

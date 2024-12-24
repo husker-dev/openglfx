@@ -32,6 +32,12 @@ dependencies {
     }
 }
 
+jar {
+    manifest {
+        attributes("Automatic-Module-Name": "${projectName}.lwjgl")
+    }
+}
+
 moduleInfo {
     name = "${projectName}.lwjgl"
 
