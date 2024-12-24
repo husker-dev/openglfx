@@ -52,7 +52,7 @@ class ModuleInfoPlugin implements Plugin<Project> {
                     moduleVisitor.visitRequire(it, Opcodes.ACC_STATIC, null)
                 }
                 config.exports.get().forEach {
-                    moduleVisitor.visitExport(it, 0)
+                    moduleVisitor.visitExport(it.replace(".", "/"), 0)
                 }
 
                 moduleVisitor.visitEnd()
