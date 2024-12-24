@@ -36,3 +36,15 @@ dependencies {
         compileOnly "org.jogamp.jogl:jogl-all:$joglVersion:natives-$it"
     }
 }
+
+moduleInfo {
+    name = "${projectName}.jogl"
+
+    requiresTransitive = [
+            "openglfx"
+    ]
+    exports = [
+            "com.huskerdev.openglfx.jogl",
+            "com.huskerdev.openglfx.jogl.events"
+    ]
+}

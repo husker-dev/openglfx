@@ -1,12 +1,84 @@
+import org.objectweb.asm.ClassWriter
+import org.objectweb.asm.ModuleVisitor
+import org.objectweb.asm.Opcodes
 
-compileKotlin {
-    destinationDirectory = compileJava.destinationDirectory
+import java.nio.file.Files
+
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.ow2.asm:asm:9.5")
+    }
 }
 
-jar {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+abstract class ModuleInfoConfiguration {
+    abstract Property<String> getName()
+
+    abstract ListProperty<String> getExports()
+    abstract ListProperty<String> getRequires()
+    abstract ListProperty<String> getRequiresTransitive()
+    abstract ListProperty<String> getRequiresStatic()
 }
 
-tasks.withType(Javadoc).configureEach {
-    enabled = false
+class ModuleInfoPlugin implements Plugin<Project> {
+    ModuleInfoConfiguration config
+    Project project
+
+    void apply(Project project) {
+        project.getPlugins().apply(this.class)
+        this.project = project
+        config = project.extensions.create('moduleInfo', ModuleInfoConfiguration)
+        config.name = "unnamed"
+
+        project.tasks.register('createModuleInfo') {
+            doFirst {
+                ClassWriter classWriter = new ClassWriter(0)
+                classWriter.visit(Opcodes.V9, Opcodes.ACC_MODULE, "module-info", null, null, null)
+
+                ModuleVisitor moduleVisitor = classWriter.visitModule(config.name.get(), 0, null)
+                moduleVisitor.visitRequire("java.base", 0, null)
+
+                config.requires.get().forEach {
+                    moduleVisitor.visitRequire(it, 0, null)
+                }
+                config.requiresTransitive.get().forEach {
+                    moduleVisitor.visitRequire(it, Opcodes.ACC_TRANSITIVE, null)
+                }
+                config.requiresStatic.get().forEach {
+                    moduleVisitor.visitRequire(it, Opcodes.ACC_STATIC, null)
+                }
+                config.exports.get().forEach {
+                    moduleVisitor.visitExport(it, 0)
+                }
+
+                moduleVisitor.visitEnd()
+                classWriter.visitEnd()
+
+                buildDir.mkdirs()
+                Files.write(new File(buildDir, "module-info.class").toPath(), classWriter.toByteArray())
+            }
+        }
+
+
+        project.tasks.register('packModuleInfo', Copy) {
+            group 'build'
+
+            dependsOn project.tasks.createModuleInfo
+
+            from buildDir
+            into project.sourceSets.main.output.resourcesDir
+        }
+
+        project.tasks.jar.dependsOn project.tasks.packModuleInfo
+        project.tasks.javadoc.mustRunAfter project.tasks.packModuleInfo
+    }
+
+    File getBuildDir(){
+        return new File(project.layout.buildDirectory.get().asFile, "moduleinfo")
+    }
 }
+apply plugin: ModuleInfoPlugin

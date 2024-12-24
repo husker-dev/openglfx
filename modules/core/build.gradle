@@ -12,9 +12,6 @@ sourceSets {
 
 kotlin {
     jvmToolchain(11)
-    compilerOptions.freeCompilerArgs = [
-        "-Xjavac-arguments" // Let not use "--add-exports"
-    ]
 }
 
 maven {
@@ -28,9 +25,9 @@ dependencies {
     compileOnly JavaFX
     api("com.huskerdev:grapl-gl:$graplVersion")
 
-    silentApi "$mvn_groupId:$projectName-native-core-win:$version"
-    silentApi "$mvn_groupId:$projectName-native-core-linux:$version"
-    silentApi "$mvn_groupId:$projectName-native-core-macos:$version"
+    silentApi "$mvn_groupId:$projectName-natives-core-win:$version"
+    silentApi "$mvn_groupId:$projectName-natives-core-linux:$version"
+    silentApi "$mvn_groupId:$projectName-natives-core-macos:$version"
 }
 
 properties {
@@ -38,4 +35,33 @@ properties {
     classpath = "com.huskerdev.openglfx"
 
     field("VERSION", version)
+}
+
+moduleInfo {
+    name = projectName
+
+    requiresTransitive = [
+            "kotlin.stdlib",
+            "grapl.gl",
+
+            "openglfx.natives.core.win",
+            "openglfx.natives.core.macos",
+            "openglfx.natives.core.linux"
+    ]
+    requires = [
+            "javafx.base",
+            "javafx.graphics"
+    ]
+    exports = [
+            "com.huskerdev.openglfx",
+            "com.huskerdev.openglfx.canvas",
+            "com.huskerdev.openglfx.canvas.events",
+            "com.huskerdev.openglfx.image",
+            "com.huskerdev.openglfx.internal",
+            "com.huskerdev.openglfx.internal.canvas",
+            "com.huskerdev.openglfx.internal.platforms",
+            "com.huskerdev.openglfx.internal.platforms.win",
+            "com.huskerdev.openglfx.internal.platforms.macos",
+            "com.huskerdev.openglfx.internal.shaders"
+    ]
 }

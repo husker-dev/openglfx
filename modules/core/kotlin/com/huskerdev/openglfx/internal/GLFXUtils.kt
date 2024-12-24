@@ -37,10 +37,12 @@ class GLFXUtils {
         fun loadLibrary() {
             if(initialized.getAndSet(true))
                 return
-            Platform.loadLibraryFromResources("com/huskerdev/openglfx/native", "lib", GLFXInfo.VERSION)
+            Platform.loadLibraryFromResources("com/huskerdev/openglfx/natives", "lib", GLFXInfo.VERSION)
 
             // Uses modules
-            if (ModuleLayer.boot().findModule("javafx.graphics").isPresent){
+            if (System.getProperty("openglfx.disable.exports")?.equals("true") == true &&
+                ModuleLayer.boot().findModule("javafx.graphics").isPresent
+            ){
                 arrayOf(
                     "com.sun.prism",
                     "com.sun.javafx.scene.layout",

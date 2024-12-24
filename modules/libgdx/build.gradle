@@ -26,3 +26,21 @@ dependencies {
     compileOnly "com.badlogicgames.gdx:gdx-backend-lwjgl3:$libgdxVersion"
     compileOnly "com.badlogicgames.gdx:gdx-platform:$libgdxVersion:natives-desktop"
 }
+
+moduleInfo {
+    name = "${projectName}.libgdx"
+
+    requiresTransitive = [
+            "openglfx"
+    ]
+    requires = [
+            "org.lwjgl",
+            "org.lwjgl.opengl",
+            "javafx.controls"
+    ]
+    exports = [
+            "com.huskerdev.openglfx.libgdx",
+            "com.huskerdev.openglfx.libgdx.events",
+            "com.huskerdev.openglfx.libgdx.internal"
+    ]
+}

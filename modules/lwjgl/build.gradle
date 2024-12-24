@@ -31,3 +31,18 @@ dependencies {
         compileOnly "org.lwjgl:lwjgl-opengl::natives-$it"
     }
 }
+
+moduleInfo {
+    name = "${projectName}.lwjgl"
+
+    requiresTransitive = [
+            "openglfx"
+    ]
+    requires = [
+            "org.lwjgl",
+            "org.lwjgl.opengl"
+    ]
+    exports = [
+            "com.huskerdev.openglfx.lwjgl"
+    ]
+}

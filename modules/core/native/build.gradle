@@ -1,6 +1,7 @@
 
 apply from: addon(addons_mavenPublish)
 apply from: addon(addons_nativeCompilation)
+apply from: addon(addons_moduleInfo)
 
 java {
     toolchain {
@@ -10,7 +11,7 @@ java {
 
 compilation {
     baseName = "lib"
-    classpath = "com.huskerdev.openglfx.native"
+    classpath = "com.huskerdev.openglfx.natives.${project.ext.shortOS}"
 
     includeDirs = [file("shared"), file("include")]
 
@@ -23,7 +24,15 @@ compilation {
 }
 
 maven {
-    artifactId = "$projectName-native-core-${project.ext.shortOS}"
+    artifactId = "$projectName-natives-core-${project.ext.shortOS}"
     name = "$projectName"
-    description = "$projectName core module (native for $project.ext.shortOS)"
+    description = "$projectName core module (natives for $project.ext.shortOS)"
+}
+
+moduleInfo {
+    name = "${projectName}.natives.core.${project.ext.shortOS}"
+
+    exports = [
+            "com.huskerdev.openglfx.natives.${project.ext.shortOS}"
+    ]
 }
