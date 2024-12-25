@@ -160,6 +160,9 @@ val canvas = GLCanvas(..., fps = 30)
 canvas.fps = 40
 ```
 
+A draw call can also be "requested" by calling the `repaint()` method. 
+It won't force a draw immediately, but will tell the renderer to prepare a frame as soon as possible.
+
 Don't forget to disable VSync before JavaFX initialization if you want to get FPS more than monitor's frequency.
 ```kotlin
 System.setProperty("prism.vsync", "false")
