@@ -49,7 +49,11 @@ If you are using JPMS (Java 9+), then you need to add the following module in `m
 ```java
 requires openglfx.lwjgl;
 ```
-`openglfx` adds exports for JavaFX at runtime, but if you experience issues with package access, then add following arguments to launch configuration:
+`openglfx` adds exports for JavaFX at runtime, but if you experience issues with package access, then add following arguments to JVM:
+```
+-Dopenglfx.disable.exports=true
+```
+Then add `--add-exports` by hand:
 ```
 --add-exports=javafx.graphics/com.sun.prism=ALL-UNNAMED
 --add-exports=javafx.graphics/com.sun.javafx.scene.layout=ALL-UNNAMED
