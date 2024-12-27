@@ -17,8 +17,10 @@ buildscript {
 
 abstract class ModuleInfoConfiguration {
     abstract Property<String> getName()
+    abstract Property<Boolean> getOpen()
 
     abstract ListProperty<String> getExports()
+    abstract ListProperty<String> getOpens()
     abstract ListProperty<String> getRequires()
     abstract ListProperty<String> getRequiresTransitive()
     abstract ListProperty<String> getRequiresStatic()
@@ -33,13 +35,17 @@ class ModuleInfoPlugin implements Plugin<Project> {
         this.project = project
         config = project.extensions.create('moduleInfo', ModuleInfoConfiguration)
         config.name = "unnamed"
+        config.open = false
 
         project.tasks.register('createModuleInfo') {
             doFirst {
                 ClassWriter classWriter = new ClassWriter(0)
                 classWriter.visit(Opcodes.V9, Opcodes.ACC_MODULE, "module-info", null, null, null)
 
-                ModuleVisitor moduleVisitor = classWriter.visitModule(config.name.get(), Opcodes.ACC_OPEN, null)
+                ModuleVisitor moduleVisitor = classWriter.visitModule(
+                        config.name.get(),
+                        config.open.get() ? Opcodes.ACC_OPEN : 0,
+                        null)
                 moduleVisitor.visitRequire("java.base", 0, null)
 
                 config.requires.get().forEach {
@@ -49,10 +55,13 @@ class ModuleInfoPlugin implements Plugin<Project> {
                     moduleVisitor.visitRequire(it, Opcodes.ACC_TRANSITIVE, null)
                 }
                 config.requiresStatic.get().forEach {
-                    moduleVisitor.visitRequire(it, Opcodes.ACC_STATIC, null)
+                    moduleVisitor.visitRequire(it, Opcodes.ACC_STATIC_PHASE, null)
                 }
                 config.exports.get().forEach {
                     moduleVisitor.visitExport(it.replace(".", "/"), 0)
+                }
+                config.opens.get().forEach {
+                    moduleVisitor.visitOpen(it.replace(".", "/"), 0, null)
                 }
 
                 moduleVisitor.visitEnd()

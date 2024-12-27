@@ -38,7 +38,7 @@ jar {
 moduleInfo {
     name = "${projectName}.natives.core.${project.ext.shortOS}"
 
-    exports = [
+    opens = [
             "com.huskerdev.openglfx.natives.${project.ext.shortOS}"
     ]
 }
