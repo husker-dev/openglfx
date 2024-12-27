@@ -99,7 +99,7 @@ open class GLCanvas @JvmOverloads constructor(
         set(value) {
             field = value
             RegionHelper.getPeer<NGGLCanvas>(this).fps =
-                if(value >= 0) value else GLFXUtils.getPulseDuration().toDouble()
+                if(value >= 0) value else -1.0
         }
 
     init {

@@ -113,23 +113,6 @@ class GLFXUtils {
             return D3D9.Device.jfx.getTexture(0)
         }
 
-        fun getPulseDuration(): Int {
-            if (Settings.get("javafx.animation.framerate") != null) {
-                val overrideHz = Settings.getInt("javafx.animation.framerate", 60)
-                if (overrideHz > 0)
-                    return overrideHz
-            } else if (Settings.get("javafx.animation.pulse") != null) {
-                val overrideHz = Settings.getInt("javafx.animation.pulse", 60)
-                if (overrideHz > 0)
-                    return overrideHz
-            } else {
-                val rate: Int = Toolkit.getToolkit().refreshRate
-                if (rate > 0)
-                    return rate
-            }
-            return 60
-        }
-
         fun <T> List<Consumer<T>>.dispatchConsumer(event: T) {
             if(isNotEmpty()) forEach { it.accept(event) }
         }

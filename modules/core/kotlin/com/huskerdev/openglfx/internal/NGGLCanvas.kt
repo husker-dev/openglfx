@@ -85,6 +85,8 @@ abstract class NGGLCanvas(
                 NodeHelper.markDirty(canvas, DirtyBits.NODE_BOUNDS)
                 NodeHelper.markDirty(canvas, DirtyBits.REGION_SHAPE)
             }
+            if(fps == -1.0)
+                requestRepaint()
         }
     }.apply { start() }
 
