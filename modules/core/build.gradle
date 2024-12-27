@@ -23,13 +23,7 @@ dependencies {
     api "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
     compileOnly JavaFX
-    api("com.huskerdev:grapl-gl:$graplVersion"){
-        //exclude(module: "grapl-natives-gl-linux")
-        //exclude(module: "grapl-natives-gl-windows")
-
-        //exclude(module: "grapl-natives-core-linux")
-        //exclude(module: "grapl-natives-core-windows")
-    }
+    api("com.huskerdev:grapl-gl:$graplVersion")
 
     silentApi "$mvn_groupId:$projectName-natives-core-win:$version"
     silentApi "$mvn_groupId:$projectName-natives-core-linux:$version"
@@ -56,11 +50,6 @@ moduleInfo {
             "kotlin.stdlib",
             "grapl.gl",
             "grapl",
-    ]
-    requiresStatic = [
-            "openglfx.natives.core.win",
-            "openglfx.natives.core.macos",
-            "openglfx.natives.core.linux"
     ]
     requires = [
             "javafx.base",
