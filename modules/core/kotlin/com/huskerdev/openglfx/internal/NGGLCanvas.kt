@@ -81,6 +81,8 @@ abstract class NGGLCanvas(
 
     private val animationTimer = object : AnimationTimer() {
         override fun handle(now: Long) {
+            if(!isVisible)
+                return
             if(readyToDisplay.getAndSet(false)){
                 NodeHelper.markDirty(canvas, DirtyBits.NODE_BOUNDS)
                 NodeHelper.markDirty(canvas, DirtyBits.REGION_SHAPE)
@@ -97,8 +99,12 @@ abstract class NGGLCanvas(
     protected abstract fun onRenderThreadInit()
     protected abstract fun createSwapBuffer(): SwapBuffer
 
-    fun requestRepaint() = synchronized(renderLock){
-        renderLock.notifyAll()
+    fun requestRepaint() {
+        if(!isVisible)
+            return
+        synchronized(renderLock){
+            renderLock.notifyAll()
+        }
     }
 
     open fun dispose(){
@@ -160,7 +166,7 @@ abstract class NGGLCanvas(
                 readyToDisplay.set(true)
 
                 synchronized(renderLock) {
-                    if(fps > 0) {
+                    if(isVisible && fps > 0) {
                         val delay = ((1000 / fps) - (System.currentTimeMillis() - lastFrameStartTime)).toLong()
                         if(delay > 0)
                             renderLock.wait(delay)

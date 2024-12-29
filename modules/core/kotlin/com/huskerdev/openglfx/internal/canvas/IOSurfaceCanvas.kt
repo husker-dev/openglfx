@@ -13,8 +13,9 @@ import com.huskerdev.openglfx.internal.NGGLCanvas
 import com.huskerdev.openglfx.internal.platforms.macos.IOSurface
 import com.sun.prism.Graphics
 import com.sun.prism.Texture
+import java.util.concurrent.atomic.AtomicBoolean
 
-class IOSurfaceCanvas(
+open class IOSurfaceCanvas(
     canvas: GLCanvas,
     executor: GLExecutor,
     profile: GLProfile,
@@ -34,6 +35,8 @@ class IOSurfaceCanvas(
         private lateinit var fxTexture: Texture
         private lateinit var fxTextureFBO: Framebuffer
         private lateinit var fxInteropFBO: Framebuffer
+
+        private val shouldUpdateBinding = AtomicBoolean()
 
         override fun render(width: Int, height: Int): Framebuffer {
             if(checkFramebufferSize(width, height))
@@ -59,6 +62,8 @@ class IOSurfaceCanvas(
                     textureType = GL_TEXTURE_RECTANGLE)
 
                 fbo = createFramebufferForRender(width, height)
+
+                shouldUpdateBinding.set(true)
                 return true
             }
             return false
@@ -68,7 +73,7 @@ class IOSurfaceCanvas(
             val width = ioSurface.width
             val height = ioSurface.height
 
-            if(!::fxTexture.isInitialized || fxTexture.physicalWidth != width || fxTexture.physicalHeight != height){
+            if(shouldUpdateBinding.getAndSet(false)){
                 disposeFXResources()
 
                 fxTexture = GLFXUtils.createPermanentFXTexture(width, height)

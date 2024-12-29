@@ -20,6 +20,7 @@ import com.huskerdev.openglfx.internal.platforms.VkExtMemory
 import com.sun.prism.Graphics
 
 import com.sun.prism.Texture
+import java.util.concurrent.atomic.AtomicBoolean
 
 
 open class ExternalObjectsCanvasFd(
@@ -51,6 +52,8 @@ open class ExternalObjectsCanvasFd(
         private lateinit var fxInteropFbo: Framebuffer
         private var fxMemoryObj = 0
 
+        private val shouldUpdateBinding = AtomicBoolean()
+
         override fun render(width: Int, height: Int): Framebuffer {
             if(checkFramebufferSize(width, height))
                 canvas.fireReshapeEvent(width, height)
@@ -79,6 +82,7 @@ open class ExternalObjectsCanvasFd(
                 interopFBO = Framebuffer.Default(width, height, texture = sharedTexture)
                 fbo = createFramebufferForRender(width, height)
 
+                shouldUpdateBinding.set(true)
                 return true
             }
             return false
@@ -88,7 +92,7 @@ open class ExternalObjectsCanvasFd(
             val width = fbo.width
             val height = fbo.height
 
-            if(!this::fxTexture.isInitialized || fxTexture.physicalWidth != width || fxTexture.physicalHeight != height){
+            if(shouldUpdateBinding.getAndSet(false)){
                 disposeFXResources()
 
                 fxTexture = GLFXUtils.createPermanentFXTexture(width, height)

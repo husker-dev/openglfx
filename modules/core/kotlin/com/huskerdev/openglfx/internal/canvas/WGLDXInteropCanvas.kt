@@ -12,6 +12,7 @@ import com.huskerdev.openglfx.internal.platforms.win.*
 import com.huskerdev.openglfx.internal.platforms.win.WGLDX.Companion.WGL_ACCESS_WRITE_DISCARD_NV
 import com.sun.prism.Graphics
 import com.sun.prism.Texture
+import java.util.concurrent.atomic.AtomicBoolean
 
 
 open class WGLDXInteropCanvas(
@@ -47,6 +48,8 @@ open class WGLDXInteropCanvas(
         private lateinit var fxD3DTexture: D3D9.Texture
         private lateinit var fxD3DTextureSurface: D3D9.Surface
 
+        private val shouldUpdateBinding = AtomicBoolean()
+
         override fun render(width: Int, height: Int): Framebuffer {
             if(checkFramebufferSize(width, height, d3d9Device, interopDevice))
                 canvas.fireReshapeEvent(width, height)
@@ -78,6 +81,8 @@ open class WGLDXInteropCanvas(
                     GL_TEXTURE_2D,
                     WGL_ACCESS_WRITE_DISCARD_NV
                 )
+
+                shouldUpdateBinding.set(true)
                 return true
             }
             return false
@@ -87,7 +92,7 @@ open class WGLDXInteropCanvas(
             val width = sharedD3DTexture0.width
             val height = sharedD3DTexture0.height
 
-            if(!this::sharedD3DTexture.isInitialized || sharedD3DTexture.width != width || sharedD3DTexture.height != height){
+            if(shouldUpdateBinding.getAndSet(false)){
                 disposeFXResources()
 
                 sharedD3DTexture = D3D9.Device.jfx.createTexture(width, height, sharedD3DTexture0.sharedHandle)

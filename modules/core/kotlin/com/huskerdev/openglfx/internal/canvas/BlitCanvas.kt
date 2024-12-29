@@ -13,6 +13,7 @@ import com.sun.prism.PixelFormat
 
 import com.sun.prism.Texture
 import java.nio.ByteBuffer
+import java.util.concurrent.atomic.AtomicBoolean
 
 
 open class BlitCanvas(
@@ -33,6 +34,8 @@ open class BlitCanvas(
 
         private lateinit var fxTexture: Texture
         private var contentChanged = false
+
+        private val shouldUpdateBinding = AtomicBoolean()
 
         override fun render(width: Int, height: Int): Framebuffer {
             if(checkFramebufferSize(width, height))
@@ -55,6 +58,8 @@ open class BlitCanvas(
                 dataBuffer = GLFXUtils.createDirectBuffer(width * height * 4)
                 interopFBO = Framebuffer.Default(width, height)
                 fbo = createFramebufferForRender(width, height)
+
+                shouldUpdateBinding.set(true)
                 return true
             }
             return false
@@ -64,7 +69,7 @@ open class BlitCanvas(
             val width = fbo.width
             val height = fbo.height
 
-            if(!this::fxTexture.isInitialized || fxTexture.physicalWidth != width || fxTexture.physicalHeight != height){
+            if(shouldUpdateBinding.getAndSet(false)){
                 disposeFXResources()
 
                 fxTexture = GLFXUtils.createPermanentFXTexture(width, height)
