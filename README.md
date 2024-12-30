@@ -12,6 +12,7 @@
 This library adds a new element to the JavaFX for rendering OpenGL graphics using LWJGL, JOGL, LWJGL2 or LibGDX. It is optimized for each platform and includes some auxiliary functions for working with OpenGL from JavaFX.
 
 - [Dependency](#dependency)
+  - [JPMS](#jpms)
 - [Example](#example)
 - [Usage](#usage)
   - [Rendering events](#rendering-events)
@@ -35,7 +36,7 @@ dependencies {
     // implementation LWJGL
     // implementation ...
 
-    implementation 'com.huskerdev:openglfx-lwjgl:4.1.16'
+    implementation 'com.huskerdev:openglfx-lwjgl:4.1.17'
 }
 ```
 
@@ -45,7 +46,8 @@ Available modules:
   - ```openglfx-jogl```
   - ```openglfx-libgdx```
 
-If you are using JPMS (Java 9+), then you need to add the following module in `module-info.java`:
+## JPMS
+If you are using JPMS (Java 9+ modules), then you need to add the following module in `module-info.java`:
 ```java
 requires openglfx.lwjgl;
 ```
