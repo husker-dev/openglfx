@@ -58,6 +58,8 @@ abstract class NGGLCanvas(
     @Volatile var disposed = false
         private set
 
+    private var hasScene = false
+
     val width by canvas::width
     val height by canvas::height
     val scaledWidth by canvas::scaledWidth
@@ -81,7 +83,7 @@ abstract class NGGLCanvas(
 
     private val animationTimer = object : AnimationTimer() {
         override fun handle(now: Long) {
-            if(!isVisible)
+            if(!shouldPaint())
                 return
             if(readyToDisplay.getAndSet(false)){
                 NodeHelper.markDirty(canvas, DirtyBits.NODE_BOUNDS)
@@ -94,13 +96,23 @@ abstract class NGGLCanvas(
 
     init {
         Platform.runLater(::requestRepaint)
+
+        canvas.sceneProperty().addListener { p0 ->
+            hasScene = canvas.scene != null
+            if(hasScene)
+                requestRepaint()
+        }
+        hasScene = canvas.scene != null
     }
 
     protected abstract fun onRenderThreadInit()
     protected abstract fun createSwapBuffer(): SwapBuffer
 
+    private fun shouldPaint() =
+        isVisible && hasScene
+
     fun requestRepaint() {
-        if(!isVisible)
+        if(!shouldPaint())
             return
         synchronized(renderLock){
             renderLock.notifyAll()
@@ -166,7 +178,7 @@ abstract class NGGLCanvas(
                 readyToDisplay.set(true)
 
                 synchronized(renderLock) {
-                    if(isVisible && fps > 0) {
+                    if(shouldPaint() && fps > 0) {
                         val delay = ((1000 / fps) - (System.currentTimeMillis() - lastFrameStartTime)).toLong()
                         if(delay > 0)
                             renderLock.wait(delay)
