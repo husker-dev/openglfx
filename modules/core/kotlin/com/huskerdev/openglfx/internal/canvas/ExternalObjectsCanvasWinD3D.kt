@@ -3,6 +3,7 @@ package com.huskerdev.openglfx.internal.canvas
 import com.huskerdev.grapl.gl.GLProfile
 import com.huskerdev.openglfx.*
 import com.huskerdev.openglfx.GLExecutor.Companion.glBindTexture
+import com.huskerdev.openglfx.GLExecutor.Companion.glFinish
 import com.huskerdev.openglfx.GLExecutor.Companion.glGenTextures
 import com.huskerdev.openglfx.GL_TEXTURE_2D
 import com.huskerdev.openglfx.canvas.GLCanvas
@@ -63,6 +64,7 @@ open class ExternalObjectsCanvasWinD3D(
             fbo.bindFramebuffer()
             canvas.fireRenderEvent(fbo.id)
             fbo.blitTo(interopFBO)
+            glFinish()
 
             return fbo
         }
