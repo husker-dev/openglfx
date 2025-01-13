@@ -4,6 +4,8 @@ import com.huskerdev.grapl.gl.GLProfile
 import com.huskerdev.openglfx.*
 import com.huskerdev.openglfx.GLExecutor.Companion.glDisable
 import com.huskerdev.openglfx.GLExecutor.Companion.glEnable
+import com.huskerdev.openglfx.GLExecutor.Companion.glGetInteger
+import com.huskerdev.openglfx.GL_SCISSOR_TEST
 import com.huskerdev.openglfx.GL_TEXTURE_RECTANGLE
 import com.huskerdev.openglfx.canvas.GLCanvas
 import com.huskerdev.openglfx.internal.Framebuffer
@@ -86,9 +88,13 @@ open class IOSurfaceCanvas(
             }
 
             ioSurface.lock()
+
+            val scissorTestEnabled = glGetInteger(GL_SCISSOR_TEST) != 0
             glDisable(GL_SCISSOR_TEST)
             fxInteropFBO.blitTo(fxTextureFBO)
-            glEnable(GL_SCISSOR_TEST)
+            if (scissorTestEnabled) {
+                glEnable(GL_SCISSOR_TEST)
+            }
             ioSurface.unlock()
 
             return fxTexture
