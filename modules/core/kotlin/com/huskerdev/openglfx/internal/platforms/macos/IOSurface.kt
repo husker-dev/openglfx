@@ -1,8 +1,10 @@
 package com.huskerdev.openglfx.internal.platforms.macos
 
 import com.huskerdev.grapl.gl.GLContext
+import com.huskerdev.openglfx.*
 import com.huskerdev.openglfx.GLExecutor.Companion.glBindTexture
 import com.huskerdev.openglfx.GLExecutor.Companion.glGenTextures
+import com.huskerdev.openglfx.GLExecutor.Companion.glGetInteger
 import com.huskerdev.openglfx.GL_BGRA
 import com.huskerdev.openglfx.GL_RGBA
 import com.huskerdev.openglfx.GL_TEXTURE_RECTANGLE
@@ -24,6 +26,7 @@ internal class IOSurface(val width: Int, val height: Int) {
     private val handle = nCreateIOSurface(width, height)
 
     fun createBoundTexture(): Int {
+        val oldTexture = glGetInteger(GL_TEXTURE_BINDING_2D)
         val texture = glGenTextures()
         glBindTexture(GL_TEXTURE_RECTANGLE, texture)
         nCGLTexImageIOSurface2D(
@@ -34,6 +37,7 @@ internal class IOSurface(val width: Int, val height: Int) {
             GL_BGRA,
             GL_UNSIGNED_INT_8_8_8_8_REV,
             handle, 0)
+        glBindTexture(GL_TEXTURE_BINDING_2D, oldTexture)
         return texture
     }
 
