@@ -94,7 +94,7 @@ static void* a_GetProcAddress(const char* name) {
 #endif
 }
 
-
+typedef void (*glActiveTexturePtr)(GLenum unit);
 typedef void (*glEnablePtr)(GLint cap);
 typedef void (*glDisablePtr)(GLint cap);
 typedef void (*glDeleteFramebuffersPtr)(GLsizei n, const GLuint* framebuffers);
@@ -146,6 +146,7 @@ typedef void (*glDeleteBuffersPtr)(GLsizei n, const GLuint *buffers);
 typedef void (*glDrawArraysPtr)(GLenum mode, GLint first, GLsizei count);
 
 
+static glActiveTexturePtr               a_glActiveTexture;
 static glEnablePtr                      a_glEnable;
 static glDisablePtr                     a_glDisable;
 static glViewportPtr                    a_glViewport;

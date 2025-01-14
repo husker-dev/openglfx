@@ -1,9 +1,9 @@
 package com.huskerdev.openglfx.internal
 
 import com.huskerdev.grapl.core.platform.Platform
+import com.huskerdev.openglfx.*
+import com.huskerdev.openglfx.GLExecutor.Companion.glActiveTexture
 import com.huskerdev.openglfx.GLExecutor.Companion.glGetInteger
-import com.huskerdev.openglfx.GLFXInfo
-import com.huskerdev.openglfx.GL_TEXTURE_BINDING_2D
 import com.huskerdev.openglfx.internal.platforms.win.D3D9
 import com.sun.javafx.tk.Toolkit
 import com.sun.prism.Graphics
@@ -105,7 +105,13 @@ class GLFXUtils {
 
         fun fetchGLTexId(texture: Texture, g: Graphics): Int{
             g.drawTexture(texture, 0f, 0f, 0f, 0f)
-            return glGetInteger(GL_TEXTURE_BINDING_2D)
+            val oldActiveTexture = glGetInteger(GL_ACTIVE_TEXTURE)
+            glActiveTexture(GL_TEXTURE0)
+            val textureId = glGetInteger(GL_TEXTURE_BINDING_2D)
+            if (oldActiveTexture != GL_TEXTURE_2D) {
+                glActiveTexture(oldActiveTexture)
+            }
+            return textureId
         }
 
         fun fetchDXTexHandle(texture: Texture, g: Graphics): Long{
