@@ -1,7 +1,5 @@
 package com.huskerdev.openglfx.internal.canvas
 
-import com.huskerdev.grapl.gl.GLProfile
-import com.huskerdev.openglfx.*
 import com.huskerdev.openglfx.GLExecutor.Companion.glDisable
 import com.huskerdev.openglfx.GLExecutor.Companion.glEnable
 import com.huskerdev.openglfx.GLExecutor.Companion.glGetInteger
@@ -18,12 +16,8 @@ import com.sun.prism.Texture
 import java.util.concurrent.atomic.AtomicBoolean
 
 open class IOSurfaceCanvas(
-    canvas: GLCanvas,
-    executor: GLExecutor,
-    profile: GLProfile,
-    glDebug: Boolean,
-    externalWindow: Boolean
-) : NGGLCanvas(canvas, executor, profile, glDebug, externalWindow) {
+    canvas: GLCanvas
+) : NGGLCanvas(canvas) {
 
     override fun onRenderThreadInit() = Unit
     override fun createSwapBuffer() = IOSurfaceSwapBuffer()

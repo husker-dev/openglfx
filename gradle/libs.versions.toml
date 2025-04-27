@@ -1,0 +1,24 @@
+[versions]
+
+kotlin = "2.1.0"
+pkmerboot-central-publisher = "1.1.1"
+javafx = "17.0.2"
+grapl = "2.3.12"
+
+[libraries]
+
+javafx-base                 = { module = "org.openjfx:javafx-base", version.ref = "javafx" }
+javafx-controls             = { module = "org.openjfx:javafx-controls", version.ref = "javafx" }
+javafx-graphics             = { module = "org.openjfx:javafx-graphics", version.ref = "javafx" }
+
+grapl-gl                    = { module = "com.huskerdev:grapl-gl", version.ref = "grapl" }
+
+
+[bundles]
+javafx = ["javafx-base", "javafx-controls", "javafx-graphics"]
+
+[plugins]
+
+kotlin-jvm                  = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+pkmerboot-central-publisher = { id = "io.gitee.pkmer.pkmerboot-central-publisher", version.ref = "pkmerboot-central-publisher" }
+

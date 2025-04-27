@@ -1,6 +1,9 @@
 package com.huskerdev.openglfx.canvas
 
+import com.huskerdev.grapl.core.platform.BackgroundMessageHandler
+import com.huskerdev.grapl.gl.GLContext
 import com.huskerdev.grapl.gl.GLProfile
+import com.huskerdev.grapl.gl.GLWindow
 import com.huskerdev.openglfx.GLExecutor
 import com.huskerdev.openglfx.canvas.events.GLDisposeEvent
 import com.huskerdev.openglfx.canvas.events.GLInitializeEvent
@@ -23,9 +26,6 @@ import kotlin.math.ceil
  *  - JOGL_MODULE;
  *  - LIBGDX_MODULE (beta);
  *  - NONE_MODULE.
- * @param profile Core/Compatibility OpenGL profile:
- *  - GLProfile.Compatibility (default);
- *  - GLProfile.Core.
  * @param flipY Flip Y axis:
  *  - false – 0 is bottom (default);
  *  - true – 0 is top.
@@ -36,23 +36,18 @@ import kotlin.math.ceil
  *  - < 0 - Monitor refresh rate
  *  - 0	- Do not update repeatedly
  *  - \> 0 Update with desired FPS
- *  @param glDebug Creates GLContext that supports debugging
  *  @param swapBuffers Swap-chain buffers:
  *  - The best UI performance is achieved with 2 (default).
  *  - The most responsive to resizing is 1.
  *  @param interopType Type of interop between JavaFX and OpenGL (do not change if you not sure what you do)
- *  @param externalWindow Creates external window that mirroring canvas. Used to enable debugging via NSight or RenderDoc.
  */
-open class GLCanvas @JvmOverloads constructor(
+open class GLCanvas @JvmOverloads protected constructor(
     val executor: GLExecutor,
-    val profile: GLProfile          = GLProfile.CORE,
-    var flipY: Boolean              = false,
-    var msaa: Int                   = 0,
+    val flipY: Boolean              = false,
+    val msaa: Int                   = 0,
     fps: Double                     = -1.0,
-    val glDebug: Boolean            = false,
     val swapBuffers: Int            = 2,
     val interopType: GLInteropType  = GLInteropType.auto,
-    val externalWindow: Boolean     = false
 ): Region() {
 
     companion object {
@@ -60,6 +55,9 @@ open class GLCanvas @JvmOverloads constructor(
             GLFXUtils.loadLibrary()
         }
     }
+
+    var context: GLContext? = null
+    var window: GLWindow? = null
 
     private var onInit = arrayListOf<Consumer<GLInitializeEvent>>()
     private var onRender = arrayListOf<Consumer<GLRenderEvent>>()
@@ -101,6 +99,92 @@ open class GLCanvas @JvmOverloads constructor(
             RegionHelper.getPeer<NGGLCanvas>(this).fps =
                 if(value >= 0) value else -1.0
         }
+
+    /**
+     * Hardware-accelerated OpenGL canvas.
+     *
+     * @param executor OpenGL implementation library:
+     *  - LWJGL_MODULE;
+     *  - LWJGL2_MODULE (legacy);
+     *  - JOGL_MODULE;
+     *  - LIBGDX_MODULE (beta);
+     *  - NONE_MODULE.
+     * @param profile Core/Compatibility OpenGL profile:
+     *  - GLProfile.Compatibility (default);
+     *  - GLProfile.Core.
+     * @param flipY Flip Y axis:
+     *  - false – 0 is bottom (default);
+     *  - true – 0 is top.
+     * @param msaa Multisampling anti-aliasing quality:
+     *  - 0 – disabled (default);
+     *  - -1 – maximum available samples.
+     *  @param fps Frames per seconds:
+     *  - < 0 - Monitor refresh rate
+     *  - 0	- Do not update repeatedly
+     *  - \> 0 Update with desired FPS
+     *  @param glDebug Creates GLContext that supports debugging
+     *  @param swapBuffers Swap-chain buffers:
+     *  - The best UI performance is achieved with 2 (default).
+     *  - The most responsive to resizing is 1.
+     *  @param interopType Type of interop between JavaFX and OpenGL (do not change if you not sure what you do)
+     *  @param externalWindow Creates external window that mirroring canvas. Used to enable debugging via NSight or RenderDoc.
+     *  @param shareWith
+     */
+    constructor(
+        executor: GLExecutor,
+        profile: GLProfile          = GLProfile.CORE,
+        flipY: Boolean              = false,
+        msaa: Int                   = 0,
+        fps: Double                 = -1.0,
+        glDebug: Boolean            = false,
+        swapBuffers: Int            = 2,
+        interopType: GLInteropType  = GLInteropType.auto,
+        externalWindow: Boolean     = false,
+        shareWith: GLContext?       = null,
+        majorVersion: Int           = -1,
+        minorVersion: Int           = -1,
+    ): this(
+        executor, flipY, msaa,
+        fps, swapBuffers, interopType
+    ) {
+        if(externalWindow){
+            BackgroundMessageHandler.useHandler = false
+            window = GLWindow(profile, debug = glDebug).apply {
+                closable = false
+                maximizable = false
+                resizable = false
+                title = "openglfx external window"
+                visible = true
+            }
+            context = window!!.context
+        }else
+            context = GLContext.create(shareWith?.handle ?: 0, profile, majorVersion, minorVersion, glDebug)
+    }
+
+    @JvmOverloads protected constructor(
+        executor: GLExecutor,
+        flipY: Boolean              = false,
+        msaa: Int                   = 0,
+        fps: Double                 = -1.0,
+        swapBuffers: Int            = 2,
+        interopType: GLInteropType  = GLInteropType.auto,
+        context: GLContext
+    ): this(executor, flipY, msaa, fps, swapBuffers, interopType) {
+        this.context = context
+    }
+
+    @JvmOverloads protected constructor(
+        executor: GLExecutor,
+        flipY: Boolean              = false,
+        msaa: Int                   = 0,
+        fps: Double                 = -1.0,
+        swapBuffers: Int            = 2,
+        interopType: GLInteropType  = GLInteropType.auto,
+        window: GLWindow
+    ): this(executor, flipY, msaa, fps, swapBuffers, interopType) {
+        this.window = window
+        this.context = window.context
+    }
 
     init {
         object: RegionHelper(){
@@ -202,9 +286,8 @@ open class GLCanvas @JvmOverloads constructor(
     /*===========================================*\
     |                     Peer                    |
     \*===========================================*/
-
     private fun doCreatePeer() =
-        NGGLCanvas.create(this, executor, profile, glDebug, interopType, externalWindow)
+        NGGLCanvas.create(this, interopType)
 
     /**
      *  Destroys all resources to free up memory

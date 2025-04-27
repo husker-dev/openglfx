@@ -1,9 +1,11 @@
 import groovy.json.*
+import io.gitee.pkmer.enums.*
 
 project.ext.useJavaPlatform = project.plugins.hasPlugin("java-platform")
 
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
+apply plugin: 'io.gitee.pkmer.pkmerboot-central-publisher'
 
 if(!project.ext.useJavaPlatform) {
     apply plugin: 'java-library'
@@ -111,28 +113,43 @@ class MavenPublishPlugin implements Plugin<Project> {
             }
             repositories {
                 maven {
-                    def releasesUrl = project.uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
-                    def snapshotsUrl = project.uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
-                    url = project.version.toString().endsWith("SNAPSHOT") ? snapshotsUrl : releasesUrl
-                    credentials {
-                        username = project.properties["ossrhUsername"].toString()
-                        password = project.properties["ossrhPassword"].toString()
-                    }
+                    name = "Local"
+                    url = project.uri(project.layout.buildDirectory.dir("repos/bundles"))
                 }
             }
         }
 
-        project.nexusStaging {
-            packageGroup = project.mvn_groupId
-            serverUrl = "https://s01.oss.sonatype.org/service/local/"
-            username = project.properties["ossrhUsername"].toString()
-            password = project.properties["ossrhPassword"].toString()
+        project.signing {
+            setRequired {
+                gradle.taskGraph.allTasks.any { it is PublishToMavenRepository }
+            }
+            if(project.hasProperty("ossrhUsername"))
+                sign(publishing.publications)
         }
+
+        project.pkmerBoot {
+            sonatypeMavenCentral{
+                // the same with publishing.repositories.maven.url in the configuration.
+                stagingRepository = project.layout.buildDirectory.dir("repos/bundles")
+                /**
+                 * get username and password from
+                 * <a href="https://central.sonatype.com/account"> central sonatype account</a>
+                 */
+                username = project.properties["ossrhUsername"].toString()
+                password = project.properties["ossrhPassword"].toString()
+
+                // Optional the publishingType default value is PublishingType.AUTOMATIC
+                publishingType = PublishingType.AUTOMATIC
+            }
+        }
+        /*
 
         project.signing {
             if(project.properties.containsKey("ossrhUsername"))
                 sign project.publishing.publications.mavenJava
         }
+
+         */
     }
 }
 apply plugin: MavenPublishPlugin

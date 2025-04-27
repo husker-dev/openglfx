@@ -1,11 +1,6 @@
 package com.huskerdev.openglfx.internal
 
-import com.huskerdev.grapl.core.platform.BackgroundMessageHandler
 import com.huskerdev.grapl.core.x
-import com.huskerdev.grapl.gl.GLContext
-import com.huskerdev.grapl.gl.GLProfile
-import com.huskerdev.grapl.gl.GLWindow
-import com.huskerdev.openglfx.GLExecutor
 import com.huskerdev.openglfx.GLExecutor.Companion.glGetInteger
 import com.huskerdev.openglfx.GLExecutor.Companion.glViewport
 import com.huskerdev.openglfx.GL_MAX_SAMPLES
@@ -30,21 +25,13 @@ import kotlin.concurrent.thread
 import kotlin.math.max
 
 abstract class NGGLCanvas(
-    val canvas: GLCanvas,
-    val executor: GLExecutor,
-    val profile: GLProfile,
-    val glDebug: Boolean,
-    val externalWindow: Boolean
+    val canvas: GLCanvas
 ): NGRegion() {
 
     companion object {
         fun create(
             canvas: GLCanvas,
-            executor: GLExecutor,
-            profile: GLProfile,
-            glDebug: Boolean,
-            interopType: GLInteropType,
-            externalWindow: Boolean
+            interopType: GLInteropType
         ) = when(interopType){
             GLInteropType.Blit -> ::BlitCanvas
             GLInteropType.WGLDXInterop -> ::WGLDXInteropCanvas
@@ -52,7 +39,7 @@ abstract class NGGLCanvas(
             GLInteropType.ExternalObjectsWinES -> ::ExternalObjectsCanvasWinES2
             GLInteropType.ExternalObjectsFd -> ::ExternalObjectsCanvasFd
             GLInteropType.IOSurface -> ::IOSurfaceCanvas
-        }(canvas, executor, profile, glDebug, externalWindow)
+        }(canvas)
     }
 
     @Volatile var disposed = false
@@ -75,8 +62,10 @@ abstract class NGGLCanvas(
     private var readyToDisplay = AtomicBoolean(false)
     private var lastFrameStartTime = 0L
 
-    protected lateinit var window: GLWindow // Used when 'externalWindow' is true
-    protected lateinit var context: GLContext
+    protected val executor = canvas.executor
+    protected val context = canvas.context!!
+    protected var window = canvas.window
+    protected val useExternalWindow = window != null
 
     private val swapChain = Array(canvas.swapBuffers) { createSwapBuffer() }
     private var currentSwapBufferIndex = AtomicInteger(-1)
@@ -127,26 +116,15 @@ abstract class NGGLCanvas(
                 it.disposeFXResources()
             }
         }
-        if(externalWindow && this::window.isInitialized){
-            window.destroy()
+        if(useExternalWindow){
+            window!!.destroy()
             com.huskerdev.grapl.core.platform.Platform.current.peekMessages()
         }
     }
 
     private fun createRenderingThread(){
         renderThread = thread(isDaemon = true) {
-            if(externalWindow){
-                BackgroundMessageHandler.useHandler = false
-                window = GLWindow(profile, debug = glDebug).apply {
-                    closable = false
-                    maximizable = false
-                    resizable = false
-                    title = "openglfx external window"
-                    visible = true
-                }
-                context = window.context
-            }else
-                context = GLContext.create(profile = profile, debug = glDebug)
+
             context.makeCurrent()
 
             executor.initGLFunctions()
@@ -165,12 +143,12 @@ abstract class NGGLCanvas(
                 synchronized(swapBuffer.lock){
                     glViewport(0, 0, canvasWidth, canvasHeight)
                     val buffer = swapBuffer.render(canvasWidth, canvasHeight)
-                    if(externalWindow){
-                        if(window.absoluteSize != canvasWidth x canvasHeight)
-                            window.absoluteSize = canvasWidth x canvasHeight
+                    if(useExternalWindow){
+                        if(window!!.absoluteSize != canvasWidth x canvasHeight)
+                            window!!.absoluteSize = canvasWidth x canvasHeight
                         buffer.blitTo(0)
                         com.huskerdev.grapl.core.platform.Platform.current.peekMessages()
-                        window.swapBuffers()
+                        window!!.swapBuffers()
                     }
                 }
 

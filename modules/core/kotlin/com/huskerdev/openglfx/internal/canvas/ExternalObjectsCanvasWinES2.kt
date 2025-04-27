@@ -1,6 +1,5 @@
 package com.huskerdev.openglfx.internal.canvas
 
-import com.huskerdev.grapl.gl.GLProfile
 import com.huskerdev.openglfx.*
 import com.huskerdev.openglfx.GLExecutor.Companion.glBindTexture
 import com.huskerdev.openglfx.GLExecutor.Companion.glFinish
@@ -25,12 +24,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 
 open class ExternalObjectsCanvasWinES2(
-    canvas: GLCanvas,
-    executor: GLExecutor,
-    profile: GLProfile,
-    glDebug: Boolean,
-    externalWindow: Boolean
-): NGGLCanvas(canvas, executor, profile, glDebug, externalWindow) {
+    canvas: GLCanvas
+): NGGLCanvas(canvas) {
 
     private val vk = VkExtMemory.createVk()
 

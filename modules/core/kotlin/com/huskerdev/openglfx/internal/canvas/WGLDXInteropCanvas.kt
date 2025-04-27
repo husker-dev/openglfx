@@ -1,7 +1,5 @@
 package com.huskerdev.openglfx.internal.canvas
 
-import com.huskerdev.grapl.gl.GLProfile
-import com.huskerdev.openglfx.GLExecutor
 import com.huskerdev.openglfx.GL_TEXTURE_2D
 import com.huskerdev.openglfx.canvas.GLCanvas
 import com.huskerdev.openglfx.internal.GLFXUtils
@@ -16,12 +14,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 
 open class WGLDXInteropCanvas(
-    canvas: GLCanvas,
-    executor: GLExecutor,
-    profile: GLProfile,
-    glDebug: Boolean,
-    externalWindow: Boolean
-): NGGLCanvas(canvas, executor, profile, glDebug, externalWindow) {
+    canvas: GLCanvas
+): NGGLCanvas(canvas) {
 
     private lateinit var d3d9Device: D3D9.Device
     private lateinit var interopDevice: WGLDX.Device
