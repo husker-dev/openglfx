@@ -2,8 +2,13 @@
 
 kotlin = "2.1.0"
 pkmerboot-central-publisher = "1.1.1"
+
 javafx = "17.0.2"
 grapl = "2.3.12"
+jogl = "2.5.0"
+libgdx = "1.12.0"
+lwjgl = "3.3.2"
+lwjgl2 = "2.9.3"
 
 [libraries]
 
@@ -13,12 +18,24 @@ javafx-graphics             = { module = "org.openjfx:javafx-graphics", version.
 
 grapl-gl                    = { module = "com.huskerdev:grapl-gl", version.ref = "grapl" }
 
+gluegen                     = { module = "org.jogamp.gluegen:gluegen-rt", version.ref = "jogl" }
+jogl                        = { module = "org.jogamp.jogl:jogl-all", version.ref = "jogl" }
+
+gdx                         = { module = "com.badlogicgames.gdx:gdx", version.ref = "libgdx" }
+gdx-backend-lwjgl3          = { module = "com.badlogicgames.gdx:gdx-backend-lwjgl3", version.ref = "libgdx" }
+gdx-platform                = { module = "com.badlogicgames.gdx:gdx-platform", version.ref = "libgdx" }
+
+lwjgl-bom                   = { module = "org.lwjgl:lwjgl-bom", version.ref = "lwjgl" }
+lwjgl                       = { module = "org.lwjgl:lwjgl" }
+lwjgl-opengl                = { module = "org.lwjgl:lwjgl-opengl" }
+
+lwjgl2                      = { module = "org.lwjgl.lwjgl:lwjgl", version.ref = "lwjgl2" }
+
 
 [bundles]
 javafx = ["javafx-base", "javafx-controls", "javafx-graphics"]
 
 [plugins]
-
 kotlin-jvm                  = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 pkmerboot-central-publisher = { id = "io.gitee.pkmer.pkmerboot-central-publisher", version.ref = "pkmerboot-central-publisher" }
 

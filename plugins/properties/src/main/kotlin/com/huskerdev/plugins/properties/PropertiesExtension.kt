@@ -3,9 +3,9 @@ package com.huskerdev.plugins.properties
 import java.io.File
 
 open class PropertiesExtension {
-    var name: String = ""
+    var name: String? = null
     var srcDir: File? = null
-    var classpath: String = ""
+    var classpath: String? = null
 
     var fields: Map<String, Any> = hashMapOf()
 

@@ -6,6 +6,7 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.ExternalModuleDependencyBundle
 import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.plugins.ExtraPropertiesExtension
+import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.provider.Provider
 import org.gradle.api.publish.maven.MavenPom
 import org.gradle.api.tasks.SourceSetContainer
@@ -26,6 +27,11 @@ fun Project.configureKotlinProject(){
     kotlin {
         jvmToolchain(11)
     }
+    java {
+        withJavadocJar()
+        withSourcesJar()
+    }
+
     project.tasks.named("jar", Jar::class.java) {
         manifest {
             attributes(mapOf("Automatic-Module-Name" to project.name))
@@ -61,4 +67,7 @@ private val Project.sourceSets
 
 private fun Project.kotlin(block: KotlinJvmProjectExtension.() -> Unit) =
     extensions.getByType(KotlinJvmProjectExtension::class.java).apply(block)
+
+private fun Project.java(block: JavaPluginExtension.() -> Unit) =
+    extensions.getByType(JavaPluginExtension::class.java).apply(block)
 

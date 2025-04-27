@@ -11,12 +11,12 @@ class PropertiesPlugin: Plugin<Project> {
        val config = project.extensions.create("properties", PropertiesExtension::class.java)
 
         project.afterEvaluate {
-            createFile(config, project)
+            createFile(config)
         }
 
         project.tasks.register("generatePropertyFile") {
             doFirst {
-                createFile(config, project)
+                createFile(config)
             }
         }
         project.tasks.getByName("compileJava").dependsOn(
@@ -24,8 +24,12 @@ class PropertiesPlugin: Plugin<Project> {
         )
     }
 
-    private fun createFile(config: PropertiesExtension, project: Project){
-        val file = File(config.srcDir, "${config.classpath.replace(".", "/")}/${config.name}.kt")
+    private fun createFile(config: PropertiesExtension){
+        if(config.name == null ||
+            config.classpath == null ||
+            config.srcDir == null
+        ) return
+        val file = File(config.srcDir, "${config.classpath!!.replace(".", "/")}/${config.name}.kt")
         file.parentFile.mkdirs()
 
         val content = config.fields.map { entry ->

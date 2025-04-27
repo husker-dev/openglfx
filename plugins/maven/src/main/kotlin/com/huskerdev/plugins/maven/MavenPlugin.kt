@@ -44,7 +44,7 @@ class MavenPlugin: Plugin<Project> {
                     create(publicationName, MavenPublication::class.java) {
                         from(component)
                         project.configurePom(pom)
-                        artifactId = pom.name.get()
+                        artifactId = pom.name.getOrElse("")
                         groupId = project.group.toString()
                     }
                 }
