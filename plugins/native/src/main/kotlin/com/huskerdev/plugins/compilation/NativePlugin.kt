@@ -74,7 +74,7 @@ class NativePlugin: Plugin<Project> {
         project.pluginManager.withPlugin("maven-publish") {
             project.tasks.register("publishNatives") {
                 group = "publishing"
-                dependsOn("publish")
+                dependsOn("publishToMavenCentralPortal")
             }
         }
 
