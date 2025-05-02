@@ -4,13 +4,12 @@ import com.huskerdev.plugins.compilation.types.OutputType
 import com.huskerdev.plugins.compilation.types.Platform
 import com.huskerdev.plugins.compilation.types.compile
 import org.gradle.api.GradleException
+import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.SourceSetContainer
+import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.internal.os.OperatingSystem
-import org.gradle.jvm.toolchain.JavaLanguageVersion
-import org.gradle.jvm.toolchain.JvmImplementation
 import java.io.File
 
 @Suppress("unused")
@@ -18,11 +17,8 @@ class NativePlugin: Plugin<Project> {
     override fun apply(project: Project) {
         project.pluginManager.apply("java-library")
 
-        project.java {
-            toolchain {
-                languageVersion.set(JavaLanguageVersion.of(11))
-                implementation.set(JvmImplementation.J9)
-            }
+        project.tasks.withType(JavaCompile::class.java){
+            sourceCompatibility = JavaVersion.VERSION_11.toString()
         }
 
         val config = project.extensions.create("compilation", NativeExtension::class.java)
@@ -151,9 +147,6 @@ class NativePlugin: Plugin<Project> {
 
     private val Project.sourceSets
         get() = extensions.getByType(SourceSetContainer::class.java)
-
-    private fun Project.java(block: JavaPluginExtension.() -> Unit) =
-        extensions.getByType(JavaPluginExtension::class.java).apply(block)
 
     private fun Project.sourceSets(block: SourceSetContainer.() -> Unit) =
         project.sourceSets.apply(block)
