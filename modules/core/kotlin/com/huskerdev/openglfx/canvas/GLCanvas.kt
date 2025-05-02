@@ -19,35 +19,14 @@ import kotlin.math.ceil
 
 /**
  * Hardware-accelerated OpenGL canvas.
- *
- * @param executor OpenGL implementation library:
- *  - LWJGL_MODULE;
- *  - LWJGL2_MODULE (legacy);
- *  - JOGL_MODULE;
- *  - LIBGDX_MODULE (beta);
- *  - NONE_MODULE.
- * @param flipY Flip Y axis:
- *  - false – 0 is bottom (default);
- *  - true – 0 is top.
- * @param msaa Multisampling anti-aliasing quality:
- *  - 0 – disabled (default);
- *  - -1 – maximum available samples.
- *  @param fps Frames per seconds:
- *  - < 0 - Monitor refresh rate
- *  - 0	- Do not update repeatedly
- *  - \> 0 Update with desired FPS
- *  @param swapBuffers Swap-chain buffers:
- *  - The best UI performance is achieved with 2 (default).
- *  - The most responsive to resizing is 1.
- *  @param interopType Type of interop between JavaFX and OpenGL (do not change if you not sure what you do)
  */
-open class GLCanvas @JvmOverloads protected constructor(
+open class GLCanvas private constructor(
     val executor: GLExecutor,
-    val flipY: Boolean              = false,
-    val msaa: Int                   = 0,
-    fps: Double                     = -1.0,
-    val swapBuffers: Int            = 2,
-    val interopType: GLInteropType  = GLInteropType.auto,
+    val flipY: Boolean,
+    val msaa: Int,
+    fps: Double,
+    val swapBuffers: Int,
+    val interopType: GLInteropType,
 ): Region() {
 
     companion object {
@@ -56,8 +35,25 @@ open class GLCanvas @JvmOverloads protected constructor(
         }
     }
 
+    object Defaults {
+        const val FLIP_Y = false
+        const val MSAA = 0
+        const val FPS = -1.0
+        const val SWAP_BUFFERS = 2
+        val INTEROP_TYPE = GLInteropType.auto
+
+        val PROFILE = GLProfile.CORE
+        const val DEBUG = false
+        val SHARE_WITH = null
+        const val MAJOR_VERSION = -1
+        const val MINOR_VERSION = -1
+        const val EXTERNAL_WINDOW = false
+    }
+
     var context: GLContext? = null
+        private set
     var window: GLWindow? = null
+        private set
 
     private var onInit = arrayListOf<Consumer<GLInitializeEvent>>()
     private var onRender = arrayListOf<Consumer<GLRenderEvent>>()
@@ -101,17 +97,12 @@ open class GLCanvas @JvmOverloads protected constructor(
         }
 
     /**
-     * Hardware-accelerated OpenGL canvas.
-     *
      * @param executor OpenGL implementation library:
      *  - LWJGL_MODULE;
      *  - LWJGL2_MODULE (legacy);
      *  - JOGL_MODULE;
      *  - LIBGDX_MODULE (beta);
      *  - NONE_MODULE.
-     * @param profile Core/Compatibility OpenGL profile:
-     *  - GLProfile.Compatibility (default);
-     *  - GLProfile.Core.
      * @param flipY Flip Y axis:
      *  - false – 0 is bottom (default);
      *  - true – 0 is top.
@@ -122,34 +113,45 @@ open class GLCanvas @JvmOverloads protected constructor(
      *  - < 0 - Monitor refresh rate
      *  - 0	- Do not update repeatedly
      *  - \> 0 Update with desired FPS
-     *  @param glDebug Creates GLContext that supports debugging
      *  @param swapBuffers Swap-chain buffers:
      *  - The best UI performance is achieved with 2 (default).
      *  - The most responsive to resizing is 1.
      *  @param interopType Type of interop between JavaFX and OpenGL (do not change if you not sure what you do)
+     *  @param profile Core/Compatibility OpenGL profile:
+     *  - GLProfile.Compatibility (default);
+     *  - GLProfile.Core.
+     *  @param glDebug Creates GLContext that supports debugging
+     *  @param shareWith OpenGL context to share with
+     *  @param majorVersion Required OpenGL major version
+     *  @param minorVersion Required OpenGL minor version
      *  @param externalWindow Creates external window that mirroring canvas. Used to enable debugging via NSight or RenderDoc.
-     *  @param shareWith
      */
-    constructor(
+    @JvmOverloads constructor(
         executor: GLExecutor,
-        profile: GLProfile          = GLProfile.CORE,
-        flipY: Boolean              = false,
-        msaa: Int                   = 0,
-        fps: Double                 = -1.0,
-        glDebug: Boolean            = false,
-        swapBuffers: Int            = 2,
-        interopType: GLInteropType  = GLInteropType.auto,
-        externalWindow: Boolean     = false,
-        shareWith: GLContext?       = null,
-        majorVersion: Int           = -1,
-        minorVersion: Int           = -1,
+        flipY: Boolean              = Defaults.FLIP_Y,
+        msaa: Int                   = Defaults.MSAA,
+        fps: Double                 = Defaults.FPS,
+        swapBuffers: Int            = Defaults.SWAP_BUFFERS,
+        interopType: GLInteropType  = Defaults.INTEROP_TYPE,
+        profile: GLProfile          = Defaults.PROFILE,
+        glDebug: Boolean            = Defaults.DEBUG,
+        shareWith: GLContext?       = Defaults.SHARE_WITH,
+        majorVersion: Int           = Defaults.MAJOR_VERSION,
+        minorVersion: Int           = Defaults.MINOR_VERSION,
+        externalWindow: Boolean     = Defaults.EXTERNAL_WINDOW,
     ): this(
         executor, flipY, msaa,
         fps, swapBuffers, interopType
     ) {
         if(externalWindow){
             BackgroundMessageHandler.useHandler = false
-            window = GLWindow(profile, debug = glDebug).apply {
+            window = GLWindow(
+                profile = profile,
+                shareWith = shareWith?.handle ?: 0,
+                majorVersion = majorVersion,
+                minorVersion = minorVersion,
+                debug = glDebug
+            ).apply {
                 closable = false
                 maximizable = false
                 resizable = false
@@ -158,28 +160,80 @@ open class GLCanvas @JvmOverloads protected constructor(
             }
             context = window!!.context
         }else
-            context = GLContext.create(shareWith?.handle ?: 0, profile, majorVersion, minorVersion, glDebug)
+            context = GLContext.create(
+                shareWith = shareWith?.handle ?: 0,
+                profile = profile,
+                majorVersion = majorVersion,
+                minorVersion = minorVersion,
+                debug = glDebug
+            )
     }
 
-    @JvmOverloads protected constructor(
+    /**
+     * @param executor OpenGL implementation library:
+     *  - LWJGL_MODULE;
+     *  - LWJGL2_MODULE (legacy);
+     *  - JOGL_MODULE;
+     *  - LIBGDX_MODULE (beta);
+     *  - NONE_MODULE.
+     * @param flipY Flip Y axis:
+     *  - false – 0 is bottom (default);
+     *  - true – 0 is top.
+     * @param msaa Multisampling anti-aliasing quality:
+     *  - 0 – disabled (default);
+     *  - -1 – maximum available samples.
+     *  @param fps Frames per seconds:
+     *  - < 0 - Monitor refresh rate
+     *  - 0	- Do not update repeatedly
+     *  - \> 0 Update with desired FPS
+     *  @param swapBuffers Swap-chain buffers:
+     *  - The best UI performance is achieved with 2 (default).
+     *  - The most responsive to resizing is 1.
+     *  @param interopType Type of interop between JavaFX and OpenGL (do not change if you not sure what you do)
+     *  @param context Existing context to use (may cause bugs)
+     */
+    @JvmOverloads constructor(
         executor: GLExecutor,
-        flipY: Boolean              = false,
-        msaa: Int                   = 0,
-        fps: Double                 = -1.0,
-        swapBuffers: Int            = 2,
-        interopType: GLInteropType  = GLInteropType.auto,
+        flipY: Boolean              = Defaults.FLIP_Y,
+        msaa: Int                   = Defaults.MSAA,
+        fps: Double                 = Defaults.FPS,
+        swapBuffers: Int            = Defaults.SWAP_BUFFERS,
+        interopType: GLInteropType  = Defaults.INTEROP_TYPE,
         context: GLContext
     ): this(executor, flipY, msaa, fps, swapBuffers, interopType) {
         this.context = context
     }
 
-    @JvmOverloads protected constructor(
+    /**
+     * @param executor OpenGL implementation library:
+     *  - LWJGL_MODULE;
+     *  - LWJGL2_MODULE (legacy);
+     *  - JOGL_MODULE;
+     *  - LIBGDX_MODULE (beta);
+     *  - NONE_MODULE.
+     * @param flipY Flip Y axis:
+     *  - false – 0 is bottom (default);
+     *  - true – 0 is top.
+     * @param msaa Multisampling anti-aliasing quality:
+     *  - 0 – disabled (default);
+     *  - -1 – maximum available samples.
+     *  @param fps Frames per seconds:
+     *  - < 0 - Monitor refresh rate
+     *  - 0	- Do not update repeatedly
+     *  - \> 0 Update with desired FPS
+     *  @param swapBuffers Swap-chain buffers:
+     *  - The best UI performance is achieved with 2 (default).
+     *  - The most responsive to resizing is 1.
+     *  @param interopType Type of interop between JavaFX and OpenGL (do not change if you not sure what you do)
+     *  @param window Existing OpenGL window to use (may cause bugs)
+     */
+    @JvmOverloads constructor(
         executor: GLExecutor,
-        flipY: Boolean              = false,
-        msaa: Int                   = 0,
-        fps: Double                 = -1.0,
-        swapBuffers: Int            = 2,
-        interopType: GLInteropType  = GLInteropType.auto,
+        flipY: Boolean              = Defaults.FLIP_Y,
+        msaa: Int                   = Defaults.MSAA,
+        fps: Double                 = Defaults.FPS,
+        swapBuffers: Int            = Defaults.SWAP_BUFFERS,
+        interopType: GLInteropType  = Defaults.INTEROP_TYPE,
         window: GLWindow
     ): this(executor, flipY, msaa, fps, swapBuffers, interopType) {
         this.window = window
