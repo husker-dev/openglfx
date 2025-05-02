@@ -10,6 +10,7 @@ import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.internal.os.OperatingSystem
 import org.gradle.jvm.toolchain.JavaLanguageVersion
+import org.gradle.jvm.toolchain.JvmImplementation
 import java.io.File
 
 @Suppress("unused")
@@ -20,6 +21,7 @@ class NativePlugin: Plugin<Project> {
         project.java {
             toolchain {
                 languageVersion.set(JavaLanguageVersion.of(11))
+                implementation.set(JvmImplementation.J9)
             }
         }
 
