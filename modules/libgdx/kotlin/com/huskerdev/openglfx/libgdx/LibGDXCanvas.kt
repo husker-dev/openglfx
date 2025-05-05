@@ -2,6 +2,7 @@ package com.huskerdev.openglfx.libgdx
 
 import com.badlogic.gdx.Application
 import com.badlogic.gdx.ApplicationAdapter
+import com.huskerdev.grapl.gl.GLContext
 import com.huskerdev.grapl.gl.GLProfile
 import com.huskerdev.openglfx.canvas.GLCanvas
 import com.huskerdev.openglfx.internal.GLInteropType
@@ -12,17 +13,21 @@ import kotlin.Boolean
 class LibGDXCanvas(
     val adapter: ApplicationAdapter,
     val configuration: OGLFXApplicationConfiguration = OGLFXApplicationConfiguration(),
-    profile: GLProfile          = GLProfile.CORE,
-    flipY: Boolean              = false,
-    msaa: Int                   = 0,
-    fps: Double                 = -1.0,
-    glDebug: Boolean            = false,
-    swapBuffers: Int            = 2,
-    interopType: GLInteropType  = GLInteropType.auto,
-    externalWindow: Boolean     = false
+    flipY: Boolean              = Defaults.FLIP_Y,
+    msaa: Int                   = Defaults.MSAA,
+    fps: Double                 = Defaults.FPS,
+    swapBuffers: Int            = Defaults.SWAP_BUFFERS,
+    interopType: GLInteropType  = Defaults.INTEROP_TYPE,
+    profile: GLProfile          = Defaults.PROFILE,
+    glDebug: Boolean            = Defaults.DEBUG,
+    shareWith: GLContext?       = Defaults.SHARE_WITH,
+    majorVersion: Int           = Defaults.MAJOR_VERSION,
+    minorVersion: Int           = Defaults.MINOR_VERSION,
+    externalWindow: Boolean     = Defaults.EXTERNAL_WINDOW,
 ): GLCanvas(
     LIBGDX_MODULE,
-    profile, flipY, msaa, fps, glDebug, swapBuffers, interopType, externalWindow
+    flipY, msaa, fps, swapBuffers, interopType,
+    profile, glDebug, shareWith, majorVersion, minorVersion, externalWindow
 ) {
     private val invokeLater = arrayListOf<Runnable>()
     lateinit var application: Application

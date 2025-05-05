@@ -27,6 +27,7 @@ open class GLCanvas private constructor(
     fps: Double,
     val swapBuffers: Int,
     val interopType: GLInteropType,
+    context: Pair<GLContext, GLWindow?>
 ): Region() {
 
     companion object {
@@ -50,10 +51,8 @@ open class GLCanvas private constructor(
         const val EXTERNAL_WINDOW = false
     }
 
-    var context: GLContext? = null
-        private set
-    var window: GLWindow? = null
-        private set
+    val context: GLContext = context.first
+    val window: GLWindow? = context.second
 
     private var onInit = arrayListOf<Consumer<GLInitializeEvent>>()
     private var onRender = arrayListOf<Consumer<GLRenderEvent>>()
@@ -126,7 +125,7 @@ open class GLCanvas private constructor(
      *  @param minorVersion Required OpenGL minor version
      *  @param externalWindow Creates external window that mirroring canvas. Used to enable debugging via NSight or RenderDoc.
      */
-    @JvmOverloads constructor(
+    constructor(
         executor: GLExecutor,
         flipY: Boolean              = Defaults.FLIP_Y,
         msaa: Int                   = Defaults.MSAA,
@@ -141,11 +140,12 @@ open class GLCanvas private constructor(
         externalWindow: Boolean     = Defaults.EXTERNAL_WINDOW,
     ): this(
         executor, flipY, msaa,
-        fps, swapBuffers, interopType
-    ) {
+        fps, swapBuffers, interopType,
+
+        // Creating context
         if(externalWindow){
             BackgroundMessageHandler.useHandler = false
-            window = GLWindow(
+            val window = GLWindow(
                 profile = profile,
                 shareWith = shareWith?.handle ?: 0,
                 majorVersion = majorVersion,
@@ -158,16 +158,16 @@ open class GLCanvas private constructor(
                 title = "openglfx external window"
                 visible = true
             }
-            context = window!!.context
+            window.context to window
         }else
-            context = GLContext.create(
+            GLContext.create(
                 shareWith = shareWith?.handle ?: 0,
                 profile = profile,
                 majorVersion = majorVersion,
                 minorVersion = minorVersion,
                 debug = glDebug
-            )
-    }
+            ) to null
+    )
 
     /**
      * @param executor OpenGL implementation library:
@@ -192,7 +192,7 @@ open class GLCanvas private constructor(
      *  @param interopType Type of interop between JavaFX and OpenGL (do not change if you not sure what you do)
      *  @param context Existing context to use (may cause bugs)
      */
-    @JvmOverloads constructor(
+    constructor(
         executor: GLExecutor,
         flipY: Boolean              = Defaults.FLIP_Y,
         msaa: Int                   = Defaults.MSAA,
@@ -200,9 +200,11 @@ open class GLCanvas private constructor(
         swapBuffers: Int            = Defaults.SWAP_BUFFERS,
         interopType: GLInteropType  = Defaults.INTEROP_TYPE,
         context: GLContext
-    ): this(executor, flipY, msaa, fps, swapBuffers, interopType) {
-        this.context = context
-    }
+    ): this(
+        executor, flipY, msaa,
+        fps, swapBuffers, interopType,
+        context to null
+    )
 
     /**
      * @param executor OpenGL implementation library:
@@ -227,7 +229,7 @@ open class GLCanvas private constructor(
      *  @param interopType Type of interop between JavaFX and OpenGL (do not change if you not sure what you do)
      *  @param window Existing OpenGL window to use (may cause bugs)
      */
-    @JvmOverloads constructor(
+    constructor(
         executor: GLExecutor,
         flipY: Boolean              = Defaults.FLIP_Y,
         msaa: Int                   = Defaults.MSAA,
@@ -235,10 +237,11 @@ open class GLCanvas private constructor(
         swapBuffers: Int            = Defaults.SWAP_BUFFERS,
         interopType: GLInteropType  = Defaults.INTEROP_TYPE,
         window: GLWindow
-    ): this(executor, flipY, msaa, fps, swapBuffers, interopType) {
-        this.window = window
-        this.context = window.context
-    }
+    ): this(
+        executor, flipY, msaa,
+        fps, swapBuffers, interopType,
+        window.context to window
+    )
 
     init {
         object: RegionHelper(){

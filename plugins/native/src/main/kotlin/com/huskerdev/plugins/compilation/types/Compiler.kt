@@ -169,7 +169,7 @@ private fun getOutputName(
         result += "-" + arch.name.lowercase()
 
     val platform = platform!!
-    return output + when (type){
+    return result + when (type){
         OutputType.EXECUTABLE -> platform.executableExt
         OutputType.SHARED -> platform.sharedExt
         OutputType.STATIC -> platform.staticExt

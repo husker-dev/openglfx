@@ -4,6 +4,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.SourceSetContainer
+import org.gradle.jvm.tasks.Jar
 import org.objectweb.asm.*
 import org.objectweb.asm.Opcodes
 import java.io.File
@@ -39,7 +40,7 @@ class ModuleInfoPlugin: Plugin<Project> {
                     moduleVisitor.visitExport(it.replace(".", "/"), 0)
                 }
                 config.opens.forEach {
-                    moduleVisitor.visitOpen(it.replace(".", "/"), 0, null)
+                    moduleVisitor.visitOpen(it.replace(".", "/"), 0)
                 }
 
                 moduleVisitor.visitEnd()
@@ -53,12 +54,21 @@ class ModuleInfoPlugin: Plugin<Project> {
         project.tasks.register("packModuleInfo", Copy::class.java) {
             group = "build"
 
-            dependsOn(project.tasks.getByName("createModuleInfo"))
-            project.tasks.getByName("jar").dependsOn(this)
-            project.tasks.getByName("javadoc").mustRunAfter(this)
+            dependsOn("createModuleInfo")
 
             from(project.moduleInfoBuildDir)
             into(project.sourceSets.getByName("main").output.resourcesDir!!)
+        }
+
+        project.tasks.getByName("jar").dependsOn("packModuleInfo")
+        project.tasks.getByName("javadoc").mustRunAfter("packModuleInfo")
+
+        project.afterEvaluate {
+            project.tasks.named("jar", Jar::class.java) {
+                manifest {
+                    attributes(mapOf("Automatic-Module-Name" to config.name))
+                }
+            }
         }
     }
 

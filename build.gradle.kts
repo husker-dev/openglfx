@@ -12,6 +12,7 @@ allprojects {
         mavenLocal()
     }
     group = "com.huskerdev"
+    version = project.property("version") ?: "dev"
 }
 
 pom {

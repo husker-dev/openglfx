@@ -7,6 +7,7 @@ import org.gradle.api.GradleException
 import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.internal.os.OperatingSystem
@@ -80,12 +81,23 @@ class NativePlugin: Plugin<Project> {
                 launchCompile(config, project)
             }
         }
+
+        project.tasks.register("packNatives", Copy::class.java) {
+            group = "build"
+
+            dependsOn("compileNatives")
+
+            from(project.nativesBuildDir)
+            into(project.sourceSets.getByName("main").output.resourcesDir!!)
+        }
+
+        project.tasks.getByName("jar").dependsOn("packNatives")
     }
 
     private fun launchCompile(config: NativeExtension, project: Project){
         val buildDir = project.nativesBuildDir
         buildDir.deleteRecursively()
-        val artifactDir = File(buildDir, config.classpath.replace("\\.", "/"))
+        val artifactDir = File(buildDir, config.classpath.replace(".", "/"))
         artifactDir.mkdirs()
 
 

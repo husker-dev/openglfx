@@ -10,7 +10,6 @@ import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.provider.Provider
 import org.gradle.api.publish.maven.MavenPom
 import org.gradle.api.tasks.SourceSetContainer
-import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.get
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import kotlin.collections.flatMap
@@ -30,12 +29,6 @@ fun Project.configureKotlinProject(){
     java {
         withJavadocJar()
         withSourcesJar()
-    }
-
-    project.tasks.named("jar", Jar::class.java) {
-        manifest {
-            attributes(mapOf("Automatic-Module-Name" to project.name))
-        }
     }
 
     this.dependencies.add("api", "org.jetbrains.kotlin:kotlin-stdlib-jdk8")

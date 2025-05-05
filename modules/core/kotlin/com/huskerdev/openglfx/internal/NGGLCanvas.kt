@@ -63,7 +63,7 @@ abstract class NGGLCanvas(
     private var lastFrameStartTime = 0L
 
     protected val executor = canvas.executor
-    protected val context = canvas.context!!
+    protected val context = canvas.context
     protected var window = canvas.window
     protected val useExternalWindow = window != null
 
