@@ -4,7 +4,7 @@ kotlin = "2.1.0"
 pkmerboot-central-publisher = "1.1.1"
 
 javafx = "17.0.2"
-grapl = "2.3.12"
+grapl = "2.3.13"
 jogl = "2.5.0"
 libgdx = "1.12.0"
 lwjgl = "3.3.2"

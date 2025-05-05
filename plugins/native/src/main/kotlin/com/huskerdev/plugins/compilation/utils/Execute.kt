@@ -25,7 +25,7 @@ fun execute(command: Array<String>, envPath: String, directory: File){
     val builder = ProcessBuilder(file.absolutePath)
         .directory(directory)
         .redirectErrorStream(true)
-    builder.environment().put("Path", envPath)
+    builder.environment()["Path"] = envPath
 
     val process = builder.start()
     val r = BufferedReader(InputStreamReader(process.inputStream))
@@ -38,5 +38,5 @@ fun execute(command: Array<String>, envPath: String, directory: File){
     val result = process.waitFor()
     file.delete()
     if(result != 0)
-        throw GradleException("Execution of '$file.absolutePath' finished with exit code: ${process.exitValue()}")
+        throw GradleException("Execution of '${file.absolutePath}' finished with exit code: ${process.exitValue()}")
 }

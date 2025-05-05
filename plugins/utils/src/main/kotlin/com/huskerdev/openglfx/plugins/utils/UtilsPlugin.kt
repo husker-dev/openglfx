@@ -5,12 +5,15 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ExternalModuleDependencyBundle
 import org.gradle.api.artifacts.dsl.DependencyHandler
+import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.provider.Provider
 import org.gradle.api.publish.maven.MavenPom
 import org.gradle.api.tasks.SourceSetContainer
+import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.get
+import org.gradle.kotlin.dsl.getByName
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import kotlin.collections.flatMap
 
@@ -22,6 +25,8 @@ class UtilsPlugin: Plugin<Project> {
 
 fun Project.configureKotlinProject(){
     sourceSets["main"].java.srcDir("kotlin")
+    sourceSets["main"].resources.srcDir("resources")
+    sourceSets["test"].resources.srcDir("test")
 
     kotlin {
         jvmToolchain(11)
@@ -30,6 +35,9 @@ fun Project.configureKotlinProject(){
         withJavadocJar()
         withSourcesJar()
     }
+
+    project.tasks.getByName("jar", Jar::class)
+        .duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
     this.dependencies.add("api", "org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 }
