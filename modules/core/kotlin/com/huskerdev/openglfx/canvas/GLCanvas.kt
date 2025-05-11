@@ -21,13 +21,47 @@ import kotlin.math.ceil
  * Hardware-accelerated OpenGL canvas.
  */
 open class GLCanvas private constructor(
+
+    /**
+     * OpenGL implementation library
+     */
     val executor: GLExecutor,
+
+    /**
+     * Flip Y axis:
+     * - false – 0 is bottom (default);
+     * - true – 0 is top.
+     */
     val flipY: Boolean,
+
+    /**
+     * Multisampling anti-aliasing quality:
+     * - 0 – disabled (default);
+     * - -1 – maximum available samples.
+     */
     val msaa: Int,
-    fps: Double,
+
+    /**
+     * Frames per seconds:
+     *  - < 0 - Monitor refresh rate
+     *  - 0	- Do not update repeatedly
+     *  - \> 0 Update with desired FPS
+     */
+    var fps: Double,
+
+    /**
+     * Swap-chain buffers:
+     * - The best UI performance is achieved with 2 (default).
+     * - The most responsive to resizing is 1.
+     */
     val swapBuffers: Int,
+
+    /**
+     * Type of interop between JavaFX and OpenGL
+     */
     val interopType: GLInteropType,
-    context: Pair<GLContext, GLWindow?>
+
+    context: Pair<GLContext, GLWindow?>,
 ): Region() {
 
     companion object {
@@ -81,19 +115,6 @@ open class GLCanvas private constructor(
      */
     val scaledHeight: Int
         get() = ceil(height * dpi).toInt()
-
-    /**
-     * Frames per seconds:
-     *  - < 0 - Monitor refresh rate
-     *  - 0	- Do not update repeatedly
-     *  - \> 0 Update with desired FPS
-     */
-    var fps: Double = 0.0
-        set(value) {
-            field = value
-            RegionHelper.getPeer<NGGLCanvas>(this).fps =
-                if(value >= 0) value else -1.0
-        }
 
     /**
      * @param executor OpenGL implementation library:
@@ -252,7 +273,6 @@ open class GLCanvas private constructor(
                 if(node == this@GLCanvas) doCreatePeer()
                 else super.createPeerImpl(node)
         }
-        this.fps = fps
     }
 
     /*===========================================*\

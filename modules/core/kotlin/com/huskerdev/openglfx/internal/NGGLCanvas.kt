@@ -33,52 +33,51 @@ abstract class NGGLCanvas(
             canvas: GLCanvas,
             interopType: GLInteropType
         ) = when(interopType){
-            GLInteropType.Blit -> ::BlitCanvas
-            GLInteropType.WGLDXInterop -> ::WGLDXInteropCanvas
+            GLInteropType.Blit                  -> ::BlitCanvas
+            GLInteropType.WGLDXInterop          -> ::WGLDXInteropCanvas
             GLInteropType.ExternalObjectsWinD3D -> ::ExternalObjectsCanvasWinD3D
-            GLInteropType.ExternalObjectsWinES -> ::ExternalObjectsCanvasWinES2
-            GLInteropType.ExternalObjectsFd -> ::ExternalObjectsCanvasFd
-            GLInteropType.IOSurface -> ::IOSurfaceCanvas
+            GLInteropType.ExternalObjectsWinES  -> ::ExternalObjectsCanvasWinES2
+            GLInteropType.ExternalObjectsFd     -> ::ExternalObjectsCanvasFd
+            GLInteropType.IOSurface             -> ::IOSurfaceCanvas
         }(canvas)
     }
 
-    @Volatile var disposed = false
-        private set
+    @Volatile
+    private var disposed = false
 
     private var hasScene = false
 
-    val width by canvas::width
-    val height by canvas::height
-    val scaledWidth by canvas::scaledWidth
-    val scaledHeight by canvas::scaledHeight
+    protected val width by canvas::width
+    protected val height by canvas::height
+    private val scaledWidth by canvas::scaledWidth
+    private val scaledHeight by canvas::scaledHeight
 
-    val flipY by canvas::flipY
-    val msaa by canvas::msaa
-
-    var fps = 0.0
+    private val flipY by canvas::flipY
+    protected val msaa by canvas::msaa
+    private var fps by canvas::fps
 
     private val renderLock = Object()
     private lateinit var renderThread: Thread
     private var readyToDisplay = AtomicBoolean(false)
     private var lastFrameStartTime = 0L
 
-    protected val executor = canvas.executor
-    protected val context = canvas.context
-    protected var window = canvas.window
-    protected val useExternalWindow = window != null
+    private val executor = canvas.executor
+    private val context = canvas.context
+    private var window = canvas.window
+    private val useExternalWindow = window != null
 
     private val swapChain = Array(canvas.swapBuffers) { createSwapBuffer() }
     private var currentSwapBufferIndex = AtomicInteger(-1)
 
-    private val animationTimer = object : AnimationTimer() {
+    private val animationTimer = object: AnimationTimer() {
         override fun handle(now: Long) {
-            if(!shouldPaint())
+            if(!canPaint())
                 return
             if(readyToDisplay.getAndSet(false)){
                 NodeHelper.markDirty(canvas, DirtyBits.NODE_BOUNDS)
                 NodeHelper.markDirty(canvas, DirtyBits.REGION_SHAPE)
             }
-            if(fps == -1.0)
+            if(fps < 0)
                 requestRepaint()
         }
     }.apply { start() }
@@ -86,7 +85,7 @@ abstract class NGGLCanvas(
     init {
         Platform.runLater(::requestRepaint)
 
-        canvas.sceneProperty().addListener { p0 ->
+        canvas.sceneProperty().addListener { _ ->
             hasScene = canvas.scene != null
             if(hasScene)
                 requestRepaint()
@@ -97,11 +96,11 @@ abstract class NGGLCanvas(
     protected abstract fun onRenderThreadInit()
     protected abstract fun createSwapBuffer(): SwapBuffer
 
-    private fun shouldPaint() =
+    private fun canPaint() =
         isVisible && hasScene
 
     fun requestRepaint() {
-        if(!shouldPaint())
+        if(!canPaint())
             return
         synchronized(renderLock){
             renderLock.notifyAll()
@@ -126,9 +125,7 @@ abstract class NGGLCanvas(
         renderThread = thread(isDaemon = true) {
 
             context.makeCurrent()
-
             executor.initGLFunctions()
-
             onRenderThreadInit()
 
             while(!disposed) {
@@ -141,8 +138,12 @@ abstract class NGGLCanvas(
                 val swapBuffer = swapChain[swapBufferIndex]
 
                 synchronized(swapBuffer.lock){
+                    if(disposed)
+                        return@synchronized
+
                     glViewport(0, 0, canvasWidth, canvasHeight)
                     val buffer = swapBuffer.render(canvasWidth, canvasHeight)
+
                     if(useExternalWindow){
                         if(window!!.absoluteSize != canvasWidth x canvasHeight)
                             window!!.absoluteSize = canvasWidth x canvasHeight
@@ -156,7 +157,7 @@ abstract class NGGLCanvas(
                 readyToDisplay.set(true)
 
                 synchronized(renderLock) {
-                    if(shouldPaint() && fps > 0) {
+                    if(canPaint() && fps > 0) {
                         val delay = ((1000 / fps) - (System.currentTimeMillis() - lastFrameStartTime)).toLong()
                         if(delay > 0)
                             renderLock.wait(delay)
@@ -178,7 +179,7 @@ abstract class NGGLCanvas(
         if(swapElementIndex == -1)
             return
 
-        val swapElement = swapChain[currentSwapBufferIndex.get()]
+        val swapElement = swapChain[swapElementIndex]
 
         synchronized(swapElement.lock){
             val texture = swapElement.getTextureForDisplay(g)
@@ -201,10 +202,11 @@ abstract class NGGLCanvas(
         abstract fun dispose()
         abstract fun disposeFXResources()
 
-        protected fun createFramebufferForRender(width: Int, height: Int) =
-            if(msaa > 0) Framebuffer.MultiSampled(width, height, msaa)
-            else if(msaa < 0) Framebuffer.MultiSampled(width, height, glGetInteger(GL_MAX_SAMPLES))
-            else         Framebuffer.Default(width, height)
+        protected fun createFramebufferForRender(width: Int, height: Int) = when {
+            msaa > 0 -> Framebuffer.MultiSampled(width, height, msaa)
+            msaa < 0 -> Framebuffer.MultiSampled(width, height, glGetInteger(GL_MAX_SAMPLES))
+            else ->     Framebuffer.Default(width, height)
+        }
     }
 
     override fun setTransformedBounds(bounds: BaseBounds?, byTransformChangeOnly: Boolean) {
