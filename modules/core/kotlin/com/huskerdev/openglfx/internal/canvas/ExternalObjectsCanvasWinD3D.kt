@@ -33,6 +33,9 @@ open class ExternalObjectsCanvasWinD3D(
         d3d9Device = D3D9.Device()
     }
 
+    override fun onRenderThreadEnd() =
+        d3d9Device.release()
+
     override fun createSwapBuffer() = ExternalObjectsSwapBuffer()
 
 

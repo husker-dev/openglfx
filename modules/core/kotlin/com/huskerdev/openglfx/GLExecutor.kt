@@ -6,6 +6,7 @@ import com.huskerdev.openglfx.canvas.events.GLDisposeEvent
 import com.huskerdev.openglfx.canvas.events.GLInitializeEvent
 import com.huskerdev.openglfx.canvas.events.GLRenderEvent
 import com.huskerdev.openglfx.canvas.events.GLReshapeEvent
+import com.huskerdev.openglfx.internal.GLFXUtils
 import java.nio.ByteBuffer
 import java.nio.FloatBuffer
 
@@ -39,13 +40,17 @@ internal const val GL_TRIANGLE_STRIP = 0x0005
 internal const val GL_COMPILE_STATUS = 0x8B81
 internal const val GL_TEXTURE_BINDING_2D = 0x8069
 internal const val GL_SCISSOR_TEST = 0xc11
-internal const val GL_ACTIVE_TEXTURE = 34016;
+internal const val GL_ACTIVE_TEXTURE = 34016
 internal const val GL_TEXTURE0 = 33984
 
 
 @Suppress("unused")
 open class GLExecutor {
     companion object {
+
+        init {
+            GLFXUtils.loadLibrary()
+        }
 
         @JvmStatic val NONE_MODULE = object: GLExecutor(){}
 

@@ -20,6 +20,7 @@ open class BlitCanvas(
 ) : NGGLCanvas(canvas) {
 
     override fun onRenderThreadInit() = Unit
+    override fun onRenderThreadEnd() = Unit
     override fun createSwapBuffer() = BlitSwapBuffer()
 
     protected inner class BlitSwapBuffer: SwapBuffer() {

@@ -25,6 +25,11 @@ open class WGLDXInteropCanvas(
         interopDevice = WGLDX.Device(d3d9Device)
     }
 
+    override fun onRenderThreadEnd() {
+        interopDevice.release()
+        d3d9Device.release()
+    }
+
     override fun createSwapBuffer() = NVDXInteropSwapBuffer()
 
 

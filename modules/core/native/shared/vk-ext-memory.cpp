@@ -54,6 +54,7 @@ static PFN_vkGetDeviceProcAddr _vkGetDeviceProcAddr;
 static PFN_vkDestroyImage _vkDestroyImage;
 static PFN_vkFreeMemory _vkFreeMemory;
 static PFN_vkDestroyInstance _vkDestroyInstance;
+static PFN_vkDestroyDevice _vkDestroyDevice;
 
 
 static unsigned int findMemoryType(VkPhysicalDevice physicalDevice, unsigned int typeFilter, VkMemoryPropertyFlags properties) {
@@ -81,6 +82,7 @@ jni_vkextmemory(void, nLoadFunctions)(JNIEnv* env, jobject) {
     _vkDestroyImage = (PFN_vkDestroyImage)vkGetProcAddress("vkDestroyImage");
     _vkFreeMemory = (PFN_vkFreeMemory)vkGetProcAddress("vkFreeMemory");
     _vkDestroyInstance = (PFN_vkDestroyInstance)vkGetProcAddress("vkDestroyInstance");
+    _vkDestroyDevice = (PFN_vkDestroyDevice)vkGetProcAddress("vkDestroyDevice");
 }
 
 jni_vkextmemory(jlongArray, nCreateVk)(JNIEnv* env, jobject) {
@@ -258,9 +260,16 @@ jni_vkextmemory(void, nFreeImage)(JNIEnv* env, jobject, jlong _device, jlong ima
     _vkFreeMemory(device, (VkDeviceMemory)memory, NULL);
 }
 
-jni_vkextmemory(void, nFreeVkInstance)(JNIEnv* env, jobject, jlong _instance) {
+jni_vkextmemory(void, nDestroyVkDevice)(JNIEnv* env, jobject, jlong _device) {
+    VkDevice device = (VkDevice)_device;
+
+    _vkDestroyDevice(device, nullptr);
+}
+
+jni_vkextmemory(void, nDestroyVkInstance)(JNIEnv* env, jobject, jlong _instance) {
     VkInstance instance = (VkInstance)_instance;
-    _vkDestroyInstance(instance, 0);
+
+    _vkDestroyInstance(instance, nullptr);
 }
 
 #endif

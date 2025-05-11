@@ -68,6 +68,38 @@ open class GLCanvas private constructor(
         init {
             GLFXUtils.loadLibrary()
         }
+
+        private fun createContextPair(
+            profile: GLProfile,
+            glDebug: Boolean,
+            shareWith: GLContext?,
+            majorVersion: Int,
+            minorVersion: Int,
+            externalWindow: Boolean,
+        ) = if(externalWindow){
+            BackgroundMessageHandler.useHandler = false
+            val window = GLWindow(
+                profile = profile,
+                shareWith = shareWith?.handle ?: 0,
+                majorVersion = majorVersion,
+                minorVersion = minorVersion,
+                debug = glDebug
+            ).apply {
+                closable = false
+                maximizable = false
+                resizable = false
+                title = "openglfx external window"
+                visible = true
+            }
+            window.context to window
+        }else
+            GLContext.create(
+                shareWith = shareWith?.handle ?: 0,
+                profile = profile,
+                majorVersion = majorVersion,
+                minorVersion = minorVersion,
+                debug = glDebug
+            ) to null
     }
 
     object Defaults {
@@ -162,32 +194,7 @@ open class GLCanvas private constructor(
     ): this(
         executor, flipY, msaa,
         fps, swapBuffers, interopType,
-
-        // Creating context
-        if(externalWindow){
-            BackgroundMessageHandler.useHandler = false
-            val window = GLWindow(
-                profile = profile,
-                shareWith = shareWith?.handle ?: 0,
-                majorVersion = majorVersion,
-                minorVersion = minorVersion,
-                debug = glDebug
-            ).apply {
-                closable = false
-                maximizable = false
-                resizable = false
-                title = "openglfx external window"
-                visible = true
-            }
-            window.context to window
-        }else
-            GLContext.create(
-                shareWith = shareWith?.handle ?: 0,
-                profile = profile,
-                majorVersion = majorVersion,
-                minorVersion = minorVersion,
-                debug = glDebug
-            ) to null
+        createContextPair(profile, glDebug, shareWith, majorVersion, minorVersion, externalWindow)
     )
 
     /**
@@ -262,6 +269,16 @@ open class GLCanvas private constructor(
         executor, flipY, msaa,
         fps, swapBuffers, interopType,
         window.context to window
+    )
+
+    constructor(builder: Builder): this(
+        builder.executor ?: throw NullPointerException("Executor can not be null"),
+        builder.flipY,
+        builder.msaa,
+        builder.fps,
+        builder.swapBuffers,
+        builder.interopType,
+        builder.contextDescription.create()
     )
 
     init {
@@ -350,7 +367,7 @@ open class GLCanvas private constructor(
      *  Invokes every initialization listener.
      */
     open fun fireInitEvent() {
-        while(onInit.size > 0)
+        while(onInit.isNotEmpty())
             onInit.removeAt(onInit.lastIndex).accept(executor.createInitEvent(this))
     }
 
@@ -374,4 +391,123 @@ open class GLCanvas private constructor(
 
     fun repaint() =
         RegionHelper.getPeer<NGGLCanvas>(this).requestRepaint()
+
+
+    /*===========================================*\
+    |                    Builder                  |
+    \*===========================================*/
+    @Suppress("unused")
+    class Builder {
+        var executor: GLExecutor? = null
+            private set
+
+        var flipY: Boolean = Defaults.FLIP_Y
+            private set
+
+        var msaa: Int = Defaults.MSAA
+            private set
+
+        var fps: Double = Defaults.FPS
+            private set
+
+        var swapBuffers: Int = Defaults.SWAP_BUFFERS
+            private set
+
+        var interopType: GLInteropType = Defaults.INTEROP_TYPE
+            private set
+
+        var contextDescription: ContextDescription = ContextDescription.New()
+            private set
+
+
+        fun setExecutor(value: GLExecutor) = apply {
+            this.executor = executor
+        }
+
+        fun setFlipY(value: Boolean) = apply {
+            this.flipY = value
+        }
+
+        fun setMSAA(value: Int) = apply {
+            this.msaa = value
+        }
+
+        fun setFps(value: Double) = apply {
+            this.fps = value
+        }
+
+        fun setSwapBuffers(value: Int) = apply {
+            this.swapBuffers = value
+        }
+
+        fun setInteropType(value: GLInteropType) = apply {
+            this.interopType = value
+        }
+
+        fun setContextDescription(value: ContextDescription) = apply {
+            this.contextDescription = value
+        }
+
+        interface ContextDescription {
+            fun create(): Pair<GLContext, GLWindow?>
+
+            class Existing @JvmOverloads constructor(
+                val context: GLContext,
+                val window: GLWindow? = null
+            ): ContextDescription {
+                override fun create(): Pair<GLContext, GLWindow?> =
+                    context to window
+            }
+
+            class New: ContextDescription {
+                var profile: GLProfile = Defaults.PROFILE
+                    private set
+
+                var glDebug: Boolean = Defaults.DEBUG
+                    private set
+
+                var shareWith: GLContext? = Defaults.SHARE_WITH
+                    private set
+
+                var majorVersion: Int = Defaults.MAJOR_VERSION
+                    private set
+
+                var minorVersion: Int = Defaults.MINOR_VERSION
+                    private set
+
+                var externalWindow: Boolean = Defaults.EXTERNAL_WINDOW
+                    private set
+
+
+                fun setProfile(value: GLProfile) = apply {
+                    this.profile = value
+                }
+
+                fun setGLDebug(value: Boolean) = apply {
+                    this.glDebug = value
+                }
+
+                fun setShareWith(value: GLContext) = apply {
+                    this.shareWith = value
+                }
+
+                fun setMajorVersion(value: Int) = apply {
+                    this.majorVersion = value
+                }
+
+                fun setMinorVersion(value: Int) = apply {
+                    this.minorVersion = value
+                }
+
+                fun setExternalWindow(value: Boolean) = apply {
+                    this.externalWindow = value
+                }
+
+                override fun create(): Pair<GLContext, GLWindow?> =
+                    createContextPair(profile, glDebug, shareWith, majorVersion, minorVersion, externalWindow)
+            }
+        }
+
+        fun build() = GLCanvas(this)
+    }
 }

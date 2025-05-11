@@ -4,13 +4,16 @@ import com.huskerdev.openglfx.internal.GLFXUtils
 import com.sun.glass.ui.Screen
 
 class D3D9 {
-
+    @Suppress("unused")
     companion object {
         @JvmStatic private external fun nGetDeviceFromAdapter(screenOrdinal: Int): Long
 
         @JvmStatic private external fun nCreateDeviceEx(): Long
+        @JvmStatic private external fun nReleaseDevice(device: Long)
+
         @JvmStatic private external fun nCreateTexture(device: Long, width: Int, height: Int, shareHandle: Long): LongArray
         @JvmStatic private external fun nReleaseTexture(handle: Long)
+
 
         @JvmStatic external fun nStretchRect(device: Long, src: Long, dst: Long)
         @JvmStatic external fun nGetTexture(device: Long, stage: Int): Long
@@ -43,6 +46,9 @@ class D3D9 {
 
         fun getTexture(stage: Int) =
             nGetTexture(handle, stage)
+
+        fun release() =
+            nReleaseDevice(handle)
     }
 
     data class Texture(

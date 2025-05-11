@@ -41,6 +41,11 @@ jni_win_d3d9(jlong, nCreateDeviceEx)(JNIEnv* env, jobject) {
     return (jlong)device;
 }
 
+jni_win_d3d9(void, nReleaseDevice)(JNIEnv* env, jobject, jlong _device) {
+    IDirect3DDevice9Ex* device = (IDirect3DDevice9Ex*)_device;
+    device->Release();
+}
+
 jni_win_d3d9(jlongArray, nCreateTexture)(JNIEnv* env, jobject, jlong _device, jint width, jint height, jlong _shareHandle) {
     IDirect3DDevice9Ex* device = (IDirect3DDevice9Ex*)_device;
 

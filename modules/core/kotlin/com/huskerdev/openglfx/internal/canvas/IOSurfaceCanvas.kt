@@ -20,6 +20,7 @@ open class IOSurfaceCanvas(
 ) : NGGLCanvas(canvas) {
 
     override fun onRenderThreadInit() = Unit
+    override fun onRenderThreadEnd() = Unit
     override fun createSwapBuffer() = IOSurfaceSwapBuffer()
 
 

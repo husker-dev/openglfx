@@ -94,6 +94,7 @@ abstract class NGGLCanvas(
     }
 
     protected abstract fun onRenderThreadInit()
+    protected abstract fun onRenderThreadEnd()
     protected abstract fun createSwapBuffer(): SwapBuffer
 
     private fun canPaint() =
@@ -115,6 +116,9 @@ abstract class NGGLCanvas(
                 it.disposeFXResources()
             }
         }
+        synchronized(renderLock){
+            renderLock.notifyAll()
+        }
         if(useExternalWindow){
             window!!.destroy()
             com.huskerdev.grapl.core.platform.Platform.current.peekMessages()
@@ -123,7 +127,6 @@ abstract class NGGLCanvas(
 
     private fun createRenderingThread(){
         renderThread = thread(isDaemon = true) {
-
             context.makeCurrent()
             executor.initGLFunctions()
             onRenderThreadInit()
@@ -165,13 +168,18 @@ abstract class NGGLCanvas(
                         renderLock.wait()
                 }
             }
+            canvas.fireDisposeEvent()
 
             swapChain.forEach { it.dispose() }
             context.delete()
+            onRenderThreadEnd()
         }
     }
 
     override fun renderContent(g: Graphics) {
+        if(disposed)
+            return
+
         if(!this::renderThread.isInitialized)
             createRenderingThread()
 

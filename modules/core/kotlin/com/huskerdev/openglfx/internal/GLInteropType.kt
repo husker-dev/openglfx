@@ -61,6 +61,9 @@ enum class GLInteropType {
 
     companion object {
         val auto: GLInteropType by lazy {
+            if(GraphicsPipeline.getPipeline() == null)
+                throw UnsupportedOperationException("Could not detect JavaFX pipeline, make sure to initialize it before using GLInteropType.auto")
+
             val pipeline = GraphicsPipeline.getPipeline().javaClass.canonicalName.split(".")[3]
 
             var hasWGLNVInteropExt = false

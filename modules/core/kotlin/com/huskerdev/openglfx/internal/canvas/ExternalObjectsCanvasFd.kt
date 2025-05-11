@@ -29,12 +29,11 @@ open class ExternalObjectsCanvasFd(
     private val vk = VkExtMemory.createVk()
 
     override fun onRenderThreadInit() = Unit
+    override fun onRenderThreadEnd() =
+        vk.destroy()
+
     override fun createSwapBuffer() = ExternalObjectsSwapBuffer()
 
-    override fun dispose() {
-        super.dispose()
-        vk.dispose()
-    }
 
     protected inner class ExternalObjectsSwapBuffer: SwapBuffer() {
         private lateinit var fbo: Framebuffer

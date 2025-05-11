@@ -30,12 +30,10 @@ open class ExternalObjectsCanvasWinES2(
     private val vk = VkExtMemory.createVk()
 
     override fun onRenderThreadInit() = Unit
-    override fun createSwapBuffer() = ExternalObjectsSwapBuffer()
+    override fun onRenderThreadEnd() =
+        vk.destroy()
 
-    override fun dispose() {
-        super.dispose()
-        vk.dispose()
-    }
+    override fun createSwapBuffer() = ExternalObjectsSwapBuffer()
 
     protected inner class ExternalObjectsSwapBuffer: SwapBuffer() {
         private lateinit var fbo: Framebuffer
@@ -118,6 +116,8 @@ open class ExternalObjectsCanvasWinES2(
 
         override fun disposeFXResources() {
             if (this::fxTexture.isInitialized) fxTexture.dispose()
+            if (this::fxInteropFbo.isInitialized) fxInteropFbo.delete()
+            if (fxMemoryObj != 0) glDeleteMemoryObjectsEXT(fxMemoryObj)
         }
     }
 }
