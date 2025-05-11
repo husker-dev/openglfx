@@ -1,15 +1,15 @@
 package com.huskerdev.openglfx.internal
 
 import com.huskerdev.grapl.core.x
+import com.huskerdev.grapl.gl.GLContext
 import com.huskerdev.openglfx.GLExecutor.Companion.glGetInteger
 import com.huskerdev.openglfx.GLExecutor.Companion.glViewport
 import com.huskerdev.openglfx.GL_MAX_SAMPLES
 import com.huskerdev.openglfx.canvas.GLCanvas
 import com.huskerdev.openglfx.internal.canvas.BlitCanvas
-import com.huskerdev.openglfx.internal.canvas.ExternalObjectsCanvasWinD3D
-import com.huskerdev.openglfx.internal.canvas.ExternalObjectsCanvasWinES2
+import com.huskerdev.openglfx.internal.canvas.ExternalObjectsCanvasD3D
 import com.huskerdev.openglfx.internal.canvas.IOSurfaceCanvas
-import com.huskerdev.openglfx.internal.canvas.ExternalObjectsCanvasFd
+import com.huskerdev.openglfx.internal.canvas.ExternalObjectsCanvasES2
 import com.huskerdev.openglfx.internal.canvas.WGLDXInteropCanvas
 import com.sun.javafx.geom.BaseBounds
 import com.sun.javafx.scene.DirtyBits
@@ -33,12 +33,12 @@ abstract class NGGLCanvas(
             canvas: GLCanvas,
             interopType: GLInteropType
         ) = when(interopType){
-            GLInteropType.Blit                  -> ::BlitCanvas
-            GLInteropType.WGLDXInterop          -> ::WGLDXInteropCanvas
-            GLInteropType.ExternalObjectsWinD3D -> ::ExternalObjectsCanvasWinD3D
-            GLInteropType.ExternalObjectsWinES  -> ::ExternalObjectsCanvasWinES2
-            GLInteropType.ExternalObjectsFd     -> ::ExternalObjectsCanvasFd
-            GLInteropType.IOSurface             -> ::IOSurfaceCanvas
+            GLInteropType.Blit                   -> ::BlitCanvas
+            GLInteropType.WGLDXInterop           -> ::WGLDXInteropCanvas
+            GLInteropType.ExternalObjectsD3D     -> ::ExternalObjectsCanvasD3D
+            GLInteropType.ExternalObjectsESWin   -> ExternalObjectsCanvasES2::Win
+            GLInteropType.ExternalObjectsESLinux -> ExternalObjectsCanvasES2::Linux
+            GLInteropType.IOSurface              -> ::IOSurfaceCanvas
         }(canvas)
     }
 
@@ -60,6 +60,9 @@ abstract class NGGLCanvas(
     private lateinit var renderThread: Thread
     private var readyToDisplay = AtomicBoolean(false)
     private var lastFrameStartTime = 0L
+
+    private var isGL = GLFXUtils.pipeline == "es2"
+    private var fxContext: GLContext? = null
 
     private val executor = canvas.executor
     private val context = canvas.context
@@ -111,11 +114,15 @@ abstract class NGGLCanvas(
     open fun dispose(){
         animationTimer.stop()
         disposed = true
+
+        if(isGL) fxContext!!.makeCurrent()
         swapChain.forEach {
             synchronized(it.lock){
                 it.disposeFXResources()
             }
         }
+        if(isGL) GLContext.clear()
+
         synchronized(renderLock){
             renderLock.notifyAll()
         }
@@ -179,6 +186,9 @@ abstract class NGGLCanvas(
     override fun renderContent(g: Graphics) {
         if(disposed)
             return
+
+        if(isGL)
+            fxContext = GLContext.current()
 
         if(!this::renderThread.isInitialized)
             createRenderingThread()

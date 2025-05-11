@@ -23,7 +23,7 @@ import com.sun.prism.Texture
 import java.util.concurrent.atomic.AtomicBoolean
 
 
-open class ExternalObjectsCanvasWinD3D(
+open class ExternalObjectsCanvasD3D(
     canvas: GLCanvas
 ) : NGGLCanvas(canvas) {
 

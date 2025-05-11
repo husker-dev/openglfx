@@ -10,10 +10,12 @@ import com.huskerdev.openglfx.internal.NGGLCanvas
 
 import com.huskerdev.openglfx.internal.Framebuffer
 import com.huskerdev.openglfx.internal.GLFXUtils.Companion.fetchGLTexId
+import com.huskerdev.openglfx.internal.platforms.GL_HANDLE_TYPE_D3D11_IMAGE_KMT_EXT
 import com.huskerdev.openglfx.internal.platforms.GL_HANDLE_TYPE_OPAQUE_FD_EXT
 import com.huskerdev.openglfx.internal.platforms.MemoryObjects.Companion.glCreateMemoryObjectsEXT
 import com.huskerdev.openglfx.internal.platforms.MemoryObjects.Companion.glDeleteMemoryObjectsEXT
 import com.huskerdev.openglfx.internal.platforms.MemoryObjects.Companion.glImportMemoryFdEXT
+import com.huskerdev.openglfx.internal.platforms.MemoryObjects.Companion.glImportMemoryWin32HandleEXT
 import com.huskerdev.openglfx.internal.platforms.MemoryObjects.Companion.glTextureStorageMem2DEXT
 import com.huskerdev.openglfx.internal.platforms.VkExtMemory
 import com.sun.prism.Graphics
@@ -22,7 +24,7 @@ import com.sun.prism.Texture
 import java.util.concurrent.atomic.AtomicBoolean
 
 
-open class ExternalObjectsCanvasFd(
+abstract class ExternalObjectsCanvasES2(
     canvas: GLCanvas
 ) : NGGLCanvas(canvas) {
 
@@ -33,6 +35,23 @@ open class ExternalObjectsCanvasFd(
         vk.destroy()
 
     override fun createSwapBuffer() = ExternalObjectsSwapBuffer()
+
+    abstract fun importMemory(memoryObject: Int, size: Long, externalImage: VkExtMemory.ExternalImage)
+
+
+    open class Win(
+        canvas: GLCanvas
+    ): ExternalObjectsCanvasES2(canvas) {
+        override fun importMemory(memoryObject: Int, size: Long, externalImage: VkExtMemory.ExternalImage) =
+            glImportMemoryWin32HandleEXT(memoryObject, size, GL_HANDLE_TYPE_D3D11_IMAGE_KMT_EXT, externalImage.getMemoryWin32Handle())
+    }
+
+    open class Linux(
+        canvas: GLCanvas
+    ): ExternalObjectsCanvasES2(canvas) {
+        override fun importMemory(memoryObject: Int, size: Long, externalImage: VkExtMemory.ExternalImage) =
+            glImportMemoryFdEXT(memoryObject, size, GL_HANDLE_TYPE_OPAQUE_FD_EXT, externalImage.createMemoryFd())
+    }
 
 
     protected inner class ExternalObjectsSwapBuffer: SwapBuffer() {
@@ -67,7 +86,7 @@ open class ExternalObjectsCanvasFd(
                 externalImage = vk.createExternalImage(width, height)
 
                 memoryObj = glCreateMemoryObjectsEXT()
-                glImportMemoryFdEXT(memoryObj, externalImage.size, GL_HANDLE_TYPE_OPAQUE_FD_EXT, externalImage.createMemoryFd())
+                importMemory(memoryObj, externalImage.size, externalImage)
 
                 val sharedTexture = glGenTextures()
                 glBindTexture(GL_TEXTURE_2D, sharedTexture)
@@ -93,7 +112,7 @@ open class ExternalObjectsCanvasFd(
                 fxTextureId = fetchGLTexId(fxTexture, g)
 
                 fxMemoryObj = glCreateMemoryObjectsEXT()
-                glImportMemoryFdEXT(fxMemoryObj, externalImage.size, GL_HANDLE_TYPE_OPAQUE_FD_EXT, externalImage.createMemoryFd())
+                importMemory(fxMemoryObj, externalImage.size, externalImage)
 
                 val sharedTexture = glGenTextures()
                 glBindTexture(GL_TEXTURE_2D, sharedTexture)

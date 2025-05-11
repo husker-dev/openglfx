@@ -14,7 +14,6 @@ import com.huskerdev.openglfx.internal.platforms.MemoryObjects.Companion.glCreat
 import com.huskerdev.openglfx.internal.platforms.MemoryObjects.Companion.glImportMemoryWin32HandleEXT
 import com.huskerdev.openglfx.internal.platforms.MemoryObjects.Companion.glTextureStorageMem2DEXT
 import com.huskerdev.openglfx.internal.platforms.win.D3D9
-import com.sun.prism.GraphicsPipeline
 
 enum class GLInteropType {
     /**
@@ -36,21 +35,21 @@ enum class GLInteropType {
      *
      *  - Supported platforms: **Windows**
      */
-    ExternalObjectsWinD3D,
+    ExternalObjectsD3D,
 
     /**
      *  Creates shared object between two GL context using Vulkan proxy
      *
      *  - Supported platforms: **Windows**
      */
-    ExternalObjectsWinES,
+    ExternalObjectsESWin,
 
     /**
      *  Creates shared object between two GL context using Vulkan proxy
      *
      *  - Supported platforms: **Linux**
      */
-    ExternalObjectsFd,
+    ExternalObjectsESLinux,
 
     /**
     *  Creates memory block in VRAM that can be used in different OpenGL contexts.
@@ -61,10 +60,8 @@ enum class GLInteropType {
 
     companion object {
         val auto: GLInteropType by lazy {
-            if(GraphicsPipeline.getPipeline() == null)
-                throw UnsupportedOperationException("Could not detect JavaFX pipeline, make sure to initialize it before using GLInteropType.auto")
 
-            val pipeline = GraphicsPipeline.getPipeline().javaClass.canonicalName.split(".")[3]
+            val pipeline = GLFXUtils.pipeline
 
             var hasWGLNVInteropExt = false
             var hasMemoryObjectExt = false
@@ -88,9 +85,9 @@ enum class GLInteropType {
             val type = when (Platform.os) {
                 OS.Windows -> {
                     if(pipeline == "d3d" && hasMemoryObjectExt && isDXGISupported())
-                        ExternalObjectsWinD3D
+                        ExternalObjectsD3D
                     else if(pipeline == "es2" && hasMemoryObjectExt)
-                        ExternalObjectsWinES
+                        ExternalObjectsESWin
                     else if(pipeline == "d3d" && hasWGLNVInteropExt)
                         WGLDXInterop
                     else
@@ -99,7 +96,7 @@ enum class GLInteropType {
 
                 OS.Linux -> {
                     if (pipeline == "es2" && hasMemoryObjectExt)
-                        ExternalObjectsFd
+                        ExternalObjectsESLinux
                     else
                         Blit
                 }

@@ -5,12 +5,10 @@ import com.huskerdev.openglfx.*
 import com.huskerdev.openglfx.GLExecutor.Companion.glActiveTexture
 import com.huskerdev.openglfx.GLExecutor.Companion.glGetInteger
 import com.huskerdev.openglfx.internal.platforms.win.D3D9
-import com.sun.javafx.tk.Toolkit
 import com.sun.prism.Graphics
 import com.sun.prism.GraphicsPipeline
 import com.sun.prism.PixelFormat
 import com.sun.prism.Texture
-import com.sun.scenario.Settings
 import javafx.scene.Node
 import java.lang.reflect.Field
 import java.nio.ByteBuffer
@@ -71,12 +69,19 @@ class GLFXUtils {
                 unsafeClass.getDeclaredMethod("putBooleanVolatile", Object::class.java, Long::class.java, Boolean::class.java)
                     .invoke(unsafe, addOpensMethodImpl, firstFieldOffset, true)
 
-                addOpensMethodImpl.invoke(moduleOpt.get(), pkg, currentModule);
+                addOpensMethodImpl.invoke(moduleOpt.get(), pkg, currentModule)
             } catch (e: Throwable) {
                 System.err.println("Could not add exports: $module/$pkg to ${currentModule.name}")
                 e.printStackTrace()
             }
         }
+
+        val pipeline: String
+            get() {
+                if(GraphicsPipeline.getPipeline() == null)
+                    throw UnsupportedOperationException("Could not detect pipeline, make sure to initialize JavaFX")
+                return GraphicsPipeline.getPipeline().javaClass.canonicalName.split(".")[3]
+            }
 
         fun getDPI(node: Node) =
             if(node.scene == null || node.scene.window == null)
@@ -121,12 +126,6 @@ class GLFXUtils {
 
         fun <T> List<Consumer<T>>.dispatchConsumer(event: T) {
             if(isNotEmpty()) forEach { it.accept(event) }
-        }
-        fun <T> List<(T) -> Unit>.dispatchEvent(event: T) {
-            if(isNotEmpty()) forEach { it(event) }
-        }
-        fun List<() -> Unit>.dispatchEvent() {
-            if(isNotEmpty()) forEach { it() }
         }
     }
 }
