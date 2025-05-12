@@ -201,7 +201,7 @@ dependencies {
     implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
 
     // openglfx
-    api("com.huskerdev:openglfx-libgdx:4.1.0")
+    api("com.huskerdev:openglfx-libgdx:4.2.1")
   
     // implementation(/* JavaFX */)
     // implementation(/* LWJGL */)
