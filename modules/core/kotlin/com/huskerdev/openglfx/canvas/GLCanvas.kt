@@ -421,7 +421,7 @@ open class GLCanvas private constructor(
 
 
         fun setExecutor(value: GLExecutor) = apply {
-            this.executor = executor
+            this.executor = value
         }
 
         fun setFlipY(value: Boolean) = apply {
