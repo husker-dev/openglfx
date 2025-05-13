@@ -36,7 +36,7 @@ dependencies {
     // implementation LWJGL
     // implementation ...
 
-    implementation 'com.huskerdev:openglfx-lwjgl:4.2.1'
+    implementation 'com.huskerdev:openglfx-lwjgl:4.2.2'
 }
 ```
 
@@ -201,7 +201,7 @@ dependencies {
     implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
 
     // openglfx
-    api("com.huskerdev:openglfx-libgdx:4.2.1")
+    api("com.huskerdev:openglfx-libgdx:4.2.2")
   
     // implementation(/* JavaFX */)
     // implementation(/* LWJGL */)
